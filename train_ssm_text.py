@@ -72,6 +72,7 @@ SSM_VARIANTS = (
     "conv-token-memory-sparse",
     "kv-memory",
     "sparse-kv-memory",
+    "dynamic-kv-memory",
 )
 
 BASE_PARAM_NAMES = ("decay_raw", "hidden_bias", "output_bias", "token_embed", "input_b", "output_c")
@@ -107,6 +108,13 @@ SELECTIVE_PARAM_NAMES = (
     "kv_dynamic_read_w_x",
     "kv_dynamic_read_b",
     "kv_sparse_marker",
+    "kv_dynamic_key_w_h",
+    "kv_dynamic_key_w_x",
+    "kv_dynamic_key_b",
+    "kv_dynamic_value_w_h",
+    "kv_dynamic_value_w_x",
+    "kv_dynamic_value_b",
+    "kv_dynamic_marker",
 )
 PARAM_NAMES = BASE_PARAM_NAMES
 ALL_PARAM_NAMES = BASE_PARAM_NAMES + SELECTIVE_PARAM_NAMES
@@ -276,7 +284,7 @@ def init_params(
             params["memory_closed_marker"] = jnp.asarray(1.0, dtype=jnp.float32)
         if variant == "conv-token-memory-sparse":
             params["memory_sparse_marker"] = jnp.asarray(1.0, dtype=jnp.float32)
-    if variant in {"kv-memory", "sparse-kv-memory"}:
+    if variant in {"kv-memory", "sparse-kv-memory", "dynamic-kv-memory"}:
         params.update(
             {
                 "kv_key_token": jnp.zeros((vocab_size,), dtype=jnp.float32),
@@ -289,13 +297,33 @@ def init_params(
                 "kv_logit_scale": jnp.asarray(1.0, dtype=jnp.float32),
             }
         )
-        if variant == "sparse-kv-memory":
+        if variant in {"sparse-kv-memory", "dynamic-kv-memory"}:
             params.update(
                 {
                     "kv_dynamic_read_w_h": jnp.zeros((state_dim, 1), dtype=jnp.float32),
                     "kv_dynamic_read_w_x": jnp.zeros((input_dim, 1), dtype=jnp.float32),
                     "kv_dynamic_read_b": jnp.asarray([-2.0], dtype=jnp.float32),
-                    "kv_sparse_marker": jnp.asarray(1.0, dtype=jnp.float32),
+                }
+            )
+        if variant == "sparse-kv-memory":
+            params["kv_sparse_marker"] = jnp.asarray(1.0, dtype=jnp.float32)
+        if variant == "dynamic-kv-memory":
+            # Context-conditioned write gates: the key/value/query ROLE of a token is
+            # inferred from recurrent state + token embedding, not from token id. This
+            # is what canonical (shared-vocab, marker-free) MQAR requires, where the
+            # same token is a key in one pair and a value/query elsewhere.
+            key_h, key_x, val_h, val_x = jax.random.split(jax.random.fold_in(mix_key, 7), 4)
+            scale_h = 0.02 * jnp.sqrt(jnp.asarray(1.0 / state_dim, dtype=jnp.float32))
+            scale_x = 0.02 * jnp.sqrt(jnp.asarray(1.0 / input_dim, dtype=jnp.float32))
+            params.update(
+                {
+                    "kv_dynamic_key_w_h": scale_h * jax.random.normal(key_h, (state_dim, 1), dtype=jnp.float32),
+                    "kv_dynamic_key_w_x": scale_x * jax.random.normal(key_x, (input_dim, 1), dtype=jnp.float32),
+                    "kv_dynamic_key_b": jnp.asarray([0.0], dtype=jnp.float32),
+                    "kv_dynamic_value_w_h": scale_h * jax.random.normal(val_h, (state_dim, 1), dtype=jnp.float32),
+                    "kv_dynamic_value_w_x": scale_x * jax.random.normal(val_x, (input_dim, 1), dtype=jnp.float32),
+                    "kv_dynamic_value_b": jnp.asarray([0.0], dtype=jnp.float32),
+                    "kv_dynamic_marker": jnp.asarray(1.0, dtype=jnp.float32),
                 }
             )
     return params
@@ -315,6 +343,8 @@ def param_names_from_checkpoint(data: np.lib.npyio.NpzFile) -> tuple[str, ...]:
 
 
 def infer_ssm_variant(params: dict[str, jax.Array]) -> str:
+    if "kv_dynamic_marker" in params:
+        return "dynamic-kv-memory"
     if "kv_sparse_marker" in params:
         return "sparse-kv-memory"
     if "kv_key_token" in params and "kv_value_token" in params and "kv_query_token" in params:
@@ -471,6 +501,7 @@ def forward(
     kv_deref = "kv_deref_token" in params
     kv_decay = slow_decay_from_raw(params["kv_decay_raw"]) if kv_memory else None
     kv_dynamic_read = "kv_dynamic_read_w_h" in params
+    kv_dynamic_write = "kv_dynamic_key_w_h" in params
     input_ids_t = jnp.swapaxes(input_ids, 0, 1)
 
     def update_state(states_h: jax.Array, x_t: jax.Array) -> jax.Array:
@@ -541,7 +572,11 @@ def forward(
         ids_t: jax.Array,
     ) -> jax.Array:
         query_gate = kv_read_gate(states_h, x_t, ids_t)
-        query = key_trace
+        # Canonical MQAR scores at the query-key position itself, so the dynamic
+        # variant reads the memory with the CURRENT token as the query vector.
+        # Legacy variants keep reading with the lagged key_trace (their query is a
+        # separate marker token one step after the key).
+        query = x_t if kv_dynamic_write else key_trace
         value_read = jnp.einsum("bi,bij->bj", query, kv_matrix)
         tied_logits = value_read @ jnp.swapaxes(params["token_embed"], 0, 1)
         return query_gate * params["kv_logit_scale"] * tied_logits
@@ -549,12 +584,25 @@ def forward(
     def update_kv(
         kv_matrix: jax.Array,
         key_trace: jax.Array,
+        states_h: jax.Array,
         x_t: jax.Array,
         ids_t: jax.Array,
         prev_ids_t: jax.Array | None = None,
     ) -> tuple[jax.Array, jax.Array]:
-        key_gate = jax.nn.sigmoid(params["kv_key_token"][ids_t])[:, None]
-        value_gate = jax.nn.sigmoid(params["kv_value_token"][ids_t])[:, None]
+        if kv_dynamic_write:
+            key_gate = jax.nn.sigmoid(
+                states_h @ params["kv_dynamic_key_w_h"]
+                + x_t @ params["kv_dynamic_key_w_x"]
+                + params["kv_dynamic_key_b"]
+            )
+            value_gate = jax.nn.sigmoid(
+                states_h @ params["kv_dynamic_value_w_h"]
+                + x_t @ params["kv_dynamic_value_w_x"]
+                + params["kv_dynamic_value_b"]
+            )
+        else:
+            key_gate = jax.nn.sigmoid(params["kv_key_token"][ids_t])[:, None]
+            value_gate = jax.nn.sigmoid(params["kv_value_token"][ids_t])[:, None]
         if kv_write_context and prev_ids_t is not None:
             write_context_gate = jax.nn.sigmoid(params["kv_write_context_token"][prev_ids_t])[:, None]
             value_gate = value_gate * write_context_gate
@@ -597,7 +645,7 @@ def forward(
             x_t, ids_t = pair
             states_h = update_state(states_h, x_t)
             logits_y = output_logits(states_h, x_t, prev_x) + kv_logits(kv_matrix, key_trace, states_h, x_t, ids_t)
-            kv_matrix, key_trace = update_kv(kv_matrix, key_trace, x_t, ids_t, prev_ids_t)
+            kv_matrix, key_trace = update_kv(kv_matrix, key_trace, states_h, x_t, ids_t, prev_ids_t)
             return (states_h, x_t, ids_t, kv_matrix, key_trace), logits_y
 
         (final_h, _, _, _, _), logits_t = jax.lax.scan(
@@ -620,7 +668,7 @@ def forward(
             x_t, ids_t = pair
             states_h = update_state(states_h, x_t)
             logits_y = output_logits(states_h, x_t) + kv_logits(kv_matrix, key_trace, states_h, x_t, ids_t)
-            kv_matrix, key_trace = update_kv(kv_matrix, key_trace, x_t, ids_t, prev_ids_t)
+            kv_matrix, key_trace = update_kv(kv_matrix, key_trace, states_h, x_t, ids_t, prev_ids_t)
             return (states_h, ids_t, kv_matrix, key_trace), logits_y
 
         (final_h, _, _, _), logits_t = jax.lax.scan(
