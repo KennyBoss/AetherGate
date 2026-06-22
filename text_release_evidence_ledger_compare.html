@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>TextPy Evidence Ledger Compare</title>
+  <style>
+    :root {
+      --paper: #eef0e8;
+      --ink: #171915;
+      --muted: #62675d;
+      --line: #c9cec0;
+      --panel: #fbfcf5;
+      --panel-strong: #dde4d2;
+      --green: #087f5b;
+      --blue: #155eef;
+      --red: #b42318;
+      --gold: #b7791f;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        var(--paper);
+      background-size: 24px 24px;
+      font-family: "Avenir Next", "Trebuchet MS", Verdana, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, input, textarea {
+      font: inherit;
+      letter-spacing: 0;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .side {
+      border-right: 1px solid var(--line);
+      background: rgba(251, 252, 245, 0.94);
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "DIN Condensed", "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: 34px;
+      line-height: 0.95;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .stamp {
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transform: rotate(-2deg);
+    }
+
+    .section {
+      border-top: 1px solid var(--line);
+      padding: 16px 0;
+    }
+
+    .section:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    input[type="file"], textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 9px;
+    }
+
+    textarea {
+      min-height: 132px;
+      resize: vertical;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    button {
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--paper);
+      min-height: 40px;
+      padding: 8px 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.68);
+      padding: 10px;
+      min-height: 74px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.08;
+      overflow-wrap: anywhere;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .error {
+      min-height: 18px;
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-width: 0;
+      min-height: 100vh;
+    }
+
+    .top-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      background: rgba(238, 240, 232, 0.92);
+    }
+
+    .title-line { min-width: 0; }
+
+    .title-line h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .title-line p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--ink);
+    }
+
+    .content {
+      min-width: 0;
+      overflow: auto;
+      padding: 18px;
+    }
+
+    .empty {
+      display: grid;
+      min-height: 48vh;
+      place-items: center;
+      color: var(--muted);
+      font-weight: 800;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(251, 252, 245, 0.88);
+      padding: 14px;
+      margin-top: 14px;
+      min-width: 0;
+    }
+
+    .panel h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      text-transform: uppercase;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(300px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .ledger-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .ledger-card h3 {
+      margin: 0 0 9px;
+      font-size: 15px;
+      text-transform: uppercase;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px 8px;
+      background: var(--panel-strong);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .pill.ok { background: rgba(8, 127, 91, 0.14); color: var(--green); }
+    .pill.fail { background: rgba(180, 35, 24, 0.12); color: var(--red); }
+    .pill.warn { background: rgba(183, 121, 31, 0.15); color: var(--gold); }
+
+    .kv {
+      border-top: 1px solid var(--line);
+      padding-top: 8px;
+      margin-top: 8px;
+      min-width: 0;
+    }
+
+    .kv span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .kv code {
+      display: block;
+      margin-top: 4px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 7px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      background: rgba(221, 228, 210, 0.55);
+      position: sticky;
+      top: 0;
+    }
+
+    td code {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+      .side { border-right: 0; border-bottom: 1px solid var(--line); }
+      .top-strip { grid-template-columns: 1fr; }
+      .legend { justify-content: flex-start; }
+      .metric-grid, .compare-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      .metric-grid, .compare-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <h1>Ledger<br>Compare</h1>
+        <span class="stamp">Drift</span>
+      </div>
+
+      <div class="section">
+        <label>
+          <span class="label">Comparison JSON</span>
+          <input id="ledgerComparisonFile" type="file" accept="application/json,.json">
+        </label>
+      </div>
+
+      <div class="section">
+        <label>
+          <span class="label">Paste Comparison JSON</span>
+          <textarea id="jsonPaste" spellcheck="false" placeholder="{ &quot;baseline&quot;: ..., &quot;candidate&quot;: ..., &quot;comparison&quot;: ... }"></textarea>
+        </label>
+        <div class="button-row">
+          <button id="renderPaste">Render Paste</button>
+          <button id="clearAll" class="secondary">Clear</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="metric-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="metric"><strong id="sideDelta">0</strong><span>Entry Delta</span></div>
+          <div class="metric"><strong id="sideFailures">0</strong><span>Failures</span></div>
+        </div>
+      </div>
+
+      <div id="errorBox" class="error"></div>
+    </aside>
+
+    <main class="main">
+      <div class="top-strip">
+        <div class="title-line">
+          <h2 id="headline">Load a ledger comparison</h2>
+          <p id="subhead">Use text_release_evidence_ledger_comparison.json or growth comparison output.</p>
+        </div>
+        <div class="legend">
+          <span><i class="swatch" style="background: var(--green);"></i> Same</span>
+          <span><i class="swatch" style="background: var(--gold);"></i> Drift</span>
+          <span><i class="swatch" style="background: var(--red);"></i> Failure</span>
+        </div>
+      </div>
+
+      <section class="content">
+        <div id="emptyState" class="empty">Load ledger comparison JSON to inspect drift.</div>
+        <div id="viewerContent" hidden>
+          <div class="metric-grid" id="summaryMetrics"></div>
+          <div class="compare-grid">
+            <div class="ledger-card" id="baselineCard"></div>
+            <div class="ledger-card" id="candidateCard"></div>
+          </div>
+          <div class="panel">
+            <h3>Entry Hash Drift</h3>
+            <div style="overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Entry Hash</th>
+                    <th>Changed Fields</th>
+                  </tr>
+                </thead>
+                <tbody id="entryDeltaRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel">
+            <h3>SHA Set Drift</h3>
+            <div id="shaDeltaGrid" class="metric-grid"></div>
+          </div>
+          <div class="panel">
+            <h3>Failures</h3>
+            <div id="failureList" class="small"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const els = {
+      ledgerComparisonFile: document.getElementById("ledgerComparisonFile"),
+      jsonPaste: document.getElementById("jsonPaste"),
+      renderPaste: document.getElementById("renderPaste"),
+      clearAll: document.getElementById("clearAll"),
+      errorBox: document.getElementById("errorBox"),
+      emptyState: document.getElementById("emptyState"),
+      viewerContent: document.getElementById("viewerContent"),
+      headline: document.getElementById("headline"),
+      subhead: document.getElementById("subhead"),
+      sideDelta: document.getElementById("sideDelta"),
+      sideFailures: document.getElementById("sideFailures"),
+      summaryMetrics: document.getElementById("summaryMetrics"),
+      baselineCard: document.getElementById("baselineCard"),
+      candidateCard: document.getElementById("candidateCard"),
+      entryDeltaRows: document.getElementById("entryDeltaRows"),
+      shaDeltaGrid: document.getElementById("shaDeltaGrid"),
+      failureList: document.getElementById("failureList")
+    };
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[char]);
+    }
+
+    function shortHash(value) {
+      return typeof value === "string" && value ? value.slice(0, 12) : "none";
+    }
+
+    function validateLedgerComparison(payload) {
+      const errors = [];
+      if (!payload || typeof payload !== "object") errors.push("comparison payload must be an object");
+      if (!payload.baseline || typeof payload.baseline !== "object") errors.push("baseline is missing");
+      if (!payload.candidate || typeof payload.candidate !== "object") errors.push("candidate is missing");
+      if (!payload.comparison || typeof payload.comparison !== "object") errors.push("comparison is missing");
+      if (payload.failures && !Array.isArray(payload.failures)) errors.push("failures must be a list");
+      return { valid: errors.length === 0, errors };
+    }
+
+    function metric(label, value, tone = "") {
+      const cls = tone ? ` ${tone}` : "";
+      return `<div class="metric${cls}"><strong>${escapeHtml(value)}</strong><span>${escapeHtml(label)}</span></div>`;
+    }
+
+    function boolPill(value) {
+      return `<span class="pill ${value ? "ok" : "warn"}">${value ? "same" : "drift"}</span>`;
+    }
+
+    function renderLedgerCard(label, row) {
+      const entries = Array.isArray(row.entries) ? row.entries : [];
+      return `
+        <h3>${escapeHtml(label)}</h3>
+        <div class="small">${escapeHtml(row.path || "")}</div>
+        <div class="kv"><span>Entry Count</span><code>${escapeHtml(row.entry_count ?? entries.length ?? "n/a")}</code></div>
+        <div class="kv"><span>Chain Head</span><code title="${escapeHtml(row.chain_head)}">${shortHash(row.chain_head)}</code></div>
+        <div class="kv"><span>Artifact Checks</span><code>${escapeHtml(row.artifact_checks ?? "n/a")}</code></div>
+        <div class="kv"><span>First / Last Entry</span><code>${shortHash(entries[0]?.entry_hash)} / ${shortHash(entries[entries.length - 1]?.entry_hash)}</code></div>
+      `;
+    }
+
+    function rowsForList(type, list) {
+      return (Array.isArray(list) ? list : []).map((entry) => `
+        <tr>
+          <td><span class="pill ${type === "added" ? "ok" : "warn"}">${type}</span></td>
+          <td><code>${escapeHtml(shortHash(entry))}</code></td>
+          <td class="small">n/a</td>
+        </tr>
+      `);
+    }
+
+    function renderEntryDeltaRows(comparison) {
+      const rows = [
+        ...rowsForList("added", comparison.added_entry_hashes),
+        ...rowsForList("missing", comparison.missing_entry_hashes),
+        ...(Array.isArray(comparison.changed_common_entries) ? comparison.changed_common_entries : []).map((item) => `
+          <tr>
+            <td><span class="pill warn">changed</span></td>
+            <td><code>${escapeHtml(shortHash(item.entry_hash))}</code></td>
+            <td>${escapeHtml((item.changed_fields || []).join(", "))}</td>
+          </tr>
+        `)
+      ];
+      els.entryDeltaRows.innerHTML = rows.length ? rows.join("") : '<tr><td colspan="3" class="small">No entry hash drift.</td></tr>';
+    }
+
+    function renderShaDeltaGrid(comparison) {
+      els.shaDeltaGrid.innerHTML = [
+        metric("Archive Set", comparison.same_archive_sha_set ? "same" : "drift", comparison.same_archive_sha_set ? "" : "warn"),
+        metric("Manifest Set", comparison.same_manifest_sha_set ? "same" : "drift", comparison.same_manifest_sha_set ? "" : "warn"),
+        metric("Added Archives", (comparison.added_archive_sha256 || []).length),
+        metric("Added Manifests", (comparison.added_manifest_sha256 || []).length)
+      ].join("");
+    }
+
+    function renderLedgerComparison(payload, sourceLabel = "comparison json") {
+      const validation = validateLedgerComparison(payload);
+      if (!validation.valid) {
+        els.errorBox.textContent = validation.errors.join("; ");
+        return;
+      }
+      const comparison = payload.comparison;
+      const failures = Array.isArray(payload.failures) ? payload.failures : [];
+      els.errorBox.textContent = "";
+      els.emptyState.hidden = true;
+      els.viewerContent.hidden = false;
+      els.headline.textContent = failures.length ? "Ledger comparison has failures" : "Ledger comparison ready";
+      els.subhead.textContent = `${sourceLabel} | chain head ${comparison.same_chain_head ? "same" : "drift"} | entries ${comparison.entry_count_delta >= 0 ? "+" : ""}${comparison.entry_count_delta}`;
+      els.sideDelta.textContent = comparison.entry_count_delta ?? 0;
+      els.sideFailures.textContent = failures.length;
+      els.summaryMetrics.innerHTML = [
+        metric("Chain Head", comparison.same_chain_head ? "same" : "drift", comparison.same_chain_head ? "" : "warn"),
+        metric("Entry Delta", comparison.entry_count_delta ?? 0, comparison.entry_count_delta ? "warn" : ""),
+        metric("Entry Set", comparison.same_entry_hash_set ? "same" : "drift", comparison.same_entry_hash_set ? "" : "warn"),
+        metric("Failures", failures.length, failures.length ? "fail" : "")
+      ].join("");
+      els.baselineCard.innerHTML = renderLedgerCard("Baseline", payload.baseline);
+      els.candidateCard.innerHTML = renderLedgerCard("Candidate", payload.candidate);
+      renderEntryDeltaRows(comparison);
+      renderShaDeltaGrid(comparison);
+      els.failureList.innerHTML = failures.length
+        ? failures.map((failure) => `<div><span class="pill fail">fail</span> ${escapeHtml(failure)}</div>`).join("")
+        : '<span class="pill ok">none</span> No threshold failures.';
+    }
+
+    function readJsonFile(file, callback) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          callback(JSON.parse(reader.result), file.name);
+        } catch (error) {
+          els.errorBox.textContent = `Invalid JSON: ${error.message}`;
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    els.ledgerComparisonFile.addEventListener("change", (event) => {
+      readJsonFile(event.target.files[0], renderLedgerComparison);
+    });
+
+    els.renderPaste.addEventListener("click", () => {
+      try {
+        renderLedgerComparison(JSON.parse(els.jsonPaste.value), "pasted json");
+      } catch (error) {
+        els.errorBox.textContent = `Invalid JSON: ${error.message}`;
+      }
+    });
+
+    els.clearAll.addEventListener("click", () => {
+      els.ledgerComparisonFile.value = "";
+      els.jsonPaste.value = "";
+      els.errorBox.textContent = "";
+      els.sideDelta.textContent = "0";
+      els.sideFailures.textContent = "0";
+      els.viewerContent.hidden = true;
+      els.emptyState.hidden = false;
+      els.headline.textContent = "Load a ledger comparison";
+      els.subhead.textContent = "Use text_release_evidence_ledger_comparison.json or growth comparison output.";
+    });
+  </script>
+</body>
+</html>

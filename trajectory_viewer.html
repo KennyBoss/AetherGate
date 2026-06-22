@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>SoA SSM Trajectory Viewer</title>
+  <style>
+    :root {
+      --paper: #edf1ee;
+      --ink: #171c1a;
+      --muted: #5e6862;
+      --line: #c7d2cb;
+      --panel: #f8fbf8;
+      --panel-strong: #dce7e1;
+      --green: #087f5b;
+      --red: #b42318;
+      --blue: #155eef;
+      --yellow: #b7791f;
+      --violet: #6d28d9;
+      --shadow: rgba(23, 28, 26, 0.16);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(23, 28, 26, 0.04) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(23, 28, 26, 0.04) 1px, transparent 1px),
+        var(--paper);
+      background-size: 24px 24px;
+      font-family: "Avenir Next", "Trebuchet MS", Verdana, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+      letter-spacing: 0;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .side {
+      border-right: 1px solid var(--line);
+      background: rgba(248, 251, 248, 0.94);
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "DIN Condensed", "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: 34px;
+      line-height: 0.95;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .stamp {
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transform: rotate(-2deg);
+    }
+
+    .section {
+      border-top: 1px solid var(--line);
+      padding: 16px 0;
+    }
+
+    .section:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .file-row,
+    .control-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    input[type="file"],
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 9px;
+      min-height: 40px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--ink);
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    button {
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--paper);
+      min-height: 40px;
+      padding: 8px 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--ink);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.42;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.56);
+      padding: 10px;
+      min-height: 70px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .action-bars {
+      display: grid;
+      gap: 8px;
+    }
+
+    .bar-line {
+      display: grid;
+      grid-template-columns: 70px minmax(0, 1fr) 54px;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .bar-track {
+      height: 9px;
+      border-radius: 999px;
+      background: var(--panel-strong);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: var(--ink);
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      min-width: 0;
+      min-height: 100vh;
+    }
+
+    .top-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      background: rgba(237, 241, 238, 0.9);
+    }
+
+    .title-line {
+      min-width: 0;
+    }
+
+    .title-line h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .title-line p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--ink);
+      display: inline-block;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      min-height: 360px;
+      padding: 18px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 420px;
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: #fbfdfa;
+      box-shadow: 0 18px 38px var(--shadow);
+    }
+
+    .empty {
+      position: absolute;
+      inset: 18px;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .empty-inner {
+      max-width: 420px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      background: rgba(248, 251, 248, 0.92);
+      padding: 22px;
+    }
+
+    .empty-inner strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+
+    .foot {
+      border-top: 1px solid var(--line);
+      padding: 10px 18px;
+      color: var(--muted);
+      font-size: 12px;
+      background: rgba(237, 241, 238, 0.9);
+    }
+
+    .mono {
+      font-family: "SF Mono", "Menlo", "Consolas", monospace;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 860px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .side {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        max-height: none;
+      }
+
+      .top-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .legend {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <h1>Trajectory<br>Workbench</h1>
+        <div class="stamp">SoA/SSM</div>
+      </div>
+
+      <section class="section">
+        <label class="label" for="csvFile">Trajectory CSV</label>
+        <div class="file-row">
+          <input id="csvFile" type="file" accept=".csv,text/csv">
+        </div>
+        <label class="label" for="summaryFile">Summary JSON</label>
+        <div class="file-row">
+          <input id="summaryFile" type="file" accept=".json,application/json">
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="button-row">
+          <button id="playBtn" disabled>Play</button>
+          <button id="pauseBtn" class="secondary" disabled>Pause</button>
+          <button id="resetBtn" class="secondary" disabled>Reset</button>
+        </div>
+
+        <label class="label" for="stepSlider">Step <span id="stepReadout" class="mono">0 / 0</span></label>
+        <input id="stepSlider" type="range" min="0" max="0" value="0" disabled>
+
+        <div class="control-row">
+          <label class="label" for="speedSelect">Playback Speed</label>
+          <select id="speedSelect">
+            <option value="180">Slow</option>
+            <option value="90" selected>Normal</option>
+            <option value="35">Fast</option>
+          </select>
+        </div>
+
+        <div class="control-row">
+          <label class="label" for="tailSelect">Trail Length</label>
+          <select id="tailSelect">
+            <option value="4">Short</option>
+            <option value="12" selected>Medium</option>
+            <option value="9999">Full</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="metric-grid">
+          <div class="metric"><strong id="agentMetric">0</strong><span>Agents</span></div>
+          <div class="metric"><strong id="stepMetric">0</strong><span>Steps</span></div>
+          <div class="metric"><strong id="rewardMetric">-</strong><span>Reward</span></div>
+          <div class="metric"><strong id="energyMetric">-</strong><span>Energy</span></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <label class="label">Action Mix</label>
+        <div id="actionBars" class="action-bars"></div>
+      </section>
+    </aside>
+
+    <main class="main">
+      <div class="top-strip">
+        <div class="title-line">
+          <h2 id="runTitle">Load a trajectory export</h2>
+          <p id="runSubtitle">Use files from artifacts/trajectories/*/trajectory.csv and summary.json.</p>
+        </div>
+        <div class="legend">
+          <span class="legend-item"><span class="dot" style="background: var(--green)"></span> Forage</span>
+          <span class="legend-item"><span class="dot" style="background: var(--red)"></span> Flee</span>
+          <span class="legend-item"><span class="dot" style="background: var(--yellow)"></span> Rest</span>
+          <span class="legend-item"><span class="dot" style="background: var(--blue)"></span> Explore</span>
+        </div>
+      </div>
+
+      <div class="canvas-wrap">
+        <canvas id="worldCanvas" width="1400" height="900"></canvas>
+        <div id="emptyState" class="empty">
+          <div class="empty-inner">
+            <strong>No trajectory loaded</strong>
+            <span>Select a CSV export to render the agent world. Add summary JSON for reward and action metrics.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="foot">
+        World coordinates are mapped from -1..1. Goal is marked as a green target; threat is marked as a red exclusion zone.
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const GOAL = { x: 0.72, y: 0.58 };
+    const THREAT = { x: -0.35, y: -0.18 };
+    const COLORS = {
+      start: "#181713",
+      forage: "#087f5b",
+      flee: "#b42318",
+      rest: "#b7791f",
+      explore: "#155eef"
+    };
+
+    const state = {
+      frames: [],
+      summary: null,
+      step: 0,
+      timer: null
+    };
+
+    const el = {
+      csvFile: document.getElementById("csvFile"),
+      summaryFile: document.getElementById("summaryFile"),
+      playBtn: document.getElementById("playBtn"),
+      pauseBtn: document.getElementById("pauseBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      stepSlider: document.getElementById("stepSlider"),
+      stepReadout: document.getElementById("stepReadout"),
+      speedSelect: document.getElementById("speedSelect"),
+      tailSelect: document.getElementById("tailSelect"),
+      agentMetric: document.getElementById("agentMetric"),
+      stepMetric: document.getElementById("stepMetric"),
+      rewardMetric: document.getElementById("rewardMetric"),
+      energyMetric: document.getElementById("energyMetric"),
+      actionBars: document.getElementById("actionBars"),
+      runTitle: document.getElementById("runTitle"),
+      runSubtitle: document.getElementById("runSubtitle"),
+      canvas: document.getElementById("worldCanvas"),
+      emptyState: document.getElementById("emptyState")
+    };
+
+    const ctx = el.canvas.getContext("2d");
+
+    el.csvFile.addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const text = await file.text();
+      state.frames = parseTrajectory(text);
+      state.step = 0;
+      el.runTitle.textContent = file.name;
+      el.runSubtitle.textContent = `${state.frames.length} frames loaded`;
+      syncControls();
+      render();
+    });
+
+    el.summaryFile.addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      state.summary = JSON.parse(await file.text());
+      renderSummary();
+      render();
+    });
+
+    el.playBtn.addEventListener("click", play);
+    el.pauseBtn.addEventListener("click", pause);
+    el.resetBtn.addEventListener("click", () => {
+      pause();
+      state.step = 0;
+      syncControls();
+      render();
+    });
+    el.stepSlider.addEventListener("input", () => {
+      state.step = Number(el.stepSlider.value);
+      syncControls();
+      render();
+    });
+    el.tailSelect.addEventListener("change", render);
+    window.addEventListener("resize", render);
+
+    function parseTrajectory(text) {
+      const rows = parseCsv(text.trim());
+      if (rows.length < 2) return [];
+      const header = rows[0];
+      const index = Object.fromEntries(header.map((name, i) => [name, i]));
+      const byStep = new Map();
+
+      for (const row of rows.slice(1)) {
+        if (row.length < header.length) continue;
+        const step = Number(row[index.step]);
+        const agent = {
+          id: Number(row[index.agent_id]),
+          x: Number(row[index.x]),
+          y: Number(row[index.y]),
+          energy: Number(row[index.energy]),
+          action: row[index.action] || "start"
+        };
+        if (!byStep.has(step)) byStep.set(step, []);
+        byStep.get(step).push(agent);
+      }
+
+      return Array.from(byStep.entries())
+        .sort((a, b) => a[0] - b[0])
+        .map(([step, agents]) => ({
+          step,
+          agents: agents.sort((a, b) => a.id - b.id)
+        }));
+    }
+
+    function parseCsv(text) {
+      const rows = [];
+      let row = [];
+      let value = "";
+      let quoted = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        const next = text[i + 1];
+        if (quoted) {
+          if (ch === '"' && next === '"') {
+            value += '"';
+            i++;
+          } else if (ch === '"') {
+            quoted = false;
+          } else {
+            value += ch;
+          }
+        } else if (ch === '"') {
+          quoted = true;
+        } else if (ch === ",") {
+          row.push(value);
+          value = "";
+        } else if (ch === "\n") {
+          row.push(value);
+          rows.push(row);
+          row = [];
+          value = "";
+        } else if (ch !== "\r") {
+          value += ch;
+        }
+      }
+      row.push(value);
+      rows.push(row);
+      return rows;
+    }
+
+    function syncControls() {
+      const loaded = state.frames.length > 0;
+      const maxStep = loaded ? state.frames.length - 1 : 0;
+      state.step = Math.max(0, Math.min(state.step, maxStep));
+      el.stepSlider.disabled = !loaded;
+      el.playBtn.disabled = !loaded;
+      el.pauseBtn.disabled = !loaded;
+      el.resetBtn.disabled = !loaded;
+      el.stepSlider.max = String(maxStep);
+      el.stepSlider.value = String(state.step);
+      el.stepReadout.textContent = `${state.step} / ${maxStep}`;
+      el.emptyState.classList.toggle("hidden", loaded);
+      if (loaded) {
+        el.agentMetric.textContent = String(state.frames[0].agents.length);
+        el.stepMetric.textContent = String(maxStep);
+      }
+      renderSummary();
+    }
+
+    function renderSummary() {
+      const summary = state.summary;
+      if (!summary) {
+        el.rewardMetric.textContent = "-";
+        el.energyMetric.textContent = "-";
+        renderActionBars(null);
+        return;
+      }
+      el.rewardMetric.textContent = number(summary.reward, 2);
+      el.energyMetric.textContent = number(summary.mean_energy, 2);
+      renderActionBars(summary.action_counts || null);
+      if (summary.mode) {
+        el.runSubtitle.textContent = `${summary.mode} | goal ${number(summary.initial_goal_distance, 3)} -> ${number(summary.final_goal_distance, 3)}`;
+      }
+    }
+
+    function renderActionBars(counts) {
+      const actions = ["forage", "flee", "rest", "explore"];
+      const total = counts ? actions.reduce((sum, name) => sum + Number(counts[name] || 0), 0) : 0;
+      el.actionBars.innerHTML = "";
+      for (const name of actions) {
+        const count = counts ? Number(counts[name] || 0) : 0;
+        const pct = total ? (count / total) * 100 : 0;
+        const line = document.createElement("div");
+        line.className = "bar-line";
+        line.innerHTML = `
+          <span>${name}</span>
+          <span class="bar-track"><span class="bar-fill" style="width:${pct}%;background:${COLORS[name]}"></span></span>
+          <span>${count}</span>
+        `;
+        el.actionBars.appendChild(line);
+      }
+    }
+
+    function play() {
+      if (!state.frames.length || state.timer) return;
+      state.timer = window.setInterval(() => {
+        if (state.step >= state.frames.length - 1) {
+          pause();
+          return;
+        }
+        state.step++;
+        syncControls();
+        render();
+      }, Number(el.speedSelect.value));
+    }
+
+    function pause() {
+      if (state.timer) {
+        window.clearInterval(state.timer);
+        state.timer = null;
+      }
+    }
+
+    function render() {
+      resizeCanvas();
+      drawWorld();
+      if (!state.frames.length) return;
+      drawTrails();
+      drawAgents();
+    }
+
+    function resizeCanvas() {
+      const rect = el.canvas.getBoundingClientRect();
+      const ratio = window.devicePixelRatio || 1;
+      const width = Math.max(640, Math.floor(rect.width * ratio));
+      const height = Math.max(420, Math.floor(rect.height * ratio));
+      if (el.canvas.width !== width || el.canvas.height !== height) {
+        el.canvas.width = width;
+        el.canvas.height = height;
+      }
+    }
+
+    function worldToScreen(point) {
+      const pad = 54;
+      const w = el.canvas.width;
+      const h = el.canvas.height;
+      return {
+        x: pad + ((point.x + 1) / 2) * (w - pad * 2),
+        y: pad + ((1 - (point.y + 1) / 2)) * (h - pad * 2)
+      };
+    }
+
+    function drawWorld() {
+      const w = el.canvas.width;
+      const h = el.canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#fbfdfa";
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.strokeStyle = "#d6ded8";
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 8; i++) {
+        const x = 54 + i * (w - 108) / 8;
+        const y = 54 + i * (h - 108) / 8;
+        ctx.beginPath();
+        ctx.moveTo(x, 54);
+        ctx.lineTo(x, h - 54);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(54, y);
+        ctx.lineTo(w - 54, y);
+        ctx.stroke();
+      }
+
+      drawZone(GOAL, "#087f5b", "GOAL");
+      drawZone(THREAT, "#b42318", "THREAT");
+
+      ctx.strokeStyle = "#181713";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(54, 54, w - 108, h - 108);
+    }
+
+    function drawZone(point, color, label) {
+      const p = worldToScreen(point);
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = 3;
+      ctx.globalAlpha = 0.14;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 46, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(p.x - 18, p.y);
+      ctx.lineTo(p.x + 18, p.y);
+      ctx.moveTo(p.x, p.y - 18);
+      ctx.lineTo(p.x, p.y + 18);
+      ctx.stroke();
+      ctx.font = "bold 13px Avenir Next, sans-serif";
+      ctx.fillText(label, p.x + 16, p.y - 16);
+      ctx.restore();
+    }
+
+    function drawTrails() {
+      const tail = Number(el.tailSelect.value);
+      const start = Math.max(0, state.step - tail);
+      const frames = state.frames.slice(start, state.step + 1);
+      if (frames.length < 2) return;
+      const agentCount = frames[frames.length - 1].agents.length;
+
+      ctx.save();
+      ctx.lineWidth = 1.5 * (window.devicePixelRatio || 1);
+      for (let agentId = 0; agentId < agentCount; agentId++) {
+        ctx.beginPath();
+        let action = "start";
+        for (let i = 0; i < frames.length; i++) {
+          const agent = frames[i].agents[agentId];
+          if (!agent) continue;
+          action = agent.action;
+          const p = worldToScreen(agent);
+          if (i === 0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        }
+        ctx.strokeStyle = COLORS[action] || COLORS.start;
+        ctx.globalAlpha = 0.32;
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function drawAgents() {
+      const frame = state.frames[state.step];
+      if (!frame) return;
+      ctx.save();
+      for (const agent of frame.agents) {
+        const p = worldToScreen(agent);
+        const radius = 4 + Math.max(0, Math.min(1, agent.energy)) * 5;
+        ctx.fillStyle = COLORS[agent.action] || COLORS.start;
+        ctx.globalAlpha = agent.action === "rest" ? 0.72 : 0.94;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = "#181713";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function number(value, digits) {
+      if (value === undefined || value === null || Number.isNaN(Number(value))) return "-";
+      return Number(value).toFixed(digits);
+    }
+
+    renderActionBars(null);
+    render();
+  </script>
+</body>
+</html>

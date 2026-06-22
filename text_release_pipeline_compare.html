@@ -1,0 +1,965 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>TextPy Pipeline Run Compare</title>
+  <style>
+    :root {
+      --paper: #eef0e8;
+      --ink: #171915;
+      --muted: #62675d;
+      --line: #c9cec0;
+      --panel: #fbfcf5;
+      --green: #087f5b;
+      --red: #b42318;
+      --gold: #b7791f;
+      --blue: #155eef;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        var(--paper);
+      background-size: 24px 24px;
+      font-family: "Avenir Next", "Trebuchet MS", Verdana, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, input, textarea { font: inherit; letter-spacing: 0; }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .side {
+      border-right: 1px solid var(--line);
+      background: rgba(251, 252, 245, 0.94);
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "DIN Condensed", "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: 34px;
+      line-height: 0.95;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .stamp {
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transform: rotate(-2deg);
+    }
+
+    .section {
+      border-top: 1px solid var(--line);
+      padding: 16px 0;
+    }
+
+    .section:first-of-type { border-top: 0; padding-top: 0; }
+
+    .label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    input[type="file"], textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 9px;
+    }
+
+    textarea {
+      min-height: 132px;
+      resize: vertical;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    button {
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--paper);
+      min-height: 40px;
+      padding: 8px 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.secondary { background: transparent; color: var(--ink); }
+
+    .button-row,
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.66);
+      padding: 10px;
+      min-height: 72px;
+    }
+
+    .metric.good { border-color: rgba(8, 127, 91, 0.54); }
+    .metric.bad { border-color: rgba(180, 35, 24, 0.54); }
+    .metric.warn { border-color: rgba(183, 121, 31, 0.58); }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .error {
+      min-height: 18px;
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-width: 0;
+      min-height: 100vh;
+    }
+
+    .top-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      background: rgba(238, 240, 232, 0.92);
+    }
+
+    .title-line { min-width: 0; }
+
+    .title-line h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .title-line p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--ink);
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      min-height: 420px;
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+      font-weight: 800;
+    }
+
+    .dashboard {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(300px, 1fr));
+      gap: 14px;
+    }
+
+    .pipeline-card,
+    .panel,
+    .delta-card,
+    .drift-row,
+    .failure-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(251, 252, 245, 0.9);
+      min-width: 0;
+    }
+
+    .pipeline-card {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .pipeline-card.good { border-color: rgba(8, 127, 91, 0.54); }
+    .pipeline-card.bad { border-color: rgba(180, 35, 24, 0.54); }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .card-head h3 {
+      margin: 0;
+      font-size: 16px;
+      text-transform: uppercase;
+      overflow-wrap: anywhere;
+    }
+
+    .card-head code {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 4px 8px;
+      color: white;
+      background: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .status-pill.good { background: var(--green); }
+    .status-pill.bad { background: var(--red); }
+    .status-pill.warn { background: var(--gold); color: var(--ink); }
+
+    .small-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .small-metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 9px;
+      min-height: 62px;
+    }
+
+    .small-metric span,
+    .delta-card span,
+    .drift-row span,
+    .failure-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .small-metric strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 17px;
+      overflow-wrap: anywhere;
+    }
+
+    .panel { padding: 14px; }
+
+    .panel h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      text-transform: uppercase;
+    }
+
+    .delta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(170px, 1fr));
+      gap: 10px;
+    }
+
+    .delta-card {
+      padding: 11px;
+      min-height: 74px;
+    }
+
+    .delta-card.good { border-color: rgba(8, 127, 91, 0.54); }
+    .delta-card.bad { border-color: rgba(180, 35, 24, 0.54); }
+    .delta-card.warn { border-color: rgba(183, 121, 31, 0.58); }
+
+    .delta-card strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 20px;
+      overflow-wrap: anywhere;
+    }
+
+    .drift-list,
+    .failure-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .drift-row {
+      padding: 10px;
+      display: grid;
+      grid-template-columns: minmax(170px, 0.7fr) minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .drift-row.good { border-color: rgba(8, 127, 91, 0.54); }
+    .drift-row.bad { border-color: rgba(180, 35, 24, 0.54); }
+    .drift-row.warn { border-color: rgba(183, 121, 31, 0.58); }
+
+    .drift-row strong,
+    .drift-row code,
+    .failure-item strong,
+    .failure-item code {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .drift-row code,
+    .failure-item code {
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .failure-item {
+      border-color: rgba(180, 35, 24, 0.54);
+      background: white;
+      padding: 11px;
+    }
+
+    .failure-item.empty-ok { border-color: rgba(8, 127, 91, 0.54); }
+
+    @media (max-width: 1180px) {
+      .delta-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .small-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .side { border-right: 0; border-bottom: 1px solid var(--line); }
+      .card-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      h1 { font-size: 28px; }
+      .top-strip { grid-template-columns: 1fr; }
+      .legend { justify-content: flex-start; }
+      .metric-grid,
+      .button-row,
+      .delta-grid,
+      .small-grid,
+      .drift-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <h1>Pipeline<br>Run Compare</h1>
+        <div class="stamp">TextPy</div>
+      </div>
+
+      <div class="section">
+        <label class="label" for="pipelineComparisonFile">Comparison JSON</label>
+        <input id="pipelineComparisonFile" type="file" accept=".json,application/json">
+        <div class="button-row">
+          <button id="loadExample" type="button">Load Example</button>
+          <button id="clearComparison" class="secondary" type="button">Clear</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <label class="label" for="jsonPaste">Paste JSON</label>
+        <textarea id="jsonPaste" spellcheck="false" placeholder="Paste text_release_pipeline_comparison.json here"></textarea>
+        <div class="button-row">
+          <button id="parsePaste" type="button">Parse</button>
+          <button id="refreshComparison" class="secondary" type="button">Refresh</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="metric-grid">
+          <div id="sideVerdictCard" class="metric">
+            <strong id="metricVerdict">-</strong>
+            <span>verdict</span>
+          </div>
+          <div id="sideStageCard" class="metric">
+            <strong id="metricStageDelta">0</strong>
+            <span>stage delta</span>
+          </div>
+          <div id="sideLossCard" class="metric">
+            <strong id="metricLossDelta">0</strong>
+            <span>loss delta</span>
+          </div>
+          <div id="sideFailuresCard" class="metric">
+            <strong id="metricFailures">0</strong>
+            <span>threshold failures</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div id="errorBox" class="error" role="alert"></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="top-strip">
+        <div class="title-line">
+          <h2 id="titleText">No pipeline comparison loaded</h2>
+          <p id="subtitleText">text_release_pipeline_comparison.json</p>
+        </div>
+        <div class="legend" aria-label="Legend">
+          <span><i class="swatch" style="background: var(--green)"></i>stable</span>
+          <span><i class="swatch" style="background: var(--red)"></i>regressed</span>
+          <span><i class="swatch" style="background: var(--gold)"></i>drift</span>
+        </div>
+      </header>
+
+      <section id="emptyState" class="empty">
+        <div>
+          <strong>Waiting for full pipeline comparison.</strong>
+          <p>text_release_pipeline_comparison.json</p>
+        </div>
+      </section>
+
+      <section id="pipelineComparisonDashboard" class="dashboard" hidden>
+        <div id="pipelineComparisonCards" class="card-grid"></div>
+
+        <div class="panel">
+          <h3>Metric Delta Surface</h3>
+          <div id="pipelineComparisonDeltaGrid" class="delta-grid"></div>
+        </div>
+
+        <div class="panel">
+          <h3>Stage And Proof Drift</h3>
+          <div id="pipelineComparisonDriftRows" class="drift-list"></div>
+        </div>
+
+        <div class="panel">
+          <h3>Threshold Failures</h3>
+          <div id="pipelineComparisonFailureList" class="failure-list"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const exampleComparison = {
+      baseline: {
+        path: "artifacts/releases/text_release_pipeline_demo.json",
+        shape_errors: [],
+        name: "text_pipeline_demo",
+        stage_count: 35,
+        stage_names: ["promote", "inspect", "benchmark", "validate", "release_evidence_audit_compare"],
+        release_count: 1,
+        selected_rank: 1,
+        loss: 3.7913637161254883,
+        accuracy: 0.4375,
+        best_throughput_tokens_s: 558341.9971197068,
+        checkpoint_sha256: "e83bbba1995fcf54396b59dc5c70ec129a4a793108de95800a2fdd1d10f1c4c6",
+        archive_sha256: "1461281a3efed93d502ef5c8ee0146a8a4131f5801bb85098b97420961f390ef",
+        release_dashboard_audit_valid: true,
+        release_dashboard_audit_checks: 11,
+        memory_prompt_count: 3,
+        memory_pair_count: 3,
+        memory_mean_pair_overlap: 0.525,
+        memory_min_pair_overlap: 0.35,
+        memory_max_pair_state_norm_delta: 0.643,
+        memory_max_pair_state_l2_distance: 1.0632,
+        memory_min_pair_state_cosine_similarity: 0.0047,
+        has_evidence_audit: true,
+        release_evidence_archive_sha256: "9bc63ee9f5695dca2dc5b24a333a481d6521cc139e4c8c17edbeef3b7dd21e18",
+        release_evidence_ledger_chain_head: "7b2253af73780102c84a0888028ec0a801f64fe7ac9af3ff8d0b6d50194ee072",
+        release_evidence_audit_valid: true,
+        release_evidence_audit_checks: 10,
+        release_evidence_audit_validation_valid: true
+      },
+      candidate: {
+        path: "artifacts/releases/text_release_pipeline_demo.json",
+        shape_errors: [],
+        name: "text_pipeline_demo",
+        stage_count: 35,
+        stage_names: ["promote", "inspect", "benchmark", "validate", "release_evidence_audit_compare"],
+        release_count: 1,
+        selected_rank: 1,
+        loss: 3.7913637161254883,
+        accuracy: 0.4375,
+        best_throughput_tokens_s: 558341.9971197068,
+        checkpoint_sha256: "e83bbba1995fcf54396b59dc5c70ec129a4a793108de95800a2fdd1d10f1c4c6",
+        archive_sha256: "1461281a3efed93d502ef5c8ee0146a8a4131f5801bb85098b97420961f390ef",
+        release_dashboard_audit_valid: true,
+        release_dashboard_audit_checks: 11,
+        memory_prompt_count: 3,
+        memory_pair_count: 3,
+        memory_mean_pair_overlap: 0.525,
+        memory_min_pair_overlap: 0.35,
+        memory_max_pair_state_norm_delta: 0.643,
+        memory_max_pair_state_l2_distance: 1.0632,
+        memory_min_pair_state_cosine_similarity: 0.0047,
+        has_evidence_audit: true,
+        release_evidence_archive_sha256: "9bc63ee9f5695dca2dc5b24a333a481d6521cc139e4c8c17edbeef3b7dd21e18",
+        release_evidence_ledger_chain_head: "7b2253af73780102c84a0888028ec0a801f64fe7ac9af3ff8d0b6d50194ee072",
+        release_evidence_audit_valid: true,
+        release_evidence_audit_checks: 10,
+        release_evidence_audit_validation_valid: true
+      },
+      comparison: {
+        same_name: true,
+        same_stage_set: true,
+        missing_stages: [],
+        added_stages: [],
+        stage_count_delta: 0,
+        release_count_delta: 0,
+        selected_rank_delta: 0,
+        loss_delta: 0,
+        accuracy_delta: 0,
+        best_throughput_tokens_s_delta: 0,
+        memory_mean_pair_overlap_delta: 0,
+        memory_min_pair_overlap_delta: 0,
+        memory_min_pair_state_cosine_similarity_delta: 0,
+        memory_max_pair_state_l2_distance_delta: 0,
+        memory_max_pair_state_norm_delta_delta: 0,
+        same_checkpoint_sha256: true,
+        same_archive_sha256: true,
+        dashboard_audit_valid_regressed: false,
+        dashboard_audit_checks_delta: 0,
+        evidence_audit_valid_regressed: false,
+        evidence_audit_validation_valid_regressed: false,
+        evidence_audit_checks_delta: 0,
+        same_has_evidence_audit: true,
+        same_evidence_archive_sha256: true,
+        same_evidence_ledger_chain_head: true,
+        baseline_shape_errors: [],
+        candidate_shape_errors: []
+      },
+      failures: []
+    };
+
+    const els = {
+      pipelineComparisonFile: document.getElementById("pipelineComparisonFile"),
+      loadExample: document.getElementById("loadExample"),
+      clearComparison: document.getElementById("clearComparison"),
+      jsonPaste: document.getElementById("jsonPaste"),
+      parsePaste: document.getElementById("parsePaste"),
+      refreshComparison: document.getElementById("refreshComparison"),
+      errorBox: document.getElementById("errorBox"),
+      emptyState: document.getElementById("emptyState"),
+      pipelineComparisonDashboard: document.getElementById("pipelineComparisonDashboard"),
+      titleText: document.getElementById("titleText"),
+      subtitleText: document.getElementById("subtitleText"),
+      sideVerdictCard: document.getElementById("sideVerdictCard"),
+      sideStageCard: document.getElementById("sideStageCard"),
+      sideLossCard: document.getElementById("sideLossCard"),
+      sideFailuresCard: document.getElementById("sideFailuresCard"),
+      metricVerdict: document.getElementById("metricVerdict"),
+      metricStageDelta: document.getElementById("metricStageDelta"),
+      metricLossDelta: document.getElementById("metricLossDelta"),
+      metricFailures: document.getElementById("metricFailures"),
+      pipelineComparisonCards: document.getElementById("pipelineComparisonCards"),
+      pipelineComparisonDeltaGrid: document.getElementById("pipelineComparisonDeltaGrid"),
+      pipelineComparisonDriftRows: document.getElementById("pipelineComparisonDriftRows"),
+      pipelineComparisonFailureList: document.getElementById("pipelineComparisonFailureList")
+    };
+
+    let currentComparison = null;
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[char]);
+    }
+
+    function valueText(value, digits = 4) {
+      if (value === null || value === undefined || value === "") return "-";
+      if (typeof value === "boolean") return value ? "true" : "false";
+      if (typeof value === "number") {
+        if (!Number.isFinite(value)) return "-";
+        if (Math.abs(value) >= 1000) return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
+        return value.toFixed(digits);
+      }
+      return String(value);
+    }
+
+    function prefix(value) {
+      if (!value) return "-";
+      return String(value).slice(0, 12);
+    }
+
+    function setError(message) {
+      els.errorBox.textContent = message || "";
+    }
+
+    function setCardState(element, state) {
+      element.classList.remove("good", "bad", "warn");
+      if (state) element.classList.add(state);
+    }
+
+    function isObject(value) {
+      return value && typeof value === "object" && !Array.isArray(value);
+    }
+
+    function isNumberOrNull(value) {
+      return value === null || value === undefined || (typeof value === "number" && Number.isFinite(value));
+    }
+
+    function validatePipelineRow(row, label, errors) {
+      if (!isObject(row)) {
+        errors.push(`${label} must be an object.`);
+        return;
+      }
+      if (typeof row.path !== "string" || !row.path) errors.push(`${label}.path must be non-empty.`);
+      if (!Number.isInteger(row.stage_count)) errors.push(`${label}.stage_count must be an integer.`);
+      [
+        "loss",
+        "accuracy",
+        "best_throughput_tokens_s",
+        "memory_mean_pair_overlap",
+        "memory_min_pair_state_cosine_similarity"
+      ].forEach((key) => {
+        if (!isNumberOrNull(row[key])) errors.push(`${label}.${key} must be numeric or null.`);
+      });
+      if (!Array.isArray(row.stage_names)) errors.push(`${label}.stage_names must be a list.`);
+      if (!Array.isArray(row.shape_errors)) errors.push(`${label}.shape_errors must be a list.`);
+    }
+
+    function validatePipelineComparison(payload) {
+      const errors = [];
+      if (!isObject(payload)) {
+        errors.push("Root payload must be a JSON object.");
+        return errors;
+      }
+      validatePipelineRow(payload.baseline, "baseline", errors);
+      validatePipelineRow(payload.candidate, "candidate", errors);
+      const comparison = payload.comparison;
+      if (!isObject(comparison)) {
+        errors.push("comparison must be an object.");
+      } else {
+        [
+          "same_name",
+          "same_stage_set",
+          "same_checkpoint_sha256",
+          "same_archive_sha256",
+          "same_has_evidence_audit",
+          "same_evidence_archive_sha256",
+          "same_evidence_ledger_chain_head"
+        ].forEach((key) => {
+          if (typeof comparison[key] !== "boolean") errors.push(`comparison.${key} must be boolean.`);
+        });
+        [
+          "stage_count_delta",
+          "release_count_delta",
+          "selected_rank_delta",
+          "loss_delta",
+          "accuracy_delta",
+          "best_throughput_tokens_s_delta",
+          "memory_mean_pair_overlap_delta",
+          "memory_min_pair_overlap_delta",
+          "memory_min_pair_state_cosine_similarity_delta",
+          "memory_max_pair_state_l2_distance_delta",
+          "memory_max_pair_state_norm_delta_delta",
+          "dashboard_audit_checks_delta",
+          "evidence_audit_checks_delta"
+        ].forEach((key) => {
+          if (!isNumberOrNull(comparison[key])) errors.push(`comparison.${key} must be numeric or null.`);
+        });
+        if (!Array.isArray(comparison.missing_stages)) errors.push("comparison.missing_stages must be a list.");
+        if (!Array.isArray(comparison.added_stages)) errors.push("comparison.added_stages must be a list.");
+      }
+      if (!Array.isArray(payload.failures)) errors.push("failures must be a list.");
+      return errors;
+    }
+
+    function pipelineCard(label, row) {
+      const shapeOk = !row.shape_errors || row.shape_errors.length === 0;
+      const auditOk = row.release_dashboard_audit_valid !== false && row.release_evidence_audit_valid !== false;
+      const ok = shapeOk && auditOk;
+      return `
+        <div class="pipeline-card ${ok ? "good" : "bad"}">
+          <div class="card-head">
+            <div>
+              <h3>${escapeHtml(label)}: ${escapeHtml(row.name || "pipeline")}</h3>
+              <code>${escapeHtml(row.path)}</code>
+            </div>
+            <span class="status-pill ${ok ? "good" : "bad"}">${ok ? "complete" : "check"}</span>
+          </div>
+          <div class="small-grid">
+            <div class="small-metric"><span>stages</span><strong>${escapeHtml(row.stage_count)}</strong></div>
+            <div class="small-metric"><span>rank</span><strong>${escapeHtml(valueText(row.selected_rank, 0))}</strong></div>
+            <div class="small-metric"><span>loss</span><strong>${escapeHtml(valueText(row.loss))}</strong></div>
+            <div class="small-metric"><span>accuracy</span><strong>${escapeHtml(valueText(row.accuracy))}</strong></div>
+            <div class="small-metric"><span>tok/s</span><strong>${escapeHtml(valueText(row.best_throughput_tokens_s, 0))}</strong></div>
+            <div class="small-metric"><span>memory overlap</span><strong>${escapeHtml(valueText(row.memory_mean_pair_overlap))}</strong></div>
+            <div class="small-metric"><span>dashboard checks</span><strong>${escapeHtml(valueText(row.release_dashboard_audit_checks, 0))}</strong></div>
+            <div class="small-metric"><span>evidence checks</span><strong>${escapeHtml(valueText(row.release_evidence_audit_checks, 0))}</strong></div>
+          </div>
+          <div class="small-grid">
+            <div class="small-metric"><span>checkpoint</span><strong>${escapeHtml(prefix(row.checkpoint_sha256))}</strong></div>
+            <div class="small-metric"><span>archive</span><strong>${escapeHtml(prefix(row.archive_sha256))}</strong></div>
+            <div class="small-metric"><span>evidence</span><strong>${escapeHtml(prefix(row.release_evidence_archive_sha256))}</strong></div>
+            <div class="small-metric"><span>ledger</span><strong>${escapeHtml(prefix(row.release_evidence_ledger_chain_head))}</strong></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function deltaState(value, direction = "zero") {
+      if (value === null || value === undefined) return "warn";
+      if (Number(value) === 0) return "good";
+      if (direction === "lower" && Number(value) < 0) return "good";
+      if (direction === "higher" && Number(value) > 0) return "good";
+      return direction === "zero" ? "warn" : "bad";
+    }
+
+    function deltaCard(label, value, state, digits = 4) {
+      return `
+        <div class="delta-card ${state || ""}">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(valueText(value, digits))}</strong>
+        </div>
+      `;
+    }
+
+    function driftRow(label, same, detail, warn = false) {
+      const state = same ? "good" : warn ? "warn" : "bad";
+      return `
+        <div class="drift-row ${state}">
+          <span>${escapeHtml(label)}</span>
+          <div>
+            <strong>${same ? "stable" : "changed"}</strong>
+            <code>${escapeHtml(valueText(detail))}</code>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFailures(failures) {
+      if (!failures.length) {
+        els.pipelineComparisonFailureList.innerHTML = `
+          <div class="failure-item empty-ok">
+            <span>threshold failures</span>
+            <strong>No pipeline comparison failures</strong>
+          </div>
+        `;
+        return;
+      }
+      els.pipelineComparisonFailureList.innerHTML = failures.map((failure, index) => `
+        <div class="failure-item">
+          <span>failure ${index + 1}</span>
+          <code>${escapeHtml(failure)}</code>
+        </div>
+      `).join("");
+    }
+
+    function renderPipelineComparison(payload) {
+      const shapeErrors = validatePipelineComparison(payload);
+      if (shapeErrors.length) throw new Error(shapeErrors.join(" "));
+
+      currentComparison = payload;
+      const comparison = payload.comparison || {};
+      const failures = Array.isArray(payload.failures) ? payload.failures : [];
+      const pass = failures.length === 0;
+
+      setError("");
+      els.emptyState.hidden = true;
+      els.pipelineComparisonDashboard.hidden = false;
+      els.metricVerdict.textContent = pass ? "PASS" : "FAIL";
+      els.metricStageDelta.textContent = valueText(comparison.stage_count_delta, 0);
+      els.metricLossDelta.textContent = valueText(comparison.loss_delta, 4);
+      els.metricFailures.textContent = String(failures.length);
+      setCardState(els.sideVerdictCard, pass ? "good" : "bad");
+      setCardState(els.sideStageCard, comparison.stage_count_delta === 0 ? "good" : "bad");
+      setCardState(els.sideLossCard, deltaState(comparison.loss_delta, "lower"));
+      setCardState(els.sideFailuresCard, failures.length ? "bad" : "good");
+
+      els.titleText.textContent = pass ? "Pipeline run comparison passed" : "Pipeline run comparison failed";
+      els.subtitleText.textContent = payload.candidate.path || "text_release_pipeline_comparison.json";
+
+      els.pipelineComparisonCards.innerHTML = [
+        pipelineCard("baseline", payload.baseline),
+        pipelineCard("candidate", payload.candidate)
+      ].join("");
+
+      els.pipelineComparisonDeltaGrid.innerHTML = [
+        deltaCard("stage count", comparison.stage_count_delta, deltaState(comparison.stage_count_delta, "zero"), 0),
+        deltaCard("release count", comparison.release_count_delta, deltaState(comparison.release_count_delta, "zero"), 0),
+        deltaCard("selected rank", comparison.selected_rank_delta, deltaState(comparison.selected_rank_delta, "zero"), 0),
+        deltaCard("loss", comparison.loss_delta, deltaState(comparison.loss_delta, "lower"), 6),
+        deltaCard("accuracy", comparison.accuracy_delta, deltaState(comparison.accuracy_delta, "higher"), 6),
+        deltaCard("throughput", comparison.best_throughput_tokens_s_delta, deltaState(comparison.best_throughput_tokens_s_delta, "higher"), 0),
+        deltaCard("mean overlap", comparison.memory_mean_pair_overlap_delta, deltaState(comparison.memory_mean_pair_overlap_delta, "higher"), 6),
+        deltaCard("min overlap", comparison.memory_min_pair_overlap_delta, deltaState(comparison.memory_min_pair_overlap_delta, "higher"), 6),
+        deltaCard("min cosine", comparison.memory_min_pair_state_cosine_similarity_delta, deltaState(comparison.memory_min_pair_state_cosine_similarity_delta, "higher"), 6),
+        deltaCard("max L2", comparison.memory_max_pair_state_l2_distance_delta, deltaState(comparison.memory_max_pair_state_l2_distance_delta, "lower"), 6),
+        deltaCard("max norm delta", comparison.memory_max_pair_state_norm_delta_delta, deltaState(comparison.memory_max_pair_state_norm_delta_delta, "lower"), 6),
+        deltaCard("dashboard checks", comparison.dashboard_audit_checks_delta, deltaState(comparison.dashboard_audit_checks_delta, "higher"), 0),
+        deltaCard("evidence checks", comparison.evidence_audit_checks_delta, deltaState(comparison.evidence_audit_checks_delta, "higher"), 0)
+      ].join("");
+
+      const missing = (comparison.missing_stages || []).join(", ") || "none";
+      const added = (comparison.added_stages || []).join(", ") || "none";
+      els.pipelineComparisonDriftRows.innerHTML = [
+        driftRow("pipeline name", comparison.same_name, `${payload.baseline.name || "-"} -> ${payload.candidate.name || "-"}`),
+        driftRow("stage set", comparison.same_stage_set, `missing=${missing}; added=${added}`),
+        driftRow("checkpoint SHA", comparison.same_checkpoint_sha256, `${prefix(payload.baseline.checkpoint_sha256)} -> ${prefix(payload.candidate.checkpoint_sha256)}`),
+        driftRow("archive SHA", comparison.same_archive_sha256, `${prefix(payload.baseline.archive_sha256)} -> ${prefix(payload.candidate.archive_sha256)}`),
+        driftRow("evidence audit presence", comparison.same_has_evidence_audit, `${payload.baseline.has_evidence_audit} -> ${payload.candidate.has_evidence_audit}`),
+        driftRow("evidence archive SHA", comparison.same_evidence_archive_sha256, `${prefix(payload.baseline.release_evidence_archive_sha256)} -> ${prefix(payload.candidate.release_evidence_archive_sha256)}`),
+        driftRow("ledger chain head", comparison.same_evidence_ledger_chain_head, `${prefix(payload.baseline.release_evidence_ledger_chain_head)} -> ${prefix(payload.candidate.release_evidence_ledger_chain_head)}`),
+        driftRow("dashboard audit valid", !comparison.dashboard_audit_valid_regressed, `regressed=${comparison.dashboard_audit_valid_regressed}`, true),
+        driftRow("evidence audit valid", !comparison.evidence_audit_valid_regressed, `regressed=${comparison.evidence_audit_valid_regressed}`, true),
+        driftRow("evidence audit validation", !comparison.evidence_audit_validation_valid_regressed, `regressed=${comparison.evidence_audit_validation_valid_regressed}`, true)
+      ].join("");
+
+      renderFailures(failures);
+    }
+
+    function parseText(text) {
+      const payload = JSON.parse(text);
+      renderPipelineComparison(payload);
+      els.jsonPaste.value = JSON.stringify(payload, null, 2);
+    }
+
+    function resetView() {
+      currentComparison = null;
+      els.pipelineComparisonFile.value = "";
+      els.jsonPaste.value = "";
+      els.emptyState.hidden = false;
+      els.pipelineComparisonDashboard.hidden = true;
+      els.titleText.textContent = "No pipeline comparison loaded";
+      els.subtitleText.textContent = "text_release_pipeline_comparison.json";
+      els.metricVerdict.textContent = "-";
+      els.metricStageDelta.textContent = "0";
+      els.metricLossDelta.textContent = "0";
+      els.metricFailures.textContent = "0";
+      setCardState(els.sideVerdictCard, "");
+      setCardState(els.sideStageCard, "");
+      setCardState(els.sideLossCard, "");
+      setCardState(els.sideFailuresCard, "");
+      setError("");
+    }
+
+    els.pipelineComparisonFile.addEventListener("change", async (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      try {
+        parseText(await file.text());
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    els.loadExample.addEventListener("click", () => {
+      renderPipelineComparison(exampleComparison);
+      els.jsonPaste.value = JSON.stringify(exampleComparison, null, 2);
+    });
+
+    els.clearComparison.addEventListener("click", resetView);
+
+    els.parsePaste.addEventListener("click", () => {
+      try {
+        parseText(els.jsonPaste.value);
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    els.refreshComparison.addEventListener("click", () => {
+      try {
+        if (els.jsonPaste.value.trim()) {
+          parseText(els.jsonPaste.value);
+        } else if (currentComparison) {
+          renderPipelineComparison(currentComparison);
+        }
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+  </script>
+</body>
+</html>

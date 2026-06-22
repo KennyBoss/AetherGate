@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>TextPy Memory Suite Matrix</title>
+  <style>
+    :root {
+      --paper: #eef0e8;
+      --ink: #171915;
+      --muted: #62675d;
+      --line: #c9cec0;
+      --panel: #fbfcf5;
+      --panel-strong: #dde4d2;
+      --green: #087f5b;
+      --blue: #155eef;
+      --red: #b42318;
+      --gold: #b7791f;
+      --violet: #6d28d9;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        var(--paper);
+      background-size: 24px 24px;
+      font-family: "Avenir Next", "Trebuchet MS", Verdana, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+      letter-spacing: 0;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(310px, 400px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .side {
+      border-right: 1px solid var(--line);
+      background: rgba(251, 252, 245, 0.94);
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "DIN Condensed", "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: 34px;
+      line-height: 0.95;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .stamp {
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transform: rotate(-2deg);
+    }
+
+    .section {
+      border-top: 1px solid var(--line);
+      padding: 16px 0;
+    }
+
+    .section:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    input[type="file"], textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 9px;
+    }
+
+    textarea {
+      min-height: 116px;
+      resize: vertical;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    button {
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--paper);
+      min-height: 40px;
+      padding: 8px 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.64);
+      padding: 10px;
+      min-height: 72px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .error {
+      min-height: 18px;
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-width: 0;
+      min-height: 100vh;
+    }
+
+    .top-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      background: rgba(238, 240, 232, 0.92);
+    }
+
+    .title-line { min-width: 0; }
+
+    .title-line h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .title-line p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--ink);
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      min-height: 420px;
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+      font-weight: 800;
+    }
+
+    #viewerContent {
+      min-width: 0;
+    }
+
+    .matrix-wrap {
+      overflow: auto;
+      border-bottom: 1px solid var(--line);
+      background: rgba(251, 252, 245, 0.68);
+      padding: 18px;
+    }
+
+    .matrix {
+      display: grid;
+      gap: 5px;
+      min-width: min-content;
+      align-items: stretch;
+    }
+
+    .cell {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      min-width: 92px;
+      min-height: 64px;
+      padding: 8px;
+      background: white;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .cell.header {
+      background: transparent;
+      color: var(--muted);
+      display: grid;
+      align-content: end;
+      min-height: 54px;
+      text-transform: uppercase;
+      font-size: 10px;
+    }
+
+    .cell.diag {
+      background: var(--panel-strong);
+      color: var(--muted);
+    }
+
+    .cell .value {
+      display: block;
+      font-size: 18px;
+      line-height: 1.1;
+      color: var(--ink);
+    }
+
+    .cell .caption {
+      display: block;
+      margin-top: 6px;
+      color: rgba(23, 25, 21, 0.72);
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
+      gap: 16px;
+      padding: 16px 18px 24px;
+    }
+
+    .panel h3 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .prompt-list,
+    .pair-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .prompt-item,
+    .pair-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.66);
+      padding: 10px;
+    }
+
+    .prompt-item strong,
+    .pair-item strong {
+      display: block;
+      margin-bottom: 6px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .pair-line {
+      display: grid;
+      grid-template-columns: 96px minmax(0, 1fr) 60px;
+      gap: 8px;
+      align-items: center;
+      margin-top: 6px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .bar {
+      height: 9px;
+      border-radius: 999px;
+      background: var(--panel-strong);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: var(--blue);
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .side {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .top-strip,
+      .content {
+        grid-template-columns: 1fr;
+      }
+      .legend { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <h1>Memory<br>Matrix</h1>
+        <div class="stamp">Suite</div>
+      </div>
+
+      <section class="section">
+        <label class="label" for="suiteFile">Suite JSON</label>
+        <input id="suiteFile" type="file" accept="application/json,.json">
+        <div class="button-row">
+          <button id="loadExample" type="button">Example</button>
+          <button id="clearSuite" class="secondary" type="button">Clear</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <label class="label" for="jsonPaste">Paste JSON</label>
+        <textarea id="jsonPaste" spellcheck="false" placeholder='{"prompts":[...],"pairs":[...],"summary":{...}}'></textarea>
+        <div class="button-row">
+          <button id="parsePaste" type="button">Parse</button>
+          <button id="fitMatrix" class="secondary" type="button">Fit</button>
+        </div>
+        <div id="errorBox" class="error"></div>
+      </section>
+
+      <section class="section">
+        <label class="label" for="metricSelect">Matrix Metric</label>
+        <select id="metricSelect">
+          <option value="cosine">Cosine similarity</option>
+          <option value="l2">L2 distance</option>
+          <option value="overlap">Top overlap</option>
+          <option value="norm">Norm drift</option>
+        </select>
+      </section>
+
+      <section class="section">
+        <div class="metric-grid">
+          <div class="metric">
+            <strong id="metricPrompts">0</strong>
+            <span>Prompts</span>
+          </div>
+          <div class="metric">
+            <strong id="metricPairs">0</strong>
+            <span>Pairs</span>
+          </div>
+          <div class="metric">
+            <strong id="metricOverlap">0.000</strong>
+            <span>Mean overlap</span>
+          </div>
+          <div class="metric">
+            <strong id="metricCosine">-</strong>
+            <span>Min cosine</span>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <main class="main">
+      <div class="top-strip">
+        <div class="title-line">
+          <h2 id="titleText">No suite loaded</h2>
+          <p id="subtitleText">Load `memory_suite.json` to inspect prompt-to-prompt hidden-memory geometry.</p>
+        </div>
+        <div class="legend">
+          <span><i class="swatch" style="background: var(--green)"></i>Similar</span>
+          <span><i class="swatch" style="background: var(--gold)"></i>Middle</span>
+          <span><i class="swatch" style="background: var(--red)"></i>Distant</span>
+        </div>
+      </div>
+
+      <div id="emptyState" class="empty">
+        <div>Waiting for a TextPy memory suite JSON.</div>
+      </div>
+
+      <section id="viewerContent" hidden>
+        <div class="matrix-wrap">
+          <div id="matrixGrid" class="matrix"></div>
+        </div>
+        <div class="content">
+          <section class="panel">
+            <h3>Prompts</h3>
+            <div id="promptList" class="prompt-list"></div>
+          </section>
+          <section class="panel">
+            <h3>Pairs</h3>
+            <div id="pairList" class="pair-list"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const exampleSuite = {
+      release: "artifacts/releases/current_text_release.json",
+      prompt_count: 3,
+      pair_count: 3,
+      prompts: [
+        {index: 0, name: "00_memory_is_a_river", prompt: "memory is a river", step_count: 4, final_state_norm: 1.2051, final_top_prediction: "river", final_top_probability: 0.0259},
+        {index: 1, name: "01_memory_is_another_world", prompt: "memory is another world", step_count: 4, final_state_norm: 0.7292, final_top_prediction: ".", final_top_probability: 0.0249},
+        {index: 2, name: "02_the_future_is_guessed", prompt: "the future is guessed", step_count: 4, final_state_norm: 0.8467, final_top_prediction: "a", final_top_probability: 0.0275}
+      ],
+      pairs: [
+        {baseline_index: 0, candidate_index: 1, baseline_name: "00_memory_is_a_river", candidate_name: "01_memory_is_another_world", mean_top_prediction_overlap: 0.675, max_abs_state_norm_delta: 0.4759, max_state_l2_distance: 0.9931, min_state_cosine_similarity: 0.5676, final_state_cosine_similarity: 0.5676},
+        {baseline_index: 0, candidate_index: 2, baseline_name: "00_memory_is_a_river", candidate_name: "02_the_future_is_guessed", mean_top_prediction_overlap: 0.35, max_abs_state_norm_delta: 0.6430, max_state_l2_distance: 1.0632, min_state_cosine_similarity: 0.0047, final_state_cosine_similarity: 0.0047},
+        {baseline_index: 1, candidate_index: 2, baseline_name: "01_memory_is_another_world", candidate_name: "02_the_future_is_guessed", mean_top_prediction_overlap: 0.55, max_abs_state_norm_delta: 0.1671, max_state_l2_distance: 0.6887, min_state_cosine_similarity: 0.4012, final_state_cosine_similarity: 0.4012}
+      ],
+      summary: {
+        prompt_count: 3,
+        pair_count: 3,
+        mean_pair_overlap: 0.525,
+        min_pair_overlap: 0.35,
+        max_pair_state_norm_delta: 0.6430,
+        has_state_vectors: true,
+        max_pair_state_l2_distance: 1.0632,
+        min_pair_state_cosine_similarity: 0.0047
+      }
+    };
+
+    const state = { suite: null };
+
+    const els = {
+      suiteFile: document.getElementById("suiteFile"),
+      loadExample: document.getElementById("loadExample"),
+      clearSuite: document.getElementById("clearSuite"),
+      jsonPaste: document.getElementById("jsonPaste"),
+      parsePaste: document.getElementById("parsePaste"),
+      fitMatrix: document.getElementById("fitMatrix"),
+      metricSelect: document.getElementById("metricSelect"),
+      errorBox: document.getElementById("errorBox"),
+      metricPrompts: document.getElementById("metricPrompts"),
+      metricPairs: document.getElementById("metricPairs"),
+      metricOverlap: document.getElementById("metricOverlap"),
+      metricCosine: document.getElementById("metricCosine"),
+      titleText: document.getElementById("titleText"),
+      subtitleText: document.getElementById("subtitleText"),
+      emptyState: document.getElementById("emptyState"),
+      viewerContent: document.getElementById("viewerContent"),
+      matrixGrid: document.getElementById("matrixGrid"),
+      promptList: document.getElementById("promptList"),
+      pairList: document.getElementById("pairList")
+    };
+
+    function clamp01(value) {
+      return Math.max(0, Math.min(1, value));
+    }
+
+    function fmt(value, digits = 3) {
+      if (!Number.isFinite(Number(value))) return "-";
+      return Number(value).toFixed(digits);
+    }
+
+    function validateSuite(payload) {
+      if (!payload || !Array.isArray(payload.prompts) || !Array.isArray(payload.pairs) || !payload.summary) {
+        throw new Error("Suite JSON must contain prompts[], pairs[], and summary.");
+      }
+      if (payload.prompts.length < 2) {
+        throw new Error("Suite JSON needs at least two prompts.");
+      }
+      for (const prompt of payload.prompts) {
+        if (typeof prompt.prompt !== "string" || typeof prompt.index !== "number") {
+          throw new Error("Each prompt row needs index and prompt.");
+        }
+      }
+      return payload;
+    }
+
+    function setError(message) {
+      els.errorBox.textContent = message || "";
+    }
+
+    function loadSuite(payload) {
+      state.suite = validateSuite(payload);
+      setError("");
+      renderSuite();
+    }
+
+    function clearSuite() {
+      state.suite = null;
+      els.suiteFile.value = "";
+      els.jsonPaste.value = "";
+      setError("");
+      renderSuite();
+    }
+
+    function pairKey(a, b) {
+      return `${Math.min(a, b)}:${Math.max(a, b)}`;
+    }
+
+    function pairMap(suite) {
+      const map = new Map();
+      for (const pair of suite.pairs) {
+        map.set(pairKey(pair.baseline_index, pair.candidate_index), pair);
+      }
+      return map;
+    }
+
+    function metricValue(pair, metric) {
+      if (!pair) return 1;
+      if (metric === "cosine") return pair.final_state_cosine_similarity ?? pair.min_state_cosine_similarity ?? pair.mean_top_prediction_overlap ?? 0;
+      if (metric === "l2") return pair.final_state_l2_distance ?? pair.max_state_l2_distance ?? pair.max_abs_state_norm_delta ?? 0;
+      if (metric === "overlap") return pair.mean_top_prediction_overlap ?? 0;
+      return pair.max_abs_state_norm_delta ?? 0;
+    }
+
+    function metricScore(pair, metric, maxL2, maxNorm) {
+      const value = metricValue(pair, metric);
+      if (metric === "cosine" || metric === "overlap") return clamp01(value);
+      if (metric === "l2") return 1 - clamp01(value / Math.max(maxL2, 1e-9));
+      return 1 - clamp01(value / Math.max(maxNorm, 1e-9));
+    }
+
+    function cellColor(score) {
+      const hue = 6 + score * 145;
+      const sat = 66;
+      const light = 92 - score * 34;
+      return `hsl(${hue} ${sat}% ${light}%)`;
+    }
+
+    function renderSuite() {
+      const suite = state.suite;
+      if (!suite) {
+        els.emptyState.hidden = false;
+        els.viewerContent.hidden = true;
+        els.metricPrompts.textContent = "0";
+        els.metricPairs.textContent = "0";
+        els.metricOverlap.textContent = "0.000";
+        els.metricCosine.textContent = "-";
+        els.titleText.textContent = "No suite loaded";
+        els.subtitleText.textContent = "Load `memory_suite.json` to inspect prompt-to-prompt hidden-memory geometry.";
+        return;
+      }
+      els.emptyState.hidden = true;
+      els.viewerContent.hidden = false;
+      const summary = suite.summary;
+      els.metricPrompts.textContent = String(suite.prompt_count ?? suite.prompts.length);
+      els.metricPairs.textContent = String(suite.pair_count ?? suite.pairs.length);
+      els.metricOverlap.textContent = fmt(summary.mean_pair_overlap);
+      els.metricCosine.textContent = fmt(summary.min_pair_state_cosine_similarity);
+      els.titleText.textContent = "TextPy Memory Suite";
+      els.subtitleText.textContent = suite.release || suite.manifest || suite.checkpoint || "Loaded memory suite JSON";
+      renderMatrix(suite);
+      renderPrompts(suite);
+      renderPairs(suite);
+    }
+
+    function renderMatrix(suite) {
+      const prompts = suite.prompts;
+      const map = pairMap(suite);
+      const metric = els.metricSelect.value;
+      const maxL2 = Math.max(...suite.pairs.map((pair) => metricValue(pair, "l2")), 1e-9);
+      const maxNorm = Math.max(...suite.pairs.map((pair) => metricValue(pair, "norm")), 1e-9);
+      els.matrixGrid.style.gridTemplateColumns = `120px repeat(${prompts.length}, 112px)`;
+      els.matrixGrid.innerHTML = "";
+      els.matrixGrid.appendChild(cell("", "header"));
+      for (const prompt of prompts) {
+        els.matrixGrid.appendChild(cell(shortName(prompt.name), "header"));
+      }
+      for (const rowPrompt of prompts) {
+        els.matrixGrid.appendChild(cell(shortName(rowPrompt.name), "header"));
+        for (const colPrompt of prompts) {
+          if (rowPrompt.index === colPrompt.index) {
+            els.matrixGrid.appendChild(cell(`<span class="value">1.000</span><span class="caption">self</span>`, "diag"));
+            continue;
+          }
+          const pair = map.get(pairKey(rowPrompt.index, colPrompt.index));
+          const value = metricValue(pair, metric);
+          const score = metricScore(pair, metric, maxL2, maxNorm);
+          const item = cell(`<span class="value">${fmt(value)}</span><span class="caption">${metric}</span>`, "");
+          item.style.background = cellColor(score);
+          item.title = `${rowPrompt.prompt} <> ${colPrompt.prompt}`;
+          els.matrixGrid.appendChild(item);
+        }
+      }
+    }
+
+    function renderPrompts(suite) {
+      els.promptList.innerHTML = "";
+      for (const row of suite.prompts) {
+        const item = document.createElement("div");
+        item.className = "prompt-item";
+        item.innerHTML = `
+          <strong>${escapeHtml(row.name)}</strong>
+          <div>${escapeHtml(row.prompt)}</div>
+          <div class="mini-grid">
+            <span>steps ${row.step_count}</span>
+            <span>norm ${fmt(row.final_state_norm)}</span>
+            <span>top ${escapeHtml(row.final_top_prediction)}</span>
+          </div>
+        `;
+        els.promptList.appendChild(item);
+      }
+    }
+
+    function renderPairs(suite) {
+      const maxL2 = Math.max(...suite.pairs.map((pair) => pair.max_state_l2_distance || 0), 1e-9);
+      els.pairList.innerHTML = "";
+      for (const pair of suite.pairs) {
+        const item = document.createElement("div");
+        item.className = "pair-item";
+        const cosine = pair.final_state_cosine_similarity ?? pair.min_state_cosine_similarity;
+        const l2 = pair.final_state_l2_distance ?? pair.max_state_l2_distance;
+        item.innerHTML = `
+          <strong>${escapeHtml(pair.baseline_name)} -> ${escapeHtml(pair.candidate_name)}</strong>
+          <div class="pair-line"><span>cosine</span><div class="bar"><div class="bar-fill" style="width:${clamp01(cosine) * 100}%; background:var(--green)"></div></div><span>${fmt(cosine)}</span></div>
+          <div class="pair-line"><span>L2</span><div class="bar"><div class="bar-fill" style="width:${clamp01(l2 / maxL2) * 100}%; background:var(--red)"></div></div><span>${fmt(l2)}</span></div>
+          <div class="pair-line"><span>overlap</span><div class="bar"><div class="bar-fill" style="width:${clamp01(pair.mean_top_prediction_overlap) * 100}%; background:var(--blue)"></div></div><span>${fmt(pair.mean_top_prediction_overlap)}</span></div>
+        `;
+        els.pairList.appendChild(item);
+      }
+    }
+
+    function cell(html, className) {
+      const node = document.createElement("div");
+      node.className = `cell ${className || ""}`.trim();
+      node.innerHTML = html;
+      return node;
+    }
+
+    function shortName(value) {
+      return String(value || "").replace(/^\d+_/, "").replaceAll("_", " ").slice(0, 32);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    els.suiteFile.addEventListener("change", async (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      try {
+        loadSuite(JSON.parse(await file.text()));
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    els.loadExample.addEventListener("click", () => {
+      loadSuite(exampleSuite);
+      els.jsonPaste.value = JSON.stringify(exampleSuite, null, 2);
+    });
+
+    els.clearSuite.addEventListener("click", clearSuite);
+
+    els.parsePaste.addEventListener("click", () => {
+      try {
+        loadSuite(JSON.parse(els.jsonPaste.value));
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    els.metricSelect.addEventListener("change", renderSuite);
+    els.fitMatrix.addEventListener("click", renderSuite);
+    renderSuite();
+  </script>
+</body>
+</html>

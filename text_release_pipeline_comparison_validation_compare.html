@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>TextPy Pipeline Proof Compare</title>
+  <style>
+    :root {
+      --paper: #eef0e8;
+      --ink: #171915;
+      --muted: #62675d;
+      --line: #c9cec0;
+      --panel: #fbfcf5;
+      --green: #087f5b;
+      --red: #b42318;
+      --gold: #b7791f;
+      --blue: #155eef;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        var(--paper);
+      background-size: 24px 24px;
+      font-family: "Avenir Next", "Trebuchet MS", Verdana, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, input, textarea { font: inherit; letter-spacing: 0; }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .side {
+      border-right: 1px solid var(--line);
+      background: rgba(251, 252, 245, 0.94);
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "DIN Condensed", "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: 34px;
+      line-height: 0.95;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .stamp {
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transform: rotate(-2deg);
+    }
+
+    .section {
+      border-top: 1px solid var(--line);
+      padding: 16px 0;
+    }
+
+    .section:first-of-type { border-top: 0; padding-top: 0; }
+
+    .label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    input[type="file"], textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 9px;
+    }
+
+    textarea {
+      min-height: 132px;
+      resize: vertical;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    button {
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--paper);
+      min-height: 40px;
+      padding: 8px 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.secondary { background: transparent; color: var(--ink); }
+
+    .button-row,
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.66);
+      padding: 10px;
+      min-height: 72px;
+    }
+
+    .metric.good { border-color: rgba(8, 127, 91, 0.54); }
+    .metric.bad { border-color: rgba(180, 35, 24, 0.54); }
+    .metric.warn { border-color: rgba(183, 121, 31, 0.58); }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .error {
+      min-height: 18px;
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-width: 0;
+      min-height: 100vh;
+    }
+
+    .top-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      background: rgba(238, 240, 232, 0.92);
+    }
+
+    .title-line { min-width: 0; }
+
+    .title-line h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .title-line p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--ink);
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      min-height: 420px;
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+      font-weight: 800;
+    }
+
+    .dashboard {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(290px, 1fr));
+      gap: 14px;
+    }
+
+    .validation-card,
+    .panel,
+    .delta-card,
+    .drift-row,
+    .failure-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(251, 252, 245, 0.9);
+      min-width: 0;
+    }
+
+    .validation-card {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .validation-card.good { border-color: rgba(8, 127, 91, 0.54); }
+    .validation-card.bad { border-color: rgba(180, 35, 24, 0.54); }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .card-head h3 {
+      margin: 0;
+      font-size: 16px;
+      text-transform: uppercase;
+      overflow-wrap: anywhere;
+    }
+
+    .card-head code {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 4px 8px;
+      color: white;
+      background: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .status-pill.good { background: var(--green); }
+    .status-pill.bad { background: var(--red); }
+
+    .small-grid,
+    .delta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 8px;
+    }
+
+    .small-metric,
+    .delta-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 9px;
+      min-height: 66px;
+    }
+
+    .delta-card.good { border-color: rgba(8, 127, 91, 0.54); }
+    .delta-card.bad { border-color: rgba(180, 35, 24, 0.54); }
+    .delta-card.warn { border-color: rgba(183, 121, 31, 0.58); }
+
+    .small-metric span,
+    .delta-card span,
+    .drift-row span,
+    .failure-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .small-metric strong,
+    .delta-card strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 18px;
+      overflow-wrap: anywhere;
+    }
+
+    .panel {
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .panel h3 {
+      margin: 0;
+      font-size: 15px;
+      text-transform: uppercase;
+    }
+
+    .drift-list,
+    .failure-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .drift-row {
+      padding: 10px;
+      display: grid;
+      grid-template-columns: minmax(170px, 0.7fr) minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .drift-row.good { border-color: rgba(8, 127, 91, 0.54); }
+    .drift-row.bad { border-color: rgba(180, 35, 24, 0.54); }
+    .drift-row.warn { border-color: rgba(183, 121, 31, 0.58); }
+
+    .drift-row strong,
+    .drift-row code,
+    .failure-item strong,
+    .failure-item code {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .drift-row code,
+    .failure-item code {
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .failure-item {
+      border: 1px solid rgba(180, 35, 24, 0.54);
+      border-radius: var(--radius);
+      background: white;
+      padding: 11px;
+    }
+
+    .failure-item.empty-ok { border-color: rgba(8, 127, 91, 0.54); }
+
+    @media (max-width: 1160px) {
+      .small-grid,
+      .delta-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .side { border-right: 0; border-bottom: 1px solid var(--line); }
+      .card-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      h1 { font-size: 28px; }
+      .top-strip { grid-template-columns: 1fr; }
+      .legend { justify-content: flex-start; }
+      .metric-grid,
+      .button-row,
+      .small-grid,
+      .delta-grid,
+      .drift-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <h1>Pipeline<br>Proof Compare</h1>
+        <div class="stamp">TextPy</div>
+      </div>
+
+      <div class="section">
+        <label class="label" for="pipelineComparisonValidationComparisonFile">Comparison JSON</label>
+        <input id="pipelineComparisonValidationComparisonFile" type="file" accept=".json,application/json">
+        <div class="button-row">
+          <button id="loadExample" type="button">Load Example</button>
+          <button id="clearComparison" class="secondary" type="button">Clear</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <label class="label" for="jsonPaste">Paste JSON</label>
+        <textarea id="jsonPaste" spellcheck="false" placeholder="Paste text_release_pipeline_comparison_validation_comparison.json here"></textarea>
+        <div class="button-row">
+          <button id="parsePaste" type="button">Parse</button>
+          <button id="refreshComparison" class="secondary" type="button">Refresh</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="metric-grid">
+          <div id="sideVerdictCard" class="metric">
+            <strong id="metricVerdict">-</strong>
+            <span>verdict</span>
+          </div>
+          <div id="sideValidCard" class="metric">
+            <strong id="metricSameValid">-</strong>
+            <span>same valid</span>
+          </div>
+          <div id="sideFailureCard" class="metric">
+            <strong id="metricFailureDelta">0</strong>
+            <span>failure delta</span>
+          </div>
+          <div id="sideErrorCard" class="metric">
+            <strong id="metricErrorDelta">0</strong>
+            <span>error delta</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div id="errorBox" class="error" role="alert"></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="top-strip">
+        <div class="title-line">
+          <h2 id="titleText">No pipeline comparison validation comparison loaded</h2>
+          <p id="subtitleText">text_release_pipeline_comparison_validation_comparison.json</p>
+        </div>
+        <div class="legend" aria-label="Legend">
+          <span><i class="swatch" style="background: var(--green)"></i>same</span>
+          <span><i class="swatch" style="background: var(--gold)"></i>drift</span>
+          <span><i class="swatch" style="background: var(--red)"></i>fail</span>
+        </div>
+      </header>
+
+      <section id="emptyState" class="empty">
+        <div>
+          <strong>Waiting for pipeline proof comparison.</strong>
+          <p>text_release_pipeline_comparison_validation_comparison.json</p>
+        </div>
+      </section>
+
+      <section id="pipelineComparisonValidationComparisonDashboard" class="dashboard" hidden>
+        <div id="pipelineComparisonValidationCards" class="card-grid"></div>
+
+        <div class="panel">
+          <h3>Validation Drift Surface</h3>
+          <div id="pipelineComparisonValidationDeltaGrid" class="delta-grid"></div>
+        </div>
+
+        <div class="panel">
+          <h3>Path, Proof, And Error Drift</h3>
+          <div id="pipelineComparisonValidationDriftRows" class="drift-list"></div>
+        </div>
+
+        <div class="panel">
+          <h3>Threshold Failures</h3>
+          <div id="pipelineComparisonValidationFailureList" class="failure-list"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const exampleComparison = {
+      baseline: {
+        path: "artifacts/releases/text_release_pipeline_comparison_validation.json",
+        valid: true,
+        comparison: "artifacts/releases/text_release_pipeline_comparison.json",
+        baseline_pipeline: "artifacts/releases/text_release_pipeline_demo.json",
+        candidate_pipeline: "artifacts/releases/text_release_pipeline_demo.json",
+        baseline_stage_count: 35,
+        candidate_stage_count: 35,
+        same_stage_set: true,
+        stage_count_delta: 0,
+        loss_delta: 0,
+        memory_mean_pair_overlap_delta: 0,
+        same_evidence_archive_sha256: true,
+        same_evidence_ledger_chain_head: true,
+        failure_count: 0,
+        errors: []
+      },
+      candidate: {
+        path: "artifacts/releases/text_release_pipeline_comparison_validation.json",
+        valid: true,
+        comparison: "artifacts/releases/text_release_pipeline_comparison.json",
+        baseline_pipeline: "artifacts/releases/text_release_pipeline_demo.json",
+        candidate_pipeline: "artifacts/releases/text_release_pipeline_demo.json",
+        baseline_stage_count: 35,
+        candidate_stage_count: 35,
+        same_stage_set: true,
+        stage_count_delta: 0,
+        loss_delta: 0,
+        memory_mean_pair_overlap_delta: 0,
+        same_evidence_archive_sha256: true,
+        same_evidence_ledger_chain_head: true,
+        failure_count: 0,
+        errors: []
+      },
+      comparison: {
+        same_valid: true,
+        same_comparison: true,
+        same_baseline_pipeline: true,
+        same_candidate_pipeline: true,
+        baseline_stage_count_delta: 0,
+        candidate_stage_count_delta: 0,
+        same_stage_set_changed: false,
+        stage_count_delta_delta: 0,
+        loss_delta_delta: 0,
+        memory_mean_pair_overlap_delta_delta: 0,
+        same_evidence_archive_sha256_changed: false,
+        same_evidence_ledger_chain_head_changed: false,
+        failure_count_delta: 0,
+        error_count_delta: 0,
+        same_errors: true,
+        common_errors: [],
+        missing_errors: [],
+        added_errors: []
+      },
+      failures: []
+    };
+
+    const els = {
+      pipelineComparisonValidationComparisonFile: document.getElementById("pipelineComparisonValidationComparisonFile"),
+      loadExample: document.getElementById("loadExample"),
+      clearComparison: document.getElementById("clearComparison"),
+      jsonPaste: document.getElementById("jsonPaste"),
+      parsePaste: document.getElementById("parsePaste"),
+      refreshComparison: document.getElementById("refreshComparison"),
+      errorBox: document.getElementById("errorBox"),
+      emptyState: document.getElementById("emptyState"),
+      pipelineComparisonValidationComparisonDashboard: document.getElementById("pipelineComparisonValidationComparisonDashboard"),
+      titleText: document.getElementById("titleText"),
+      subtitleText: document.getElementById("subtitleText"),
+      sideVerdictCard: document.getElementById("sideVerdictCard"),
+      sideValidCard: document.getElementById("sideValidCard"),
+      sideFailureCard: document.getElementById("sideFailureCard"),
+      sideErrorCard: document.getElementById("sideErrorCard"),
+      metricVerdict: document.getElementById("metricVerdict"),
+      metricSameValid: document.getElementById("metricSameValid"),
+      metricFailureDelta: document.getElementById("metricFailureDelta"),
+      metricErrorDelta: document.getElementById("metricErrorDelta"),
+      pipelineComparisonValidationCards: document.getElementById("pipelineComparisonValidationCards"),
+      pipelineComparisonValidationDeltaGrid: document.getElementById("pipelineComparisonValidationDeltaGrid"),
+      pipelineComparisonValidationDriftRows: document.getElementById("pipelineComparisonValidationDriftRows"),
+      pipelineComparisonValidationFailureList: document.getElementById("pipelineComparisonValidationFailureList")
+    };
+
+    let currentComparison = null;
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[char]);
+    }
+
+    function valueText(value, digits = 4) {
+      if (value === null || value === undefined || value === "") return "-";
+      if (typeof value === "boolean") return value ? "true" : "false";
+      if (typeof value === "number") {
+        if (!Number.isFinite(value)) return "-";
+        if (Math.abs(value) >= 1000) return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
+        return value.toFixed(digits);
+      }
+      return String(value);
+    }
+
+    function setError(message) {
+      els.errorBox.textContent = message || "";
+    }
+
+    function setCardState(element, state) {
+      element.classList.remove("good", "bad", "warn");
+      if (state) element.classList.add(state);
+    }
+
+    function isObject(value) {
+      return value && typeof value === "object" && !Array.isArray(value);
+    }
+
+    function validateValidationRow(row, label, errors) {
+      if (!isObject(row)) {
+        errors.push(`${label} must be an object.`);
+        return;
+      }
+      if (typeof row.valid !== "boolean") errors.push(`${label}.valid must be boolean.`);
+      ["path", "comparison", "baseline_pipeline", "candidate_pipeline"].forEach((key) => {
+        if (typeof row[key] !== "string" || !row[key]) errors.push(`${label}.${key} must be non-empty.`);
+      });
+      ["baseline_stage_count", "candidate_stage_count", "stage_count_delta", "failure_count"].forEach((key) => {
+        if (!Number.isInteger(row[key])) errors.push(`${label}.${key} must be an integer.`);
+      });
+      ["loss_delta", "memory_mean_pair_overlap_delta"].forEach((key) => {
+        if (typeof row[key] !== "number" || !Number.isFinite(row[key])) errors.push(`${label}.${key} must be numeric.`);
+      });
+      ["same_stage_set", "same_evidence_archive_sha256", "same_evidence_ledger_chain_head"].forEach((key) => {
+        if (typeof row[key] !== "boolean") errors.push(`${label}.${key} must be boolean.`);
+      });
+      if (!Array.isArray(row.errors)) errors.push(`${label}.errors must be a list.`);
+    }
+
+    function validatePipelineComparisonValidationComparison(payload) {
+      const errors = [];
+      if (!isObject(payload)) {
+        errors.push("Root payload must be a JSON object.");
+        return errors;
+      }
+      validateValidationRow(payload.baseline, "baseline", errors);
+      validateValidationRow(payload.candidate, "candidate", errors);
+      const comparison = payload.comparison;
+      if (!isObject(comparison)) {
+        errors.push("comparison must be an object.");
+      } else {
+        [
+          "same_valid",
+          "same_comparison",
+          "same_baseline_pipeline",
+          "same_candidate_pipeline",
+          "same_stage_set_changed",
+          "same_evidence_archive_sha256_changed",
+          "same_evidence_ledger_chain_head_changed",
+          "same_errors"
+        ].forEach((key) => {
+          if (typeof comparison[key] !== "boolean") errors.push(`comparison.${key} must be boolean.`);
+        });
+        [
+          "baseline_stage_count_delta",
+          "candidate_stage_count_delta",
+          "stage_count_delta_delta",
+          "loss_delta_delta",
+          "memory_mean_pair_overlap_delta_delta",
+          "failure_count_delta",
+          "error_count_delta"
+        ].forEach((key) => {
+          if (typeof comparison[key] !== "number" || !Number.isFinite(comparison[key])) errors.push(`comparison.${key} must be numeric.`);
+        });
+        ["common_errors", "missing_errors", "added_errors"].forEach((key) => {
+          if (!Array.isArray(comparison[key])) errors.push(`comparison.${key} must be a list.`);
+        });
+      }
+      if (!Array.isArray(payload.failures)) errors.push("failures must be a list.");
+      return errors;
+    }
+
+    function validationCard(label, row) {
+      const valid = row.valid === true;
+      return `
+        <div class="validation-card ${valid ? "good" : "bad"}">
+          <div class="card-head">
+            <div>
+              <h3>${escapeHtml(label)}</h3>
+              <code>${escapeHtml(row.path)}</code>
+            </div>
+            <span class="status-pill ${valid ? "good" : "bad"}">${valid ? "valid" : "invalid"}</span>
+          </div>
+          <div class="small-grid">
+            <div class="small-metric"><span>stages</span><strong>${escapeHtml(row.baseline_stage_count)} -> ${escapeHtml(row.candidate_stage_count)}</strong></div>
+            <div class="small-metric"><span>same stage set</span><strong>${escapeHtml(valueText(row.same_stage_set))}</strong></div>
+            <div class="small-metric"><span>loss delta</span><strong>${escapeHtml(valueText(row.loss_delta, 6))}</strong></div>
+            <div class="small-metric"><span>memory delta</span><strong>${escapeHtml(valueText(row.memory_mean_pair_overlap_delta, 6))}</strong></div>
+            <div class="small-metric"><span>evidence SHA</span><strong>${escapeHtml(valueText(row.same_evidence_archive_sha256))}</strong></div>
+            <div class="small-metric"><span>ledger head</span><strong>${escapeHtml(valueText(row.same_evidence_ledger_chain_head))}</strong></div>
+            <div class="small-metric"><span>failures</span><strong>${escapeHtml(row.failure_count)}</strong></div>
+            <div class="small-metric"><span>errors</span><strong>${escapeHtml((row.errors || []).length)}</strong></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function deltaState(value, mode = "zero") {
+      if (value === null || value === undefined) return "warn";
+      if (Number(value) === 0) return "good";
+      if (mode === "lower" && Number(value) < 0) return "good";
+      if (mode === "higher" && Number(value) > 0) return "good";
+      return mode === "zero" ? "warn" : "bad";
+    }
+
+    function deltaCard(label, value, state, digits = 4) {
+      return `
+        <div class="delta-card ${state || ""}">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(valueText(value, digits))}</strong>
+        </div>
+      `;
+    }
+
+    function driftRow(label, same, detail, warn = false) {
+      const state = same ? "good" : warn ? "warn" : "bad";
+      return `
+        <div class="drift-row ${state}">
+          <span>${escapeHtml(label)}</span>
+          <div>
+            <strong>${same ? "same" : "changed"}</strong>
+            <code>${escapeHtml(valueText(detail))}</code>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFailures(failures) {
+      if (!failures.length) {
+        els.pipelineComparisonValidationFailureList.innerHTML = `
+          <div class="failure-item empty-ok">
+            <span>threshold failures</span>
+            <strong>No comparison failures</strong>
+          </div>
+        `;
+        return;
+      }
+      els.pipelineComparisonValidationFailureList.innerHTML = failures.map((failure, index) => `
+        <div class="failure-item">
+          <span>failure ${index + 1}</span>
+          <code>${escapeHtml(failure)}</code>
+        </div>
+      `).join("");
+    }
+
+    function renderPipelineComparisonValidationComparison(payload) {
+      const shapeErrors = validatePipelineComparisonValidationComparison(payload);
+      if (shapeErrors.length) throw new Error(shapeErrors.join(" "));
+
+      currentComparison = payload;
+      const comparison = payload.comparison || {};
+      const failures = Array.isArray(payload.failures) ? payload.failures : [];
+      const pass = failures.length === 0;
+
+      setError("");
+      els.emptyState.hidden = true;
+      els.pipelineComparisonValidationComparisonDashboard.hidden = false;
+      els.metricVerdict.textContent = pass ? "PASS" : "FAIL";
+      els.metricSameValid.textContent = comparison.same_valid ? "yes" : "no";
+      els.metricFailureDelta.textContent = valueText(comparison.failure_count_delta, 0);
+      els.metricErrorDelta.textContent = valueText(comparison.error_count_delta, 0);
+      setCardState(els.sideVerdictCard, pass ? "good" : "bad");
+      setCardState(els.sideValidCard, comparison.same_valid ? "good" : "bad");
+      setCardState(els.sideFailureCard, comparison.failure_count_delta === 0 ? "good" : "bad");
+      setCardState(els.sideErrorCard, comparison.error_count_delta === 0 ? "good" : "bad");
+
+      els.titleText.textContent = pass ? "Pipeline proof comparison passed" : "Pipeline proof comparison failed";
+      els.subtitleText.textContent = payload.candidate.comparison || "text_release_pipeline_comparison_validation_comparison.json";
+
+      els.pipelineComparisonValidationCards.innerHTML = [
+        validationCard("baseline", payload.baseline),
+        validationCard("candidate", payload.candidate)
+      ].join("");
+
+      els.pipelineComparisonValidationDeltaGrid.innerHTML = [
+        deltaCard("baseline stages", comparison.baseline_stage_count_delta, deltaState(comparison.baseline_stage_count_delta, "zero"), 0),
+        deltaCard("candidate stages", comparison.candidate_stage_count_delta, deltaState(comparison.candidate_stage_count_delta, "zero"), 0),
+        deltaCard("stage delta drift", comparison.stage_count_delta_delta, deltaState(comparison.stage_count_delta_delta, "zero"), 0),
+        deltaCard("loss delta drift", comparison.loss_delta_delta, deltaState(comparison.loss_delta_delta, "zero"), 6),
+        deltaCard("memory delta drift", comparison.memory_mean_pair_overlap_delta_delta, deltaState(comparison.memory_mean_pair_overlap_delta_delta, "zero"), 6),
+        deltaCard("failure delta", comparison.failure_count_delta, deltaState(comparison.failure_count_delta, "zero"), 0),
+        deltaCard("error delta", comparison.error_count_delta, deltaState(comparison.error_count_delta, "zero"), 0),
+        deltaCard("same errors", comparison.same_errors, comparison.same_errors ? "good" : "bad")
+      ].join("");
+
+      els.pipelineComparisonValidationDriftRows.innerHTML = [
+        driftRow("validity", comparison.same_valid, `${payload.baseline.valid} -> ${payload.candidate.valid}`),
+        driftRow("comparison path", comparison.same_comparison, `${payload.baseline.comparison} -> ${payload.candidate.comparison}`),
+        driftRow("baseline pipeline", comparison.same_baseline_pipeline, `${payload.baseline.baseline_pipeline} -> ${payload.candidate.baseline_pipeline}`),
+        driftRow("candidate pipeline", comparison.same_candidate_pipeline, `${payload.baseline.candidate_pipeline} -> ${payload.candidate.candidate_pipeline}`),
+        driftRow("stage set verdict", !comparison.same_stage_set_changed, `changed=${comparison.same_stage_set_changed}`, true),
+        driftRow("evidence archive flag", !comparison.same_evidence_archive_sha256_changed, `changed=${comparison.same_evidence_archive_sha256_changed}`, true),
+        driftRow("ledger chain flag", !comparison.same_evidence_ledger_chain_head_changed, `changed=${comparison.same_evidence_ledger_chain_head_changed}`, true),
+        driftRow("error set", comparison.same_errors, `added=${(comparison.added_errors || []).length}, missing=${(comparison.missing_errors || []).length}`)
+      ].join("");
+
+      renderFailures(failures);
+    }
+
+    function parseText(text) {
+      const payload = JSON.parse(text);
+      renderPipelineComparisonValidationComparison(payload);
+      els.jsonPaste.value = JSON.stringify(payload, null, 2);
+    }
+
+    function resetView() {
+      currentComparison = null;
+      els.pipelineComparisonValidationComparisonFile.value = "";
+      els.jsonPaste.value = "";
+      els.emptyState.hidden = false;
+      els.pipelineComparisonValidationComparisonDashboard.hidden = true;
+      els.titleText.textContent = "No pipeline comparison validation comparison loaded";
+      els.subtitleText.textContent = "text_release_pipeline_comparison_validation_comparison.json";
+      els.metricVerdict.textContent = "-";
+      els.metricSameValid.textContent = "-";
+      els.metricFailureDelta.textContent = "0";
+      els.metricErrorDelta.textContent = "0";
+      setCardState(els.sideVerdictCard, "");
+      setCardState(els.sideValidCard, "");
+      setCardState(els.sideFailureCard, "");
+      setCardState(els.sideErrorCard, "");
+      setError("");
+    }
+
+    els.pipelineComparisonValidationComparisonFile.addEventListener("change", async (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      try {
+        parseText(await file.text());
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    els.loadExample.addEventListener("click", () => {
+      renderPipelineComparisonValidationComparison(exampleComparison);
+      els.jsonPaste.value = JSON.stringify(exampleComparison, null, 2);
+    });
+
+    els.clearComparison.addEventListener("click", resetView);
+
+    els.parsePaste.addEventListener("click", () => {
+      try {
+        parseText(els.jsonPaste.value);
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    els.refreshComparison.addEventListener("click", () => {
+      try {
+        if (els.jsonPaste.value.trim()) {
+          parseText(els.jsonPaste.value);
+        } else if (currentComparison) {
+          renderPipelineComparisonValidationComparison(currentComparison);
+        }
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+{
+  "created_at": "20260621T144118Z",
+  "kind": "long_context_recall_multiseed",
+  "task": "mixed-code",
+  "ssm_variant": "kv-memory",
+  "runs": [
+    {
+      "seed": 11,
+      "output_json": "artifacts/long_context_recall_multiseed/smoke/seed_11.json",
+      "elapsed_s": 4.29580941691529,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "compare_long_context_recall.py",
+        "--task",
+        "mixed-code",
+        "--output-json",
+        "artifacts/long_context_recall_multiseed/smoke/seed_11.json",
+        "--train-records",
+        "128",
+        "--eval-records",
+        "64",
+        "--key-count",
+        "8",
+        "--value-count",
+        "8",
+        "--binding-count",
+        "4",
+        "--query-count",
+        "2",
+        "--delay",
+        "40",
+        "--transformer-context",
+        "16",
+        "--epochs",
+        "1",
+        "--batch-size",
+        "64",
+        "--learning-rate",
+        "0.006",
+        "--grad-clip",
+        "1.0",
+        "--ssm-input-dim",
+        "64",
+        "--ssm-state-dim",
+        "96",
+        "--ssm-variant",
+        "kv-memory",
+        "--ssm-skip-rank",
+        "32",
+        "--ssm-decay-init",
+        "8.0",
+        "--kv-logit-scale",
+        "64.0",
+        "--transformer-max-d-model",
+        "256",
+        "--transformer-layers",
+        "1",
+        "--transformer-heads",
+        "2",
+        "--transformer-ff-mult",
+        "2",
+        "--seed",
+        "11",
+        "--backend",
+        "cpu"
+      ],
+      "stdout_tail": [
+        "  transformer_params: 10,220",
+        "  transformer/ssm: 1.056",
+        "",
+        "Training SSM",
+        "  recall_loss=2.6244 recall_acc=0.1250 train_s=0.76",
+        "Training Transformer",
+        "  recall_loss=2.5644 recall_acc=0.1250 train_s=0.49",
+        "",
+        "Held-out delayed recall",
+        "  ssm: loss=2.4309 acc=0.1172 records/s=7,292",
+        "  transformer: loss=2.5383 acc=0.1406 records/s=43,610",
+        "",
+        "Memory/context",
+        "  ssm_parameter_bytes: 37.80 KiB",
+        "  transformer_parameter_bytes: 39.92 KiB",
+        "  ssm_effective_context_tokens: 47",
+        "  transformer_effective_context_tokens: 16",
+        "  recall_distance_over_transformer_context: 2.50x",
+        "",
+        "Comparison",
+        "  winner_by_recall_accuracy: transformer",
+        "  ssm_minus_transformer_recall_accuracy: -0.023438",
+        "",
+        "Saved JSON: artifacts/long_context_recall_multiseed/smoke/seed_11.json"
+      ],
+      "winner_by_recall_accuracy": "transformer",
+      "ssm_recall_accuracy": 0.1171875,
+      "transformer_recall_accuracy": 0.140625
+    }
+  ],
+  "seed_count": 1,
+  "seeds": [
+    11
+  ],
+  "protocol_evidence": {
+    "repeated_seed_count": 1,
+    "seed_requirement_met": true,
+    "delay": 40,
+    "transformer_context": 16,
+    "bypass_mode": true,
+    "min_query_positions": 128,
+    "query_position_requirement_met": true,
+    "delay_beyond_context": true,
+    "valid": true
+  },
+  "summary": {
+    "ssm": {
+      "recall_accuracy": {
+        "mean": 0.1171875,
+        "stdev": 0.0,
+        "min": 0.1171875,
+        "max": 0.1171875
+      },
+      "recall_loss": {
+        "mean": 2.4308600425720215,
+        "stdev": 0.0,
+        "min": 2.4308600425720215,
+        "max": 2.4308600425720215
+      },
+      "records_per_s": {
+        "mean": 7292.0,
+        "stdev": 0.0,
+        "min": 7292.0,
+        "max": 7292.0
+      },
+      "train_s": {
+        "mean": 0.7594999999273568,
+        "stdev": 0.0,
+        "min": 0.7594999999273568,
+        "max": 0.7594999999273568
+      },
+      "parameter_count": {
+        "mean": 9678.0,
+        "stdev": 0.0,
+        "min": 9678.0,
+        "max": 9678.0
+      },
+      "parameter_bytes": {
+        "mean": 38712.0,
+        "stdev": 0.0,
+        "min": 38712.0,
+        "max": 38712.0
+      }
+    },
+    "transformer": {
+      "recall_accuracy": {
+        "mean": 0.140625,
+        "stdev": 0.0,
+        "min": 0.140625,
+        "max": 0.140625
+      },
+      "recall_loss": {
+        "mean": 2.5383355617523193,
+        "stdev": 0.0,
+        "min": 2.5383355617523193,
+        "max": 2.5383355617523193
+      },
+      "records_per_s": {
+        "mean": 43610.0,
+        "stdev": 0.0,
+        "min": 43610.0,
+        "max": 43610.0
+      },
+      "train_s": {
+        "mean": 0.4880200829356909,
+        "stdev": 0.0,
+        "min": 0.4880200829356909,
+        "max": 0.4880200829356909
+      },
+      "parameter_count": {
+        "mean": 10220.0,
+        "stdev": 0.0,
+        "min": 10220.0,
+        "max": 10220.0
+      },
+      "parameter_bytes": {
+        "mean": 40880.0,
+        "stdev": 0.0,
+        "min": 40880.0,
+        "max": 40880.0
+      }
+    },
+    "comparison": {
+      "winner_counts": {
+        "ssm": 0,
+        "transformer": 1,
+        "tie": 0
+      },
+      "ssm_minus_transformer_recall_accuracy": {
+        "mean": -0.0234375,
+        "stdev": 0.0,
+        "min": -0.0234375,
+        "max": -0.0234375
+      },
+      "ssm_minus_transformer_recall_loss": {
+        "mean": -0.10747551918029785,
+        "stdev": 0.0,
+        "min": -0.10747551918029785,
+        "max": -0.10747551918029785
+      },
+      "transformer_to_ssm_param_ratio": {
+        "mean": 1.0560033064682786,
+        "stdev": 0.0,
+        "min": 1.0560033064682786,
+        "max": 1.0560033064682786
+      }
+    }
+  },
+  "claim_guardrail": "This is repeated-seed evidence for a bounded synthetic long-context/code-like task. It is stronger than a single demo but not a general natural-language Transformer superiority claim."
+}

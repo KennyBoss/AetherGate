@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>TextPy Release Gates</title>
+  <style>
+    :root {
+      --paper: #eef0e8;
+      --ink: #171915;
+      --muted: #62675d;
+      --line: #c9cec0;
+      --panel: #fbfcf5;
+      --panel-strong: #dde4d2;
+      --green: #087f5b;
+      --blue: #155eef;
+      --red: #b42318;
+      --gold: #b7791f;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        var(--paper);
+      background-size: 24px 24px;
+      font-family: "Avenir Next", "Trebuchet MS", Verdana, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, input, textarea {
+      font: inherit;
+      letter-spacing: 0;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .side {
+      border-right: 1px solid var(--line);
+      background: rgba(251, 252, 245, 0.94);
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "DIN Condensed", "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: 34px;
+      line-height: 0.95;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .stamp {
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transform: rotate(-2deg);
+    }
+
+    .section {
+      border-top: 1px solid var(--line);
+      padding: 16px 0;
+    }
+
+    .section:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    input[type="file"], textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 9px;
+    }
+
+    textarea {
+      min-height: 116px;
+      resize: vertical;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    button {
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--paper);
+      min-height: 40px;
+      padding: 8px 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.64);
+      padding: 10px;
+      min-height: 72px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .error {
+      min-height: 18px;
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-width: 0;
+      min-height: 100vh;
+    }
+
+    .top-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      background: rgba(238, 240, 232, 0.92);
+    }
+
+    .title-line { min-width: 0; }
+
+    .title-line h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .title-line p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--ink);
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      min-height: 420px;
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+    }
+
+    .dashboard {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .verdict {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(251, 252, 245, 0.88);
+      padding: 16px;
+      min-width: 0;
+    }
+
+    .verdict.pass { border-color: rgba(8, 127, 91, 0.54); }
+    .verdict.fail { border-color: rgba(180, 35, 24, 0.54); }
+
+    .verdict label,
+    .gate-card label,
+    .failure-item label,
+    .metric-chip label {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .verdict strong {
+      display: block;
+      margin-top: 6px;
+      font-family: "DIN Condensed", "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: 76px;
+      line-height: 0.9;
+      text-transform: uppercase;
+      overflow-wrap: anywhere;
+    }
+
+    .verdict p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .summary-rail {
+      display: grid;
+      gap: 8px;
+    }
+
+    .metric-chip {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 11px;
+      min-height: 64px;
+    }
+
+    .metric-chip strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 20px;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .gate-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(170px, 1fr));
+      gap: 10px;
+    }
+
+    .gate-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(251, 252, 245, 0.9);
+      padding: 12px;
+      min-height: 180px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .gate-card.good { border-color: rgba(8, 127, 91, 0.54); }
+    .gate-card.bad { border-color: rgba(180, 35, 24, 0.54); }
+
+    .gate-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .gate-head strong {
+      display: block;
+      font-size: 16px;
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+    }
+
+    .gate-head code {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      white-space: nowrap;
+      color: white;
+      background: var(--muted);
+    }
+
+    .status-pill.good { background: var(--green); }
+    .status-pill.bad { background: var(--red); }
+    .status-pill.warn { background: var(--gold); color: var(--ink); }
+
+    .bar {
+      height: 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0;
+      background: var(--blue);
+    }
+
+    .bar-fill.good { background: var(--green); }
+    .bar-fill.bad { background: var(--red); }
+    .bar-fill.warn { background: var(--gold); }
+
+    .metric-list {
+      display: grid;
+      gap: 7px;
+      align-content: start;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: baseline;
+      font-size: 12px;
+    }
+
+    .metric-row span {
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .metric-row strong {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+      text-align: right;
+    }
+
+    .failure-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .failure-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(251, 252, 245, 0.9);
+      padding: 11px;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .failure-item strong,
+    .failure-item code {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .failure-item code {
+      margin-top: 3px;
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .side { border-right: 0; border-bottom: 1px solid var(--line); }
+      .hero { grid-template-columns: 1fr; }
+      .gate-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 620px) {
+      h1 { font-size: 28px; }
+      .top-strip { grid-template-columns: 1fr; }
+      .legend { justify-content: flex-start; }
+      .metric-grid,
+      .button-row,
+      .gate-grid { grid-template-columns: 1fr; }
+      .verdict strong { font-size: 56px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <h1>Release<br>Gates</h1>
+        <div class="stamp">TextPy</div>
+      </div>
+
+      <div class="section">
+        <label class="label" for="gatesFile">Gate summary JSON</label>
+        <input id="gatesFile" type="file" accept=".json,application/json">
+        <div class="button-row">
+          <button id="loadExample" type="button">Load Example</button>
+          <button id="clearGates" class="secondary" type="button">Clear</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <label class="label" for="jsonPaste">Paste JSON</label>
+        <textarea id="jsonPaste" spellcheck="false" placeholder="Paste text_release_gates.json here"></textarea>
+        <div class="button-row">
+          <button id="parsePaste" type="button">Parse</button>
+          <button id="refreshGates" class="secondary" type="button">Refresh</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="metric-grid">
+          <div class="metric">
+            <strong id="metricVerdict">-</strong>
+            <span>verdict</span>
+          </div>
+          <div class="metric">
+            <strong id="metricFailed">0</strong>
+            <span>failed gates</span>
+          </div>
+          <div class="metric">
+            <strong id="metricLoss">-</strong>
+            <span>loss</span>
+          </div>
+          <div class="metric">
+            <strong id="metricSpeed">-</strong>
+            <span>best tok/s</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div id="errorBox" class="error" role="alert"></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="top-strip">
+        <div class="title-line">
+          <h2 id="titleText">No release gates loaded</h2>
+          <p id="subtitleText">Load `text_release_gates.json` to inspect the final release verdict.</p>
+        </div>
+        <div class="legend" aria-label="Legend">
+          <span><i class="swatch" style="background: var(--green)"></i>pass</span>
+          <span><i class="swatch" style="background: var(--red)"></i>fail</span>
+          <span><i class="swatch" style="background: var(--gold)"></i>watch</span>
+        </div>
+      </header>
+
+      <section id="emptyState" class="empty">
+        <div>
+          <strong>Waiting for release gates.</strong>
+          <p>Use a generated `text_release_gates.json` summary or load the bundled example.</p>
+        </div>
+      </section>
+
+      <section id="gateDashboard" class="dashboard" hidden>
+        <div class="hero">
+          <div id="verdictPanel" class="verdict">
+            <label>final verdict</label>
+            <strong id="verdictText">PASS</strong>
+            <p id="verdictCopy">All loaded gates passed.</p>
+          </div>
+          <div class="summary-rail">
+            <div class="metric-chip">
+              <label>release</label>
+              <strong id="summaryRelease">-</strong>
+            </div>
+            <div class="metric-chip">
+              <label>history baseline</label>
+              <strong id="summaryBaseline">-</strong>
+            </div>
+            <div class="metric-chip">
+              <label>memory overlap</label>
+              <strong id="summaryMemory">-</strong>
+            </div>
+          </div>
+        </div>
+
+        <div id="gateGrid" class="gate-grid"></div>
+        <div id="failureList" class="failure-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const exampleGates = {
+      created_at: "20260621T003421Z",
+      kind: "text_release_gate_summary",
+      valid: true,
+      summary: {
+        release_name: "text_demo",
+        release_count: 1,
+        benchmark_loss: 3.7913637161254883,
+        best_throughput_tokens_s: 708481.9944868506,
+        memory_mean_pair_overlap: 0.525,
+        history_baseline_mode: "previous",
+        history_loss_delta: 0,
+        history_memory_overlap_delta: 0,
+        failed_gate_count: 0
+      },
+      gates: [
+        {
+          name: "dashboard_validation",
+          path: "artifacts/releases/text_release_dashboard_validation.json",
+          valid: true,
+          failure_count: 0,
+          failures: [],
+          metrics: {
+            benchmark_loss: 3.7913637161254883,
+            best_throughput_tokens_s: 708481.9944868506,
+            mean_pair_overlap: 0.525,
+            audit_check_count: 11,
+            artifact_checks: 5
+          }
+        },
+        {
+          name: "dashboard_comparison",
+          path: "artifacts/releases/text_release_dashboard_comparison.json",
+          valid: true,
+          failure_count: 0,
+          failures: [],
+          metrics: {
+            winner_by_loss: "tie",
+            loss_delta: 0,
+            best_throughput_tokens_s_delta: 0,
+            memory_mean_pair_overlap_delta: 0,
+            audit_failed_count_delta: 0
+          }
+        },
+        {
+          name: "history_validation",
+          path: "artifacts/releases/text_release_history_validation.json",
+          valid: true,
+          failure_count: 0,
+          failures: [],
+          metrics: {
+            release_count: 1,
+            valid_count: 1,
+            best_loss: 3.7913637161254883,
+            best_throughput_tokens_s: 708481.9944868506,
+            artifact_count: 1
+          }
+        },
+        {
+          name: "history_analysis",
+          path: "artifacts/releases/text_release_history_analysis.json",
+          valid: true,
+          failure_count: 0,
+          failures: [],
+          metrics: {
+            baseline_mode: "previous",
+            latest_name: "text_demo",
+            baseline_name: "text_demo",
+            loss_delta: 0,
+            memory_mean_pair_overlap_delta: 0,
+            audit_failed_count_delta: 0
+          }
+        }
+      ],
+      failures: []
+    };
+
+    const state = { gates: null };
+    const els = {
+      gatesFile: document.getElementById("gatesFile"),
+      jsonPaste: document.getElementById("jsonPaste"),
+      loadExample: document.getElementById("loadExample"),
+      clearGates: document.getElementById("clearGates"),
+      parsePaste: document.getElementById("parsePaste"),
+      refreshGates: document.getElementById("refreshGates"),
+      errorBox: document.getElementById("errorBox"),
+      emptyState: document.getElementById("emptyState"),
+      gateDashboard: document.getElementById("gateDashboard"),
+      gateGrid: document.getElementById("gateGrid"),
+      failureList: document.getElementById("failureList"),
+      metricVerdict: document.getElementById("metricVerdict"),
+      metricFailed: document.getElementById("metricFailed"),
+      metricLoss: document.getElementById("metricLoss"),
+      metricSpeed: document.getElementById("metricSpeed"),
+      titleText: document.getElementById("titleText"),
+      subtitleText: document.getElementById("subtitleText"),
+      verdictPanel: document.getElementById("verdictPanel"),
+      verdictText: document.getElementById("verdictText"),
+      verdictCopy: document.getElementById("verdictCopy"),
+      summaryRelease: document.getElementById("summaryRelease"),
+      summaryBaseline: document.getElementById("summaryBaseline"),
+      summaryMemory: document.getElementById("summaryMemory")
+    };
+
+    function setError(message) {
+      els.errorBox.textContent = message || "";
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    function numeric(value, fallback = 0) {
+      const num = Number(value);
+      return Number.isFinite(num) ? num : fallback;
+    }
+
+    function fmt(value, digits = 3) {
+      if (value === null || value === undefined || value === "") return "-";
+      const num = Number(value);
+      if (!Number.isFinite(num)) return String(value);
+      if (Math.abs(num) >= 1000) return num.toLocaleString(undefined, { maximumFractionDigits: 0 });
+      return num.toFixed(digits);
+    }
+
+    function signed(value, digits = 4) {
+      if (value === null || value === undefined || value === "") return "-";
+      const num = Number(value);
+      if (!Number.isFinite(num)) return String(value);
+      if (Math.abs(num) < 1e-12) return num.toFixed(digits);
+      return `${num > 0 ? "+" : ""}${num.toFixed(digits)}`;
+    }
+
+    function titleCase(value) {
+      return String(value || "")
+        .split(/[_\s-]+/)
+        .filter(Boolean)
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+    }
+
+    function clamp01(value) {
+      return Math.max(0, Math.min(1, value));
+    }
+
+    function validateGateSummary(payload) {
+      if (!payload || typeof payload !== "object") {
+        throw new Error("Gate summary JSON must be an object.");
+      }
+      if (payload.kind !== "text_release_gate_summary") {
+        throw new Error("Expected kind: text_release_gate_summary.");
+      }
+      if (!payload.summary || typeof payload.summary !== "object") {
+        throw new Error("Gate summary must contain a summary object.");
+      }
+      if (!Array.isArray(payload.gates)) {
+        throw new Error("Gate summary must contain a gates array.");
+      }
+      payload.gates.forEach((gate, index) => {
+        if (!gate || typeof gate !== "object") {
+          throw new Error(`Gate ${index + 1} must be an object.`);
+        }
+        if (!gate.name) {
+          throw new Error(`Gate ${index + 1} is missing a name.`);
+        }
+        if (!Array.isArray(gate.failures)) gate.failures = [];
+        if (!gate.metrics || typeof gate.metrics !== "object") gate.metrics = {};
+      });
+      if (!Array.isArray(payload.failures)) payload.failures = [];
+      return payload;
+    }
+
+    function loadGates(payload) {
+      state.gates = validateGateSummary(payload);
+      setError("");
+      renderGateSummary();
+    }
+
+    function clearGates() {
+      state.gates = null;
+      els.gatesFile.value = "";
+      els.jsonPaste.value = "";
+      setError("");
+      renderGateSummary();
+    }
+
+    function bar(score, cls = "") {
+      return `<div class="bar"><div class="bar-fill ${cls}" style="width:${clamp01(score) * 100}%"></div></div>`;
+    }
+
+    function gateScore(gate) {
+      if (!gate.valid) return 0.12;
+      const failures = numeric(gate.failure_count, gate.failures.length);
+      return failures > 0 ? 0.35 : 1;
+    }
+
+    function metricRows(metrics) {
+      const entries = Object.entries(metrics || {}).filter(([, value]) => value !== null && value !== undefined);
+      if (!entries.length) {
+        return `<div class="metric-row"><span>metrics</span><strong>-</strong></div>`;
+      }
+      return entries.slice(0, 6).map(([key, value]) => {
+        const formatted = typeof value === "number"
+          ? (key.includes("delta") ? signed(value, 4) : fmt(value, key.includes("throughput") ? 0 : 4))
+          : value;
+        return `
+          <div class="metric-row">
+            <span title="${escapeHtml(key)}">${escapeHtml(titleCase(key))}</span>
+            <strong>${escapeHtml(formatted)}</strong>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderGateCard(gate) {
+      const ok = gate.valid === true && numeric(gate.failure_count, gate.failures.length) === 0;
+      const cls = ok ? "good" : "bad";
+      return `
+        <article class="gate-card ${cls}">
+          <div class="gate-head">
+            <div>
+              <label>${escapeHtml(gate.name)}</label>
+              <strong>${escapeHtml(titleCase(gate.name))}</strong>
+              <code>${escapeHtml(gate.path || "")}</code>
+            </div>
+            <span class="status-pill ${cls}">${ok ? "pass" : "fail"}</span>
+          </div>
+          ${bar(gateScore(gate), cls)}
+          <div class="metric-list">${metricRows(gate.metrics)}</div>
+        </article>
+      `;
+    }
+
+    function renderFailures() {
+      const payload = state.gates;
+      const failures = payload.failures || [];
+      if (!failures.length) {
+        els.failureList.innerHTML = `
+          <div class="failure-item">
+            <span class="status-pill good">clear</span>
+            <div>
+              <strong>No release gate failures.</strong>
+              <code>Dashboard, comparison, history validation, and trend gates passed.</code>
+            </div>
+          </div>
+        `;
+        return;
+      }
+      els.failureList.innerHTML = failures.map(item => {
+        const gate = item.gate || "gate";
+        const detail = Array.isArray(item.failures) ? item.failures.join(", ") : item.failures;
+        return `
+          <div class="failure-item">
+            <span class="status-pill bad">fail</span>
+            <div>
+              <strong>${escapeHtml(titleCase(gate))}</strong>
+              <code>${escapeHtml(detail || "failed")}</code>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderGateSummary() {
+      const payload = state.gates;
+      if (!payload) {
+        els.emptyState.hidden = false;
+        els.gateDashboard.hidden = true;
+        els.metricVerdict.textContent = "-";
+        els.metricFailed.textContent = "0";
+        els.metricLoss.textContent = "-";
+        els.metricSpeed.textContent = "-";
+        els.titleText.textContent = "No release gates loaded";
+        els.subtitleText.textContent = "Load `text_release_gates.json` to inspect the final release verdict.";
+        return;
+      }
+
+      const summary = payload.summary;
+      const failed = numeric(summary.failed_gate_count, (payload.gates || []).filter(gate => !gate.valid).length);
+      const pass = payload.valid === true && failed === 0;
+      els.emptyState.hidden = true;
+      els.gateDashboard.hidden = false;
+      els.metricVerdict.textContent = pass ? "PASS" : "FAIL";
+      els.metricFailed.textContent = String(failed);
+      els.metricLoss.textContent = fmt(summary.benchmark_loss, 4);
+      els.metricSpeed.textContent = fmt(summary.best_throughput_tokens_s, 0);
+      els.titleText.textContent = `${summary.release_name || "release"} gate summary`;
+      els.subtitleText.textContent = `${payload.gates.length} gates / ${payload.created_at || "no timestamp"}`;
+      els.verdictPanel.className = `verdict ${pass ? "pass" : "fail"}`;
+      els.verdictText.textContent = pass ? "PASS" : "FAIL";
+      els.verdictCopy.textContent = pass
+        ? "All release gates are green for the loaded summary."
+        : `${failed} release gate${failed === 1 ? "" : "s"} need attention before promotion.`;
+      els.summaryRelease.textContent = summary.release_name || "-";
+      els.summaryBaseline.textContent = summary.history_baseline_mode || "-";
+      els.summaryMemory.textContent = fmt(summary.memory_mean_pair_overlap, 4);
+      els.gateGrid.innerHTML = payload.gates.map(renderGateCard).join("");
+      renderFailures();
+    }
+
+    async function readJsonFile(file) {
+      return JSON.parse(await file.text());
+    }
+
+    els.loadExample.addEventListener("click", () => loadGates(exampleGates));
+    els.clearGates.addEventListener("click", clearGates);
+    els.refreshGates.addEventListener("click", renderGateSummary);
+
+    els.parsePaste.addEventListener("click", () => {
+      try {
+        loadGates(JSON.parse(els.jsonPaste.value));
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    els.gatesFile.addEventListener("change", async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        loadGates(await readJsonFile(file));
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    renderGateSummary();
+  </script>
+</body>
+</html>

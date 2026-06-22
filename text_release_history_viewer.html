@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>TextPy Release History</title>
+  <style>
+    :root {
+      --paper: #eef0e8;
+      --ink: #171915;
+      --muted: #62675d;
+      --line: #c9cec0;
+      --panel: #fbfcf5;
+      --panel-strong: #dde4d2;
+      --green: #087f5b;
+      --blue: #155eef;
+      --red: #b42318;
+      --gold: #b7791f;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        var(--paper);
+      background-size: 24px 24px;
+      font-family: "Avenir Next", "Trebuchet MS", Verdana, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+      letter-spacing: 0;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(310px, 400px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .side {
+      border-right: 1px solid var(--line);
+      background: rgba(251, 252, 245, 0.94);
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "DIN Condensed", "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: 34px;
+      line-height: 0.95;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .stamp {
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transform: rotate(-2deg);
+    }
+
+    .section {
+      border-top: 1px solid var(--line);
+      padding: 16px 0;
+    }
+
+    .section:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    input[type="file"], textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 9px;
+    }
+
+    textarea {
+      min-height: 116px;
+      resize: vertical;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    button {
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--paper);
+      min-height: 40px;
+      padding: 8px 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.64);
+      padding: 10px;
+      min-height: 72px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .error {
+      min-height: 18px;
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-width: 0;
+      min-height: 100vh;
+    }
+
+    .top-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      background: rgba(238, 240, 232, 0.92);
+    }
+
+    .title-line { min-width: 0; }
+
+    .title-line h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .title-line p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--ink);
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      min-height: 420px;
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+      font-weight: 800;
+    }
+
+    #historyDashboard {
+      min-width: 0;
+      padding: 16px 18px 24px;
+    }
+
+    .history-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(340px, 0.9fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .band {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.68);
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .band.wide {
+      grid-column: 1 / -1;
+    }
+
+    .band h3 {
+      margin: 0 0 10px;
+      font-size: 13px;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .hero strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+      overflow-wrap: anywhere;
+    }
+
+    code,
+    .path-line {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .rank-badge {
+      display: grid;
+      place-items: center;
+      min-width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: var(--paper);
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .score {
+      min-width: 0;
+      border-top: 1px solid var(--line);
+      padding-top: 9px;
+    }
+
+    .score label,
+    .timeline-row label,
+    .best-item label {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .score strong,
+    .best-item strong {
+      display: block;
+      margin: 3px 0 6px;
+      font-size: 16px;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .bar {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--panel-strong);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: var(--blue);
+    }
+
+    .bar-fill.good { background: var(--green); }
+    .bar-fill.warn { background: var(--gold); }
+    .bar-fill.bad { background: var(--red); }
+
+    .timeline,
+    .best-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .timeline-row {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr) minmax(220px, 0.7fr);
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.64);
+      padding: 10px;
+    }
+
+    .timeline-index {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--paper);
+      font-weight: 900;
+    }
+
+    .timeline-row strong,
+    .best-item strong {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .timeline-bars {
+      display: grid;
+      gap: 7px;
+    }
+
+    .timeline-bars .mini {
+      display: grid;
+      grid-template-columns: 76px minmax(0, 1fr) 78px;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .delta {
+      font-weight: 900;
+    }
+
+    .delta.good { color: var(--green); }
+    .delta.bad { color: var(--red); }
+    .delta.flat { color: var(--muted); }
+
+    .best-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.64);
+      padding: 10px;
+    }
+
+    @media (max-width: 1120px) {
+      .history-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .side {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .top-strip,
+      .hero,
+      .timeline-row {
+        grid-template-columns: 1fr;
+      }
+      .legend { justify-content: flex-start; }
+      .score-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <h1>Release<br>History</h1>
+        <div class="stamp">Trend</div>
+      </div>
+
+      <section class="section">
+        <label class="label" for="historyFile">History JSON</label>
+        <input id="historyFile" type="file" accept="application/json,.json">
+        <div class="button-row">
+          <button id="loadExample" type="button">Example</button>
+          <button id="clearHistory" class="secondary" type="button">Clear</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <label class="label" for="jsonPaste">Paste JSON</label>
+        <textarea id="jsonPaste" spellcheck="false" placeholder='{"kind":"text_release_history","dashboards":[...]}'></textarea>
+        <div class="button-row">
+          <button id="parsePaste" type="button">Parse</button>
+          <button id="sortTimeline" class="secondary" type="button">Sort</button>
+        </div>
+        <div id="errorBox" class="error"></div>
+      </section>
+
+      <section class="section">
+        <label class="label" for="sortSelect">Sort</label>
+        <select id="sortSelect">
+          <option value="history">History</option>
+          <option value="loss">Loss</option>
+          <option value="throughput">Throughput</option>
+          <option value="memory">Memory overlap</option>
+          <option value="cosine">Memory cosine</option>
+        </select>
+      </section>
+
+      <section class="section">
+        <div class="metric-grid">
+          <div class="metric">
+            <strong id="metricReleases">0</strong>
+            <span>Releases</span>
+          </div>
+          <div class="metric">
+            <strong id="metricBestLoss">-</strong>
+            <span>Best loss</span>
+          </div>
+          <div class="metric">
+            <strong id="metricBestSpeed">-</strong>
+            <span>Best tok/s</span>
+          </div>
+          <div class="metric">
+            <strong id="metricBestMemory">-</strong>
+            <span>Best memory</span>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <main class="main">
+      <div class="top-strip">
+        <div class="title-line">
+          <h2 id="titleText">No release history loaded</h2>
+          <p id="subtitleText">Load `text_release_history.json` to inspect trend direction.</p>
+        </div>
+        <div class="legend">
+          <span><i class="swatch" style="background: var(--green)"></i>Better</span>
+          <span><i class="swatch" style="background: var(--blue)"></i>Measured</span>
+          <span><i class="swatch" style="background: var(--gold)"></i>Memory</span>
+        </div>
+      </div>
+
+      <div id="emptyState" class="empty">
+        <div>Waiting for TextPy release history JSON.</div>
+      </div>
+
+      <section id="historyDashboard" hidden>
+        <div class="history-grid">
+          <div class="band wide">
+            <div id="latestPanel"></div>
+          </div>
+
+          <div class="band">
+            <h3>Best Marks</h3>
+            <div id="bestList" class="best-list"></div>
+          </div>
+
+          <div class="band">
+            <h3>History Summary</h3>
+            <div id="summaryList" class="best-list"></div>
+          </div>
+
+          <div class="band wide">
+            <h3>Release Timeline</h3>
+            <div id="historyTimeline" class="timeline"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const exampleHistory = {
+      created_at: "20260621T120000Z",
+      kind: "text_release_history",
+      source_count: 3,
+      summary: {
+        release_count: 3,
+        valid_count: 3,
+        latest_name: "text_next",
+        latest_created_at: "20260621T120000Z",
+        best_loss_name: "text_next",
+        best_loss: 3.61,
+        best_throughput_name: "text_fast",
+        best_throughput_tokens_s: 781400,
+        best_memory_name: "text_next",
+        best_memory_mean_pair_overlap: 0.56,
+        mean_loss: 3.77,
+        mean_memory_overlap: 0.535
+      },
+      dashboards: [
+        {
+          history_index: 1,
+          created_at: "20260620T100000Z",
+          name: "text_base",
+          benchmark_loss: 3.91,
+          benchmark_accuracy: 0.4219,
+          benchmark_best_throughput_tokens_s: 641000,
+          memory_mean_pair_overlap: 0.515,
+          memory_min_pair_state_cosine_similarity: 0.004,
+          memory_max_pair_state_l2_distance: 1.08,
+          audit_failed_count: 0,
+          checkpoint_sha256: "e83bbba1995fcf54396b59dc5c70ec129a4a793108de95800a2fdd1d10f1c4c6",
+          path: "artifacts/releases/text_release_dashboard_base.json",
+          delta: {
+            benchmark_loss: 0,
+            benchmark_accuracy: 0,
+            benchmark_best_throughput_tokens_s: 0,
+            memory_mean_pair_overlap: 0,
+            memory_min_pair_state_cosine_similarity: 0,
+            memory_max_pair_state_l2_distance: 0,
+            audit_failed_count: 0
+          }
+        },
+        {
+          history_index: 2,
+          created_at: "20260620T180000Z",
+          name: "text_fast",
+          benchmark_loss: 3.79,
+          benchmark_accuracy: 0.4375,
+          benchmark_best_throughput_tokens_s: 781400,
+          memory_mean_pair_overlap: 0.525,
+          memory_min_pair_state_cosine_similarity: 0.0047,
+          memory_max_pair_state_l2_distance: 1.063,
+          audit_failed_count: 0,
+          checkpoint_sha256: "f13bbba1995fcf54396b59dc5c70ec129a4a793108de95800a2fdd1d10f1c4c6",
+          path: "artifacts/releases/text_release_dashboard_fast.json",
+          delta: {
+            benchmark_loss: -0.12,
+            benchmark_accuracy: 0.0156,
+            benchmark_best_throughput_tokens_s: 140400,
+            memory_mean_pair_overlap: 0.01,
+            memory_min_pair_state_cosine_similarity: 0.0007,
+            memory_max_pair_state_l2_distance: -0.017,
+            audit_failed_count: 0
+          }
+        },
+        {
+          history_index: 3,
+          created_at: "20260621T120000Z",
+          name: "text_next",
+          benchmark_loss: 3.61,
+          benchmark_accuracy: 0.4688,
+          benchmark_best_throughput_tokens_s: 735200,
+          memory_mean_pair_overlap: 0.56,
+          memory_min_pair_state_cosine_similarity: 0.031,
+          memory_max_pair_state_l2_distance: 1.012,
+          audit_failed_count: 0,
+          checkpoint_sha256: "a93bbba1995fcf54396b59dc5c70ec129a4a793108de95800a2fdd1d10f1c4c6",
+          path: "artifacts/releases/text_release_dashboard_next.json",
+          delta: {
+            benchmark_loss: -0.18,
+            benchmark_accuracy: 0.0313,
+            benchmark_best_throughput_tokens_s: -46200,
+            memory_mean_pair_overlap: 0.035,
+            memory_min_pair_state_cosine_similarity: 0.0263,
+            memory_max_pair_state_l2_distance: -0.051,
+            audit_failed_count: 0
+          }
+        }
+      ]
+    };
+
+    const state = { history: null };
+
+    const els = {
+      historyFile: document.getElementById("historyFile"),
+      loadExample: document.getElementById("loadExample"),
+      clearHistory: document.getElementById("clearHistory"),
+      jsonPaste: document.getElementById("jsonPaste"),
+      parsePaste: document.getElementById("parsePaste"),
+      sortTimeline: document.getElementById("sortTimeline"),
+      sortSelect: document.getElementById("sortSelect"),
+      errorBox: document.getElementById("errorBox"),
+      metricReleases: document.getElementById("metricReleases"),
+      metricBestLoss: document.getElementById("metricBestLoss"),
+      metricBestSpeed: document.getElementById("metricBestSpeed"),
+      metricBestMemory: document.getElementById("metricBestMemory"),
+      titleText: document.getElementById("titleText"),
+      subtitleText: document.getElementById("subtitleText"),
+      emptyState: document.getElementById("emptyState"),
+      historyDashboard: document.getElementById("historyDashboard"),
+      latestPanel: document.getElementById("latestPanel"),
+      bestList: document.getElementById("bestList"),
+      summaryList: document.getElementById("summaryList"),
+      historyTimeline: document.getElementById("historyTimeline")
+    };
+
+    function setError(message) {
+      els.errorBox.textContent = message || "";
+    }
+
+    function fmt(value, digits = 3) {
+      if (!Number.isFinite(Number(value))) return "-";
+      const numeric = Number(value);
+      if (Math.abs(numeric) >= 1000) return numeric.toLocaleString(undefined, {maximumFractionDigits: 0});
+      return numeric.toFixed(digits);
+    }
+
+    function signed(raw, digits = 3) {
+      if (!Number.isFinite(Number(raw))) return "-";
+      const numeric = Number(raw);
+      if (Math.abs(numeric) >= 1000) {
+        return `${numeric >= 0 ? "+" : ""}${numeric.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+      }
+      return `${numeric >= 0 ? "+" : ""}${numeric.toFixed(digits)}`;
+    }
+
+    function value(raw, fallback = 0) {
+      return Number.isFinite(Number(raw)) ? Number(raw) : fallback;
+    }
+
+    function clamp01(raw) {
+      return Math.max(0, Math.min(1, Number(raw) || 0));
+    }
+
+    function escapeHtml(raw) {
+      return String(raw ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function validateHistory(payload) {
+      if (!payload || payload.kind !== "text_release_history" || !Array.isArray(payload.dashboards)) {
+        throw new Error("History JSON must contain kind=text_release_history and dashboards[].");
+      }
+      for (const row of payload.dashboards) {
+        if (typeof row.name !== "string") {
+          throw new Error("Each history row needs a name.");
+        }
+      }
+      return payload;
+    }
+
+    function loadHistory(payload) {
+      state.history = validateHistory(payload);
+      setError("");
+      renderHistory();
+    }
+
+    function clearHistory() {
+      state.history = null;
+      els.historyFile.value = "";
+      els.jsonPaste.value = "";
+      setError("");
+      renderHistory();
+    }
+
+    function sortedRows() {
+      const rows = [...state.history.dashboards];
+      const sort = els.sortSelect.value;
+      if (sort === "history") return rows.sort((a, b) => value(a.history_index, 9999) - value(b.history_index, 9999));
+      if (sort === "loss") return rows.sort((a, b) => value(a.benchmark_loss, Infinity) - value(b.benchmark_loss, Infinity));
+      if (sort === "throughput") return rows.sort((a, b) => value(b.benchmark_best_throughput_tokens_s, -Infinity) - value(a.benchmark_best_throughput_tokens_s, -Infinity));
+      if (sort === "memory") return rows.sort((a, b) => value(b.memory_mean_pair_overlap, -Infinity) - value(a.memory_mean_pair_overlap, -Infinity));
+      return rows.sort((a, b) => value(b.memory_min_pair_state_cosine_similarity, -Infinity) - value(a.memory_min_pair_state_cosine_similarity, -Infinity));
+    }
+
+    function bestBy(rows, key, higherIsBetter) {
+      if (!rows.length) return null;
+      const sorted = [...rows].sort((a, b) => higherIsBetter ? value(b[key]) - value(a[key]) : value(a[key], Infinity) - value(b[key], Infinity));
+      return sorted[0];
+    }
+
+    function maxOf(rows, key) {
+      return Math.max(...rows.map(row => value(row[key], 0)), 0);
+    }
+
+    function minOf(rows, key) {
+      const values = rows.map(row => value(row[key], Infinity)).filter(Number.isFinite);
+      return values.length ? Math.min(...values) : 0;
+    }
+
+    function bar(score, cls = "") {
+      return `<div class="bar"><div class="bar-fill ${cls}" style="width:${clamp01(score) * 100}%"></div></div>`;
+    }
+
+    function deltaClass(metric, raw) {
+      const delta = value(raw, 0);
+      if (Math.abs(delta) <= 1e-12) return "flat";
+      const lowerIsBetter = metric === "loss" || metric === "l2" || metric === "audit";
+      return lowerIsBetter ? (delta < 0 ? "good" : "bad") : (delta > 0 ? "good" : "bad");
+    }
+
+    function renderHistory() {
+      const history = state.history;
+      if (!history) {
+        els.emptyState.hidden = false;
+        els.historyDashboard.hidden = true;
+        els.metricReleases.textContent = "0";
+        els.metricBestLoss.textContent = "-";
+        els.metricBestSpeed.textContent = "-";
+        els.metricBestMemory.textContent = "-";
+        els.titleText.textContent = "No release history loaded";
+        els.subtitleText.textContent = "Load `text_release_history.json` to inspect trend direction.";
+        return;
+      }
+
+      const rows = sortedRows();
+      const naturalRows = [...history.dashboards].sort((a, b) => value(a.history_index, 9999) - value(b.history_index, 9999));
+      const latest = naturalRows[naturalRows.length - 1];
+      const bestLoss = bestBy(naturalRows, "benchmark_loss", false);
+      const bestSpeed = bestBy(naturalRows, "benchmark_best_throughput_tokens_s", true);
+      const bestMemory = bestBy(naturalRows, "memory_mean_pair_overlap", true);
+
+      els.emptyState.hidden = true;
+      els.historyDashboard.hidden = false;
+      els.metricReleases.textContent = String(naturalRows.length);
+      els.metricBestLoss.textContent = fmt(bestLoss && bestLoss.benchmark_loss);
+      els.metricBestSpeed.textContent = fmt(bestSpeed && bestSpeed.benchmark_best_throughput_tokens_s, 0);
+      els.metricBestMemory.textContent = fmt(bestMemory && bestMemory.memory_mean_pair_overlap);
+      els.titleText.textContent = `${naturalRows.length} release${naturalRows.length === 1 ? "" : "s"} in history`;
+      els.subtitleText.textContent = history.created_at || "Release history";
+
+      renderLatest(latest, naturalRows);
+      renderBestMarks(bestLoss, bestSpeed, bestMemory);
+      renderSummary(history.summary || {}, naturalRows);
+      renderTimeline(rows, naturalRows);
+    }
+
+    function renderLatest(row, rows) {
+      const bestLoss = minOf(rows, "benchmark_loss") || value(row.benchmark_loss, 0);
+      const bestSpeed = maxOf(rows, "benchmark_best_throughput_tokens_s") || value(row.benchmark_best_throughput_tokens_s, 0);
+      const bestMemory = maxOf(rows, "memory_mean_pair_overlap") || value(row.memory_mean_pair_overlap, 0);
+      els.latestPanel.innerHTML = `
+        <div class="hero">
+          <div>
+            <h3>Latest Release</h3>
+            <strong>${escapeHtml(row.name)}</strong>
+            <code>${escapeHtml((row.checkpoint_sha256 || "").slice(0, 16))}</code>
+            <span class="path-line">${escapeHtml(row.path || "")}</span>
+          </div>
+          <div class="rank-badge">${escapeHtml(row.history_index || rows.length)}</div>
+        </div>
+        <div class="score-grid">
+          ${scoreBlock("Loss", row.benchmark_loss, bestLoss / Math.max(value(row.benchmark_loss, bestLoss), 1e-9), "good")}
+          ${scoreBlock("Accuracy", row.benchmark_accuracy, value(row.benchmark_accuracy), "good")}
+          ${scoreBlock("Best tok/s", row.benchmark_best_throughput_tokens_s, value(row.benchmark_best_throughput_tokens_s) / Math.max(bestSpeed, 1), "good", 0)}
+          ${scoreBlock("Memory", row.memory_mean_pair_overlap, value(row.memory_mean_pair_overlap) / Math.max(bestMemory, 1e-9), "warn")}
+        </div>
+      `;
+    }
+
+    function scoreBlock(label, raw, score, cls, digits = 3) {
+      return `
+        <div class="score">
+          <label>${label}</label>
+          <strong>${fmt(raw, digits)}</strong>
+          ${bar(score, cls)}
+        </div>
+      `;
+    }
+
+    function renderBestMarks(loss, speed, memory) {
+      const items = [
+        ["Best loss", loss && loss.name, loss && loss.benchmark_loss, 4],
+        ["Best throughput", speed && speed.name, speed && speed.benchmark_best_throughput_tokens_s, 0],
+        ["Best memory", memory && memory.name, memory && memory.memory_mean_pair_overlap, 4]
+      ];
+      els.bestList.innerHTML = items.map(([label, name, raw, digits]) => `
+        <div class="best-item">
+          <label>${escapeHtml(label)}</label>
+          <strong>${escapeHtml(name || "-")}</strong>
+          ${bar(1, label === "Best memory" ? "warn" : "good")}
+          <code>${fmt(raw, digits)}</code>
+        </div>
+      `).join("");
+    }
+
+    function renderSummary(summary, rows) {
+      const validCount = summary.valid_count ?? rows.filter(row => row.audit_valid).length;
+      const items = [
+        ["Valid releases", `${validCount} / ${rows.length}`, "audit clean"],
+        ["Mean loss", fmt(summary.mean_loss), "average benchmark loss"],
+        ["Mean memory", fmt(summary.mean_memory_overlap), "average prompt overlap"],
+        ["Latest", summary.latest_name || (rows[rows.length - 1] && rows[rows.length - 1].name), summary.latest_created_at || ""]
+      ];
+      els.summaryList.innerHTML = items.map(([label, valueText, detail]) => `
+        <div class="best-item">
+          <label>${escapeHtml(label)}</label>
+          <strong>${escapeHtml(valueText)}</strong>
+          <code>${escapeHtml(detail)}</code>
+        </div>
+      `).join("");
+    }
+
+    function renderTimeline(rows, allRows) {
+      const bestLoss = minOf(allRows, "benchmark_loss") || 1;
+      const bestSpeed = maxOf(allRows, "benchmark_best_throughput_tokens_s") || 1;
+      const bestMemory = maxOf(allRows, "memory_mean_pair_overlap") || 1;
+      els.historyTimeline.innerHTML = rows.map(row => {
+        const delta = row.delta || {};
+        return `
+          <article class="timeline-row">
+            <div class="timeline-index">${escapeHtml(row.history_index || "-")}</div>
+            <div>
+              <strong>${escapeHtml(row.name)}</strong>
+              <code>${escapeHtml((row.created_at || "").slice(0, 16))} / ${escapeHtml((row.checkpoint_sha256 || "").slice(0, 12))}</code>
+              <code>${escapeHtml(row.path || "")}</code>
+            </div>
+            <div class="timeline-bars">
+              ${miniBar("loss", row.benchmark_loss, bestLoss / Math.max(value(row.benchmark_loss, bestLoss), 1e-9), delta.benchmark_loss, "good")}
+              ${miniBar("speed", row.benchmark_best_throughput_tokens_s, value(row.benchmark_best_throughput_tokens_s) / bestSpeed, delta.benchmark_best_throughput_tokens_s, "good", 0)}
+              ${miniBar("memory", row.memory_mean_pair_overlap, value(row.memory_mean_pair_overlap) / bestMemory, delta.memory_mean_pair_overlap, "warn")}
+              ${miniBar("cosine", row.memory_min_pair_state_cosine_similarity, value(row.memory_min_pair_state_cosine_similarity), delta.memory_min_pair_state_cosine_similarity, "warn")}
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function miniBar(metric, raw, score, delta, fill, digits = 3) {
+      const cls = deltaClass(metric, delta);
+      return `
+        <div class="mini">
+          <label>${escapeHtml(metric)}</label>
+          ${bar(score, fill)}
+          <span class="delta ${cls}">${fmt(raw, digits)} ${signed(delta, digits)}</span>
+        </div>
+      `;
+    }
+
+    async function readJsonFile(file) {
+      return JSON.parse(await file.text());
+    }
+
+    els.loadExample.addEventListener("click", () => loadHistory(exampleHistory));
+    els.clearHistory.addEventListener("click", clearHistory);
+    els.sortTimeline.addEventListener("click", renderHistory);
+    els.sortSelect.addEventListener("change", renderHistory);
+
+    els.parsePaste.addEventListener("click", () => {
+      try {
+        loadHistory(JSON.parse(els.jsonPaste.value));
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    els.historyFile.addEventListener("change", async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        loadHistory(await readJsonFile(file));
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    renderHistory();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1088 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>TextPy Release Dashboard Compare</title>
+  <style>
+    :root {
+      --paper: #eef0e8;
+      --ink: #171915;
+      --muted: #62675d;
+      --line: #c9cec0;
+      --panel: #fbfcf5;
+      --panel-strong: #dde4d2;
+      --green: #087f5b;
+      --blue: #155eef;
+      --red: #b42318;
+      --gold: #b7791f;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        var(--paper);
+      background-size: 24px 24px;
+      font-family: "Avenir Next", "Trebuchet MS", Verdana, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, input, textarea {
+      font: inherit;
+      letter-spacing: 0;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .side {
+      border-right: 1px solid var(--line);
+      background: rgba(251, 252, 245, 0.94);
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "DIN Condensed", "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: 34px;
+      line-height: 0.95;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .stamp {
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transform: rotate(-2deg);
+    }
+
+    .section {
+      border-top: 1px solid var(--line);
+      padding: 16px 0;
+    }
+
+    .section:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    input[type="file"], textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 9px;
+    }
+
+    textarea {
+      min-height: 116px;
+      resize: vertical;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    button {
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--paper);
+      min-height: 40px;
+      padding: 8px 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .file-stack {
+      display: grid;
+      gap: 11px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.64);
+      padding: 10px;
+      min-height: 72px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .error {
+      min-height: 18px;
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-width: 0;
+      min-height: 100vh;
+    }
+
+    .top-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      background: rgba(238, 240, 232, 0.92);
+    }
+
+    .title-line { min-width: 0; }
+
+    .title-line h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .title-line p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--ink);
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      min-height: 420px;
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+      font-weight: 800;
+    }
+
+    #compareDashboard {
+      min-width: 0;
+      padding: 16px 18px 24px;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(300px, 1fr));
+      gap: 14px;
+      align-items: start;
+    }
+
+    .band {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.68);
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .band.wide {
+      grid-column: 1 / -1;
+    }
+
+    .band h3 {
+      margin: 0 0 10px;
+      font-size: 13px;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .release-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .release-head strong {
+      display: block;
+      font-size: 25px;
+      line-height: 1;
+      overflow-wrap: anywhere;
+    }
+
+    code,
+    .path-line {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .rank-badge {
+      display: grid;
+      place-items: center;
+      min-width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: var(--paper);
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .score-grid,
+    .delta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .score,
+    .delta-card {
+      min-width: 0;
+      border-top: 1px solid var(--line);
+      padding-top: 9px;
+    }
+
+    .score label,
+    .delta-card label,
+    .comparison-row label {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .score strong,
+    .delta-card strong {
+      display: block;
+      margin: 3px 0 6px;
+      font-size: 16px;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .delta-card.good strong { color: var(--green); }
+    .delta-card.bad strong { color: var(--red); }
+    .delta-card.flat strong { color: var(--muted); }
+
+    .bar {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--panel-strong);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: var(--blue);
+    }
+
+    .bar-fill.good { background: var(--green); }
+    .bar-fill.warn { background: var(--gold); }
+    .bar-fill.bad { background: var(--red); }
+
+    .comparison-list,
+    .failure-list,
+    .hash-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .comparison-row,
+    .failure-item,
+    .hash-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.64);
+      padding: 10px;
+      min-width: 0;
+    }
+
+    .comparison-row {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr) 104px;
+      gap: 10px;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .failure-item strong,
+    .hash-item strong {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .status-pill.good {
+      border-color: rgba(8, 127, 91, 0.32);
+      color: var(--green);
+      background: rgba(8, 127, 91, 0.09);
+    }
+
+    .status-pill.bad {
+      border-color: rgba(180, 35, 24, 0.32);
+      color: var(--red);
+      background: rgba(180, 35, 24, 0.08);
+    }
+
+    .status-pill.warn {
+      border-color: rgba(183, 121, 31, 0.32);
+      color: var(--gold);
+      background: rgba(183, 121, 31, 0.1);
+    }
+
+    @media (max-width: 1120px) {
+      .compare-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .side {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .top-strip,
+      .release-head,
+      .comparison-row {
+        grid-template-columns: 1fr;
+      }
+      .legend { justify-content: flex-start; }
+      .score-grid,
+      .delta-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <h1>Release<br>Delta</h1>
+        <div class="stamp">Compare</div>
+      </div>
+
+      <section class="section">
+        <div class="file-stack">
+          <div>
+            <label class="label" for="comparisonJsonFile">Comparison JSON</label>
+            <input id="comparisonJsonFile" type="file" accept="application/json,.json">
+          </div>
+          <div>
+            <label class="label" for="baselineDashboardFile">Baseline Dashboard JSON</label>
+            <input id="baselineDashboardFile" type="file" accept="application/json,.json">
+          </div>
+          <div>
+            <label class="label" for="candidateDashboardFile">Candidate Dashboard JSON</label>
+            <input id="candidateDashboardFile" type="file" accept="application/json,.json">
+          </div>
+        </div>
+        <div class="button-row">
+          <button id="loadExample" type="button">Example</button>
+          <button id="clearCompare" class="secondary" type="button">Clear</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <label class="label" for="jsonPaste">Paste JSON</label>
+        <textarea id="jsonPaste" spellcheck="false" placeholder='{"baseline": {...}, "candidate": {...}, "comparison": {...}}'></textarea>
+        <div class="button-row">
+          <button id="parsePaste" type="button">Parse</button>
+          <button id="refreshCompare" class="secondary" type="button">Refresh</button>
+        </div>
+        <div id="errorBox" class="error"></div>
+      </section>
+
+      <section class="section">
+        <div class="metric-grid">
+          <div class="metric">
+            <strong id="metricWinner">-</strong>
+            <span>Loss winner</span>
+          </div>
+          <div class="metric">
+            <strong id="metricLossDelta">-</strong>
+            <span>Loss delta</span>
+          </div>
+          <div class="metric">
+            <strong id="metricThroughputDelta">-</strong>
+            <span>Tok/s delta</span>
+          </div>
+          <div class="metric">
+            <strong id="metricFailures">0</strong>
+            <span>Failures</span>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <main class="main">
+      <div class="top-strip">
+        <div class="title-line">
+          <h2 id="titleText">No dashboard comparison loaded</h2>
+          <p id="subtitleText">Load `text_release_dashboard_comparison.json` or two dashboard JSON artifacts.</p>
+        </div>
+        <div class="legend">
+          <span><i class="swatch" style="background: var(--green)"></i>Improved</span>
+          <span><i class="swatch" style="background: var(--blue)"></i>Measured</span>
+          <span><i class="swatch" style="background: var(--red)"></i>Regressed</span>
+        </div>
+      </div>
+
+      <div id="emptyState" class="empty">
+        <div>Waiting for TextPy release dashboard comparison JSON.</div>
+      </div>
+
+      <section id="compareDashboard" hidden>
+        <div class="compare-grid">
+          <div class="band">
+            <h3>Baseline</h3>
+            <div id="baselinePanel"></div>
+          </div>
+
+          <div class="band">
+            <h3>Candidate</h3>
+            <div id="candidatePanel"></div>
+          </div>
+
+          <div class="band wide">
+            <h3>Release Gate Deltas</h3>
+            <div id="deltaGrid" class="delta-grid"></div>
+          </div>
+
+          <div class="band">
+            <h3>Comparison Detail</h3>
+            <div id="comparisonList" class="comparison-list"></div>
+          </div>
+
+          <div class="band">
+            <h3>Hashes And Audit</h3>
+            <div id="hashList" class="hash-grid"></div>
+          </div>
+
+          <div class="band wide">
+            <h3>Failures</h3>
+            <div id="failureList" class="failure-list"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const exampleComparison = {
+      baseline: {
+        path: "artifacts/releases/text_release_dashboard.json",
+        name: "text_pipeline_demo",
+        rank: 1,
+        release_count: 1,
+        benchmark_loss: 3.7913637161254883,
+        benchmark_accuracy: 0.4375,
+        benchmark_best_throughput_tokens_s: 606394.2495880203,
+        checkpoint_sha256: "e83bbba1995fcf54396b59dc5c70ec129a4a793108de95800a2fdd1d10f1c4c6",
+        archive_sha256: "6e16f2aa2257a7a49a1f99d457a25f16ffd5023721c92e785669ac18b5bffba1",
+        audit_valid: true,
+        audit_check_count: 11,
+        audit_failed_count: 0,
+        memory_prompt_count: 3,
+        memory_pair_count: 3,
+        memory_mean_pair_overlap: 0.525,
+        memory_min_pair_overlap: 0.35,
+        memory_max_pair_state_norm_delta: 0.643,
+        memory_max_pair_state_l2_distance: 1.0632,
+        memory_min_pair_state_cosine_similarity: 0.0047
+      },
+      candidate: {
+        path: "artifacts/releases/text_release_dashboard.json",
+        name: "text_pipeline_demo_next",
+        rank: 1,
+        release_count: 1,
+        benchmark_loss: 3.651363716125488,
+        benchmark_accuracy: 0.4531,
+        benchmark_best_throughput_tokens_s: 632140.0,
+        checkpoint_sha256: "a93bbba1995fcf54396b59dc5c70ec129a4a793108de95800a2fdd1d10f1c4c6",
+        archive_sha256: "9e16f2aa2257a7a49a1f99d457a25f16ffd5023721c92e785669ac18b5bffba1",
+        audit_valid: true,
+        audit_check_count: 11,
+        audit_failed_count: 0,
+        memory_prompt_count: 3,
+        memory_pair_count: 3,
+        memory_mean_pair_overlap: 0.552,
+        memory_min_pair_overlap: 0.37,
+        memory_max_pair_state_norm_delta: 0.611,
+        memory_max_pair_state_l2_distance: 1.012,
+        memory_min_pair_state_cosine_similarity: 0.031
+      },
+      comparison: {
+        winner_by_loss: "candidate",
+        loss_delta: -0.14,
+        accuracy_delta: 0.0156,
+        best_throughput_tokens_s_delta: 25745.750411979738,
+        loss_regression_rate: -0.0369,
+        accuracy_regression: 0.0,
+        best_throughput_regression_rate: -0.0425,
+        same_checkpoint_sha256: false,
+        same_archive_sha256: false,
+        audit_check_count_delta: 0,
+        audit_failed_count_delta: 0,
+        memory_prompt_count_delta: 0,
+        memory_pair_count_delta: 0,
+        memory_mean_pair_overlap_delta: 0.027,
+        memory_min_pair_overlap_delta: 0.02,
+        memory_min_pair_state_cosine_similarity_delta: 0.0263,
+        memory_max_pair_state_l2_distance_delta: -0.0512,
+        memory_max_pair_state_norm_delta_delta: -0.032
+      },
+      failures: []
+    };
+
+    const state = {
+      baseline: null,
+      candidate: null,
+      comparison: null,
+      failures: []
+    };
+
+    const els = {
+      comparisonJsonFile: document.getElementById("comparisonJsonFile"),
+      baselineDashboardFile: document.getElementById("baselineDashboardFile"),
+      candidateDashboardFile: document.getElementById("candidateDashboardFile"),
+      loadExample: document.getElementById("loadExample"),
+      clearCompare: document.getElementById("clearCompare"),
+      jsonPaste: document.getElementById("jsonPaste"),
+      parsePaste: document.getElementById("parsePaste"),
+      refreshCompare: document.getElementById("refreshCompare"),
+      errorBox: document.getElementById("errorBox"),
+      metricWinner: document.getElementById("metricWinner"),
+      metricLossDelta: document.getElementById("metricLossDelta"),
+      metricThroughputDelta: document.getElementById("metricThroughputDelta"),
+      metricFailures: document.getElementById("metricFailures"),
+      titleText: document.getElementById("titleText"),
+      subtitleText: document.getElementById("subtitleText"),
+      emptyState: document.getElementById("emptyState"),
+      compareDashboard: document.getElementById("compareDashboard"),
+      baselinePanel: document.getElementById("baselinePanel"),
+      candidatePanel: document.getElementById("candidatePanel"),
+      deltaGrid: document.getElementById("deltaGrid"),
+      comparisonList: document.getElementById("comparisonList"),
+      hashList: document.getElementById("hashList"),
+      failureList: document.getElementById("failureList")
+    };
+
+    function setError(message) {
+      els.errorBox.textContent = message || "";
+    }
+
+    function fmt(value, digits = 3) {
+      if (!Number.isFinite(Number(value))) return "-";
+      const numeric = Number(value);
+      if (Math.abs(numeric) >= 1000) return numeric.toLocaleString(undefined, {maximumFractionDigits: 0});
+      return numeric.toFixed(digits);
+    }
+
+    function value(raw, fallback = 0) {
+      return Number.isFinite(Number(raw)) ? Number(raw) : fallback;
+    }
+
+    function signed(valueRaw, digits = 3) {
+      if (!Number.isFinite(Number(valueRaw))) return "-";
+      const numeric = Number(valueRaw);
+      if (Math.abs(numeric) >= 1000) {
+        return `${numeric >= 0 ? "+" : ""}${numeric.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+      }
+      return `${numeric >= 0 ? "+" : ""}${numeric.toFixed(digits)}`;
+    }
+
+    function clamp01(raw) {
+      return Math.max(0, Math.min(1, Number(raw) || 0));
+    }
+
+    function escapeHtml(raw) {
+      return String(raw ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function normalizeDashboard(payload, path = "") {
+      if (!payload || typeof payload !== "object") {
+        throw new Error("Dashboard JSON must be an object.");
+      }
+      if (payload.dashboard && payload.audit) {
+        const dashboard = payload.dashboard;
+        const memory = dashboard.memory || {};
+        const compact = {
+          path,
+          name: dashboard.name,
+          rank: value(dashboard.rank, 0),
+          release_count: value(dashboard.release_count, 0),
+          benchmark_loss: value(dashboard.benchmark_loss, 0),
+          benchmark_accuracy: value(dashboard.benchmark_accuracy, 0),
+          benchmark_best_throughput_tokens_s: value(dashboard.benchmark_best_throughput_tokens_s, 0),
+          checkpoint_sha256: dashboard.checkpoint_sha256,
+          archive_sha256: dashboard.archive_sha256,
+          audit_valid: Boolean(payload.audit.valid),
+          audit_check_count: value(payload.audit.check_count, 0),
+          audit_failed_count: value(payload.audit.failed_count, 0),
+          memory_prompt_count: value(memory.prompt_count, 0),
+          memory_pair_count: value(memory.pair_count, 0),
+          memory_mean_pair_overlap: value(memory.mean_pair_overlap, 0),
+          memory_min_pair_overlap: value(memory.min_pair_overlap, 0),
+          memory_max_pair_state_norm_delta: value(memory.max_pair_state_norm_delta, 0),
+          memory_max_pair_state_l2_distance: value(memory.max_pair_state_l2_distance, 0),
+          memory_min_pair_state_cosine_similarity: value(memory.min_pair_state_cosine_similarity, 0)
+        };
+        validateCompactDashboard(compact);
+        return compact;
+      }
+      validateCompactDashboard(payload);
+      return {...payload, path: payload.path || path};
+    }
+
+    function validateCompactDashboard(row) {
+      const required = ["name", "benchmark_loss", "benchmark_best_throughput_tokens_s", "memory_mean_pair_overlap"];
+      for (const key of required) {
+        if (row[key] === undefined || row[key] === null || row[key] === "") {
+          throw new Error(`Dashboard row is missing ${key}.`);
+        }
+      }
+      return row;
+    }
+
+    function regressionRate(base, candidate, higherIsBetter) {
+      const baseline = value(base, 0);
+      const next = value(candidate, 0);
+      if (Math.abs(baseline) <= 1e-12) {
+        return higherIsBetter ? baseline - next : next - baseline;
+      }
+      return higherIsBetter ? (baseline - next) / Math.abs(baseline) : (next - baseline) / Math.abs(baseline);
+    }
+
+    function compareDashboards(baseline, candidate) {
+      const lossDelta = value(candidate.benchmark_loss) - value(baseline.benchmark_loss);
+      const accuracyDelta = value(candidate.benchmark_accuracy) - value(baseline.benchmark_accuracy);
+      const throughputDelta = value(candidate.benchmark_best_throughput_tokens_s) - value(baseline.benchmark_best_throughput_tokens_s);
+      const overlapDelta = value(candidate.memory_mean_pair_overlap) - value(baseline.memory_mean_pair_overlap);
+      const minOverlapDelta = value(candidate.memory_min_pair_overlap) - value(baseline.memory_min_pair_overlap);
+      const cosineDelta = value(candidate.memory_min_pair_state_cosine_similarity) - value(baseline.memory_min_pair_state_cosine_similarity);
+      const l2Delta = value(candidate.memory_max_pair_state_l2_distance) - value(baseline.memory_max_pair_state_l2_distance);
+      const normDelta = value(candidate.memory_max_pair_state_norm_delta) - value(baseline.memory_max_pair_state_norm_delta);
+      const auditFailedDelta = value(candidate.audit_failed_count) - value(baseline.audit_failed_count);
+      return {
+        winner_by_loss: value(candidate.benchmark_loss) < value(baseline.benchmark_loss)
+          ? "candidate"
+          : value(candidate.benchmark_loss) > value(baseline.benchmark_loss)
+            ? "baseline"
+            : "tie",
+        loss_delta: lossDelta,
+        accuracy_delta: accuracyDelta,
+        best_throughput_tokens_s_delta: throughputDelta,
+        loss_regression_rate: regressionRate(baseline.benchmark_loss, candidate.benchmark_loss, false),
+        accuracy_regression: Math.max(0, -accuracyDelta),
+        best_throughput_regression_rate: regressionRate(
+          baseline.benchmark_best_throughput_tokens_s,
+          candidate.benchmark_best_throughput_tokens_s,
+          true
+        ),
+        same_checkpoint_sha256: baseline.checkpoint_sha256 === candidate.checkpoint_sha256,
+        same_archive_sha256: baseline.archive_sha256 === candidate.archive_sha256,
+        audit_check_count_delta: value(candidate.audit_check_count) - value(baseline.audit_check_count),
+        audit_failed_count_delta: auditFailedDelta,
+        memory_prompt_count_delta: value(candidate.memory_prompt_count) - value(baseline.memory_prompt_count),
+        memory_pair_count_delta: value(candidate.memory_pair_count) - value(baseline.memory_pair_count),
+        memory_mean_pair_overlap_delta: overlapDelta,
+        memory_min_pair_overlap_delta: minOverlapDelta,
+        memory_min_pair_state_cosine_similarity_delta: cosineDelta,
+        memory_max_pair_state_l2_distance_delta: l2Delta,
+        memory_max_pair_state_norm_delta_delta: normDelta
+      };
+    }
+
+    function validateComparisonPayload(payload) {
+      if (!payload || typeof payload !== "object") {
+        throw new Error("Comparison JSON must be an object.");
+      }
+      if (payload.baseline && payload.candidate && payload.comparison) {
+        const baseline = normalizeDashboard(payload.baseline, payload.baseline.path || "");
+        const candidate = normalizeDashboard(payload.candidate, payload.candidate.path || "");
+        return {
+          baseline,
+          candidate,
+          comparison: payload.comparison,
+          failures: Array.isArray(payload.failures) ? payload.failures : []
+        };
+      }
+      if (payload.baseline && payload.candidate) {
+        const baseline = normalizeDashboard(payload.baseline, payload.baseline.path || "");
+        const candidate = normalizeDashboard(payload.candidate, payload.candidate.path || "");
+        return {
+          baseline,
+          candidate,
+          comparison: compareDashboards(baseline, candidate),
+          failures: Array.isArray(payload.failures) ? payload.failures : []
+        };
+      }
+      throw new Error("Comparison JSON must contain baseline and candidate.");
+    }
+
+    function loadComparison(payload) {
+      const parsed = validateComparisonPayload(payload);
+      state.baseline = parsed.baseline;
+      state.candidate = parsed.candidate;
+      state.comparison = parsed.comparison;
+      state.failures = parsed.failures;
+      setError("");
+      renderCompare();
+    }
+
+    function maybeRenderFromDashboards() {
+      if (!state.baseline || !state.candidate) return;
+      state.comparison = compareDashboards(state.baseline, state.candidate);
+      state.failures = [];
+      renderCompare();
+    }
+
+    function clearCompare() {
+      state.baseline = null;
+      state.candidate = null;
+      state.comparison = null;
+      state.failures = [];
+      els.comparisonJsonFile.value = "";
+      els.baselineDashboardFile.value = "";
+      els.candidateDashboardFile.value = "";
+      els.jsonPaste.value = "";
+      setError("");
+      renderCompare();
+    }
+
+    function bar(score, cls = "") {
+      return `<div class="bar"><div class="bar-fill ${cls}" style="width:${clamp01(score) * 100}%"></div></div>`;
+    }
+
+    function trendClass(metric, raw) {
+      const delta = value(raw, 0);
+      if (Math.abs(delta) <= 1e-12) return "flat";
+      const lowerIsBetter = metric === "loss" || metric === "audit" || metric === "l2" || metric === "norm";
+      return lowerIsBetter ? (delta < 0 ? "good" : "bad") : (delta > 0 ? "good" : "bad");
+    }
+
+    function trendScore(metric, raw) {
+      const cls = trendClass(metric, raw);
+      if (cls === "flat") return 0.5;
+      return Math.min(1, 0.55 + Math.abs(value(raw, 0)));
+    }
+
+    function renderCompare() {
+      const hasData = Boolean(state.baseline && state.candidate && state.comparison);
+      if (!hasData) {
+        els.emptyState.hidden = false;
+        els.compareDashboard.hidden = true;
+        els.metricWinner.textContent = "-";
+        els.metricLossDelta.textContent = "-";
+        els.metricThroughputDelta.textContent = "-";
+        els.metricFailures.textContent = "0";
+        els.titleText.textContent = "No dashboard comparison loaded";
+        els.subtitleText.textContent = "Load `text_release_dashboard_comparison.json` or two dashboard JSON artifacts.";
+        return;
+      }
+
+      const comparison = state.comparison;
+      els.emptyState.hidden = true;
+      els.compareDashboard.hidden = false;
+      els.metricWinner.textContent = comparison.winner_by_loss || "-";
+      els.metricLossDelta.textContent = signed(comparison.loss_delta);
+      els.metricThroughputDelta.textContent = signed(comparison.best_throughput_tokens_s_delta, 0);
+      els.metricFailures.textContent = String(state.failures.length);
+      els.titleText.textContent = `${state.baseline.name} -> ${state.candidate.name}`;
+      els.subtitleText.textContent = `${state.baseline.path || "baseline"} / ${state.candidate.path || "candidate"}`;
+
+      els.baselinePanel.innerHTML = releasePanel(state.baseline, state.comparison.winner_by_loss === "baseline");
+      els.candidatePanel.innerHTML = releasePanel(state.candidate, state.comparison.winner_by_loss === "candidate");
+      renderDeltaGrid();
+      renderComparisonList();
+      renderHashList();
+      renderFailures();
+    }
+
+    function releasePanel(row, winner) {
+      const speedMax = Math.max(value(state.baseline?.benchmark_best_throughput_tokens_s), value(state.candidate?.benchmark_best_throughput_tokens_s), 1);
+      const minLoss = Math.min(value(state.baseline?.benchmark_loss, Infinity), value(state.candidate?.benchmark_loss, Infinity));
+      return `
+        <div class="release-head">
+          <div>
+            <strong>${escapeHtml(row.name)}</strong>
+            <code>${escapeHtml((row.checkpoint_sha256 || "").slice(0, 16))} / ${escapeHtml((row.archive_sha256 || "").slice(0, 16))}</code>
+            <span class="path-line">${escapeHtml(row.path || "")}</span>
+          </div>
+          <div class="rank-badge">${winner ? "W" : escapeHtml(row.rank || "-")}</div>
+        </div>
+        <div class="score-grid">
+          ${scoreBlock("Loss", row.benchmark_loss, minLoss / Math.max(value(row.benchmark_loss, minLoss), 1e-9), "good")}
+          ${scoreBlock("Accuracy", row.benchmark_accuracy, value(row.benchmark_accuracy), "good")}
+          ${scoreBlock("Best tok/s", row.benchmark_best_throughput_tokens_s, value(row.benchmark_best_throughput_tokens_s) / speedMax, "good", 0)}
+          ${scoreBlock("Memory", row.memory_mean_pair_overlap, value(row.memory_mean_pair_overlap), "warn")}
+        </div>
+      `;
+    }
+
+    function scoreBlock(label, raw, score, cls, digits = 3) {
+      return `
+        <div class="score">
+          <label>${label}</label>
+          <strong>${fmt(raw, digits)}</strong>
+          ${bar(score, cls)}
+        </div>
+      `;
+    }
+
+    function renderDeltaGrid() {
+      const comparison = state.comparison;
+      const deltas = [
+        ["loss", "Loss", comparison.loss_delta, 4],
+        ["accuracy", "Accuracy", comparison.accuracy_delta, 4],
+        ["throughput", "Best tok/s", comparison.best_throughput_tokens_s_delta, 0],
+        ["audit", "Audit failed", comparison.audit_failed_count_delta, 0],
+        ["overlap", "Mean overlap", comparison.memory_mean_pair_overlap_delta, 4],
+        ["overlap", "Min overlap", comparison.memory_min_pair_overlap_delta, 4],
+        ["cosine", "Min cosine", comparison.memory_min_pair_state_cosine_similarity_delta, 4],
+        ["l2", "Max L2", comparison.memory_max_pair_state_l2_distance_delta, 4],
+        ["norm", "Norm drift", comparison.memory_max_pair_state_norm_delta_delta, 4],
+        ["count", "Prompt count", comparison.memory_prompt_count_delta, 0],
+        ["count", "Pair count", comparison.memory_pair_count_delta, 0],
+        ["count", "Audit checks", comparison.audit_check_count_delta, 0]
+      ];
+      els.deltaGrid.innerHTML = deltas.map(([metric, label, raw, digits]) => {
+        const cls = trendClass(metric, raw);
+        const fill = cls === "bad" ? "bad" : cls === "good" ? "good" : "warn";
+        return `
+          <div class="delta-card ${cls}">
+            <label>${escapeHtml(label)}</label>
+            <strong>${signed(raw, digits)}</strong>
+            ${bar(trendScore(metric, raw), fill)}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderComparisonList() {
+      const comparison = state.comparison;
+      const rows = [
+        ["Loss regression", comparison.loss_regression_rate, "loss"],
+        ["Accuracy regression", comparison.accuracy_regression, "accuracy"],
+        ["Throughput regression", comparison.best_throughput_regression_rate, "throughput"],
+        ["Audit failed delta", comparison.audit_failed_count_delta, "audit"],
+        ["Memory overlap delta", comparison.memory_mean_pair_overlap_delta, "overlap"],
+        ["Memory cosine delta", comparison.memory_min_pair_state_cosine_similarity_delta, "cosine"],
+        ["Memory L2 delta", comparison.memory_max_pair_state_l2_distance_delta, "l2"],
+        ["Memory norm delta", comparison.memory_max_pair_state_norm_delta_delta, "norm"]
+      ];
+      els.comparisonList.innerHTML = rows.map(([label, raw, metric]) => {
+        const cls = trendClass(metric, raw);
+        const pill = cls === "bad" ? "bad" : cls === "good" ? "good" : "warn";
+        return `
+          <div class="comparison-row">
+            <label>${escapeHtml(label)}</label>
+            ${bar(trendScore(metric, raw), pill)}
+            <span class="status-pill ${pill}">${signed(raw, 4)}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderHashList() {
+      const comparison = state.comparison;
+      const items = [
+        ["Checkpoint SHA", comparison.same_checkpoint_sha256, `${shortHash(state.baseline.checkpoint_sha256)} -> ${shortHash(state.candidate.checkpoint_sha256)}`],
+        ["Archive SHA", comparison.same_archive_sha256, `${shortHash(state.baseline.archive_sha256)} -> ${shortHash(state.candidate.archive_sha256)}`],
+        ["Baseline audit", state.baseline.audit_valid, `${fmt(state.baseline.audit_check_count, 0)} checks / ${fmt(state.baseline.audit_failed_count, 0)} failures`],
+        ["Candidate audit", state.candidate.audit_valid, `${fmt(state.candidate.audit_check_count, 0)} checks / ${fmt(state.candidate.audit_failed_count, 0)} failures`]
+      ];
+      els.hashList.innerHTML = items.map(([label, ok, detail]) => `
+        <div class="hash-item">
+          <span class="status-pill ${ok ? "good" : "warn"}">${ok ? "same/ok" : "changed"}</span>
+          <strong>${escapeHtml(label)}</strong>
+          <code>${escapeHtml(detail)}</code>
+        </div>
+      `).join("");
+    }
+
+    function shortHash(raw) {
+      return raw ? String(raw).slice(0, 12) : "-";
+    }
+
+    function renderFailures() {
+      if (!state.failures.length) {
+        els.failureList.innerHTML = `
+          <div class="failure-item">
+            <span class="status-pill good">clear</span>
+            <strong>No release gate failures.</strong>
+            <code>Comparator thresholds passed or no thresholds were loaded.</code>
+          </div>
+        `;
+        return;
+      }
+      els.failureList.innerHTML = state.failures.map(item => `
+        <div class="failure-item">
+          <span class="status-pill bad">fail</span>
+          <strong>${escapeHtml(item)}</strong>
+        </div>
+      `).join("");
+    }
+
+    async function readJsonFile(file) {
+      return JSON.parse(await file.text());
+    }
+
+    els.loadExample.addEventListener("click", () => loadComparison(exampleComparison));
+    els.clearCompare.addEventListener("click", clearCompare);
+    els.refreshCompare.addEventListener("click", renderCompare);
+
+    els.parsePaste.addEventListener("click", () => {
+      try {
+        loadComparison(JSON.parse(els.jsonPaste.value));
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    els.comparisonJsonFile.addEventListener("change", async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        loadComparison(await readJsonFile(file));
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    els.baselineDashboardFile.addEventListener("change", async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        state.baseline = normalizeDashboard(await readJsonFile(file), file.name);
+        setError("");
+        maybeRenderFromDashboards();
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    els.candidateDashboardFile.addEventListener("change", async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        state.candidate = normalizeDashboard(await readJsonFile(file), file.name);
+        setError("");
+        maybeRenderFromDashboards();
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    renderCompare();
+  </script>
+</body>
+</html>

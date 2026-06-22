@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>TextPy Release Leaderboard</title>
+  <style>
+    :root {
+      --paper: #eef0e8;
+      --ink: #171915;
+      --muted: #62675d;
+      --line: #c9cec0;
+      --panel: #fbfcf5;
+      --panel-strong: #dde4d2;
+      --green: #087f5b;
+      --blue: #155eef;
+      --red: #b42318;
+      --gold: #b7791f;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        var(--paper);
+      background-size: 24px 24px;
+      font-family: "Avenir Next", "Trebuchet MS", Verdana, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+      letter-spacing: 0;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(310px, 400px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .side {
+      border-right: 1px solid var(--line);
+      background: rgba(251, 252, 245, 0.94);
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "DIN Condensed", "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: 34px;
+      line-height: 0.95;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .stamp {
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transform: rotate(-2deg);
+    }
+
+    .section {
+      border-top: 1px solid var(--line);
+      padding: 16px 0;
+    }
+
+    .section:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    input[type="file"], textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 9px;
+    }
+
+    textarea {
+      min-height: 116px;
+      resize: vertical;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    button {
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--paper);
+      min-height: 40px;
+      padding: 8px 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.64);
+      padding: 10px;
+      min-height: 72px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .error {
+      min-height: 18px;
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-width: 0;
+      min-height: 100vh;
+    }
+
+    .top-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      background: rgba(238, 240, 232, 0.92);
+    }
+
+    .title-line { min-width: 0; }
+
+    .title-line h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .title-line p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--ink);
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      min-height: 420px;
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+      font-weight: 800;
+    }
+
+    #viewerContent {
+      min-width: 0;
+      padding: 16px 18px 24px;
+    }
+
+    .release-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .release-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.7);
+      padding: 12px;
+      display: grid;
+      grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.2fr);
+      gap: 14px;
+    }
+
+    .release-title {
+      min-width: 0;
+    }
+
+    .rank {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--paper);
+      font-weight: 900;
+      margin-right: 8px;
+    }
+
+    .release-title strong {
+      font-size: 16px;
+      overflow-wrap: anywhere;
+    }
+
+    .release-title code {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .measure-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .measure {
+      min-width: 0;
+    }
+
+    .measure label {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .measure strong {
+      display: block;
+      margin: 3px 0 6px;
+      font-size: 15px;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .bar {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--panel-strong);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: var(--blue);
+    }
+
+    .bar-fill.good { background: var(--green); }
+    .bar-fill.warn { background: var(--gold); }
+    .bar-fill.bad { background: var(--red); }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .side {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .top-strip,
+      .release-card {
+        grid-template-columns: 1fr;
+      }
+      .legend { justify-content: flex-start; }
+      .measure-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <h1>Release<br>Board</h1>
+        <div class="stamp">Registry</div>
+      </div>
+
+      <section class="section">
+        <label class="label" for="leaderboardFile">Leaderboard JSON</label>
+        <input id="leaderboardFile" type="file" accept="application/json,.json">
+        <div class="button-row">
+          <button id="loadExample" type="button">Example</button>
+          <button id="clearBoard" class="secondary" type="button">Clear</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <label class="label" for="jsonPaste">Paste JSON</label>
+        <textarea id="jsonPaste" spellcheck="false" placeholder='{"releases":[...],"release_count":1}'></textarea>
+        <div class="button-row">
+          <button id="parsePaste" type="button">Parse</button>
+          <button id="sortBest" class="secondary" type="button">Sort</button>
+        </div>
+        <div id="errorBox" class="error"></div>
+      </section>
+
+      <section class="section">
+        <label class="label" for="sortSelect">Sort</label>
+        <select id="sortSelect">
+          <option value="rank">Rank</option>
+          <option value="loss">Loss</option>
+          <option value="throughput">Throughput</option>
+          <option value="memory">Memory overlap</option>
+          <option value="cosine">Memory cosine</option>
+        </select>
+      </section>
+
+      <section class="section">
+        <div class="metric-grid">
+          <div class="metric">
+            <strong id="metricReleases">0</strong>
+            <span>Releases</span>
+          </div>
+          <div class="metric">
+            <strong id="metricBestLoss">-</strong>
+            <span>Best loss</span>
+          </div>
+          <div class="metric">
+            <strong id="metricBestThroughput">-</strong>
+            <span>Best tok/s</span>
+          </div>
+          <div class="metric">
+            <strong id="metricMemory">-</strong>
+            <span>Mean memory</span>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <main class="main">
+      <div class="top-strip">
+        <div class="title-line">
+          <h2 id="titleText">No release leaderboard loaded</h2>
+          <p id="subtitleText">Load `text_release_leaderboard.json` to inspect package and memory diagnostics.</p>
+        </div>
+        <div class="legend">
+          <span><i class="swatch" style="background: var(--green)"></i>Better</span>
+          <span><i class="swatch" style="background: var(--blue)"></i>Measured</span>
+          <span><i class="swatch" style="background: var(--gold)"></i>Memory</span>
+        </div>
+      </div>
+
+      <div id="emptyState" class="empty">
+        <div>Waiting for a TextPy release leaderboard JSON.</div>
+      </div>
+
+      <section id="viewerContent" hidden>
+        <div id="releaseList" class="release-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const exampleLeaderboard = {
+      registry: "artifacts/releases/text_pipeline_packages.json",
+      sort: "benchmark_loss",
+      release_count: 1,
+      shown_count: 1,
+      releases: [
+        {
+          rank: 1,
+          name: "text_pipeline_demo",
+          benchmark_loss: 3.7913637161254883,
+          benchmark_accuracy: 0.4375,
+          benchmark_best_throughput_tokens_s: 606394.2495880203,
+          benchmark_mean_throughput_tokens_s: 546327.0652266376,
+          checkpoint_sha256: "e83bbba1995fcf54396b59dc5c70ec129a4a793108de95800a2fdd1d10f1c4c6",
+          archive_sha256: "6e16f2aa2257a7a49a1f99d457a25f16ffd5023721c92e785669ac18b5bffba1",
+          memory_prompt_count: 3,
+          memory_pair_count: 3,
+          memory_mean_pair_overlap: 0.525,
+          memory_min_pair_overlap: 0.35,
+          memory_max_pair_state_l2_distance: 1.0632,
+          memory_min_pair_state_cosine_similarity: 0.0047,
+          manifest: "artifacts/promoted/text_pipeline_demo/manifest.json",
+          archive: "artifacts/promoted/text_pipeline_demo/text_package.tar.gz"
+        }
+      ]
+    };
+
+    const state = { board: null };
+
+    const els = {
+      leaderboardFile: document.getElementById("leaderboardFile"),
+      loadExample: document.getElementById("loadExample"),
+      clearBoard: document.getElementById("clearBoard"),
+      jsonPaste: document.getElementById("jsonPaste"),
+      parsePaste: document.getElementById("parsePaste"),
+      sortBest: document.getElementById("sortBest"),
+      sortSelect: document.getElementById("sortSelect"),
+      errorBox: document.getElementById("errorBox"),
+      metricReleases: document.getElementById("metricReleases"),
+      metricBestLoss: document.getElementById("metricBestLoss"),
+      metricBestThroughput: document.getElementById("metricBestThroughput"),
+      metricMemory: document.getElementById("metricMemory"),
+      titleText: document.getElementById("titleText"),
+      subtitleText: document.getElementById("subtitleText"),
+      emptyState: document.getElementById("emptyState"),
+      viewerContent: document.getElementById("viewerContent"),
+      releaseList: document.getElementById("releaseList")
+    };
+
+    function fmt(value, digits = 3) {
+      if (!Number.isFinite(Number(value))) return "-";
+      const numeric = Number(value);
+      if (Math.abs(numeric) >= 1000) return numeric.toLocaleString(undefined, {maximumFractionDigits: 0});
+      return numeric.toFixed(digits);
+    }
+
+    function clamp01(value) {
+      return Math.max(0, Math.min(1, value));
+    }
+
+    function setError(message) {
+      els.errorBox.textContent = message || "";
+    }
+
+    function validateLeaderboard(payload) {
+      if (!payload || !Array.isArray(payload.releases)) {
+        throw new Error("Leaderboard JSON must contain releases[].");
+      }
+      for (const row of payload.releases) {
+        if (typeof row.rank !== "number" || typeof row.name !== "string") {
+          throw new Error("Each release row needs rank and name.");
+        }
+      }
+      return payload;
+    }
+
+    function loadLeaderboard(payload) {
+      state.board = validateLeaderboard(payload);
+      setError("");
+      renderBoard();
+    }
+
+    function clearBoard() {
+      state.board = null;
+      els.leaderboardFile.value = "";
+      els.jsonPaste.value = "";
+      setError("");
+      renderBoard();
+    }
+
+    function sortedReleases(board) {
+      const rows = [...board.releases];
+      const sort = els.sortSelect.value;
+      if (sort === "rank") return rows.sort((a, b) => a.rank - b.rank);
+      if (sort === "loss") return rows.sort((a, b) => value(a.benchmark_loss, Infinity) - value(b.benchmark_loss, Infinity));
+      if (sort === "throughput") return rows.sort((a, b) => value(b.benchmark_best_throughput_tokens_s, -Infinity) - value(a.benchmark_best_throughput_tokens_s, -Infinity));
+      if (sort === "memory") return rows.sort((a, b) => value(b.memory_mean_pair_overlap, -Infinity) - value(a.memory_mean_pair_overlap, -Infinity));
+      return rows.sort((a, b) => value(b.memory_min_pair_state_cosine_similarity, -Infinity) - value(a.memory_min_pair_state_cosine_similarity, -Infinity));
+    }
+
+    function value(raw, fallback) {
+      return Number.isFinite(Number(raw)) ? Number(raw) : fallback;
+    }
+
+    function maxOf(rows, key) {
+      return Math.max(...rows.map(row => value(row[key], 0)), 0);
+    }
+
+    function minOf(rows, key) {
+      const values = rows.map(row => value(row[key], Infinity)).filter(Number.isFinite);
+      return values.length ? Math.min(...values) : 0;
+    }
+
+    function bar(width, cls = "") {
+      const safe = clamp01(width) * 100;
+      return `<div class="bar"><div class="bar-fill ${cls}" style="width:${safe}%"></div></div>`;
+    }
+
+    function renderBoard() {
+      const board = state.board;
+      if (!board) {
+        els.emptyState.hidden = false;
+        els.viewerContent.hidden = true;
+        els.metricReleases.textContent = "0";
+        els.metricBestLoss.textContent = "-";
+        els.metricBestThroughput.textContent = "-";
+        els.metricMemory.textContent = "-";
+        els.titleText.textContent = "No release leaderboard loaded";
+        els.subtitleText.textContent = "Load `text_release_leaderboard.json` to inspect package and memory diagnostics.";
+        return;
+      }
+
+      const rows = sortedReleases(board);
+      const bestLoss = minOf(rows, "benchmark_loss");
+      const bestThroughput = maxOf(rows, "benchmark_best_throughput_tokens_s");
+      const bestMemory = maxOf(rows, "memory_mean_pair_overlap");
+      const bestCosine = maxOf(rows, "memory_min_pair_state_cosine_similarity");
+
+      els.emptyState.hidden = true;
+      els.viewerContent.hidden = false;
+      els.metricReleases.textContent = String(rows.length);
+      els.metricBestLoss.textContent = fmt(bestLoss);
+      els.metricBestThroughput.textContent = fmt(bestThroughput, 0);
+      els.metricMemory.textContent = bestMemory ? fmt(bestMemory) : "-";
+      els.titleText.textContent = `${rows.length} release${rows.length === 1 ? "" : "s"}`;
+      els.subtitleText.textContent = board.registry || "Release leaderboard";
+
+      els.releaseList.innerHTML = rows.map(row => {
+        const lossScore = bestLoss > 0 ? bestLoss / Math.max(value(row.benchmark_loss, bestLoss), 1e-9) : 0;
+        const throughputScore = bestThroughput > 0 ? value(row.benchmark_best_throughput_tokens_s, 0) / bestThroughput : 0;
+        const memoryScore = bestMemory > 0 ? value(row.memory_mean_pair_overlap, 0) / bestMemory : 0;
+        const cosineScore = bestCosine > 0 ? value(row.memory_min_pair_state_cosine_similarity, 0) / bestCosine : 0;
+        return `
+          <article class="release-card">
+            <div class="release-title">
+              <div><span class="rank">${row.rank}</span><strong>${escapeHtml(row.name || "unnamed")}</strong></div>
+              <code>${escapeHtml((row.checkpoint_sha256 || "").slice(0, 12))} / ${escapeHtml((row.archive_sha256 || "").slice(0, 12))}</code>
+              <code>${escapeHtml(row.manifest || "")}</code>
+            </div>
+            <div class="measure-grid">
+              ${measure("Loss", row.benchmark_loss, lossScore, "good")}
+              ${measure("Best tok/s", row.benchmark_best_throughput_tokens_s, throughputScore, "good", 0)}
+              ${measure("Memory overlap", row.memory_mean_pair_overlap, memoryScore, "warn")}
+              ${measure("Memory cosine", row.memory_min_pair_state_cosine_similarity, cosineScore, "warn")}
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function measure(label, raw, score, cls, digits = 3) {
+      return `
+        <div class="measure">
+          <label>${label}</label>
+          <strong>${fmt(raw, digits)}</strong>
+          ${bar(score, cls)}
+        </div>
+      `;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    els.loadExample.addEventListener("click", () => loadLeaderboard(exampleLeaderboard));
+    els.clearBoard.addEventListener("click", clearBoard);
+    els.sortBest.addEventListener("click", renderBoard);
+    els.sortSelect.addEventListener("change", renderBoard);
+
+    els.parsePaste.addEventListener("click", () => {
+      try {
+        loadLeaderboard(JSON.parse(els.jsonPaste.value));
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    els.leaderboardFile.addEventListener("change", async event => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      try {
+        loadLeaderboard(JSON.parse(await file.text()));
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    renderBoard();
+  </script>
+</body>
+</html>

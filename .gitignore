@@ -1,0 +1,12 @@
+# Generated artifacts (regenerable; evidence dirs are force-added explicitly)
+artifacts/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS / tooling
+.DS_Store
+.playwright-cli/
+.claude/

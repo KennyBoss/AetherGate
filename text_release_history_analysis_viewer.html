@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>TextPy Release History Analysis</title>
+  <style>
+    :root {
+      --paper: #eef0e8;
+      --ink: #171915;
+      --muted: #62675d;
+      --line: #c9cec0;
+      --panel-strong: #dde4d2;
+      --green: #087f5b;
+      --blue: #155eef;
+      --red: #b42318;
+      --gold: #b7791f;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        var(--paper);
+      background-size: 24px 24px;
+      font-family: "Avenir Next", "Trebuchet MS", Verdana, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, input, textarea {
+      font: inherit;
+      letter-spacing: 0;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .side {
+      border-right: 1px solid var(--line);
+      background: rgba(251, 252, 245, 0.94);
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "DIN Condensed", "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: 34px;
+      line-height: 0.95;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .stamp {
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transform: rotate(-2deg);
+    }
+
+    .section {
+      border-top: 1px solid var(--line);
+      padding: 16px 0;
+    }
+
+    .section:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    input[type="file"], textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 9px;
+    }
+
+    textarea {
+      min-height: 116px;
+      resize: vertical;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    button {
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--paper);
+      min-height: 40px;
+      padding: 8px 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.64);
+      padding: 10px;
+      min-height: 72px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .error {
+      min-height: 18px;
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-width: 0;
+      min-height: 100vh;
+    }
+
+    .top-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      background: rgba(238, 240, 232, 0.92);
+    }
+
+    .title-line { min-width: 0; }
+
+    .title-line h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .title-line p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--ink);
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      min-height: 420px;
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+      font-weight: 800;
+    }
+
+    #analysisDashboard {
+      min-width: 0;
+      padding: 16px 18px 24px;
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(300px, 1fr));
+      gap: 14px;
+      align-items: start;
+    }
+
+    .band {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.68);
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .band.wide {
+      grid-column: 1 / -1;
+    }
+
+    .band h3 {
+      margin: 0 0 10px;
+      font-size: 13px;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .release-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .release-head strong {
+      display: block;
+      font-size: 25px;
+      line-height: 1;
+      overflow-wrap: anywhere;
+    }
+
+    code,
+    .path-line {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .rank-badge {
+      display: grid;
+      place-items: center;
+      min-width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: var(--paper);
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .score-grid,
+    .delta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .score,
+    .delta-card {
+      min-width: 0;
+      border-top: 1px solid var(--line);
+      padding-top: 9px;
+    }
+
+    .score label,
+    .delta-card label,
+    .detail-row label {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .score strong,
+    .delta-card strong {
+      display: block;
+      margin: 3px 0 6px;
+      font-size: 16px;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .delta-card.good strong { color: var(--green); }
+    .delta-card.bad strong { color: var(--red); }
+    .delta-card.flat strong { color: var(--muted); }
+
+    .bar {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--panel-strong);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: var(--blue);
+    }
+
+    .bar-fill.good { background: var(--green); }
+    .bar-fill.warn { background: var(--gold); }
+    .bar-fill.bad { background: var(--red); }
+
+    .detail-list,
+    .failure-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .detail-row,
+    .failure-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.64);
+      padding: 10px;
+      min-width: 0;
+    }
+
+    .detail-row {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr) 104px;
+      gap: 10px;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .failure-item strong {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .status-pill.good {
+      border-color: rgba(8, 127, 91, 0.32);
+      color: var(--green);
+      background: rgba(8, 127, 91, 0.09);
+    }
+
+    .status-pill.bad {
+      border-color: rgba(180, 35, 24, 0.32);
+      color: var(--red);
+      background: rgba(180, 35, 24, 0.08);
+    }
+
+    .status-pill.warn {
+      border-color: rgba(183, 121, 31, 0.32);
+      color: var(--gold);
+      background: rgba(183, 121, 31, 0.1);
+    }
+
+    @media (max-width: 1120px) {
+      .analysis-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .side {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .top-strip,
+      .release-head,
+      .detail-row {
+        grid-template-columns: 1fr;
+      }
+      .legend { justify-content: flex-start; }
+      .score-grid,
+      .delta-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <h1>Release<br>Verdict</h1>
+        <div class="stamp">Trend</div>
+      </div>
+
+      <section class="section">
+        <label class="label" for="analysisFile">Analysis JSON</label>
+        <input id="analysisFile" type="file" accept="application/json,.json">
+        <div class="button-row">
+          <button id="loadExample" type="button">Example</button>
+          <button id="clearAnalysis" class="secondary" type="button">Clear</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <label class="label" for="jsonPaste">Paste JSON</label>
+        <textarea id="jsonPaste" spellcheck="false" placeholder='{"baseline": {...}, "latest": {...}, "comparison": {...}}'></textarea>
+        <div class="button-row">
+          <button id="parsePaste" type="button">Parse</button>
+          <button id="refreshAnalysis" class="secondary" type="button">Refresh</button>
+        </div>
+        <div id="errorBox" class="error"></div>
+      </section>
+
+      <section class="section">
+        <div class="metric-grid">
+          <div class="metric">
+            <strong id="metricVerdict">-</strong>
+            <span>Verdict</span>
+          </div>
+          <div class="metric">
+            <strong id="metricBaseline">-</strong>
+            <span>Baseline</span>
+          </div>
+          <div class="metric">
+            <strong id="metricLossDelta">-</strong>
+            <span>Loss delta</span>
+          </div>
+          <div class="metric">
+            <strong id="metricFailures">0</strong>
+            <span>Failures</span>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <main class="main">
+      <div class="top-strip">
+        <div class="title-line">
+          <h2 id="titleText">No release analysis loaded</h2>
+          <p id="subtitleText">Load `text_release_history_analysis.json` to inspect the latest release verdict.</p>
+        </div>
+        <div class="legend">
+          <span><i class="swatch" style="background: var(--green)"></i>Improved</span>
+          <span><i class="swatch" style="background: var(--gold)"></i>Flat</span>
+          <span><i class="swatch" style="background: var(--red)"></i>Regressed</span>
+        </div>
+      </div>
+
+      <div id="emptyState" class="empty">
+        <div>Waiting for TextPy release history analysis JSON.</div>
+      </div>
+
+      <section id="analysisDashboard" hidden>
+        <div class="analysis-grid">
+          <div class="band">
+            <h3>Baseline</h3>
+            <div id="baselinePanel"></div>
+          </div>
+
+          <div class="band">
+            <h3>Latest</h3>
+            <div id="latestPanel"></div>
+          </div>
+
+          <div class="band wide">
+            <h3>Trend Deltas</h3>
+            <div id="verdictGrid" class="delta-grid"></div>
+          </div>
+
+          <div class="band">
+            <h3>Regression Detail</h3>
+            <div id="detailList" class="detail-list"></div>
+          </div>
+
+          <div class="band">
+            <h3>Failures</h3>
+            <div id="failureList" class="failure-list"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const exampleAnalysis = {
+      history: "artifacts/releases/text_release_history.json",
+      baseline_mode: "previous",
+      release_count: 3,
+      valid: true,
+      failures: [],
+      baseline: {
+        history_index: 2,
+        path: "artifacts/releases/text_release_dashboard_fast.json",
+        name: "text_fast",
+        created_at: "20260620T180000Z",
+        benchmark_loss: 3.79,
+        benchmark_accuracy: 0.4375,
+        benchmark_best_throughput_tokens_s: 781400,
+        checkpoint_sha256: "f13bbba1995fcf54396b59dc5c70ec129a4a793108de95800a2fdd1d10f1c4c6",
+        audit_failed_count: 0,
+        memory_mean_pair_overlap: 0.525,
+        memory_min_pair_overlap: 0.35,
+        memory_max_pair_state_norm_delta: 0.643,
+        memory_max_pair_state_l2_distance: 1.063,
+        memory_min_pair_state_cosine_similarity: 0.0047
+      },
+      latest: {
+        history_index: 3,
+        path: "artifacts/releases/text_release_dashboard_next.json",
+        name: "text_next",
+        created_at: "20260621T120000Z",
+        benchmark_loss: 3.61,
+        benchmark_accuracy: 0.4688,
+        benchmark_best_throughput_tokens_s: 735200,
+        checkpoint_sha256: "a93bbba1995fcf54396b59dc5c70ec129a4a793108de95800a2fdd1d10f1c4c6",
+        audit_failed_count: 0,
+        memory_mean_pair_overlap: 0.56,
+        memory_min_pair_overlap: 0.37,
+        memory_max_pair_state_norm_delta: 0.611,
+        memory_max_pair_state_l2_distance: 1.012,
+        memory_min_pair_state_cosine_similarity: 0.031
+      },
+      comparison: {
+        winner_by_loss: "candidate",
+        loss_delta: -0.18,
+        accuracy_delta: 0.0313,
+        best_throughput_tokens_s_delta: -46200,
+        loss_regression_rate: -0.0475,
+        accuracy_regression: 0,
+        best_throughput_regression_rate: 0.0591,
+        same_checkpoint_sha256: false,
+        audit_failed_count_delta: 0,
+        memory_mean_pair_overlap_delta: 0.035,
+        memory_min_pair_overlap_delta: 0.02,
+        memory_min_pair_state_cosine_similarity_delta: 0.0263,
+        memory_max_pair_state_l2_distance_delta: -0.051,
+        memory_max_pair_state_norm_delta_delta: -0.032
+      }
+    };
+
+    const state = { analysis: null };
+
+    const els = {
+      analysisFile: document.getElementById("analysisFile"),
+      loadExample: document.getElementById("loadExample"),
+      clearAnalysis: document.getElementById("clearAnalysis"),
+      jsonPaste: document.getElementById("jsonPaste"),
+      parsePaste: document.getElementById("parsePaste"),
+      refreshAnalysis: document.getElementById("refreshAnalysis"),
+      errorBox: document.getElementById("errorBox"),
+      metricVerdict: document.getElementById("metricVerdict"),
+      metricBaseline: document.getElementById("metricBaseline"),
+      metricLossDelta: document.getElementById("metricLossDelta"),
+      metricFailures: document.getElementById("metricFailures"),
+      titleText: document.getElementById("titleText"),
+      subtitleText: document.getElementById("subtitleText"),
+      emptyState: document.getElementById("emptyState"),
+      analysisDashboard: document.getElementById("analysisDashboard"),
+      baselinePanel: document.getElementById("baselinePanel"),
+      latestPanel: document.getElementById("latestPanel"),
+      verdictGrid: document.getElementById("verdictGrid"),
+      detailList: document.getElementById("detailList"),
+      failureList: document.getElementById("failureList")
+    };
+
+    function setError(message) {
+      els.errorBox.textContent = message || "";
+    }
+
+    function fmt(value, digits = 3) {
+      if (!Number.isFinite(Number(value))) return "-";
+      const numeric = Number(value);
+      if (Math.abs(numeric) >= 1000) return numeric.toLocaleString(undefined, {maximumFractionDigits: 0});
+      return numeric.toFixed(digits);
+    }
+
+    function signed(raw, digits = 3) {
+      if (!Number.isFinite(Number(raw))) return "-";
+      const numeric = Number(raw);
+      if (Math.abs(numeric) >= 1000) {
+        return `${numeric >= 0 ? "+" : ""}${numeric.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+      }
+      return `${numeric >= 0 ? "+" : ""}${numeric.toFixed(digits)}`;
+    }
+
+    function value(raw, fallback = 0) {
+      return Number.isFinite(Number(raw)) ? Number(raw) : fallback;
+    }
+
+    function clamp01(raw) {
+      return Math.max(0, Math.min(1, Number(raw) || 0));
+    }
+
+    function escapeHtml(raw) {
+      return String(raw ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function validateReleaseRow(row, label) {
+      if (!row || typeof row.name !== "string") {
+        throw new Error(`${label} release row is missing name.`);
+      }
+      for (const key of ["benchmark_loss", "benchmark_best_throughput_tokens_s", "memory_mean_pair_overlap"]) {
+        if (!Number.isFinite(Number(row[key]))) throw new Error(`${label}.${key} must be numeric.`);
+      }
+      return row;
+    }
+
+    function validateAnalysis(payload) {
+      if (!payload || typeof payload !== "object") {
+        throw new Error("Analysis JSON must be an object.");
+      }
+      if (!payload.baseline || !payload.latest || !payload.comparison) {
+        throw new Error("Analysis JSON must contain baseline, latest, and comparison.");
+      }
+      validateReleaseRow(payload.baseline, "baseline");
+      validateReleaseRow(payload.latest, "latest");
+      if (!Array.isArray(payload.failures)) payload.failures = [];
+      return payload;
+    }
+
+    function loadAnalysis(payload) {
+      state.analysis = validateAnalysis(payload);
+      setError("");
+      renderAnalysis();
+    }
+
+    function clearAnalysis() {
+      state.analysis = null;
+      els.analysisFile.value = "";
+      els.jsonPaste.value = "";
+      setError("");
+      renderAnalysis();
+    }
+
+    function bar(score, cls = "") {
+      return `<div class="bar"><div class="bar-fill ${cls}" style="width:${clamp01(score) * 100}%"></div></div>`;
+    }
+
+    function trendClass(metric, raw) {
+      const delta = value(raw, 0);
+      if (Math.abs(delta) <= 1e-12) return "flat";
+      const lowerIsBetter = metric === "loss" || metric === "audit" || metric === "l2" || metric === "norm";
+      return lowerIsBetter ? (delta < 0 ? "good" : "bad") : (delta > 0 ? "good" : "bad");
+    }
+
+    function trendScore(raw) {
+      const magnitude = Math.abs(value(raw, 0));
+      return Math.min(1, 0.55 + magnitude);
+    }
+
+    function verdict() {
+      const analysis = state.analysis;
+      if (!analysis) return "pending";
+      return analysis.valid === false || analysis.failures.length ? "fail" : "pass";
+    }
+
+    function renderAnalysis() {
+      const analysis = state.analysis;
+      if (!analysis) {
+        els.emptyState.hidden = false;
+        els.analysisDashboard.hidden = true;
+        els.metricVerdict.textContent = "-";
+        els.metricBaseline.textContent = "-";
+        els.metricLossDelta.textContent = "-";
+        els.metricFailures.textContent = "0";
+        els.titleText.textContent = "No release analysis loaded";
+        els.subtitleText.textContent = "Load `text_release_history_analysis.json` to inspect the latest release verdict.";
+        return;
+      }
+
+      const comparison = analysis.comparison;
+      const status = verdict();
+      els.emptyState.hidden = true;
+      els.analysisDashboard.hidden = false;
+      els.metricVerdict.textContent = status === "pass" ? "PASS" : "FAIL";
+      els.metricBaseline.textContent = analysis.baseline_mode || "-";
+      els.metricLossDelta.textContent = signed(comparison.loss_delta, 4);
+      els.metricFailures.textContent = String(analysis.failures.length);
+      els.titleText.textContent = `${analysis.latest.name} vs ${analysis.baseline.name}`;
+      els.subtitleText.textContent = `${analysis.history || "release history"} / ${analysis.baseline_mode || "baseline"}`;
+
+      els.baselinePanel.innerHTML = releasePanel(analysis.baseline, false);
+      els.latestPanel.innerHTML = releasePanel(analysis.latest, comparison.winner_by_loss === "candidate");
+      renderVerdictGrid();
+      renderDetailList();
+      renderFailures();
+    }
+
+    function releasePanel(row, winner) {
+      const analysis = state.analysis;
+      const speedMax = Math.max(
+        value(analysis.baseline.benchmark_best_throughput_tokens_s),
+        value(analysis.latest.benchmark_best_throughput_tokens_s),
+        1
+      );
+      const minLoss = Math.min(value(analysis.baseline.benchmark_loss, Infinity), value(analysis.latest.benchmark_loss, Infinity));
+      const memoryMax = Math.max(value(analysis.baseline.memory_mean_pair_overlap), value(analysis.latest.memory_mean_pair_overlap), 1e-9);
+      return `
+        <div class="release-head">
+          <div>
+            <strong>${escapeHtml(row.name)}</strong>
+            <code>${escapeHtml((row.checkpoint_sha256 || "").slice(0, 16))}</code>
+            <span class="path-line">${escapeHtml(row.path || "")}</span>
+          </div>
+          <div class="rank-badge">${winner ? "W" : escapeHtml(row.history_index || "-")}</div>
+        </div>
+        <div class="score-grid">
+          ${scoreBlock("Loss", row.benchmark_loss, minLoss / Math.max(value(row.benchmark_loss, minLoss), 1e-9), "good")}
+          ${scoreBlock("Accuracy", row.benchmark_accuracy, value(row.benchmark_accuracy), "good")}
+          ${scoreBlock("Best tok/s", row.benchmark_best_throughput_tokens_s, value(row.benchmark_best_throughput_tokens_s) / speedMax, "good", 0)}
+          ${scoreBlock("Memory", row.memory_mean_pair_overlap, value(row.memory_mean_pair_overlap) / memoryMax, "warn")}
+        </div>
+      `;
+    }
+
+    function scoreBlock(label, raw, score, cls, digits = 3) {
+      return `
+        <div class="score">
+          <label>${escapeHtml(label)}</label>
+          <strong>${fmt(raw, digits)}</strong>
+          ${bar(score, cls)}
+        </div>
+      `;
+    }
+
+    function renderVerdictGrid() {
+      const c = state.analysis.comparison;
+      const deltas = [
+        ["loss", "Loss", c.loss_delta, 4],
+        ["accuracy", "Accuracy", c.accuracy_delta, 4],
+        ["throughput", "Best tok/s", c.best_throughput_tokens_s_delta, 0],
+        ["audit", "Audit failed", c.audit_failed_count_delta, 0],
+        ["overlap", "Mean overlap", c.memory_mean_pair_overlap_delta, 4],
+        ["overlap", "Min overlap", c.memory_min_pair_overlap_delta, 4],
+        ["cosine", "Min cosine", c.memory_min_pair_state_cosine_similarity_delta, 4],
+        ["l2", "Max L2", c.memory_max_pair_state_l2_distance_delta, 4],
+        ["norm", "Norm drift", c.memory_max_pair_state_norm_delta_delta, 4],
+        ["loss", "Loss reg.", c.loss_regression_rate, 4],
+        ["throughput", "Speed reg.", c.best_throughput_regression_rate, 4],
+        ["accuracy", "Acc. reg.", c.accuracy_regression, 4]
+      ];
+      els.verdictGrid.innerHTML = deltas.map(([metric, label, raw, digits]) => {
+        const cls = trendClass(metric, raw);
+        const fill = cls === "bad" ? "bad" : cls === "good" ? "good" : "warn";
+        return `
+          <div class="delta-card ${cls}">
+            <label>${escapeHtml(label)}</label>
+            <strong>${signed(raw, digits)}</strong>
+            ${bar(trendScore(raw), fill)}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderDetailList() {
+      const c = state.analysis.comparison;
+      const rows = [
+        ["Winner by loss", c.winner_by_loss, c.winner_by_loss === "candidate" ? "good" : c.winner_by_loss === "baseline" ? "bad" : "warn"],
+        ["Checkpoint SHA", c.same_checkpoint_sha256 ? "same" : "changed", c.same_checkpoint_sha256 ? "warn" : "good"],
+        ["Loss regression", signed(c.loss_regression_rate, 4), trendClass("loss", c.loss_regression_rate)],
+        ["Throughput regression", signed(c.best_throughput_regression_rate, 4), trendClass("throughput", c.best_throughput_regression_rate)],
+        ["Memory overlap", signed(c.memory_mean_pair_overlap_delta, 4), trendClass("overlap", c.memory_mean_pair_overlap_delta)],
+        ["Memory cosine", signed(c.memory_min_pair_state_cosine_similarity_delta, 4), trendClass("cosine", c.memory_min_pair_state_cosine_similarity_delta)]
+      ];
+      els.detailList.innerHTML = rows.map(([label, valueText, cls]) => {
+        const pill = cls === "bad" ? "bad" : cls === "good" ? "good" : "warn";
+        return `
+          <div class="detail-row">
+            <label>${escapeHtml(label)}</label>
+            ${bar(pill === "warn" ? 0.5 : 1, pill)}
+            <span class="status-pill ${pill}">${escapeHtml(valueText)}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderFailures() {
+      const failures = state.analysis.failures;
+      if (!failures.length) {
+        els.failureList.innerHTML = `
+          <div class="failure-item">
+            <span class="status-pill good">clear</span>
+            <strong>No release history trend failures.</strong>
+            <code>Latest release passed the loaded analysis thresholds.</code>
+          </div>
+        `;
+        return;
+      }
+      els.failureList.innerHTML = failures.map(item => `
+        <div class="failure-item">
+          <span class="status-pill bad">fail</span>
+          <strong>${escapeHtml(item)}</strong>
+        </div>
+      `).join("");
+    }
+
+    async function readJsonFile(file) {
+      return JSON.parse(await file.text());
+    }
+
+    els.loadExample.addEventListener("click", () => loadAnalysis(exampleAnalysis));
+    els.clearAnalysis.addEventListener("click", clearAnalysis);
+    els.refreshAnalysis.addEventListener("click", renderAnalysis);
+
+    els.parsePaste.addEventListener("click", () => {
+      try {
+        loadAnalysis(JSON.parse(els.jsonPaste.value));
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    els.analysisFile.addEventListener("change", async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        loadAnalysis(await readJsonFile(file));
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    renderAnalysis();
+  </script>
+</body>
+</html>

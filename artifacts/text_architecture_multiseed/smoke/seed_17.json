@@ -1,0 +1,115 @@
+{
+  "created_at": "20260621T110626Z",
+  "backend": "cpu",
+  "devices": [
+    "TFRT_CPU_0"
+  ],
+  "protocol": {
+    "text_file": null,
+    "split": {
+      "source_text_file": "builtin_default",
+      "raw_word_tokens": 140,
+      "train_word_tokens": 112,
+      "eval_word_tokens": 28,
+      "eval_fraction": 0.2
+    },
+    "tokenizer": "word",
+    "tokenizer_config": {
+      "type": "word",
+      "lowercase": true
+    },
+    "tokenizer_summary": {
+      "type": "word",
+      "word_tokens": 112,
+      "tokens": 112,
+      "tokens_per_word": 1.0,
+      "unique_tokens": 75,
+      "merges": 0,
+      "target_vocab_size": null
+    },
+    "train_tokens": 112,
+    "eval_tokens": 28,
+    "vocab_size": 77,
+    "eval_oov": {
+      "known_unique_tokens": 12,
+      "oov_unique_tokens": 13,
+      "oov_tokens": 13,
+      "oov_token_rate": 0.4642857142857143
+    },
+    "streams": 4,
+    "tokens_per_stream": 96,
+    "seq_len": 16,
+    "epochs": 1,
+    "learning_rate": 0.003,
+    "repeat": 1,
+    "budget_match_80_125pct": true,
+    "transformer_to_ssm_param_ratio": 0.9919927400843431
+  },
+  "ssm": {
+    "name": "ssm",
+    "input_dim": 64,
+    "state_dim": 96,
+    "parameter_count": 18733,
+    "parameter_bytes": 74932,
+    "optimizer_bytes_estimate": 149864,
+    "state_memory_bytes": 1536,
+    "effective_context_tokens": 96,
+    "train": {
+      "updates": 5,
+      "trained_tokens": 320,
+      "train_s": 0.004491999978199601,
+      "train_throughput_tokens_s": 71237.75635641396,
+      "final_train_loss": 4.221915245056152,
+      "final_train_accuracy": 0.140625,
+      "mean_decay_A": 0.5062581896781921
+    },
+    "eval": {
+      "loss": 4.276194095611572,
+      "perplexity": 71.96601867675781,
+      "accuracy": 0.10625000298023224,
+      "best_eval_s": 0.0005890829488635063,
+      "mean_eval_s": 0.0005890829488635063,
+      "throughput_tokens_s": 543217.2168917177,
+      "evaluated_tokens_per_repeat": 320
+    },
+    "sample": "memory is a. the the"
+  },
+  "transformer": {
+    "name": "transformer",
+    "d_model": 38,
+    "layers": 1,
+    "heads": 2,
+    "ff_mult": 2,
+    "parameter_count": 18583,
+    "parameter_bytes": 74332,
+    "optimizer_bytes_estimate": 148664,
+    "attention_score_memory_bytes": 8192,
+    "effective_context_tokens": 16,
+    "train": {
+      "updates": 5,
+      "trained_tokens": 320,
+      "train_s": 0.00221016607247293,
+      "train_throughput_tokens_s": 144785.50005156655,
+      "final_train_loss": 4.182751655578613,
+      "final_train_accuracy": 0.125
+    },
+    "eval": {
+      "loss": 4.808554172515869,
+      "perplexity": 122.5542984008789,
+      "accuracy": 0.05000000074505806,
+      "best_eval_s": 0.00042558403220027685,
+      "mean_eval_s": 0.00042558403220027685,
+      "throughput_tokens_s": 751907.9095745074,
+      "evaluated_tokens_per_repeat": 320
+    },
+    "sample": "memory is the. the."
+  },
+  "comparison": {
+    "winner_by_loss": "ssm",
+    "ssm_minus_transformer_loss": -0.5323600769042969,
+    "ssm_minus_transformer_accuracy": 0.05625000223517418,
+    "ssm_minus_transformer_throughput_tokens_s": -208690.69268278964,
+    "ssm_loss_regression_rate_vs_transformer": -0.11071104906067064
+  },
+  "claim_guardrail": "A smoke or tiny-corpus run is evidence that the harness works. It is not evidence that the SSM is better than Transformers."
+}

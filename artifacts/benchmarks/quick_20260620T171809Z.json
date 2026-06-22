@@ -1,0 +1,127 @@
+{
+  "created_at": "20260620T171809Z",
+  "profile": "quick",
+  "python": "3.14.4 (main, Apr  7 2026, 13:13:20) [Clang 17.0.0 (clang-1700.6.4.2)]",
+  "root": "/Users/makbuk/000cor",
+  "results": {
+    "agent": {
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "soa_ssm_agents.py",
+        "--agents",
+        "16384",
+        "--steps",
+        "64"
+      ],
+      "wall_s": 1.8330655409954488,
+      "metrics": {
+        "agent_steps": 1048576,
+        "cached_run_s": 0.0299,
+        "throughput_agent_steps_s": 35121655.0,
+        "mean_energy": 0.9933,
+        "mean_goal_distance": {
+          "initial": 1.1247,
+          "final": 0.636
+        },
+        "mean_threat_distance": {
+          "initial": 0.8271,
+          "final": 1.0694
+        }
+      },
+      "stdout_tail": "  agents: 16,384\n  steps: 64\n  agent_steps: 1,048,576\n  compile_plus_first_run_s: 0.2539\n  cached_run_s: 0.0299\n  throughput_agent_steps_s: 35,121,655\nBehavior\n  mean_energy: 0.9933\n  mean_goal_distance: 1.1247 -> 0.6360\n  mean_threat_distance: 0.8271 -> 1.0694\n  mean_abs_hidden_state: 0.5382\n  final_action_counts:\n     forage: 11,354\n       flee: 159\n       rest: 1,745\n    explore: 3,126"
+    },
+    "text": {
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "train_ssm_text.py",
+        "--streams",
+        "16",
+        "--tokens-per-stream",
+        "256",
+        "--seq-len",
+        "32",
+        "--epochs",
+        "4",
+        "--log-every",
+        "2",
+        "--sample-steps",
+        "8"
+      ],
+      "wall_s": 1.9998901669168845,
+      "metrics": {
+        "trained_tokens": 14336,
+        "train_s": 0.3557,
+        "throughput_tokens_s": 40299.0,
+        "initial_loss": 4.5135,
+        "final_loss": 0.3289,
+        "final_accuracy": 0.9531,
+        "mean_decay_A": 0.5609
+      },
+      "stdout_tail": "  epochs: 4\n  initial_loss: 4.5135\n  initial_accuracy: 0.0117\nepoch=001 loss=3.4860 ppl=32.65 acc=0.2344 grad_norm=0.304 mean_A=0.518\nepoch=002 loss=1.7407 ppl=5.70 acc=0.6465 grad_norm=0.315 mean_A=0.532\nepoch=004 loss=0.3436 ppl=1.41 acc=0.9570 grad_norm=0.115 mean_A=0.561\nRun\n  updates: 28\n  trained_tokens: 14,336\n  train_s: 0.3557\n  throughput_tokens_s: 40,299\n  final_loss: 0.3289\n  final_accuracy: 0.9531\n  mean_decay_A: 0.5609\nSample\n  memory is a river of state. present signals enter"
+    },
+    "evolution": {
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "evolve_ssm_agents.py",
+        "--population",
+        "24",
+        "--elites",
+        "4",
+        "--agents",
+        "1024",
+        "--steps",
+        "32",
+        "--generations",
+        "4",
+        "--log-every",
+        "2",
+        "--save-best",
+        "/Users/makbuk/000cor/artifacts/benchmarks/quick_20260620T171809Z_best_genome.npz"
+      ],
+      "wall_s": 2.9886899170232937,
+      "metrics": {
+        "evaluated_agent_steps": 3932160,
+        "evolution_s": 1.2152,
+        "throughput_agent_steps_s": 3235820.0,
+        "best_reward_seen": 3.7012,
+        "best_goal_distance": 0.358,
+        "best_threat_distance": 1.0241,
+        "best_energy": 0.6786
+      },
+      "stdout_tail": "gen=004 best_reward=3.7012 mean_reward=3.6489 goal=0.3580 threat=1.0241 energy=0.6786 entropy=0.017\nRun\n  evaluated_agent_steps: 3,932,160\n  evolution_s: 1.2152\n  throughput_agent_steps_s: 3,235,820\n  best_reward_seen: 3.7012\n  best_goal_distance: 0.3580\n  best_threat_distance: 1.0241\n  best_energy: 0.6786\n  best_policy_entropy: 0.0173\n  saved_best: /Users/makbuk/000cor/artifacts/benchmarks/quick_20260620T171809Z_best_genome.npz\n  best_action_bias:\n     forage: +0.119\n       flee: -0.247\n       rest: +0.126\n    explore: -0.042",
+      "genome_path": "/Users/makbuk/000cor/artifacts/benchmarks/quick_20260620T171809Z_best_genome.npz"
+    },
+    "replay": {
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "run_evolved_agent.py",
+        "--agents",
+        "1024",
+        "--steps",
+        "32",
+        "--seed",
+        "505",
+        "--genome",
+        "/Users/makbuk/000cor/artifacts/benchmarks/quick_20260620T171809Z_best_genome.npz"
+      ],
+      "wall_s": 0.7280658750096336,
+      "metrics": {
+        "agent_steps": 32768,
+        "replay_s": 0.1799,
+        "throughput_agent_steps_s": 182102.0,
+        "reward": 3.6981,
+        "mean_energy": 0.6806,
+        "mean_goal_distance": {
+          "initial": 1.1179,
+          "final": 0.3611
+        },
+        "mean_threat_distance": {
+          "initial": 0.8332,
+          "final": 1.026
+        },
+        "policy_entropy": 0.017
+      },
+      "stdout_tail": "Run\n  agents: 1,024\n  steps: 32\n  agent_steps: 32,768\n  replay_s: 0.1799\n  throughput_agent_steps_s: 182,102\n  reward: 3.6981\n  mean_energy: 0.6806\n  mean_goal_distance: 1.1179 -> 0.3611\n  mean_threat_distance: 0.8332 -> 1.0260\n  policy_entropy: 0.0170\n  action_counts:\n     forage: 32,652\n       flee: 0\n       rest: 116\n    explore: 0"
+    }
+  }
+}

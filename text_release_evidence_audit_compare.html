@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>TextPy Evidence Audit Compare</title>
+  <style>
+    :root {
+      --paper: #eef0e8;
+      --ink: #171915;
+      --muted: #62675d;
+      --line: #c9cec0;
+      --panel: #fbfcf5;
+      --panel-strong: #dde4d2;
+      --green: #087f5b;
+      --blue: #155eef;
+      --red: #b42318;
+      --gold: #b7791f;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        var(--paper);
+      background-size: 24px 24px;
+      font-family: "Avenir Next", "Trebuchet MS", Verdana, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, input, textarea {
+      font: inherit;
+      letter-spacing: 0;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .side {
+      border-right: 1px solid var(--line);
+      background: rgba(251, 252, 245, 0.94);
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "DIN Condensed", "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: 34px;
+      line-height: 0.95;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .stamp {
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transform: rotate(-2deg);
+    }
+
+    .section {
+      border-top: 1px solid var(--line);
+      padding: 16px 0;
+    }
+
+    .section:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    input[type="file"], textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 9px;
+    }
+
+    textarea {
+      min-height: 132px;
+      resize: vertical;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    button {
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--paper);
+      min-height: 40px;
+      padding: 8px 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.66);
+      padding: 10px;
+      min-height: 72px;
+    }
+
+    .metric.good { border-color: rgba(8, 127, 91, 0.54); }
+    .metric.bad { border-color: rgba(180, 35, 24, 0.54); }
+    .metric.warn { border-color: rgba(183, 121, 31, 0.58); }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .error {
+      min-height: 18px;
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-width: 0;
+      min-height: 100vh;
+    }
+
+    .top-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      background: rgba(238, 240, 232, 0.92);
+    }
+
+    .title-line { min-width: 0; }
+
+    .title-line h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .title-line p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--ink);
+    }
+
+    .content {
+      min-width: 0;
+      overflow: auto;
+      padding: 18px;
+    }
+
+    .empty {
+      display: grid;
+      min-height: 48vh;
+      place-items: center;
+      color: var(--muted);
+      font-weight: 800;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(251, 252, 245, 0.88);
+      padding: 14px;
+      margin-top: 14px;
+      min-width: 0;
+    }
+
+    .panel h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      text-transform: uppercase;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(300px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .audit-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .audit-card h3 {
+      margin: 0 0 9px;
+      font-size: 15px;
+      text-transform: uppercase;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px 8px;
+      background: var(--panel-strong);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .pill.ok { background: rgba(8, 127, 91, 0.14); color: var(--green); }
+    .pill.fail { background: rgba(180, 35, 24, 0.12); color: var(--red); }
+    .pill.warn { background: rgba(183, 121, 31, 0.15); color: var(--gold); }
+
+    .kv {
+      border-top: 1px solid var(--line);
+      padding-top: 8px;
+      margin-top: 8px;
+      min-width: 0;
+    }
+
+    .kv span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .kv code {
+      display: block;
+      margin-top: 4px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 7px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      background: rgba(221, 228, 210, 0.55);
+      position: sticky;
+      top: 0;
+    }
+
+    td code {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 940px) {
+      .app { grid-template-columns: 1fr; }
+      .side { border-right: 0; border-bottom: 1px solid var(--line); }
+      .top-strip { grid-template-columns: 1fr; }
+      .legend { justify-content: flex-start; }
+      .metric-grid, .compare-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      .metric-grid, .compare-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <h1>Audit<br>Compare</h1>
+        <span class="stamp">Proof</span>
+      </div>
+
+      <div class="section">
+        <label>
+          <span class="label">Audit Comparison JSON</span>
+          <input id="auditComparisonFile" type="file" accept="application/json,.json">
+        </label>
+        <div class="button-row">
+          <button id="loadExample" type="button">Load Example</button>
+          <button id="clearAll" class="secondary" type="button">Clear</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <label>
+          <span class="label">Paste Comparison JSON</span>
+          <textarea id="jsonPaste" spellcheck="false" placeholder="{ &quot;baseline&quot;: ..., &quot;candidate&quot;: ..., &quot;comparison&quot;: ... }"></textarea>
+        </label>
+        <div class="button-row">
+          <button id="renderPaste" type="button">Render Paste</button>
+          <button id="refreshView" class="secondary" type="button">Refresh</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="metric-grid">
+          <div class="metric"><strong id="sideVerdict">-</strong><span>Verdict</span></div>
+          <div class="metric"><strong id="sideFailures">0</strong><span>Failures</span></div>
+          <div class="metric"><strong id="sideCheckDelta">0</strong><span>Check Delta</span></div>
+          <div class="metric"><strong id="sideArtifactDelta">0</strong><span>Artifact Delta</span></div>
+        </div>
+      </div>
+
+      <div id="errorBox" class="error"></div>
+    </aside>
+
+    <main class="main">
+      <div class="top-strip">
+        <div class="title-line">
+          <h2 id="headline">Load an audit comparison</h2>
+          <p id="subhead">Use text_release_evidence_audit_comparison.json to inspect final proof drift.</p>
+        </div>
+        <div class="legend">
+          <span><i class="swatch" style="background: var(--green);"></i> Same</span>
+          <span><i class="swatch" style="background: var(--gold);"></i> Drift</span>
+          <span><i class="swatch" style="background: var(--red);"></i> Failure</span>
+        </div>
+      </div>
+
+      <section class="content">
+        <div id="emptyState" class="empty">Load audit comparison JSON to inspect drift.</div>
+        <div id="auditComparisonDashboard" hidden>
+          <div class="metric-grid" id="auditDeltaGrid"></div>
+          <div class="compare-grid">
+            <div class="audit-card" id="baselineAuditCard"></div>
+            <div class="audit-card" id="candidateAuditCard"></div>
+          </div>
+          <div class="panel">
+            <h3>Proof Drift</h3>
+            <div style="overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Signal</th>
+                    <th>Status</th>
+                    <th>Details</th>
+                  </tr>
+                </thead>
+                <tbody id="auditDriftRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel">
+            <h3>Check Drift</h3>
+            <div style="overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Check</th>
+                    <th>Meaning</th>
+                  </tr>
+                </thead>
+                <tbody id="auditCheckDeltaRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel">
+            <h3>Source Drift</h3>
+            <div id="auditSourceDeltaGrid" class="metric-grid"></div>
+          </div>
+          <div class="panel">
+            <h3>Failures</h3>
+            <div id="auditFailureList" class="small"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const exampleComparison = {
+      baseline: {
+        path: "artifacts/releases/text_release_evidence_audit.json",
+        valid: true,
+        release_name: "text_demo",
+        archive_sha256: "79290475b365382865bf9bb24555252cea8c1430a95f89cc1030446f698e42ae",
+        source_chain_head: "e0d27e690adf2f3f3f59256e3d6607d842816ca89befa956344ac6062dcbcaeb",
+        replay_chain_head: "8bb76a1f2672ae35c2531a8a736841c1b91f197e657990eb0cb838a327d36b01",
+        source_entry_count: 1,
+        replay_entry_count: 2,
+        growth_entry_count_delta: 1,
+        replay_actions: ["inserted", "updated", "inserted"],
+        tamper_detected: true,
+        artifact_check_count: 29,
+        check_count: 10,
+        failed_check_count: 0,
+        failure_count: 0,
+        checks: [],
+        sources: {}
+      },
+      candidate: {
+        path: "artifacts/releases/text_release_evidence_audit.json",
+        valid: true,
+        release_name: "text_demo",
+        archive_sha256: "79290475b365382865bf9bb24555252cea8c1430a95f89cc1030446f698e42ae",
+        source_chain_head: "e0d27e690adf2f3f3f59256e3d6607d842816ca89befa956344ac6062dcbcaeb",
+        replay_chain_head: "8bb76a1f2672ae35c2531a8a736841c1b91f197e657990eb0cb838a327d36b01",
+        source_entry_count: 1,
+        replay_entry_count: 2,
+        growth_entry_count_delta: 1,
+        replay_actions: ["inserted", "updated", "inserted"],
+        tamper_detected: true,
+        artifact_check_count: 29,
+        check_count: 10,
+        failed_check_count: 0,
+        failure_count: 0,
+        checks: [],
+        sources: {}
+      },
+      comparison: {
+        same_valid: true,
+        same_release_name: true,
+        same_archive_sha256: true,
+        same_source_chain_head: true,
+        same_replay_chain_head: true,
+        same_replay_actions: true,
+        same_tamper_detected: true,
+        source_entry_count_delta: 0,
+        replay_entry_count_delta: 0,
+        growth_entry_count_delta_change: 0,
+        artifact_check_count_delta: 0,
+        check_count_delta: 0,
+        failed_check_count_delta: 0,
+        failure_count_delta: 0,
+        same_check_set: true,
+        common_checks: ["evidence_manifest", "ledger_replay"],
+        missing_checks: [],
+        added_checks: [],
+        same_check_validity: true,
+        changed_check_validity: [],
+        same_check_messages: true,
+        changed_check_messages: [],
+        same_check_metrics: true,
+        changed_check_metrics: [],
+        same_check_paths: true,
+        changed_check_paths: [],
+        same_source_set: true,
+        missing_sources: [],
+        added_sources: [],
+        same_source_paths: true,
+        changed_source_paths: []
+      },
+      failures: []
+    };
+
+    const els = {
+      auditComparisonFile: document.getElementById("auditComparisonFile"),
+      loadExample: document.getElementById("loadExample"),
+      clearAll: document.getElementById("clearAll"),
+      jsonPaste: document.getElementById("jsonPaste"),
+      renderPaste: document.getElementById("renderPaste"),
+      refreshView: document.getElementById("refreshView"),
+      errorBox: document.getElementById("errorBox"),
+      sideVerdict: document.getElementById("sideVerdict"),
+      sideFailures: document.getElementById("sideFailures"),
+      sideCheckDelta: document.getElementById("sideCheckDelta"),
+      sideArtifactDelta: document.getElementById("sideArtifactDelta"),
+      headline: document.getElementById("headline"),
+      subhead: document.getElementById("subhead"),
+      emptyState: document.getElementById("emptyState"),
+      auditComparisonDashboard: document.getElementById("auditComparisonDashboard"),
+      auditDeltaGrid: document.getElementById("auditDeltaGrid"),
+      baselineAuditCard: document.getElementById("baselineAuditCard"),
+      candidateAuditCard: document.getElementById("candidateAuditCard"),
+      auditDriftRows: document.getElementById("auditDriftRows"),
+      auditCheckDeltaRows: document.getElementById("auditCheckDeltaRows"),
+      auditSourceDeltaGrid: document.getElementById("auditSourceDeltaGrid"),
+      auditFailureList: document.getElementById("auditFailureList")
+    };
+
+    let currentPayload = null;
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[char]);
+    }
+
+    function shortHash(value) {
+      return typeof value === "string" && value ? value.slice(0, 12) : "none";
+    }
+
+    function validateAuditComparison(payload) {
+      const errors = [];
+      if (!payload || typeof payload !== "object") errors.push("comparison payload must be an object");
+      if (!payload.baseline || typeof payload.baseline !== "object") errors.push("baseline is missing");
+      if (!payload.candidate || typeof payload.candidate !== "object") errors.push("candidate is missing");
+      if (!payload.comparison || typeof payload.comparison !== "object") errors.push("comparison is missing");
+      if (payload.failures && !Array.isArray(payload.failures)) errors.push("failures must be a list");
+      return { valid: errors.length === 0, errors };
+    }
+
+    function metric(label, value, tone = "") {
+      const cls = tone ? ` ${tone}` : "";
+      return `<div class="metric${cls}"><strong>${escapeHtml(value)}</strong><span>${escapeHtml(label)}</span></div>`;
+    }
+
+    function pill(ok, sameLabel = "same", driftLabel = "drift") {
+      return `<span class="pill ${ok ? "ok" : "warn"}">${ok ? sameLabel : driftLabel}</span>`;
+    }
+
+    function auditCard(label, row) {
+      return `
+        <h3>${escapeHtml(label)}</h3>
+        <div class="small">${escapeHtml(row.path || "")}</div>
+        <div class="kv"><span>Release</span><code>${escapeHtml(row.release_name || "-")}</code></div>
+        <div class="kv"><span>Valid / Failures</span><code>${escapeHtml(row.valid)} / ${escapeHtml(row.failure_count ?? 0)}</code></div>
+        <div class="kv"><span>Archive SHA</span><code title="${escapeHtml(row.archive_sha256)}">${shortHash(row.archive_sha256)}</code></div>
+        <div class="kv"><span>Chain Heads</span><code>${shortHash(row.source_chain_head)} -> ${shortHash(row.replay_chain_head)}</code></div>
+        <div class="kv"><span>Entries</span><code>${escapeHtml(row.source_entry_count)} -> ${escapeHtml(row.replay_entry_count)} (+${escapeHtml(row.growth_entry_count_delta)})</code></div>
+        <div class="kv"><span>Checks</span><code>${escapeHtml(row.check_count)} checks / ${escapeHtml(row.failed_check_count)} failed / ${escapeHtml(row.artifact_check_count)} artifacts</code></div>
+      `;
+    }
+
+    function driftRow(name, ok, detail) {
+      return `
+        <tr>
+          <td>${escapeHtml(name)}</td>
+          <td>${pill(ok)}</td>
+          <td><code>${escapeHtml(detail)}</code></td>
+        </tr>
+      `;
+    }
+
+    function listRows(type, list, meaning) {
+      return (Array.isArray(list) ? list : []).map((item) => `
+        <tr>
+          <td><span class="pill ${type.includes("changed") ? "warn" : type.includes("added") ? "ok" : "warn"}">${escapeHtml(type)}</span></td>
+          <td><code>${escapeHtml(item)}</code></td>
+          <td class="small">${escapeHtml(meaning)}</td>
+        </tr>
+      `);
+    }
+
+    function renderCheckDeltaRows(comparison) {
+      const rows = [
+        ...listRows("missing", comparison.missing_checks, "baseline check is absent from candidate"),
+        ...listRows("added", comparison.added_checks, "candidate introduced a new audit check"),
+        ...listRows("changed validity", comparison.changed_check_validity, "check pass/fail state changed"),
+        ...listRows("changed message", comparison.changed_check_messages, "check explanatory message changed"),
+        ...listRows("changed metrics", comparison.changed_check_metrics, "check metric payload changed"),
+        ...listRows("changed path", comparison.changed_check_paths, "check source path changed")
+      ];
+      els.auditCheckDeltaRows.innerHTML = rows.length ? rows.join("") : '<tr><td colspan="3" class="small">No check drift.</td></tr>';
+    }
+
+    function renderAuditComparison(payload, sourceLabel = "comparison json") {
+      const validation = validateAuditComparison(payload);
+      if (!validation.valid) {
+        els.errorBox.textContent = validation.errors.join("; ");
+        return;
+      }
+      currentPayload = payload;
+      const c = payload.comparison;
+      const failures = Array.isArray(payload.failures) ? payload.failures : [];
+      const allSame = failures.length === 0
+        && c.same_valid && c.same_check_set && c.same_check_validity
+        && c.same_replay_actions && c.same_tamper_detected;
+
+      els.errorBox.textContent = "";
+      els.emptyState.hidden = true;
+      els.auditComparisonDashboard.hidden = false;
+      els.sideVerdict.textContent = allSame ? "PASS" : "DRIFT";
+      els.sideFailures.textContent = failures.length;
+      els.sideCheckDelta.textContent = c.check_count_delta ?? 0;
+      els.sideArtifactDelta.textContent = c.artifact_check_count_delta ?? 0;
+      els.headline.textContent = failures.length ? "Audit comparison has failures" : "Audit comparison ready";
+      els.subhead.textContent = `${sourceLabel} | checks ${c.same_check_set ? "same" : "drift"} | failures ${failures.length}`;
+
+      els.auditDeltaGrid.innerHTML = [
+        metric("Validity", c.same_valid ? "same" : "drift", c.same_valid ? "good" : "warn"),
+        metric("Check Set", c.same_check_set ? "same" : "drift", c.same_check_set ? "good" : "warn"),
+        metric("Check Validity", c.same_check_validity ? "same" : "drift", c.same_check_validity ? "good" : "warn"),
+        metric("Failures", failures.length, failures.length ? "bad" : "good"),
+        metric("Replay Actions", c.same_replay_actions ? "same" : "drift", c.same_replay_actions ? "good" : "warn"),
+        metric("Tamper", c.same_tamper_detected ? "same" : "drift", c.same_tamper_detected ? "good" : "warn"),
+        metric("Chain Heads", (c.same_source_chain_head && c.same_replay_chain_head) ? "same" : "drift", (c.same_source_chain_head && c.same_replay_chain_head) ? "good" : "warn"),
+        metric("Artifact Delta", c.artifact_check_count_delta ?? 0, c.artifact_check_count_delta ? "warn" : "good")
+      ].join("");
+
+      els.baselineAuditCard.innerHTML = auditCard("Baseline", payload.baseline);
+      els.candidateAuditCard.innerHTML = auditCard("Candidate", payload.candidate);
+
+      els.auditDriftRows.innerHTML = [
+        driftRow("release name", c.same_release_name, `same=${c.same_release_name}`),
+        driftRow("archive sha", c.same_archive_sha256, `same=${c.same_archive_sha256}`),
+        driftRow("source chain head", c.same_source_chain_head, `same=${c.same_source_chain_head}`),
+        driftRow("replay chain head", c.same_replay_chain_head, `same=${c.same_replay_chain_head}`),
+        driftRow("source entries", c.source_entry_count_delta === 0, `delta=${c.source_entry_count_delta}`),
+        driftRow("replay entries", c.replay_entry_count_delta === 0, `delta=${c.replay_entry_count_delta}`),
+        driftRow("growth delta", c.growth_entry_count_delta_change === 0, `delta=${c.growth_entry_count_delta_change}`),
+        driftRow("source paths", c.same_source_paths, `changed=${(c.changed_source_paths || []).length}`)
+      ].join("");
+
+      renderCheckDeltaRows(c);
+
+      els.auditSourceDeltaGrid.innerHTML = [
+        metric("Source Set", c.same_source_set ? "same" : "drift", c.same_source_set ? "good" : "warn"),
+        metric("Source Paths", c.same_source_paths ? "same" : "drift", c.same_source_paths ? "good" : "warn"),
+        metric("Added Sources", (c.added_sources || []).length),
+        metric("Changed Sources", (c.changed_source_paths || []).length)
+      ].join("");
+
+      els.auditFailureList.innerHTML = failures.length
+        ? failures.map((failure) => `<div><span class="pill fail">fail</span> ${escapeHtml(failure)}</div>`).join("")
+        : '<span class="pill ok">none</span> No audit-comparison threshold failures.';
+    }
+
+    function readJsonFile(file, callback) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          callback(JSON.parse(reader.result), file.name);
+        } catch (error) {
+          els.errorBox.textContent = `Invalid JSON: ${error.message}`;
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetView() {
+      currentPayload = null;
+      els.auditComparisonFile.value = "";
+      els.jsonPaste.value = "";
+      els.errorBox.textContent = "";
+      els.sideVerdict.textContent = "-";
+      els.sideFailures.textContent = "0";
+      els.sideCheckDelta.textContent = "0";
+      els.sideArtifactDelta.textContent = "0";
+      els.headline.textContent = "Load an audit comparison";
+      els.subhead.textContent = "Use text_release_evidence_audit_comparison.json to inspect final proof drift.";
+      els.emptyState.hidden = false;
+      els.auditComparisonDashboard.hidden = true;
+    }
+
+    els.auditComparisonFile.addEventListener("change", (event) => {
+      readJsonFile(event.target.files[0], renderAuditComparison);
+    });
+
+    els.loadExample.addEventListener("click", () => {
+      renderAuditComparison(exampleComparison, "bundled example");
+      els.jsonPaste.value = JSON.stringify(exampleComparison, null, 2);
+    });
+
+    els.renderPaste.addEventListener("click", () => {
+      try {
+        renderAuditComparison(JSON.parse(els.jsonPaste.value), "pasted json");
+      } catch (error) {
+        els.errorBox.textContent = `Invalid JSON: ${error.message}`;
+      }
+    });
+
+    els.refreshView.addEventListener("click", () => {
+      if (currentPayload) renderAuditComparison(currentPayload, "current comparison");
+    });
+
+    els.clearAll.addEventListener("click", resetView);
+  </script>
+</body>
+</html>

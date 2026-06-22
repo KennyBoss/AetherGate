@@ -1,0 +1,120 @@
+{
+  "created_at": "20260621T121911Z",
+  "kind": "long_context_delayed_recall",
+  "backend": "cpu",
+  "devices": [
+    "TFRT_CPU_0"
+  ],
+  "protocol": {
+    "train_records": 512,
+    "eval_records": 256,
+    "key_count": 8,
+    "vocab_size": 10,
+    "delay": 32,
+    "seq_len": 33,
+    "transformer_context": 8,
+    "bypass_mode": true,
+    "epochs": 20,
+    "batch_size": 128,
+    "learning_rate": 0.01,
+    "grad_clip": 1.0,
+    "seed": 13,
+    "claim_guardrail": "This synthetic task is a bounded bypass case when bypass_mode=true: the key is outside the Transformer attention cap but inside the SSM recurrent training window. With --allow-visible-key it becomes a control run, not bypass evidence. It is not a general natural-language superiority claim."
+  },
+  "ssm": {
+    "variant": "static",
+    "input_dim": 64,
+    "state_dim": 96,
+    "decay_init_raw": 8.0,
+    "parameter_count": 7946,
+    "parameter_bytes": 31784,
+    "mean_decay_A": 0.9896688461303711,
+    "train_s": 0.6065397909842432,
+    "train": {
+      "recall_loss": 2.0888960361480713,
+      "recall_accuracy": 0.171875,
+      "all_token_loss": 10.98328971862793,
+      "all_token_accuracy": 0.0052083334885537624
+    },
+    "eval": {
+      "recall_loss": 2.104041814804077,
+      "recall_accuracy": 0.0703125,
+      "all_token_loss": 11.00355339050293,
+      "all_token_accuracy": 0.0021306818816810846,
+      "eval_s": 0.0016170000890269876,
+      "records_per_s": 158317,
+      "query_count": 256,
+      "predicted_key_histogram": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 256,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "correct_by_key": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 18,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      }
+    }
+  },
+  "transformer": {
+    "d_model": 28,
+    "layers": 1,
+    "heads": 2,
+    "ff_mult": 2,
+    "context": 8,
+    "parameter_count": 8130,
+    "parameter_bytes": 32520,
+    "train_s": 0.7888881670078263,
+    "train": {
+      "recall_loss": 2.0869357585906982,
+      "recall_accuracy": 0.171875,
+      "all_token_loss": 8.574734687805176,
+      "all_token_accuracy": 0.008759469725191593
+    },
+    "eval": {
+      "recall_loss": 2.103318452835083,
+      "recall_accuracy": 0.0703125,
+      "all_token_loss": 8.566051483154297,
+      "all_token_accuracy": 0.005681818351149559,
+      "eval_s": 0.002233083941973746,
+      "records_per_s": 114639,
+      "query_count": 256,
+      "predicted_key_histogram": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 256,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "correct_by_key": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 18,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      }
+    }
+  },
+  "comparison": {
+    "winner_by_recall_accuracy": "tie",
+    "ssm_minus_transformer_recall_accuracy": 0.0,
+    "ssm_minus_transformer_recall_loss": 0.0007233619689941406,
+    "transformer_to_ssm_param_ratio": 1.0231563050591492
+  }
+}

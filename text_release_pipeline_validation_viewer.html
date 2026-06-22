@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>TextPy Pipeline Validation</title>
+  <style>
+    :root {
+      --paper: #eef0e8;
+      --ink: #171915;
+      --muted: #62675d;
+      --line: #c9cec0;
+      --panel: #fbfcf5;
+      --green: #087f5b;
+      --red: #b42318;
+      --gold: #b7791f;
+      --blue: #155eef;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        var(--paper);
+      background-size: 24px 24px;
+      font-family: "Avenir Next", "Trebuchet MS", Verdana, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, input, textarea { font: inherit; letter-spacing: 0; }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .side {
+      border-right: 1px solid var(--line);
+      background: rgba(251, 252, 245, 0.94);
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "DIN Condensed", "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: 34px;
+      line-height: 0.95;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .stamp {
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transform: rotate(-2deg);
+    }
+
+    .section {
+      border-top: 1px solid var(--line);
+      padding: 16px 0;
+    }
+
+    .section:first-of-type { border-top: 0; padding-top: 0; }
+
+    .label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    input[type="file"], textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 9px;
+    }
+
+    textarea {
+      min-height: 132px;
+      resize: vertical;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    button {
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--paper);
+      min-height: 40px;
+      padding: 8px 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.secondary { background: transparent; color: var(--ink); }
+
+    .button-row,
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.66);
+      padding: 10px;
+      min-height: 72px;
+    }
+
+    .metric.good { border-color: rgba(8, 127, 91, 0.54); }
+    .metric.bad { border-color: rgba(180, 35, 24, 0.54); }
+    .metric.warn { border-color: rgba(183, 121, 31, 0.58); }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .error {
+      min-height: 18px;
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-width: 0;
+      min-height: 100vh;
+    }
+
+    .top-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      background: rgba(238, 240, 232, 0.92);
+    }
+
+    .title-line { min-width: 0; }
+
+    .title-line h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .title-line p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--ink);
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      min-height: 420px;
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+    }
+
+    .dashboard {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(240px, 330px);
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .verdict,
+    .panel,
+    .detail-row,
+    .metric-chip,
+    .error-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(251, 252, 245, 0.9);
+      min-width: 0;
+    }
+
+    .verdict {
+      padding: 16px;
+    }
+
+    .verdict.pass { border-color: rgba(8, 127, 91, 0.54); }
+    .verdict.fail { border-color: rgba(180, 35, 24, 0.54); }
+
+    .eyebrow,
+    .metric-chip label,
+    .detail-row span,
+    .error-item label {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .verdict strong {
+      display: block;
+      margin-top: 6px;
+      font-family: "DIN Condensed", "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: 76px;
+      line-height: 0.9;
+      text-transform: uppercase;
+      overflow-wrap: anywhere;
+    }
+
+    .verdict p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .summary-rail {
+      display: grid;
+      gap: 8px;
+    }
+
+    .metric-chip {
+      background: var(--panel);
+      padding: 11px;
+      min-height: 64px;
+    }
+
+    .metric-chip.good { border-color: rgba(8, 127, 91, 0.54); }
+    .metric-chip.bad { border-color: rgba(180, 35, 24, 0.54); }
+    .metric-chip.warn { border-color: rgba(183, 121, 31, 0.58); }
+
+    .metric-chip strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 20px;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .panel { padding: 14px; }
+
+    .panel h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      text-transform: uppercase;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .detail-row {
+      background: white;
+      padding: 10px;
+    }
+
+    .detail-row strong,
+    .detail-row code {
+      display: block;
+      margin-top: 4px;
+      overflow-wrap: anywhere;
+    }
+
+    .detail-row code {
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .error-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .error-item {
+      border-color: rgba(180, 35, 24, 0.54);
+      background: rgba(255, 255, 255, 0.78);
+      padding: 11px;
+    }
+
+    .error-item.empty-ok { border-color: rgba(8, 127, 91, 0.54); }
+
+    .error-item strong,
+    .error-item code {
+      display: block;
+      margin-top: 4px;
+      overflow-wrap: anywhere;
+    }
+
+    .error-item code {
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    @media (max-width: 1100px) {
+      .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .side { border-right: 0; border-bottom: 1px solid var(--line); }
+      .hero { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      h1 { font-size: 28px; }
+      .top-strip { grid-template-columns: 1fr; }
+      .legend { justify-content: flex-start; }
+      .metric-grid,
+      .button-row,
+      .detail-grid { grid-template-columns: 1fr; }
+      .verdict strong { font-size: 56px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <h1>Pipeline<br>Validate</h1>
+        <div class="stamp">TextPy</div>
+      </div>
+
+      <div class="section">
+        <label class="label" for="pipelineValidationFile">Validation JSON</label>
+        <input id="pipelineValidationFile" type="file" accept=".json,application/json">
+        <div class="button-row">
+          <button id="loadExample" type="button">Load Example</button>
+          <button id="clearValidation" class="secondary" type="button">Clear</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <label class="label" for="jsonPaste">Paste JSON</label>
+        <textarea id="jsonPaste" spellcheck="false" placeholder="Paste text_release_pipeline_validation.json here"></textarea>
+        <div class="button-row">
+          <button id="parsePaste" type="button">Parse</button>
+          <button id="refreshValidation" class="secondary" type="button">Refresh</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="metric-grid">
+          <div id="sideVerdictCard" class="metric">
+            <strong id="metricVerdict">-</strong>
+            <span>verdict</span>
+          </div>
+          <div class="metric">
+            <strong id="metricStages">0</strong>
+            <span>stages</span>
+          </div>
+          <div class="metric">
+            <strong id="metricArtifacts">0</strong>
+            <span>artifact checks</span>
+          </div>
+          <div id="sideErrorsCard" class="metric">
+            <strong id="metricErrors">0</strong>
+            <span>errors</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div id="errorBox" class="error" role="alert"></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="top-strip">
+        <div class="title-line">
+          <h2 id="titleText">No pipeline validation loaded</h2>
+          <p id="subtitleText">text_release_pipeline_validation.json</p>
+        </div>
+        <div class="legend" aria-label="Legend">
+          <span><i class="swatch" style="background: var(--green)"></i>valid</span>
+          <span><i class="swatch" style="background: var(--red)"></i>blocked</span>
+          <span><i class="swatch" style="background: var(--gold)"></i>coverage</span>
+        </div>
+      </header>
+
+      <section id="emptyState" class="empty">
+        <div>
+          <strong>Waiting for pipeline validation.</strong>
+          <p>text_release_pipeline_validation.json</p>
+        </div>
+      </section>
+
+      <section id="pipelineValidationDashboard" class="dashboard" hidden>
+        <div class="hero">
+          <div id="verdictPanel" class="verdict">
+            <span class="eyebrow">pipeline verdict</span>
+            <strong id="verdictText">PASS</strong>
+            <p id="verdictCopy">Pipeline validation accepted stages, memory geometry, dashboard audit, and proof artifacts.</p>
+          </div>
+          <div class="summary-rail">
+            <div class="metric-chip">
+              <label>pipeline</label>
+              <strong id="summaryPipeline">-</strong>
+            </div>
+            <div class="metric-chip">
+              <label>release name</label>
+              <strong id="summaryName">-</strong>
+            </div>
+            <div class="metric-chip">
+              <label>evidence audit</label>
+              <strong id="summaryEvidence">-</strong>
+            </div>
+          </div>
+        </div>
+
+        <div id="pipelineValidationMetricGrid" class="detail-grid"></div>
+
+        <div class="panel">
+          <h3>Validation Fields</h3>
+          <div id="pipelineValidationDetailGrid" class="detail-grid"></div>
+        </div>
+
+        <div class="panel">
+          <h3>Errors</h3>
+          <div id="pipelineValidationErrorList" class="error-list"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const exampleValidation = {
+      valid: true,
+      pipeline: "artifacts/releases/text_release_pipeline_demo.json",
+      name: "text_pipeline_demo",
+      release_count: 1,
+      selected_rank: 1,
+      stage_count: 35,
+      memory_prompt_count: 3,
+      memory_pair_count: 3,
+      dashboard_audit_checks: 11,
+      has_evidence_audit: true,
+      evidence_audit_checks: 10,
+      artifact_checks: 19,
+      errors: []
+    };
+
+    const els = {
+      pipelineValidationFile: document.getElementById("pipelineValidationFile"),
+      loadExample: document.getElementById("loadExample"),
+      clearValidation: document.getElementById("clearValidation"),
+      jsonPaste: document.getElementById("jsonPaste"),
+      parsePaste: document.getElementById("parsePaste"),
+      refreshValidation: document.getElementById("refreshValidation"),
+      errorBox: document.getElementById("errorBox"),
+      emptyState: document.getElementById("emptyState"),
+      pipelineValidationDashboard: document.getElementById("pipelineValidationDashboard"),
+      titleText: document.getElementById("titleText"),
+      subtitleText: document.getElementById("subtitleText"),
+      sideVerdictCard: document.getElementById("sideVerdictCard"),
+      sideErrorsCard: document.getElementById("sideErrorsCard"),
+      metricVerdict: document.getElementById("metricVerdict"),
+      metricStages: document.getElementById("metricStages"),
+      metricArtifacts: document.getElementById("metricArtifacts"),
+      metricErrors: document.getElementById("metricErrors"),
+      verdictPanel: document.getElementById("verdictPanel"),
+      verdictText: document.getElementById("verdictText"),
+      verdictCopy: document.getElementById("verdictCopy"),
+      summaryPipeline: document.getElementById("summaryPipeline"),
+      summaryName: document.getElementById("summaryName"),
+      summaryEvidence: document.getElementById("summaryEvidence"),
+      pipelineValidationMetricGrid: document.getElementById("pipelineValidationMetricGrid"),
+      pipelineValidationDetailGrid: document.getElementById("pipelineValidationDetailGrid"),
+      pipelineValidationErrorList: document.getElementById("pipelineValidationErrorList")
+    };
+
+    let currentValidation = null;
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[char]);
+    }
+
+    function valueText(value) {
+      if (value === null || value === undefined || value === "") return "-";
+      if (typeof value === "boolean") return value ? "true" : "false";
+      return String(value);
+    }
+
+    function setError(message) {
+      els.errorBox.textContent = message || "";
+    }
+
+    function setCardState(element, state) {
+      element.classList.remove("good", "bad", "warn");
+      if (state) element.classList.add(state);
+    }
+
+    function validatePipelineValidation(payload) {
+      const errors = [];
+      if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+        errors.push("Root payload must be a JSON object.");
+        return errors;
+      }
+      if (typeof payload.valid !== "boolean") errors.push("valid must be boolean.");
+      if (typeof payload.pipeline !== "string" || !payload.pipeline) errors.push("pipeline must be a non-empty string.");
+      if (payload.name !== null && payload.name !== undefined && typeof payload.name !== "string") {
+        errors.push("name must be a string when present.");
+      }
+      [
+        "release_count",
+        "selected_rank",
+        "stage_count",
+        "memory_prompt_count",
+        "memory_pair_count",
+        "dashboard_audit_checks",
+        "artifact_checks"
+      ].forEach((key) => {
+        if (!Number.isInteger(payload[key])) errors.push(`${key} must be an integer.`);
+      });
+      if (typeof payload.has_evidence_audit !== "boolean") errors.push("has_evidence_audit must be boolean.");
+      if (payload.evidence_audit_checks !== null && payload.evidence_audit_checks !== undefined && !Number.isInteger(payload.evidence_audit_checks)) {
+        errors.push("evidence_audit_checks must be an integer when present.");
+      }
+      if (!Array.isArray(payload.errors)) errors.push("errors must be a list.");
+      if (Array.isArray(payload.errors) && payload.errors.some((item) => typeof item !== "string")) {
+        errors.push("errors entries must be strings.");
+      }
+      const hasErrors = Array.isArray(payload.errors) && payload.errors.length > 0;
+      if (typeof payload.valid === "boolean" && payload.valid !== !hasErrors) {
+        errors.push("valid must match whether errors is empty.");
+      }
+      return errors;
+    }
+
+    function metricCard(label, value, state) {
+      return `
+        <div class="metric-chip ${state || ""}">
+          <label>${escapeHtml(label)}</label>
+          <strong>${escapeHtml(valueText(value))}</strong>
+        </div>
+      `;
+    }
+
+    function detailRow(label, value, code) {
+      const tag = code ? "code" : "strong";
+      return `
+        <div class="detail-row">
+          <span>${escapeHtml(label)}</span>
+          <${tag}>${escapeHtml(valueText(value))}</${tag}>
+        </div>
+      `;
+    }
+
+    function renderErrorList(errors) {
+      if (!errors.length) {
+        els.pipelineValidationErrorList.innerHTML = `
+          <div class="error-item empty-ok">
+            <label>error ledger</label>
+            <strong>No validation errors</strong>
+          </div>
+        `;
+        return;
+      }
+      els.pipelineValidationErrorList.innerHTML = errors.map((error, index) => `
+        <div class="error-item">
+          <label>error ${index + 1}</label>
+          <code>${escapeHtml(error)}</code>
+        </div>
+      `).join("");
+    }
+
+    function renderPipelineValidation(payload) {
+      const shapeErrors = validatePipelineValidation(payload);
+      if (shapeErrors.length) throw new Error(shapeErrors.join(" "));
+
+      currentValidation = payload;
+      const valid = payload.valid === true;
+      const errors = Array.isArray(payload.errors) ? payload.errors : [];
+      const evidenceLabel = payload.has_evidence_audit ? `${payload.evidence_audit_checks || 0} checks` : "not required";
+
+      setError("");
+      els.emptyState.hidden = true;
+      els.pipelineValidationDashboard.hidden = false;
+      els.metricVerdict.textContent = valid ? "PASS" : "FAIL";
+      els.metricStages.textContent = String(payload.stage_count);
+      els.metricArtifacts.textContent = String(payload.artifact_checks);
+      els.metricErrors.textContent = String(errors.length);
+      setCardState(els.sideVerdictCard, valid ? "good" : "bad");
+      setCardState(els.sideErrorsCard, errors.length ? "bad" : "good");
+
+      els.titleText.textContent = `${payload.name || "release"} pipeline validation`;
+      els.subtitleText.textContent = payload.pipeline || "text_release_pipeline_validation.json";
+      els.verdictPanel.classList.toggle("pass", valid);
+      els.verdictPanel.classList.toggle("fail", !valid);
+      els.verdictText.textContent = valid ? "PASS" : "FAIL";
+      els.verdictCopy.textContent = valid
+        ? "Pipeline validation accepted stages, memory geometry, dashboard audit, and proof artifacts."
+        : "Pipeline validation found structural, memory, dashboard, or proof-chain errors.";
+      els.summaryPipeline.textContent = payload.pipeline || "-";
+      els.summaryName.textContent = payload.name || "-";
+      els.summaryEvidence.textContent = evidenceLabel;
+
+      els.pipelineValidationMetricGrid.innerHTML = [
+        metricCard("stages", payload.stage_count, payload.stage_count >= 35 ? "good" : "warn"),
+        metricCard("release count", payload.release_count, payload.release_count >= 1 ? "good" : "bad"),
+        metricCard("selected rank", payload.selected_rank, payload.selected_rank === 1 ? "good" : "warn"),
+        metricCard("memory prompts", payload.memory_prompt_count, payload.memory_prompt_count >= 1 ? "good" : "bad"),
+        metricCard("memory pairs", payload.memory_pair_count, payload.memory_pair_count >= 0 ? "good" : "bad"),
+        metricCard("dashboard checks", payload.dashboard_audit_checks, payload.dashboard_audit_checks >= 11 ? "good" : "warn"),
+        metricCard("evidence audit", evidenceLabel, payload.has_evidence_audit ? "good" : "warn"),
+        metricCard("artifact checks", payload.artifact_checks, payload.artifact_checks >= 1 ? "good" : "warn"),
+        metricCard("errors", errors.length, errors.length ? "bad" : "good")
+      ].join("");
+
+      els.pipelineValidationDetailGrid.innerHTML = [
+        detailRow("pipeline", payload.pipeline, true),
+        detailRow("name", payload.name || "-", false),
+        detailRow("valid", payload.valid, false),
+        detailRow("release count", payload.release_count, false),
+        detailRow("selected rank", payload.selected_rank, false),
+        detailRow("stage count", payload.stage_count, false),
+        detailRow("memory prompt count", payload.memory_prompt_count, false),
+        detailRow("memory pair count", payload.memory_pair_count, false),
+        detailRow("dashboard audit checks", payload.dashboard_audit_checks, false),
+        detailRow("has evidence audit", payload.has_evidence_audit, false),
+        detailRow("evidence audit checks", payload.evidence_audit_checks, false),
+        detailRow("artifact checks", payload.artifact_checks, false)
+      ].join("");
+
+      renderErrorList(errors);
+    }
+
+    function parseText(text) {
+      const payload = JSON.parse(text);
+      renderPipelineValidation(payload);
+      els.jsonPaste.value = JSON.stringify(payload, null, 2);
+    }
+
+    function resetView() {
+      currentValidation = null;
+      els.pipelineValidationFile.value = "";
+      els.jsonPaste.value = "";
+      els.emptyState.hidden = false;
+      els.pipelineValidationDashboard.hidden = true;
+      els.titleText.textContent = "No pipeline validation loaded";
+      els.subtitleText.textContent = "text_release_pipeline_validation.json";
+      els.metricVerdict.textContent = "-";
+      els.metricStages.textContent = "0";
+      els.metricArtifacts.textContent = "0";
+      els.metricErrors.textContent = "0";
+      setCardState(els.sideVerdictCard, "");
+      setCardState(els.sideErrorsCard, "");
+      setError("");
+    }
+
+    els.pipelineValidationFile.addEventListener("change", async (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      try {
+        parseText(await file.text());
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    els.loadExample.addEventListener("click", () => {
+      renderPipelineValidation(exampleValidation);
+      els.jsonPaste.value = JSON.stringify(exampleValidation, null, 2);
+    });
+
+    els.clearValidation.addEventListener("click", resetView);
+
+    els.parsePaste.addEventListener("click", () => {
+      try {
+        parseText(els.jsonPaste.value);
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    els.refreshValidation.addEventListener("click", () => {
+      try {
+        if (els.jsonPaste.value.trim()) {
+          parseText(els.jsonPaste.value);
+        } else if (currentValidation) {
+          renderPipelineValidation(currentValidation);
+        }
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,334 @@
+{
+  "created_at": "20260621T110626Z",
+  "kind": "text_architecture_multiseed",
+  "runs": [
+    {
+      "seed": 11,
+      "output_json": "artifacts/text_architecture_multiseed/smoke/seed_11.json",
+      "elapsed_s": 8.180998791009188,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "compare_text_architectures.py",
+        "--output-json",
+        "artifacts/text_architecture_multiseed/smoke/seed_11.json",
+        "--tokenizer",
+        "word",
+        "--eval-fraction",
+        "0.2",
+        "--min-train-tokens",
+        "64",
+        "--min-eval-tokens",
+        "16",
+        "--streams",
+        "4",
+        "--tokens-per-stream",
+        "96",
+        "--seq-len",
+        "16",
+        "--ssm-input-dim",
+        "64",
+        "--ssm-state-dim",
+        "96",
+        "--transformer-max-d-model",
+        "256",
+        "--transformer-layers",
+        "1",
+        "--transformer-heads",
+        "2",
+        "--transformer-ff-mult",
+        "2",
+        "--epochs",
+        "1",
+        "--learning-rate",
+        "0.003",
+        "--grad-clip",
+        "1.0",
+        "--repeat",
+        "1",
+        "--sample-steps",
+        "4",
+        "--temperature",
+        "0.0",
+        "--prompt",
+        "memory is",
+        "--seed",
+        "11",
+        "--backend",
+        "cpu"
+      ],
+      "stdout_tail": [
+        "",
+        "Held-out eval",
+        "  ssm: loss=4.2971 ppl=73.49 acc=0.0688 throughput=598,597 tok/s",
+        "  transformer: loss=4.7553 ppl=116.20 acc=0.0156 throughput=376,194 tok/s",
+        "",
+        "Memory/context",
+        "  ssm_parameter_bytes: 73.18 KiB",
+        "  transformer_parameter_bytes: 72.59 KiB",
+        "  ssm_state_memory_bytes: 1.50 KiB",
+        "  transformer_attention_score_bytes: 8.00 KiB",
+        "  ssm_effective_context_tokens: 96",
+        "  transformer_effective_context_tokens: 16",
+        "",
+        "Comparison",
+        "  winner_by_loss: ssm",
+        "  ssm_minus_transformer_loss: -0.458167",
+        "  ssm_minus_transformer_accuracy: 0.053125",
+        "  ssm_minus_transformer_throughput_tokens_s: 222,403",
+        "",
+        "Interpretation",
+        "  This is a controlled benchmark report, not proof that either architecture is generally better.",
+        "  Increase --text-file size, --epochs, and sweep both architectures before making research claims.",
+        "",
+        "Saved JSON: artifacts/text_architecture_multiseed/smoke/seed_11.json"
+      ],
+      "winner_by_loss": "ssm",
+      "ssm_loss": 4.29713773727417,
+      "transformer_loss": 4.75530481338501
+    },
+    {
+      "seed": 17,
+      "output_json": "artifacts/text_architecture_multiseed/smoke/seed_17.json",
+      "elapsed_s": 7.3706144579919055,
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "compare_text_architectures.py",
+        "--output-json",
+        "artifacts/text_architecture_multiseed/smoke/seed_17.json",
+        "--tokenizer",
+        "word",
+        "--eval-fraction",
+        "0.2",
+        "--min-train-tokens",
+        "64",
+        "--min-eval-tokens",
+        "16",
+        "--streams",
+        "4",
+        "--tokens-per-stream",
+        "96",
+        "--seq-len",
+        "16",
+        "--ssm-input-dim",
+        "64",
+        "--ssm-state-dim",
+        "96",
+        "--transformer-max-d-model",
+        "256",
+        "--transformer-layers",
+        "1",
+        "--transformer-heads",
+        "2",
+        "--transformer-ff-mult",
+        "2",
+        "--epochs",
+        "1",
+        "--learning-rate",
+        "0.003",
+        "--grad-clip",
+        "1.0",
+        "--repeat",
+        "1",
+        "--sample-steps",
+        "4",
+        "--temperature",
+        "0.0",
+        "--prompt",
+        "memory is",
+        "--seed",
+        "17",
+        "--backend",
+        "cpu"
+      ],
+      "stdout_tail": [
+        "",
+        "Held-out eval",
+        "  ssm: loss=4.2762 ppl=71.97 acc=0.1063 throughput=543,217 tok/s",
+        "  transformer: loss=4.8086 ppl=122.55 acc=0.0500 throughput=751,908 tok/s",
+        "",
+        "Memory/context",
+        "  ssm_parameter_bytes: 73.18 KiB",
+        "  transformer_parameter_bytes: 72.59 KiB",
+        "  ssm_state_memory_bytes: 1.50 KiB",
+        "  transformer_attention_score_bytes: 8.00 KiB",
+        "  ssm_effective_context_tokens: 96",
+        "  transformer_effective_context_tokens: 16",
+        "",
+        "Comparison",
+        "  winner_by_loss: ssm",
+        "  ssm_minus_transformer_loss: -0.532360",
+        "  ssm_minus_transformer_accuracy: 0.056250",
+        "  ssm_minus_transformer_throughput_tokens_s: -208,691",
+        "",
+        "Interpretation",
+        "  This is a controlled benchmark report, not proof that either architecture is generally better.",
+        "  Increase --text-file size, --epochs, and sweep both architectures before making research claims.",
+        "",
+        "Saved JSON: artifacts/text_architecture_multiseed/smoke/seed_17.json"
+      ],
+      "winner_by_loss": "ssm",
+      "ssm_loss": 4.276194095611572,
+      "transformer_loss": 4.808554172515869
+    }
+  ],
+  "seed_count": 2,
+  "seeds": [
+    11,
+    17
+  ],
+  "protocol_evidence": {
+    "repeated_seed_count": 2,
+    "seed_requirement_met": true,
+    "train_positions_per_epoch": 320,
+    "eval_positions_per_repeat": 320,
+    "million_train_positions_met": true,
+    "million_eval_positions_met": true,
+    "min_corpus_train_tokens": 112,
+    "min_corpus_eval_tokens": 28,
+    "corpus_train_token_requirement_met": true,
+    "corpus_eval_token_requirement_met": true,
+    "valid": true
+  },
+  "summary": {
+    "ssm": {
+      "loss": {
+        "mean": 4.286665916442871,
+        "stdev": 0.0148093910423639,
+        "min": 4.276194095611572,
+        "max": 4.29713773727417
+      },
+      "accuracy": {
+        "mean": 0.08750000223517418,
+        "stdev": 0.026516505348166745,
+        "min": 0.06875000149011612,
+        "max": 0.10625000298023224
+      },
+      "throughput_tokens_s": {
+        "mean": 570907.3144264126,
+        "stdev": 39159.711476999226,
+        "min": 543217.2168917177,
+        "max": 598597.4119611074
+      },
+      "train_throughput_tokens_s": {
+        "mean": 93332.00316070163,
+        "stdev": 31245.98348104205,
+        "min": 71237.75635641396,
+        "max": 115426.24996498931
+      },
+      "parameter_count": {
+        "mean": 18733.0,
+        "stdev": 0.0,
+        "min": 18733.0,
+        "max": 18733.0
+      },
+      "parameter_bytes": {
+        "mean": 74932.0,
+        "stdev": 0.0,
+        "min": 74932.0,
+        "max": 74932.0
+      }
+    },
+    "transformer": {
+      "loss": {
+        "mean": 4.7819294929504395,
+        "stdev": 0.03765298293526847,
+        "min": 4.75530481338501,
+        "max": 4.808554172515869
+      },
+      "accuracy": {
+        "mean": 0.03281250037252903,
+        "stdev": 0.024306796130123178,
+        "min": 0.015625,
+        "max": 0.05000000074505806
+      },
+      "throughput_tokens_s": {
+        "mean": 564050.9451878566,
+        "stdev": 265669.86682184116,
+        "min": 376193.9808012057,
+        "max": 751907.9095745074
+      },
+      "train_throughput_tokens_s": {
+        "mean": 132574.23443284072,
+        "stdev": 17269.337451742336,
+        "min": 120362.96881411491,
+        "max": 144785.50005156655
+      },
+      "parameter_count": {
+        "mean": 18583.0,
+        "stdev": 0.0,
+        "min": 18583.0,
+        "max": 18583.0
+      },
+      "parameter_bytes": {
+        "mean": 74332.0,
+        "stdev": 0.0,
+        "min": 74332.0,
+        "max": 74332.0
+      }
+    },
+    "comparison": {
+      "winner_counts": {
+        "ssm": 2,
+        "transformer": 0,
+        "tie": 0
+      },
+      "ssm_minus_transformer_loss": {
+        "mean": -0.49526357650756836,
+        "stdev": 0.05246237397763237,
+        "min": -0.5323600769042969,
+        "max": -0.45816707611083984
+      },
+      "ssm_minus_transformer_accuracy": {
+        "mean": 0.05468750186264515,
+        "stdev": 0.0022097092180435674,
+        "min": 0.05312500149011612,
+        "max": 0.05625000223517418
+      },
+      "ssm_minus_transformer_throughput_tokens_s": {
+        "mean": 6856.369238556043,
+        "stdev": 304829.5782988404,
+        "min": -208690.69268278964,
+        "max": 222403.43115990172
+      }
+    },
+    "memory_context": {
+      "ssm_state_memory_bytes": {
+        "mean": 1536.0,
+        "stdev": 0.0,
+        "min": 1536.0,
+        "max": 1536.0
+      },
+      "transformer_attention_score_memory_bytes": {
+        "mean": 8192.0,
+        "stdev": 0.0,
+        "min": 8192.0,
+        "max": 8192.0
+      },
+      "transformer_attention_to_ssm_state_memory_ratio": {
+        "mean": 5.333333333333333,
+        "stdev": 0.0,
+        "min": 5.333333333333333,
+        "max": 5.333333333333333
+      },
+      "ssm_effective_context_tokens": {
+        "mean": 96.0,
+        "stdev": 0.0,
+        "min": 96.0,
+        "max": 96.0
+      },
+      "transformer_effective_context_tokens": {
+        "mean": 16.0,
+        "stdev": 0.0,
+        "min": 16.0,
+        "max": 16.0
+      },
+      "ssm_to_transformer_context_ratio": {
+        "mean": 6.0,
+        "stdev": 0.0,
+        "min": 6.0,
+        "max": 6.0
+      }
+    }
+  },
+  "claim_guardrail": "This repeated-seed million-token run is stronger evidence than a smoke test, but it is still a bounded benchmark, not a universal proof of architecture superiority."
+}

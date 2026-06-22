@@ -1,0 +1,1162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>TextPy Pipeline Proof Cockpit</title>
+  <style>
+    :root {
+      --paper: #eef0e8;
+      --ink: #171915;
+      --muted: #62675d;
+      --line: #c9cec0;
+      --panel: #fbfcf5;
+      --green: #087f5b;
+      --red: #b42318;
+      --gold: #b7791f;
+      --blue: #155eef;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(23, 25, 21, 0.045) 1px, transparent 1px),
+        var(--paper);
+      background-size: 24px 24px;
+      font-family: "Avenir Next", "Trebuchet MS", Verdana, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, input, textarea { font: inherit; letter-spacing: 0; }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .side {
+      border-right: 1px solid var(--line);
+      background: rgba(251, 252, 245, 0.94);
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "DIN Condensed", "Avenir Next Condensed", "Trebuchet MS", sans-serif;
+      font-size: 34px;
+      line-height: 0.95;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .stamp {
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
+      transform: rotate(-2deg);
+    }
+
+    .section {
+      border-top: 1px solid var(--line);
+      padding: 16px 0;
+    }
+
+    .section:first-of-type { border-top: 0; padding-top: 0; }
+
+    .label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    input[type="file"], textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 9px;
+    }
+
+    textarea {
+      min-height: 156px;
+      resize: vertical;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    button {
+      border: 1px solid var(--ink);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--paper);
+      min-height: 40px;
+      padding: 8px 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.secondary { background: transparent; color: var(--ink); }
+
+    .button-row,
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.66);
+      padding: 10px;
+      min-height: 72px;
+    }
+
+    .metric.good { border-color: rgba(8, 127, 91, 0.54); }
+    .metric.bad { border-color: rgba(180, 35, 24, 0.54); }
+    .metric.warn { border-color: rgba(183, 121, 31, 0.58); }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .error {
+      min-height: 18px;
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-width: 0;
+      min-height: 100vh;
+    }
+
+    .top-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      background: rgba(238, 240, 232, 0.92);
+    }
+
+    .title-line { min-width: 0; }
+
+    .title-line h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .title-line p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--ink);
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      min-height: 420px;
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+      font-weight: 800;
+    }
+
+    .dashboard {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .panel,
+    .chain-card,
+    .check-row,
+    .failure-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(251, 252, 245, 0.9);
+      min-width: 0;
+    }
+
+    .panel {
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .panel h3 {
+      margin: 0;
+      font-size: 15px;
+      text-transform: uppercase;
+    }
+
+    .chain-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(260px, 1fr));
+      gap: 10px;
+    }
+
+    .chain-card {
+      position: relative;
+      padding: 13px;
+      display: grid;
+      gap: 10px;
+      min-height: 176px;
+      overflow: hidden;
+    }
+
+    .chain-card.good { border-color: rgba(8, 127, 91, 0.54); }
+    .chain-card.bad { border-color: rgba(180, 35, 24, 0.54); }
+    .chain-card.warn { border-color: rgba(183, 121, 31, 0.58); }
+    .chain-card.missing { opacity: 0.64; }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .card-head h3 {
+      margin: 0;
+      font-size: 15px;
+      text-transform: uppercase;
+      overflow-wrap: anywhere;
+    }
+
+    .card-head code {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 4px 8px;
+      color: white;
+      background: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .status-pill.good { background: var(--green); }
+    .status-pill.bad { background: var(--red); }
+    .status-pill.warn { background: var(--gold); }
+
+    .small-grid,
+    .wide-metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 8px;
+    }
+
+    .small-metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 9px;
+      min-height: 62px;
+    }
+
+    .small-metric.good { border-color: rgba(8, 127, 91, 0.54); }
+    .small-metric.bad { border-color: rgba(180, 35, 24, 0.54); }
+    .small-metric.warn { border-color: rgba(183, 121, 31, 0.58); }
+
+    .small-metric span,
+    .check-row span,
+    .failure-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .small-metric strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 18px;
+      overflow-wrap: anywhere;
+    }
+
+    .check-list,
+    .failure-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .check-row {
+      padding: 10px;
+      display: grid;
+      grid-template-columns: minmax(170px, 0.6fr) minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .check-row.good { border-color: rgba(8, 127, 91, 0.54); }
+    .check-row.bad { border-color: rgba(180, 35, 24, 0.54); }
+    .check-row.warn { border-color: rgba(183, 121, 31, 0.58); }
+
+    .check-row strong,
+    .check-row code,
+    .failure-item strong,
+    .failure-item code {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .check-row code,
+    .failure-item code {
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .failure-item {
+      border-color: rgba(180, 35, 24, 0.54);
+      background: white;
+      padding: 11px;
+    }
+
+    .failure-item.empty-ok { border-color: rgba(8, 127, 91, 0.54); }
+    .failure-item.warn { border-color: rgba(183, 121, 31, 0.58); }
+
+    @media (max-width: 1260px) {
+      .chain-grid { grid-template-columns: repeat(2, minmax(260px, 1fr)); }
+      .small-grid,
+      .wide-metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .side { border-right: 0; border-bottom: 1px solid var(--line); }
+      .chain-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      h1 { font-size: 28px; }
+      .top-strip { grid-template-columns: 1fr; }
+      .legend { justify-content: flex-start; }
+      .metric-grid,
+      .button-row,
+      .small-grid,
+      .wide-metric-grid,
+      .check-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <h1>Pipeline<br>Proof Cockpit</h1>
+        <div class="stamp">TextPy</div>
+      </div>
+
+      <div class="section">
+        <label class="label" for="proofCockpitFile">Proof JSON files</label>
+        <input id="proofCockpitFile" type="file" accept=".json,application/json" multiple>
+        <div class="button-row">
+          <button id="loadExample" type="button">Load Example</button>
+          <button id="clearCockpit" class="secondary" type="button">Clear</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <label class="label" for="jsonPaste">Paste Bundle JSON</label>
+        <textarea id="jsonPaste" spellcheck="false" placeholder="Paste a bundle with pipeline, pipeline_validation, pipeline_validation_comparison, pipeline_comparison, pipeline_comparison_validation, and pipeline_comparison_validation_comparison. A single artifact also works."></textarea>
+        <div class="button-row">
+          <button id="parsePaste" type="button">Parse</button>
+          <button id="refreshCockpit" class="secondary" type="button">Refresh</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="metric-grid">
+          <div id="sideVerdictCard" class="metric">
+            <strong id="metricVerdict">-</strong>
+            <span>verdict</span>
+          </div>
+          <div id="sideLoadedCard" class="metric">
+            <strong id="metricLoaded">0/6</strong>
+            <span>loaded</span>
+          </div>
+          <div id="sideStageCard" class="metric">
+            <strong id="metricStages">-</strong>
+            <span>stages</span>
+          </div>
+          <div id="sideFailureCard" class="metric">
+            <strong id="metricFailures">0</strong>
+            <span>failures</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div id="errorBox" class="error" role="alert"></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="top-strip">
+        <div class="title-line">
+          <h2 id="titleText">No release proof bundle loaded</h2>
+          <p id="subtitleText">text_release_pipeline_proof_cockpit.html</p>
+        </div>
+        <div class="legend" aria-label="Legend">
+          <span><i class="swatch" style="background: var(--green)"></i>pass</span>
+          <span><i class="swatch" style="background: var(--gold)"></i>partial</span>
+          <span><i class="swatch" style="background: var(--red)"></i>fail</span>
+        </div>
+      </header>
+
+      <section id="emptyState" class="empty">
+        <div>
+          <strong>Waiting for release proof artifacts.</strong>
+          <p>Load the six pipeline proof JSON files, or paste a bundled JSON object.</p>
+        </div>
+      </section>
+
+      <section id="proofCockpitDashboard" class="dashboard" hidden>
+        <div class="panel">
+          <h3>Proof Chain</h3>
+          <div id="proofCockpitChain" class="chain-grid"></div>
+        </div>
+
+        <div class="panel">
+          <h3>Core Signals</h3>
+          <div id="proofCockpitMetricGrid" class="wide-metric-grid"></div>
+        </div>
+
+        <div class="panel">
+          <h3>Cross-Artifact Checks</h3>
+          <div id="proofCockpitCheckRows" class="check-list"></div>
+        </div>
+
+        <div class="panel">
+          <h3>Failures And Warnings</h3>
+          <div id="proofCockpitFailureList" class="failure-list"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const artifactOrder = [
+      ["pipeline", "Release pipeline", "text_release_pipeline.json"],
+      ["pipeline_validation", "Pipeline validation", "text_release_pipeline_validation.json"],
+      ["pipeline_validation_comparison", "Validation comparison", "text_release_pipeline_validation_comparison.json"],
+      ["pipeline_comparison", "Pipeline comparison", "text_release_pipeline_comparison.json"],
+      ["pipeline_comparison_validation", "Comparison validation", "text_release_pipeline_comparison_validation.json"],
+      ["pipeline_comparison_validation_comparison", "Proof comparison", "text_release_pipeline_comparison_validation_comparison.json"]
+    ];
+
+    const exampleStageNames = [
+      "promote", "inspect", "benchmark", "validate", "bundle", "unbundle", "compare",
+      "memory_suite", "validate_memory_suite", "register", "release_leaderboard", "select",
+      "run_active_release", "release_dashboard", "release_dashboard_validation",
+      "release_dashboard_comparison", "release_history", "release_history_validation",
+      "release_history_analysis", "release_gates", "release_report", "release_evidence_bundle",
+      "release_evidence_validate", "release_evidence_compare", "release_evidence_unbundle",
+      "release_evidence_register", "release_evidence_ledger_validate",
+      "release_evidence_ledger_tamper", "release_evidence_ledger_replay",
+      "release_evidence_ledger_compare", "release_evidence_ledger_growth_compare",
+      "release_evidence_audit", "release_evidence_audit_validate",
+      "release_evidence_audit_validation_compare", "release_evidence_audit_compare"
+    ];
+
+    function buildExampleBundle() {
+      const stages = {};
+      exampleStageNames.forEach((name, index) => {
+        stages[name] = { elapsed_s: 0.25 + index / 100, stdout_tail: [`${name} OK`] };
+      });
+      const pipeline = {
+        name: "verify_text_pipeline",
+        created_at: "20260621T053659Z",
+        completed_at: "20260621T053728Z",
+        stages,
+        summary: {
+          release_count: 1,
+          selected_rank: 1,
+          loss: 3.7913637161254883,
+          accuracy: 0.4375,
+          best_throughput_tokens_s: 125633.80444570997,
+          memory_prompt_count: 3,
+          memory_pair_count: 3,
+          memory_mean_pair_overlap: 0.525,
+          memory_min_pair_overlap: 0.35,
+          release_dashboard_audit_valid: true,
+          release_dashboard_audit_checks: 11,
+          release_evidence_archive_sha256: "1c61ea3f71de97ad9f1f6aac9df81a382d7bb416a085cb0a11bfdcfc6c6507b0",
+          release_evidence_ledger_chain_head: "86c8e09966131ca5dd1c6601725a2f2d1f90713e2262e055253562df77d8748a",
+          release_evidence_audit_valid: true,
+          release_evidence_audit_checks: 10,
+          release_evidence_audit_validation_valid: true
+        }
+      };
+      const pipelineValidation = {
+        valid: true,
+        pipeline: "artifacts/verify/text_release_pipeline.json",
+        name: "verify_text_pipeline",
+        release_count: 1,
+        selected_rank: 1,
+        stage_count: 35,
+        memory_prompt_count: 3,
+        memory_pair_count: 3,
+        dashboard_audit_checks: 11,
+        has_evidence_audit: true,
+        evidence_audit_checks: 10,
+        artifact_checks: 19,
+        errors: []
+      };
+      const pipelineValidationComparison = {
+        baseline: { path: "artifacts/verify/text_release_pipeline_validation.json", ...pipelineValidation },
+        candidate: { path: "artifacts/verify/text_release_pipeline_validation.json", ...pipelineValidation },
+        comparison: {
+          same_valid: true,
+          same_pipeline: true,
+          same_name: true,
+          same_has_evidence_audit: true,
+          release_count_delta: 0,
+          selected_rank_delta: 0,
+          stage_count_delta: 0,
+          memory_prompt_count_delta: 0,
+          memory_pair_count_delta: 0,
+          dashboard_audit_checks_delta: 0,
+          evidence_audit_checks_delta: 0,
+          artifact_checks_delta: 0,
+          error_count_delta: 0,
+          same_errors: true,
+          common_errors: [],
+          missing_errors: [],
+          added_errors: []
+        },
+        failures: []
+      };
+      const pipelineComparison = {
+        baseline: {
+          path: "artifacts/verify/text_release_pipeline.json",
+          shape_errors: [],
+          name: "verify_text_pipeline",
+          stage_count: 35,
+          stage_names: exampleStageNames,
+          release_count: 1,
+          selected_rank: 1,
+          loss: 3.7913637161254883,
+          accuracy: 0.4375,
+          best_throughput_tokens_s: 125633.80444570997,
+          memory_mean_pair_overlap: 0.525,
+          release_dashboard_audit_valid: true,
+          has_evidence_audit: true,
+          release_evidence_archive_sha256: "1c61ea3f71de97ad9f1f6aac9df81a382d7bb416a085cb0a11bfdcfc6c6507b0",
+          release_evidence_ledger_chain_head: "86c8e09966131ca5dd1c6601725a2f2d1f90713e2262e055253562df77d8748a",
+          release_evidence_audit_valid: true,
+          release_evidence_audit_validation_valid: true
+        },
+        candidate: {
+          path: "artifacts/verify/text_release_pipeline.json",
+          shape_errors: [],
+          name: "verify_text_pipeline",
+          stage_count: 35,
+          stage_names: exampleStageNames,
+          release_count: 1,
+          selected_rank: 1,
+          loss: 3.7913637161254883,
+          accuracy: 0.4375,
+          best_throughput_tokens_s: 125633.80444570997,
+          memory_mean_pair_overlap: 0.525,
+          release_dashboard_audit_valid: true,
+          has_evidence_audit: true,
+          release_evidence_archive_sha256: "1c61ea3f71de97ad9f1f6aac9df81a382d7bb416a085cb0a11bfdcfc6c6507b0",
+          release_evidence_ledger_chain_head: "86c8e09966131ca5dd1c6601725a2f2d1f90713e2262e055253562df77d8748a",
+          release_evidence_audit_valid: true,
+          release_evidence_audit_validation_valid: true
+        },
+        comparison: {
+          same_name: true,
+          same_stage_set: true,
+          stage_count_delta: 0,
+          release_count_delta: 0,
+          selected_rank_delta: 0,
+          loss_delta: 0,
+          accuracy_delta: 0,
+          best_throughput_tokens_s_delta: 0,
+          memory_mean_pair_overlap_delta: 0,
+          same_has_evidence_audit: true,
+          same_evidence_archive_sha256: true,
+          same_evidence_ledger_chain_head: true,
+          dashboard_audit_valid_regressed: false,
+          evidence_audit_valid_regressed: false,
+          evidence_audit_validation_valid_regressed: false,
+          baseline_shape_errors: [],
+          candidate_shape_errors: []
+        },
+        failures: []
+      };
+      const pipelineComparisonValidation = {
+        valid: true,
+        comparison: "artifacts/verify/text_release_pipeline_comparison.json",
+        baseline_pipeline: "artifacts/verify/text_release_pipeline.json",
+        candidate_pipeline: "artifacts/verify/text_release_pipeline.json",
+        baseline_stage_count: 35,
+        candidate_stage_count: 35,
+        same_stage_set: true,
+        stage_count_delta: 0,
+        loss_delta: 0,
+        memory_mean_pair_overlap_delta: 0,
+        same_evidence_archive_sha256: true,
+        same_evidence_ledger_chain_head: true,
+        failure_count: 0,
+        errors: []
+      };
+      const pipelineComparisonValidationComparison = {
+        baseline: { path: "artifacts/verify/text_release_pipeline_comparison_validation.json", ...pipelineComparisonValidation },
+        candidate: { path: "artifacts/verify/text_release_pipeline_comparison_validation.json", ...pipelineComparisonValidation },
+        comparison: {
+          same_valid: true,
+          same_comparison: true,
+          same_baseline_pipeline: true,
+          same_candidate_pipeline: true,
+          baseline_stage_count_delta: 0,
+          candidate_stage_count_delta: 0,
+          same_stage_set_changed: false,
+          stage_count_delta_delta: 0,
+          loss_delta_delta: 0,
+          memory_mean_pair_overlap_delta_delta: 0,
+          same_evidence_archive_sha256_changed: false,
+          same_evidence_ledger_chain_head_changed: false,
+          failure_count_delta: 0,
+          error_count_delta: 0,
+          same_errors: true,
+          common_errors: [],
+          missing_errors: [],
+          added_errors: []
+        },
+        failures: []
+      };
+      return {
+        pipeline,
+        pipeline_validation: pipelineValidation,
+        pipeline_validation_comparison: pipelineValidationComparison,
+        pipeline_comparison: pipelineComparison,
+        pipeline_comparison_validation: pipelineComparisonValidation,
+        pipeline_comparison_validation_comparison: pipelineComparisonValidationComparison
+      };
+    }
+
+    const els = {
+      proofCockpitFile: document.getElementById("proofCockpitFile"),
+      loadExample: document.getElementById("loadExample"),
+      clearCockpit: document.getElementById("clearCockpit"),
+      jsonPaste: document.getElementById("jsonPaste"),
+      parsePaste: document.getElementById("parsePaste"),
+      refreshCockpit: document.getElementById("refreshCockpit"),
+      errorBox: document.getElementById("errorBox"),
+      emptyState: document.getElementById("emptyState"),
+      proofCockpitDashboard: document.getElementById("proofCockpitDashboard"),
+      titleText: document.getElementById("titleText"),
+      subtitleText: document.getElementById("subtitleText"),
+      sideVerdictCard: document.getElementById("sideVerdictCard"),
+      sideLoadedCard: document.getElementById("sideLoadedCard"),
+      sideStageCard: document.getElementById("sideStageCard"),
+      sideFailureCard: document.getElementById("sideFailureCard"),
+      metricVerdict: document.getElementById("metricVerdict"),
+      metricLoaded: document.getElementById("metricLoaded"),
+      metricStages: document.getElementById("metricStages"),
+      metricFailures: document.getElementById("metricFailures"),
+      proofCockpitChain: document.getElementById("proofCockpitChain"),
+      proofCockpitMetricGrid: document.getElementById("proofCockpitMetricGrid"),
+      proofCockpitCheckRows: document.getElementById("proofCockpitCheckRows"),
+      proofCockpitFailureList: document.getElementById("proofCockpitFailureList")
+    };
+
+    let currentBundle = {};
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[char]);
+    }
+
+    function isObject(value) {
+      return value && typeof value === "object" && !Array.isArray(value);
+    }
+
+    function valueText(value, digits = 4) {
+      if (value === null || value === undefined || value === "") return "-";
+      if (typeof value === "boolean") return value ? "true" : "false";
+      if (typeof value === "number") {
+        if (!Number.isFinite(value)) return "-";
+        if (Math.abs(value) >= 1000) return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
+        return value.toFixed(digits);
+      }
+      return String(value);
+    }
+
+    function shortPath(value) {
+      const text = String(value || "");
+      const parts = text.split("/");
+      return parts.length > 3 ? parts.slice(-3).join("/") : text;
+    }
+
+    function setError(message) {
+      els.errorBox.textContent = message || "";
+    }
+
+    function setCardState(element, state) {
+      element.classList.remove("good", "bad", "warn");
+      if (state) element.classList.add(state);
+    }
+
+    function classifyByFilename(name) {
+      const lower = String(name || "").toLowerCase();
+      if (lower.includes("text_release_pipeline_comparison_validation_comparison")) return "pipeline_comparison_validation_comparison";
+      if (lower.includes("text_release_pipeline_comparison_validation")) return "pipeline_comparison_validation";
+      if (lower.includes("text_release_pipeline_validation_comparison")) return "pipeline_validation_comparison";
+      if (lower.includes("text_release_pipeline_comparison")) return "pipeline_comparison";
+      if (lower.includes("text_release_pipeline_validation")) return "pipeline_validation";
+      if (lower.includes("text_release_pipeline")) return "pipeline";
+      return null;
+    }
+
+    function classifyPayload(payload) {
+      if (!isObject(payload)) return null;
+      if (isObject(payload.stages) && isObject(payload.summary)) return "pipeline";
+      if (typeof payload.valid === "boolean" && typeof payload.pipeline === "string") return "pipeline_validation";
+      if (typeof payload.valid === "boolean" && typeof payload.comparison === "string") return "pipeline_comparison_validation";
+      if (isObject(payload.baseline) && isObject(payload.candidate) && isObject(payload.comparison)) {
+        if ("comparison" in payload.baseline) return "pipeline_comparison_validation_comparison";
+        if ("pipeline" in payload.baseline) return "pipeline_validation_comparison";
+        if ("stage_names" in payload.baseline || "same_stage_set" in payload.comparison) return "pipeline_comparison";
+      }
+      return null;
+    }
+
+    function normalizeProofBundle(payload, fileName = "") {
+      const bundle = {};
+      if (!isObject(payload)) throw new Error("Root payload must be an object.");
+      const knownKeys = artifactOrder.map(([key]) => key);
+      const hasBundleKeys = knownKeys.some((key) => isObject(payload[key]));
+      if (hasBundleKeys) {
+        knownKeys.forEach((key) => {
+          if (isObject(payload[key])) bundle[key] = payload[key];
+        });
+        return bundle;
+      }
+      const key = classifyByFilename(fileName) || classifyPayload(payload);
+      if (!key) throw new Error(`Could not classify JSON artifact${fileName ? `: ${fileName}` : "."}`);
+      bundle[key] = payload;
+      return bundle;
+    }
+
+    function artifactPath(key, payload) {
+      if (!payload) return "";
+      if (key === "pipeline_validation") return payload.pipeline;
+      if (key === "pipeline_comparison_validation") return payload.comparison;
+      if (payload.path) return payload.path;
+      if (payload.baseline && payload.baseline.path) return payload.baseline.path;
+      if (payload.candidate && payload.candidate.path) return payload.candidate.path;
+      return "";
+    }
+
+    function countStages(pipeline) {
+      return isObject(pipeline && pipeline.stages) ? Object.keys(pipeline.stages).length : null;
+    }
+
+    function collectItemFailures(payload) {
+      if (!isObject(payload)) return [];
+      const failures = [];
+      if (Array.isArray(payload.failures)) failures.push(...payload.failures);
+      if (Array.isArray(payload.errors)) failures.push(...payload.errors);
+      if (payload.baseline && Array.isArray(payload.baseline.errors)) failures.push(...payload.baseline.errors);
+      if (payload.candidate && Array.isArray(payload.candidate.errors)) failures.push(...payload.candidate.errors);
+      return failures;
+    }
+
+    function inspectArtifact(key, payload) {
+      if (!payload) {
+        return { state: "missing", status: "missing", path: artifactOrder.find(([id]) => id === key)[2], metrics: [], failures: [] };
+      }
+      const failures = collectItemFailures(payload);
+      let state = failures.length ? "bad" : "good";
+      const metrics = [];
+      if (key === "pipeline") {
+        const summary = payload.summary || {};
+        const stageCount = countStages(payload);
+        metrics.push(["stages", stageCount, 0], ["loss", summary.loss, 4], ["throughput", summary.best_throughput_tokens_s, 0], ["memory overlap", summary.memory_mean_pair_overlap, 4]);
+        if (summary.release_dashboard_audit_valid !== true) failures.push("release dashboard audit is not valid");
+        if (summary.release_evidence_audit_valid !== true) failures.push("release evidence audit is not valid");
+      } else if (key === "pipeline_validation") {
+        metrics.push(["valid", payload.valid], ["stages", payload.stage_count, 0], ["artifact checks", payload.artifact_checks, 0], ["evidence audit", payload.has_evidence_audit]);
+        if (payload.valid !== true) failures.push("pipeline validation is not valid");
+      } else if (key === "pipeline_validation_comparison") {
+        const c = payload.comparison || {};
+        metrics.push(["same valid", c.same_valid], ["stage delta", c.stage_count_delta, 0], ["artifact delta", c.artifact_checks_delta, 0], ["errors", c.error_count_delta, 0]);
+        if (Array.isArray(payload.failures) && payload.failures.length) state = "bad";
+      } else if (key === "pipeline_comparison") {
+        const c = payload.comparison || {};
+        metrics.push(["same stage set", c.same_stage_set], ["loss delta", c.loss_delta, 6], ["memory delta", c.memory_mean_pair_overlap_delta, 6], ["same proof sha", c.same_evidence_archive_sha256]);
+        if (c.dashboard_audit_valid_regressed) failures.push("dashboard audit validity regressed");
+        if (c.evidence_audit_valid_regressed) failures.push("evidence audit validity regressed");
+      } else if (key === "pipeline_comparison_validation") {
+        metrics.push(["valid", payload.valid], ["same stage set", payload.same_stage_set], ["loss delta", payload.loss_delta, 6], ["failures", payload.failure_count, 0]);
+        if (payload.valid !== true) failures.push("pipeline comparison validation is not valid");
+        if (payload.failure_count > 0) failures.push(`${payload.failure_count} threshold failures`);
+      } else if (key === "pipeline_comparison_validation_comparison") {
+        const c = payload.comparison || {};
+        metrics.push(["same valid", c.same_valid], ["loss drift", c.loss_delta_delta, 6], ["memory drift", c.memory_mean_pair_overlap_delta_delta, 6], ["error delta", c.error_count_delta, 0]);
+      }
+      if (failures.length) state = "bad";
+      return {
+        state,
+        status: state === "good" ? "pass" : "fail",
+        path: artifactPath(key, payload),
+        metrics,
+        failures
+      };
+    }
+
+    function samePath(left, right) {
+      if (!left || !right) return false;
+      return String(left) === String(right) || shortPath(left) === shortPath(right);
+    }
+
+    function addCheck(checks, label, state, detail) {
+      checks.push({ label, state, detail });
+    }
+
+    function validateProofCockpit(bundle) {
+      const errors = [];
+      const warnings = [];
+      if (!isObject(bundle)) {
+        errors.push("Proof bundle must be an object.");
+        return { loaded: 0, errors, warnings, checks: [] };
+      }
+      const loaded = artifactOrder.filter(([key]) => isObject(bundle[key])).length;
+      if (!loaded) errors.push("No recognizable proof artifacts are loaded.");
+      artifactOrder.forEach(([key, title]) => {
+        if (bundle[key] && !isObject(bundle[key])) errors.push(`${title} must be an object.`);
+      });
+
+      const pipelineStages = countStages(bundle.pipeline);
+      const checks = [];
+      if (bundle.pipeline && bundle.pipeline_validation) {
+        const sameStageCount = pipelineStages === bundle.pipeline_validation.stage_count;
+        addCheck(checks, "pipeline -> validation stage count", sameStageCount ? "good" : "bad", `${valueText(pipelineStages, 0)} vs ${valueText(bundle.pipeline_validation.stage_count, 0)}`);
+        if (!sameStageCount) errors.push("Pipeline stage count differs from validation stage count.");
+      }
+      if (bundle.pipeline_validation && bundle.pipeline_validation_comparison) {
+        const sameValid = bundle.pipeline_validation_comparison.comparison && bundle.pipeline_validation_comparison.comparison.same_valid === true;
+        addCheck(checks, "validation self-comparison", sameValid ? "good" : "bad", `same_valid=${valueText(bundle.pipeline_validation_comparison.comparison && bundle.pipeline_validation_comparison.comparison.same_valid)}`);
+        if (!sameValid) errors.push("Pipeline validation self-comparison drifted.");
+      }
+      if (bundle.pipeline && bundle.pipeline_comparison) {
+        const c = bundle.pipeline_comparison.comparison || {};
+        const sameStageSet = c.same_stage_set === true;
+        addCheck(checks, "direct pipeline comparison", sameStageSet ? "good" : "bad", `same_stage_set=${valueText(c.same_stage_set)}, loss_delta=${valueText(c.loss_delta, 6)}`);
+        if (!sameStageSet) errors.push("Direct pipeline comparison stage set changed.");
+      }
+      if (bundle.pipeline_comparison && bundle.pipeline_comparison_validation) {
+        const valid = bundle.pipeline_comparison_validation.valid === true;
+        const noFailures = Number(bundle.pipeline_comparison_validation.failure_count || 0) === 0;
+        addCheck(checks, "comparison validation", valid && noFailures ? "good" : "bad", `valid=${valueText(valid)}, failures=${valueText(bundle.pipeline_comparison_validation.failure_count, 0)}`);
+        if (!valid || !noFailures) errors.push("Pipeline comparison validation is not clean.");
+      }
+      if (bundle.pipeline_comparison_validation && bundle.pipeline_comparison_validation_comparison) {
+        const c = bundle.pipeline_comparison_validation_comparison.comparison || {};
+        const stable = c.same_valid === true && Number(c.failure_count_delta || 0) === 0 && Number(c.error_count_delta || 0) === 0;
+        addCheck(checks, "proof validation comparison", stable ? "good" : "bad", `same_valid=${valueText(c.same_valid)}, failures_delta=${valueText(c.failure_count_delta, 0)}, errors_delta=${valueText(c.error_count_delta, 0)}`);
+        if (!stable) errors.push("Pipeline comparison validation comparison drifted.");
+      }
+      artifactOrder.forEach(([key, title]) => {
+        const item = inspectArtifact(key, bundle[key]);
+        item.failures.forEach((failure) => errors.push(`${title}: ${failure}`));
+      });
+      if (loaded > 0 && loaded < artifactOrder.length) warnings.push(`Partial proof bundle loaded: ${loaded}/${artifactOrder.length}.`);
+      if (!checks.length && loaded) warnings.push("Load adjacent artifacts to enable cross-artifact consistency checks.");
+      return { loaded, errors, warnings, checks };
+    }
+
+    function metricCard(label, value, state = "", digits = 4) {
+      return `
+        <div class="small-metric ${state}">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(valueText(value, digits))}</strong>
+        </div>
+      `;
+    }
+
+    function chainCard(key, title, fileName, payload) {
+      const item = inspectArtifact(key, payload);
+      const state = payload ? item.state : "missing";
+      const status = payload ? item.status : "missing";
+      const metrics = item.metrics.length ? item.metrics : [["expected", fileName]];
+      return `
+        <div class="chain-card ${state}">
+          <div class="card-head">
+            <div>
+              <h3>${escapeHtml(title)}</h3>
+              <code>${escapeHtml(shortPath(item.path || fileName))}</code>
+            </div>
+            <span class="status-pill ${state === "missing" ? "warn" : state}">${escapeHtml(status)}</span>
+          </div>
+          <div class="small-grid">
+            ${metrics.map(([label, value, digits]) => metricCard(label, value, state === "missing" ? "warn" : "", digits)).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function checkRow(check) {
+      return `
+        <div class="check-row ${check.state}">
+          <span>${escapeHtml(check.label)}</span>
+          <div>
+            <strong>${escapeHtml(check.state === "good" ? "pass" : check.state === "warn" ? "partial" : "fail")}</strong>
+            <code>${escapeHtml(check.detail)}</code>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFailures(errors, warnings) {
+      const rows = [];
+      if (!errors.length && !warnings.length) {
+        rows.push(`
+          <div class="failure-item empty-ok">
+            <span>proof chain</span>
+            <strong>No failures or warnings</strong>
+          </div>
+        `);
+      }
+      warnings.forEach((warning, index) => {
+        rows.push(`
+          <div class="failure-item warn">
+            <span>warning ${index + 1}</span>
+            <code>${escapeHtml(warning)}</code>
+          </div>
+        `);
+      });
+      errors.forEach((error, index) => {
+        rows.push(`
+          <div class="failure-item">
+            <span>failure ${index + 1}</span>
+            <code>${escapeHtml(error)}</code>
+          </div>
+        `);
+      });
+      els.proofCockpitFailureList.innerHTML = rows.join("");
+    }
+
+    function renderProofCockpit(bundle) {
+      const result = validateProofCockpit(bundle);
+      const complete = result.loaded === artifactOrder.length;
+      const passed = result.errors.length === 0;
+      const verdict = passed && complete ? "PASS" : passed ? "PARTIAL" : "FAIL";
+      const pipelineSummary = (bundle.pipeline && bundle.pipeline.summary) || {};
+      const pipelineStages = countStages(bundle.pipeline);
+      currentBundle = { ...bundle };
+
+      setError("");
+      els.emptyState.hidden = false;
+      els.proofCockpitDashboard.hidden = true;
+      if (result.loaded > 0) {
+        els.emptyState.hidden = true;
+        els.proofCockpitDashboard.hidden = false;
+      }
+
+      els.metricVerdict.textContent = verdict;
+      els.metricLoaded.textContent = `${result.loaded}/${artifactOrder.length}`;
+      els.metricStages.textContent = valueText(pipelineStages || (bundle.pipeline_validation && bundle.pipeline_validation.stage_count), 0);
+      els.metricFailures.textContent = String(result.errors.length);
+      setCardState(els.sideVerdictCard, verdict === "PASS" ? "good" : verdict === "PARTIAL" ? "warn" : "bad");
+      setCardState(els.sideLoadedCard, complete ? "good" : result.loaded ? "warn" : "");
+      setCardState(els.sideStageCard, pipelineStages ? "good" : "warn");
+      setCardState(els.sideFailureCard, result.errors.length ? "bad" : "good");
+
+      els.titleText.textContent = verdict === "PASS" ? "Pipeline proof chain passed" : verdict === "PARTIAL" ? "Pipeline proof chain partially loaded" : "Pipeline proof chain failed";
+      els.subtitleText.textContent = `loaded ${result.loaded}/${artifactOrder.length} artifacts`;
+
+      els.proofCockpitChain.innerHTML = artifactOrder.map(([key, title, fileName]) => chainCard(key, title, fileName, bundle[key])).join("");
+
+      const comparison = (bundle.pipeline_comparison && bundle.pipeline_comparison.comparison) || {};
+      const comparisonValidation = bundle.pipeline_comparison_validation || {};
+      const proofComparison = (bundle.pipeline_comparison_validation_comparison && bundle.pipeline_comparison_validation_comparison.comparison) || {};
+      els.proofCockpitMetricGrid.innerHTML = [
+        metricCard("release count", pipelineSummary.release_count, pipelineSummary.release_count === 1 ? "good" : "warn", 0),
+        metricCard("selected rank", pipelineSummary.selected_rank, pipelineSummary.selected_rank === 1 ? "good" : "warn", 0),
+        metricCard("loss", pipelineSummary.loss, "", 4),
+        metricCard("throughput", pipelineSummary.best_throughput_tokens_s, "", 0),
+        metricCard("memory overlap", pipelineSummary.memory_mean_pair_overlap, "", 4),
+        metricCard("pipeline loss delta", comparison.loss_delta, Number(comparison.loss_delta || 0) === 0 ? "good" : "warn", 6),
+        metricCard("validated loss delta", comparisonValidation.loss_delta, Number(comparisonValidation.loss_delta || 0) === 0 ? "good" : "warn", 6),
+        metricCard("proof loss drift", proofComparison.loss_delta_delta, Number(proofComparison.loss_delta_delta || 0) === 0 ? "good" : "warn", 6),
+        metricCard("evidence SHA stable", comparison.same_evidence_archive_sha256, comparison.same_evidence_archive_sha256 === true ? "good" : "warn"),
+        metricCard("ledger head stable", comparison.same_evidence_ledger_chain_head, comparison.same_evidence_ledger_chain_head === true ? "good" : "warn"),
+        metricCard("comparison valid", comparisonValidation.valid, comparisonValidation.valid === true ? "good" : "warn"),
+        metricCard("same validation", proofComparison.same_valid, proofComparison.same_valid === true ? "good" : "warn")
+      ].join("");
+
+      els.proofCockpitCheckRows.innerHTML = result.checks.length
+        ? result.checks.map(checkRow).join("")
+        : checkRow({ label: "cross-artifact checks", state: "warn", detail: "Load adjacent proof artifacts to enable consistency checks." });
+      renderFailures(result.errors, result.warnings);
+    }
+
+    function parseText(text) {
+      const payload = JSON.parse(text);
+      const bundle = normalizeProofBundle(payload);
+      renderProofCockpit({ ...currentBundle, ...bundle });
+      els.jsonPaste.value = JSON.stringify({ ...currentBundle }, null, 2);
+    }
+
+    function resetView() {
+      currentBundle = {};
+      els.proofCockpitFile.value = "";
+      els.jsonPaste.value = "";
+      els.emptyState.hidden = false;
+      els.proofCockpitDashboard.hidden = true;
+      els.titleText.textContent = "No release proof bundle loaded";
+      els.subtitleText.textContent = "text_release_pipeline_proof_cockpit.html";
+      els.metricVerdict.textContent = "-";
+      els.metricLoaded.textContent = "0/6";
+      els.metricStages.textContent = "-";
+      els.metricFailures.textContent = "0";
+      setCardState(els.sideVerdictCard, "");
+      setCardState(els.sideLoadedCard, "");
+      setCardState(els.sideStageCard, "");
+      setCardState(els.sideFailureCard, "");
+      setError("");
+    }
+
+    els.proofCockpitFile.addEventListener("change", async (event) => {
+      const files = Array.from((event.target.files || []));
+      if (!files.length) return;
+      try {
+        let nextBundle = { ...currentBundle };
+        for (const file of files) {
+          const payload = JSON.parse(await file.text());
+          nextBundle = { ...nextBundle, ...normalizeProofBundle(payload, file.name) };
+        }
+        renderProofCockpit(nextBundle);
+        els.jsonPaste.value = JSON.stringify(nextBundle, null, 2);
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    els.loadExample.addEventListener("click", () => {
+      const bundle = buildExampleBundle();
+      renderProofCockpit(bundle);
+      els.jsonPaste.value = JSON.stringify(bundle, null, 2);
+    });
+
+    els.clearCockpit.addEventListener("click", resetView);
+
+    els.parsePaste.addEventListener("click", () => {
+      try {
+        parseText(els.jsonPaste.value);
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+
+    els.refreshCockpit.addEventListener("click", () => {
+      try {
+        if (els.jsonPaste.value.trim()) {
+          const payload = JSON.parse(els.jsonPaste.value);
+          const bundle = normalizeProofBundle(payload);
+          renderProofCockpit({ ...currentBundle, ...bundle });
+        } else {
+          renderProofCockpit(currentBundle);
+        }
+      } catch (error) {
+        setError(error.message);
+      }
+    });
+  </script>
+</body>
+</html>
