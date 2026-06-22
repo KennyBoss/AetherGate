@@ -54,7 +54,7 @@ compile:
 		compare_benchmarks.py
 
 verify:
-	$(PYTHON) verify_system.py
+	$(PYTHON) verify_system.py --timeout 600
 
 benchmark:
 	$(PYTHON) benchmark_system.py --profile quick
@@ -427,6 +427,34 @@ compare-mixed-code-recall-multiseed:
 		--min-query-positions 2048 \
 		--require-valid-protocol \
 		--timeout 420
+
+# Phase 1 external validation: canonical MQAR (shared vocab, no query-marker
+# token, scattered pairs) against the parameter-matched context-capped
+# Transformer, using the context-routed dynamic-kv-memory SSM. Make-or-break.
+compare-mqar-recall-multiseed:
+	$(PYTHON) run_long_context_recall_multiseed.py \
+		--task mqar \
+		--output-dir artifacts/long_context_recall_multiseed/mqar_query3_delay96_ctx32 \
+		--output-json artifacts/long_context_recall_multiseed/mqar_query3_delay96_ctx32/summary.json \
+		--seeds 11,17,23 \
+		--train-records 2048 \
+		--eval-records 1024 \
+		--key-count 16 \
+		--value-count 16 \
+		--binding-count 6 \
+		--query-count 3 \
+		--delay 96 \
+		--transformer-context 32 \
+		--epochs 40 \
+		--batch-size 128 \
+		--learning-rate 0.006 \
+		--ssm-variant dynamic-kv-memory \
+		--kv-logit-scale 64 \
+		--ssm-decay-init 8.0 \
+		--min-seeds 3 \
+		--min-query-positions 2048 \
+		--require-valid-protocol \
+		--timeout 600
 
 compare-mixed-code-full-context-control:
 	$(PYTHON) compare_long_context_recall.py \

@@ -812,6 +812,70 @@ def make_assignment_update_recall(
     return sequence[:, :-1], sequence[:, 1:], new_values
 
 
+def make_mqar_recall(
+    *,
+    records: int,
+    delay: int,
+    key_count: int,
+    binding_count: int,
+    query_count: int,
+    seed: int,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Canonical Multi-Query Associative Recall (MQAR).
+
+    Shared vocabulary for keys and values (tokens 1..key_count; 0 is PAD/filler),
+    no split name/value ranges, and no dedicated query-marker token: a query is
+    simply a previously-seen key whose bound value must be emitted at the next
+    position. Key-value pairs are scattered with random gaps in the first half of
+    the sequence so every binding sits well before the query region; the second
+    half is filler, then the query pairs follow. The third return value is an
+    explicit float scoring mask (teacher-forcing bookkeeping, NOT a token the
+    model sees) marking the query-key positions.
+    """
+    if binding_count < 1:
+        raise ValueError("binding_count must be positive for mqar.")
+    if query_count < 1:
+        raise ValueError("query_count must be positive for mqar.")
+    if query_count > binding_count:
+        raise ValueError("query_count must not exceed binding_count for mqar.")
+    if binding_count > key_count:
+        raise ValueError("binding_count must not exceed key_count for unique mqar keys.")
+    if delay < 4 * binding_count:
+        raise ValueError(f"delay must be at least {4 * binding_count} for {binding_count} mqar pairs.")
+
+    rng = np.random.default_rng(seed)
+    symbol_count = key_count  # shared alphabet, tokens 1..key_count
+    total_len = delay + 2 * query_count
+    sequence = np.full((records, total_len), PAD_TOKEN, dtype=np.int32)
+
+    # 2-slot write windows (even starts => adjacent k,v with no overlap) confined
+    # to the first half so the latest binding still precedes the query region by
+    # roughly delay/2 tokens, keeping it beyond the Transformer context cap.
+    candidate_starts = np.arange(0, delay // 2, 2)
+    if len(candidate_starts) < binding_count:
+        raise ValueError("delay too small to scatter the requested mqar pairs.")
+
+    for row in range(records):
+        keys = rng.choice(symbol_count, size=binding_count, replace=False) + 1
+        values = rng.integers(0, symbol_count, size=binding_count, dtype=np.int32) + 1
+        starts = np.sort(rng.choice(candidate_starts, size=binding_count, replace=False))
+        for k, v, s in zip(keys, values, starts):
+            sequence[row, s] = int(k)
+            sequence[row, s + 1] = int(v)
+        q_slots = rng.choice(binding_count, size=query_count, replace=False)
+        for j, slot in enumerate(q_slots):
+            base = delay + 2 * j
+            sequence[row, base] = int(keys[slot])       # query = the key itself, no marker
+            sequence[row, base + 1] = int(values[slot])  # teacher-forced answer (next token)
+
+    inputs = sequence[:, :-1]
+    targets = sequence[:, 1:]
+    mask = np.zeros_like(inputs, dtype=np.float32)
+    for j in range(query_count):
+        mask[:, delay + 2 * j] = 1.0
+    return inputs, targets, mask
+
+
 def make_task_data(
     *,
     task: str,
@@ -904,6 +968,15 @@ def make_task_data(
             value_count=value_count,
             seed=seed,
         )
+    if task == "mqar":
+        return make_mqar_recall(
+            records=records,
+            delay=delay,
+            key_count=key_count,
+            binding_count=binding_count,
+            query_count=query_count,
+            seed=seed,
+        )
     raise ValueError(f"Unknown task: {task!r}")
 
 
@@ -924,6 +997,8 @@ def vocab_size_for_task(task: str, key_count: int, value_count: int) -> int:
         return ASSIGN_NAME_OFFSET + key_count + value_count + PY_SYNTAX_TOKEN_COUNT
     if task == "real-python-code":
         return ASSIGN_NAME_OFFSET + key_count + value_count
+    if task == "mqar":
+        return 1 + key_count  # PAD/filler + shared key/value alphabet
     raise ValueError(f"Unknown task: {task!r}")
 
 
@@ -1002,12 +1077,16 @@ def recall_loss_and_accuracy(
     logits: jax.Array,
     input_ids: jax.Array,
     target_ids: jax.Array,
+    query_mask: jax.Array | None = None,
 ) -> tuple[jax.Array, jax.Array, jax.Array, jax.Array]:
     log_probs = jax.nn.log_softmax(logits, axis=-1)
     nll = -jnp.take_along_axis(log_probs, target_ids[..., None], axis=-1)[..., 0]
     predictions = jnp.argmax(logits, axis=-1).astype(target_ids.dtype)
     correct = predictions == target_ids
-    query_mask = (input_ids == QUERY_TOKEN).astype(jnp.float32)
+    if query_mask is None:
+        query_mask = (input_ids == QUERY_TOKEN).astype(jnp.float32)
+    else:
+        query_mask = query_mask.astype(jnp.float32)
     query_count = jnp.maximum(1.0, jnp.sum(query_mask))
     recall_loss = jnp.sum(nll * query_mask) / query_count
     recall_accuracy = jnp.sum(correct.astype(jnp.float32) * query_mask) / query_count
@@ -1026,6 +1105,7 @@ def ssm_recall_loss(
     kv_read_gate_query_margin: float = 0.0,
     kv_read_gate_query_margin_weight: float = 0.0,
     kv_read_gate_hard_threshold: float | None = None,
+    query_mask: jax.Array | None = None,
 ) -> tuple[jax.Array, tuple[jax.Array, ...]]:
     initial_h = jnp.zeros((input_ids.shape[0], params["decay_raw"].shape[0]), dtype=jnp.float32)
     logits, _ = ssm_forward(
@@ -1034,14 +1114,17 @@ def ssm_recall_loss(
         initial_h,
         kv_read_gate_hard_threshold=kv_read_gate_hard_threshold,
     )
-    loss, accuracy, all_loss, all_accuracy = recall_loss_and_accuracy(logits, input_ids, target_ids)
+    if query_mask is None:
+        query_mask = (input_ids == QUERY_TOKEN).astype(jnp.float32)
+    else:
+        query_mask = query_mask.astype(jnp.float32)
+    loss, accuracy, all_loss, all_accuracy = recall_loss_and_accuracy(logits, input_ids, target_ids, query_mask)
     gates = kv_read_gates(
         params,
         input_ids,
         initial_h,
         kv_read_gate_hard_threshold=kv_read_gate_hard_threshold,
     )
-    query_mask = (input_ids == QUERY_TOKEN).astype(jnp.float32)
     non_query_mask = 1.0 - query_mask
     query_count = jnp.maximum(1.0, jnp.sum(query_mask))
     non_query_count = jnp.maximum(1.0, jnp.sum(non_query_mask))
@@ -1095,6 +1178,7 @@ def ssm_eval(
     params: dict[str, jax.Array],
     input_ids: jax.Array,
     target_ids: jax.Array,
+    query_mask: jax.Array | None = None,
 ) -> RecallMetrics:
     _, (
         loss,
@@ -1122,6 +1206,7 @@ def ssm_eval(
         kv_read_gate_query_margin=0.0,
         kv_read_gate_query_margin_weight=0.0,
         kv_read_gate_hard_threshold=None,
+        query_mask=query_mask,
     )
     return RecallMetrics(
         loss,
@@ -1147,12 +1232,13 @@ def ssm_confusion(
     params: dict[str, jax.Array],
     input_ids: jax.Array,
     target_ids: jax.Array,
+    query_mask: jax.Array | None = None,
 ) -> tuple[jax.Array, jax.Array, jax.Array]:
     initial_h = jnp.zeros((input_ids.shape[0], params["decay_raw"].shape[0]), dtype=jnp.float32)
     logits, _ = ssm_forward(params, input_ids, initial_h)
     predictions = jnp.argmax(logits, axis=-1).astype(target_ids.dtype)
-    query_mask = input_ids == QUERY_TOKEN
-    return predictions, target_ids, query_mask
+    out_mask = (input_ids == QUERY_TOKEN) if query_mask is None else (query_mask > 0.5)
+    return predictions, target_ids, out_mask
 
 
 def ssm_confusion_hard(
@@ -1161,6 +1247,7 @@ def ssm_confusion_hard(
     target_ids: jax.Array,
     *,
     kv_read_gate_hard_threshold: float,
+    query_mask: jax.Array | None = None,
 ) -> tuple[jax.Array, jax.Array, jax.Array]:
     initial_h = jnp.zeros((input_ids.shape[0], params["decay_raw"].shape[0]), dtype=jnp.float32)
     logits, _ = ssm_forward(
@@ -1170,8 +1257,8 @@ def ssm_confusion_hard(
         kv_read_gate_hard_threshold=kv_read_gate_hard_threshold,
     )
     predictions = jnp.argmax(logits, axis=-1).astype(target_ids.dtype)
-    query_mask = input_ids == QUERY_TOKEN
-    return predictions, target_ids, query_mask
+    out_mask = (input_ids == QUERY_TOKEN) if query_mask is None else (query_mask > 0.5)
+    return predictions, target_ids, out_mask
 
 
 ssm_confusion_hard = jax.jit(ssm_confusion_hard, static_argnames=("kv_read_gate_hard_threshold",))
@@ -1224,9 +1311,10 @@ def transformer_recall_loss(
     layers: int,
     heads: int,
     context: int,
+    query_mask: jax.Array | None = None,
 ) -> tuple[jax.Array, tuple[jax.Array, jax.Array, jax.Array]]:
     logits = transformer_forward_limited(params, input_ids, layers=layers, heads=heads, context=context)
-    loss, accuracy, all_loss, all_accuracy = recall_loss_and_accuracy(logits, input_ids, target_ids)
+    loss, accuracy, all_loss, all_accuracy = recall_loss_and_accuracy(logits, input_ids, target_ids, query_mask)
     return loss, (accuracy, all_loss, all_accuracy)
 
 
@@ -1238,11 +1326,12 @@ def transformer_confusion(
     layers: int,
     heads: int,
     context: int,
+    query_mask: jax.Array | None = None,
 ) -> tuple[jax.Array, jax.Array, jax.Array]:
     logits = transformer_forward_limited(params, input_ids, layers=layers, heads=heads, context=context)
     predictions = jnp.argmax(logits, axis=-1).astype(target_ids.dtype)
-    query_mask = input_ids == QUERY_TOKEN
-    return predictions, target_ids, query_mask
+    out_mask = (input_ids == QUERY_TOKEN) if query_mask is None else (query_mask > 0.5)
+    return predictions, target_ids, out_mask
 
 
 transformer_confusion = jax.jit(transformer_confusion, static_argnames=("layers", "heads", "context"))
@@ -1256,6 +1345,7 @@ def transformer_eval(
     layers: int,
     heads: int,
     context: int,
+    query_mask: jax.Array | None = None,
 ) -> RecallMetrics:
     loss, (accuracy, all_loss, all_accuracy) = transformer_recall_loss(
         params,
@@ -1264,6 +1354,7 @@ def transformer_eval(
         layers=layers,
         heads=heads,
         context=context,
+        query_mask=query_mask,
     )
     zero = jnp.asarray(0.0, dtype=jnp.float32)
     return RecallMetrics(
@@ -1302,6 +1393,7 @@ def ssm_train_step(
     kv_read_gate_entropy_weight: float,
     kv_read_gate_query_margin: float,
     kv_read_gate_query_margin_weight: float,
+    query_mask: jax.Array | None = None,
 ) -> tuple[dict[str, jax.Array], dict[str, object], RecallMetrics]:
     (_, (
         pure_loss,
@@ -1331,6 +1423,7 @@ def ssm_train_step(
         kv_read_gate_entropy_weight=kv_read_gate_entropy_weight,
         kv_read_gate_query_margin=kv_read_gate_query_margin,
         kv_read_gate_query_margin_weight=kv_read_gate_query_margin_weight,
+        query_mask=query_mask,
     )
     grads, grad_norm = clip_grads(grads, grad_clip)
     params, opt_state = adam_update(params, grads, opt_state, learning_rate)
@@ -1362,6 +1455,7 @@ def ssm_eval_hard(
     target_ids: jax.Array,
     *,
     kv_read_gate_hard_threshold: float,
+    query_mask: jax.Array | None = None,
 ) -> RecallMetrics:
     _, (
         loss,
@@ -1389,6 +1483,7 @@ def ssm_eval_hard(
         kv_read_gate_query_margin=0.0,
         kv_read_gate_query_margin_weight=0.0,
         kv_read_gate_hard_threshold=kv_read_gate_hard_threshold,
+        query_mask=query_mask,
     )
     return RecallMetrics(
         loss,
@@ -1436,6 +1531,7 @@ def transformer_train_step(
     layers: int,
     heads: int,
     context: int,
+    query_mask: jax.Array | None = None,
 ) -> tuple[dict[str, jax.Array], dict[str, object], RecallMetrics]:
     (loss, (accuracy, all_loss, all_accuracy)), grads = jax.value_and_grad(
         transformer_recall_loss,
@@ -1447,6 +1543,7 @@ def transformer_train_step(
         layers=layers,
         heads=heads,
         context=context,
+        query_mask=query_mask,
     )
     grads, grad_norm = clip_grads(grads, grad_clip)
     params, opt_state = adam_update(params, grads, opt_state, learning_rate)
@@ -1483,6 +1580,7 @@ def train_model(
     train_targets: jax.Array,
     args: argparse.Namespace,
     model: str,
+    train_query_mask: jax.Array | None = None,
 ) -> tuple[dict[str, jax.Array], dict[str, object], float, RecallMetrics]:
     opt_state = init_adam(params)
     records = train_inputs.shape[0]
@@ -1512,6 +1610,7 @@ def train_model(
             end_row = min(records, start_row + args.batch_size)
             input_batch = train_inputs[start_row:end_row]
             target_batch = train_targets[start_row:end_row]
+            mask_batch = None if train_query_mask is None else train_query_mask[start_row:end_row]
             if model == "ssm":
                 kv_read_gate_l1 = scheduled_kv_read_gate_l1(
                     args,
@@ -1531,6 +1630,7 @@ def train_model(
                     kv_read_gate_entropy_weight=args.kv_read_gate_entropy_weight,
                     kv_read_gate_query_margin=args.kv_read_gate_query_margin,
                     kv_read_gate_query_margin_weight=args.kv_read_gate_query_margin_weight,
+                    query_mask=mask_batch,
                 )
             else:
                 params, opt_state, metrics = transformer_train_step(
@@ -1543,6 +1643,7 @@ def train_model(
                     layers=args.transformer_layers,
                     heads=args.transformer_heads,
                     context=args.transformer_context,
+                    query_mask=mask_batch,
                 )
             update_index += 1
     jax.block_until_ready(metrics.loss)
@@ -1573,6 +1674,9 @@ def target_tokens_for_task(task: str, key_count: int, value_count: int) -> list[
     }:
         value_offset = ASSIGN_NAME_OFFSET + key_count
         return [int(value_offset + index) for index in range(value_count)]
+    if task == "mqar":
+        # Shared alphabet: any symbol 1..key_count can be a queried value.
+        return [int(1 + index) for index in range(key_count)]
     raise ValueError(f"Unknown task: {task!r}")
 
 
@@ -1584,38 +1688,42 @@ def eval_model(
     args: argparse.Namespace,
     model: str,
     kv_read_gate_hard_threshold: float | None = None,
+    eval_query_mask: jax.Array | None = None,
 ) -> dict[str, Any]:
     if model == "ssm":
         if kv_read_gate_hard_threshold is None:
-            warmup = ssm_eval(params, eval_inputs, eval_targets)
+            warmup = ssm_eval(params, eval_inputs, eval_targets, eval_query_mask)
         else:
             warmup = ssm_eval_hard(
                 params,
                 eval_inputs,
                 eval_targets,
                 kv_read_gate_hard_threshold=kv_read_gate_hard_threshold,
+                query_mask=eval_query_mask,
             )
         jax.block_until_ready(warmup.loss)
         start = time.perf_counter()
         if kv_read_gate_hard_threshold is None:
-            metrics = ssm_eval(params, eval_inputs, eval_targets)
+            metrics = ssm_eval(params, eval_inputs, eval_targets, eval_query_mask)
         else:
             metrics = ssm_eval_hard(
                 params,
                 eval_inputs,
                 eval_targets,
                 kv_read_gate_hard_threshold=kv_read_gate_hard_threshold,
+                query_mask=eval_query_mask,
             )
         jax.block_until_ready(metrics.loss)
         elapsed = time.perf_counter() - start
         if kv_read_gate_hard_threshold is None:
-            predictions, targets, query_mask = ssm_confusion(params, eval_inputs, eval_targets)
+            predictions, targets, query_mask = ssm_confusion(params, eval_inputs, eval_targets, eval_query_mask)
         else:
             predictions, targets, query_mask = ssm_confusion_hard(
                 params,
                 eval_inputs,
                 eval_targets,
                 kv_read_gate_hard_threshold=kv_read_gate_hard_threshold,
+                query_mask=eval_query_mask,
             )
     else:
         warmup = transformer_eval(
@@ -1625,6 +1733,7 @@ def eval_model(
             layers=args.transformer_layers,
             heads=args.transformer_heads,
             context=args.transformer_context,
+            query_mask=eval_query_mask,
         )
         jax.block_until_ready(warmup.loss)
         start = time.perf_counter()
@@ -1635,6 +1744,7 @@ def eval_model(
             layers=args.transformer_layers,
             heads=args.transformer_heads,
             context=args.transformer_context,
+            query_mask=eval_query_mask,
         )
         jax.block_until_ready(metrics.loss)
         elapsed = time.perf_counter() - start
@@ -1645,6 +1755,7 @@ def eval_model(
             layers=args.transformer_layers,
             heads=args.transformer_heads,
             context=args.transformer_context,
+            query_mask=eval_query_mask,
         )
     query_mask_np = np.asarray(query_mask)
     predictions_np = np.asarray(predictions)[query_mask_np]
@@ -1718,9 +1829,18 @@ def run(args: argparse.Namespace) -> None:
         min_delay = 4 * args.binding_count + 1
         if args.delay < min_delay:
             raise SystemExit(f"--delay must be at least {min_delay} for --task real-python-code.")
+    if args.task == "mqar":
+        if args.binding_count < 1 or args.query_count < 1:
+            raise SystemExit("--binding-count and --query-count must be positive for --task mqar.")
+        if args.query_count > args.binding_count:
+            raise SystemExit("--query-count must not exceed --binding-count for --task mqar.")
+        if args.binding_count > args.key_count:
+            raise SystemExit("--binding-count must not exceed --key-count for --task mqar.")
+        if args.delay < 4 * args.binding_count:
+            raise SystemExit(f"--delay must be at least {4 * args.binding_count} for --task mqar.")
 
     vocab_size = vocab_size_for_task(args.task, args.key_count, args.value_count)
-    train_inputs_np, train_targets_np, _ = make_task_data(
+    train_inputs_np, train_targets_np, train_aux_np = make_task_data(
         task=args.task,
         records=args.train_records,
         delay=args.delay,
@@ -1730,7 +1850,7 @@ def run(args: argparse.Namespace) -> None:
         query_count=args.query_count,
         seed=args.seed,
     )
-    eval_inputs_np, eval_targets_np, _ = make_task_data(
+    eval_inputs_np, eval_targets_np, eval_aux_np = make_task_data(
         task=args.task,
         records=args.eval_records,
         delay=args.delay,
@@ -1744,6 +1864,15 @@ def run(args: argparse.Namespace) -> None:
     train_targets = jnp.asarray(train_targets_np)
     eval_inputs = jnp.asarray(eval_inputs_np)
     eval_targets = jnp.asarray(eval_targets_np)
+    # MQAR has no query-marker token, so scoring positions ride an explicit mask
+    # (returned as the third element). Legacy tasks keep deriving the mask from
+    # the QUERY_TOKEN internally, so they pass None and stay byte-identical.
+    if args.task == "mqar":
+        train_query_mask = jnp.asarray(train_aux_np)
+        eval_query_mask = jnp.asarray(eval_aux_np)
+    else:
+        train_query_mask = None
+        eval_query_mask = None
     seq_len = train_inputs_np.shape[1]
 
     key = jax.random.PRNGKey(args.seed)
@@ -1855,6 +1984,7 @@ def run(args: argparse.Namespace) -> None:
         train_targets=train_targets,
         args=args,
         model="ssm",
+        train_query_mask=train_query_mask,
     )
     print(
         f"  recall_loss={float(ssm_train_metrics.loss):.4f} "
@@ -1869,6 +1999,7 @@ def run(args: argparse.Namespace) -> None:
         train_targets=train_targets,
         args=args,
         model="transformer",
+        train_query_mask=train_query_mask,
     )
     print(
         f"  recall_loss={float(transformer_train_metrics.loss):.4f} "
@@ -1876,7 +2007,14 @@ def run(args: argparse.Namespace) -> None:
         f"train_s={transformer_train_s:.2f}"
     )
 
-    ssm_eval_payload = eval_model(params=ssm_params, eval_inputs=eval_inputs, eval_targets=eval_targets, args=args, model="ssm")
+    ssm_eval_payload = eval_model(
+        params=ssm_params,
+        eval_inputs=eval_inputs,
+        eval_targets=eval_targets,
+        args=args,
+        model="ssm",
+        eval_query_mask=eval_query_mask,
+    )
     ssm_hard_eval_payload = None
     if args.kv_read_gate_hard_eval_threshold is not None:
         ssm_hard_eval_payload = eval_model(
@@ -1886,6 +2024,7 @@ def run(args: argparse.Namespace) -> None:
             args=args,
             model="ssm",
             kv_read_gate_hard_threshold=args.kv_read_gate_hard_eval_threshold,
+            eval_query_mask=eval_query_mask,
         )
     transformer_eval_payload = eval_model(
         params=transformer_params,
@@ -1893,6 +2032,7 @@ def run(args: argparse.Namespace) -> None:
         eval_targets=eval_targets,
         args=args,
         model="transformer",
+        eval_query_mask=eval_query_mask,
     )
     winner = "ssm" if ssm_eval_payload["recall_accuracy"] > transformer_eval_payload["recall_accuracy"] else "transformer"
     if ssm_eval_payload["recall_accuracy"] == transformer_eval_payload["recall_accuracy"]:
@@ -2099,6 +2239,7 @@ def parse_args() -> argparse.Namespace:
             "generated-python-code",
             "real-python-code",
             "assignment-update",
+            "mqar",
         ),
         default="delayed-key",
     )
