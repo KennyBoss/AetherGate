@@ -14,6 +14,8 @@
   from oracle traces и проверенная на held-out tasks.
 - Stage 3: procedure reuse smoke с bounded `sum_segment`, Axis-S/Axis-C задачами
   и контролями exact-cache/random-routing/inline-loop.
+- Stage 3B: learned procedure promotion из inline traces с held-out
+  certification перед reuse.
 - Stage 4: short lookahead planning smoke, где planner использует predicted
   state deltas и бьет greedy action baseline.
 - Stage 5: deterministic open-world adapter smoke с provenance, trust-weighted
@@ -34,6 +36,7 @@ make neocortex-x-stage1b-trained-smoke
 make neocortex-x-stage2-smoke
 make neocortex-x-stage2b-learned-smoke
 make neocortex-x-stage3-smoke
+make neocortex-x-stage3b-promotion-smoke
 make neocortex-x-stage4-smoke
 make neocortex-x-stage5-smoke
 ```
@@ -84,6 +87,9 @@ python3 research/neocortex_x/core_experiment.py \
   --stage3-call-overhead 1 \
   --output-json artifacts/neocortex_x/stage3_procedure_reuse.json
 
+python3 research/neocortex_x/stage3b_learned_procedure_promotion.py \
+  --output-json artifacts/neocortex_x/stage3b_learned_procedure_promotion.json
+
 python3 research/neocortex_x/core_experiment.py \
   --stage stage4 \
   --seeds 11,17,23,29,31,37 \
@@ -111,6 +117,7 @@ python3 research/neocortex_x/core_experiment.py \
 - `artifacts/neocortex_x/stage2_trace.jsonl`
 - `artifacts/neocortex_x/stage2b_learned_tape_policy.json`
 - `artifacts/neocortex_x/stage3_procedure_reuse.json`
+- `artifacts/neocortex_x/stage3b_learned_procedure_promotion.json`
 - `artifacts/neocortex_x/stage4_planning.json`
 - `artifacts/neocortex_x/stage5_open_world_adapter.json`
 
