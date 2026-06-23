@@ -22,6 +22,9 @@
   опыта и используется для lookahead.
 - Stage 5: deterministic open-world adapter smoke с provenance, trust-weighted
   factual updates и contradiction handling.
+- Stage 5B: cached live-shaped provenance adapter, который прогоняет тот же
+  provenance contract на replayable fixture schema перед подключением live
+  search backend.
 
 Важно: Stage 1/2 пока используют hand-coded agents. Это проверка harness,
 артефактов, метрик и pass/fail контракта, а не claim про обученный SSM или AGI.
@@ -42,6 +45,7 @@ make neocortex-x-stage3b-promotion-smoke
 make neocortex-x-stage4-smoke
 make neocortex-x-stage4b-world-model-smoke
 make neocortex-x-stage5-smoke
+make neocortex-x-stage5b-cached-smoke
 ```
 
 Прямой запуск:
@@ -110,6 +114,11 @@ python3 research/neocortex_x/core_experiment.py \
   --episodes 96 \
   --stage5-contradiction-margin 0.20 \
   --output-json artifacts/neocortex_x/stage5_open_world_adapter.json
+
+python3 research/neocortex_x/stage5b_live_cached_adapter.py \
+  --mode cached \
+  --fixture-json research/neocortex_x/fixtures/stage5b_cached_observations.json \
+  --output-json artifacts/neocortex_x/stage5b_live_cached_adapter.json
 ```
 
 ## Артефакты
@@ -127,5 +136,6 @@ python3 research/neocortex_x/core_experiment.py \
 - `artifacts/neocortex_x/stage4_planning.json`
 - `artifacts/neocortex_x/stage4b_learned_world_model.json`
 - `artifacts/neocortex_x/stage5_open_world_adapter.json`
+- `artifacts/neocortex_x/stage5b_live_cached_adapter.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
