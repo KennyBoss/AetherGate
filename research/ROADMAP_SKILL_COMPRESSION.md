@@ -235,8 +235,76 @@ Decide the product *from the Phase-1/2 verdict*, never before.
 The wedge: an agent-memory layer that not only *stores* facts (the KV-memory
 tool) but *compiles recurring procedures into fast skills*, so per-task cost
 **drops as the agent gains experience** — something a frozen LLM cannot do.
-- [ ] One concrete use-case: a long-running agent on a repetitive task stream;
-      show cost-per-task declining over the run vs a no-promotion control.
+- [x] **Phase 3.1 — the self-improvement stream (`skill_compression_stream.py`).**
+      The closed loop the roadmap flags as the open `g_t` term: skills BORN online
+      from solved tasks, used at once. Cost-per-task **falls 20.0→4.4** over the
+      stream (6 seeds, `protocol_valid=True`), beating both `frozen_empty` (flat
+      25.4, the no-promotion control) and `random_growing` (12.4) → **the fall is
+      reuse-specific.** Then **freeze + grammar shift**: the honest finding is that
+      "beats no-skill" is true even at 0-overlap (a macro is a generic jump), so
+      transfer is measured as the **margin over a matched RANDOM library** — it
+      *decays* with grammar divergence (R0 17.8 → R1 12.8 → R2_disjoint 10.4) but
+      stays positive (no rebound; gate prevents OOD blow-up). On deeper tasks the
+      library reaches **5.1× cheaper** than primitives (682 vs 3462), but the cheap
+      probe is too myopic to unlock it (Phase-1.5B reproduced). Artifact:
+      `skill_compression_stream.json`.
+- [x] **Phase 3.2 — depth-aware probe (same script, `growing_depth` arm).** The
+      R2_depth negative was a *blind selector*, not a missing skill: the cheap
+      fixed probe is horizon-blind. `probe_macros_depth_aware` escalates its budget
+      and bails on the COST GRADIENT (best-distance stall + patience), pursuing
+      depth where skills pay and abandoning a foreign grammar early. Same frozen
+      library, only the gate changes. **Result:** R2_depth 3260→**1268** (×2.57;
+      ×3.4→964 at budget 8000, vs library reach 682) with **R0/R1/R2_disjoint
+      byte-identical across budgets** (extra horizon spent only where the gradient
+      is positive) — `no_regression`/`no_collapse` everywhere, R2_disjoint even
+      improves (22.9→11.9). The cost gradient *is* the restored `visibility(gate,
+      depth)`. **Open:** parametric/variable-binding skills for grammar-agnostic
+      transfer (the margin 17.8→10.4 is a representation limit, not a selector one).
+- [x] **Phase 3.3 — typed skill schemas (`skill_compression_typed.py`): honest
+      negative.** Abstract each macro into an op-class schema + constant slots
+      (`M={c,e}`, `A={a,b,d}`) so a skill can match a new grammar by shape. Same
+      skills/solver/depth-gate; only the representation changes; control is
+      `typed_random` (matched action count, random contents). **`representation_
+      lifts_ceiling = False`:** typed beats RANDOM by only +0.5 on R2_disjoint
+      (noise), and R2_depth moves 28% (action-count effect, not representation) —
+      flat schema expansion is just generic more-jumps, and full expansion explodes
+      branching. **The negative names the fix:** a parametric skill's value is
+      *binding slots to the current target* (per-application constant FITTING), not
+      adding candidates to the action set. Artifact: `skill_compression_typed.json`.
+- [x] **Phase 3.4 / Test A — goal-conditioned slot policy (`skill_compression_policy.py`).**
+      The fix 3.3 named, done as a POLICY not a search: `π(features(x,target)) →
+      slot binding`, one-shot (no lookahead = no enumeration), tiny MLP+softmax+Adam
+      trained on own experience. **Test A PASSES** (held-out goals, 6 seeds): beats
+      the goal-blind modal baseline ×4.8 (0.481 vs 0.101) and emits ~2.5 distinct
+      bindings per state as the goal varies → the slot choice *tracks the goal*, the
+      first control-checked representation gain. **Honest bound:** accuracy is
+      schema-dependent (additive AAA 0.99; multiplicative MAM/AMA 0.21–0.27 — the
+      nonlinear inverse is hard for a tiny MLP). Artifact: `skill_compression_policy.json`.
+- [x] **Phase 3.4b-lite — slot interaction policy (`skill_compression_policy_interaction.py`).**
+      Tested the right hypothesis BEFORE upgrading the model: the 3.4 gap is *slot
+      coupling*, not capacity. An autoregressive head per slot (conditioned on the
+      previously chosen slots; greedy O(L), no enumeration) vs the independent 3.4
+      control on the same split. **PASSES:** entangled multiplicative schemas rise
+      (MAA +0.14, AMA +0.26; mean +0.138) while separable AAA is unchanged — so the
+      lever is structure, not a bigger net / SSM. **Residual names the next variable:**
+      MAM barely moves (+0.01) — left-to-right decode commits the least-determinable
+      slot first; the bottleneck is dependency DIRECTION, not memory (a fixed-order
+      SSM would inherit it). Artifact: `skill_compression_policy_interaction.json`.
+- [x] **Phase 3.4c — adaptive constraint propagation (`skill_compression_policy_cp.py`):
+      over-engineering guard fires.** Order-agnostic masked-trained policy decoded three
+      ways (random / static best-first / entropy-adaptive), O(L²), no enumeration.
+      **Order is the lever, not dynamics:** best-first rescues MAM (0.27→0.43, into the
+      MAA/AMA band) and beats random (+0.076), but `entropy_adaptive ≈ static_first`
+      (−0.008) → dynamic constraint propagation adds nothing at L=3. The pre-registered
+      "adaptive>static" check returns False (the guard working). Artifact:
+      `skill_compression_policy_cp.json`.
+- [ ] **Phase 3.4d (now the FIRST justified capacity step):** structural levers
+      (conditioning/interaction/ordering) are exhausted; MAM/AMA plateau ~0.43 is genuine
+      function-approx of the nonlinear ×2/×3 inverse. Only here is a richer net / the
+      recurrent SSM warranted — to raise raw inverse accuracy, not structure.
+- [ ] **Phase 3.4 / Test B+C (gated on the inverse-accuracy step):** wire the policy
+      into the search; check invariants — R2_disjoint ≫ typed_random, R2_depth stable,
+      budget-sensitivity ↓.
 - [ ] Cost benchmark vs an attention baseline at matched quality.
 - [ ] GPU run; confirm the gain survives scale.
 

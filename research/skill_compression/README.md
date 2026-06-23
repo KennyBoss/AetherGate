@@ -426,6 +426,295 @@ serialized contract sits in `artifacts/sample_taskspec.json`. The only piece lef
 for real GitHub repos is third-party-dependency isolation (venv/Docker) — a
 deployment add, out of scope for the confound-free sandbox.
 
+## Phase 3.1 — the self-improvement stream: skills BORN from solved tasks
+
+Every phase so far either promoted the library in one batch then froze it, or (Phase
+2) *provided* the library identically to both arms to isolate the gate. None ran the
+closed loop the roadmap flags as the open term `g_t`: tasks arriving one-by-one,
+skills *born from solved tasks mid-stream* and reused at once. `skill_compression_stream.py`
+runs exactly that on the proven bench machinery (identical DSL, solver, UTIL gate,
+applicability gate — only the *temporal* behaviour is new), then **freezes** the
+library and **shifts the task grammar** ("a new repository") to ask: does the saving
+*transfer*, or does the curve rebound?
+
+Three arms over the same stream: `growing_gate` (online UTIL promotion + applicability
+gate), `frozen_empty` (primitives only — no-compression baseline), `random_growing`
+(library count/length-matched to growing's promotion schedule but RANDOM contents —
+the online RANDMACRO control).
+
+**Result 1 — the cost-per-task curve falls with experience (6 seeds, `protocol_valid=True`).**
+Mean nodes/task, train early-25% → late-25%:
+
+| arm | early | late | curve |
+|---|---|---|---|
+| **growing_gate** | 20.0 | **4.4** | `█▄▁▂▂▂▁▂` |
+| random_growing | 25.2 | 12.4 | (matched-shape control) |
+| frozen_empty | 27.4 | 25.4 | flat (no compression) |
+
+`compression_pays_in_stream` (growing < frozen) **and** `fall_is_reuse_specific`
+(growing < random) **and** `curve_declines` — all True. This is the Phase-3a
+deliverable (cost-per-task declining over the run vs a no-promotion control), and the
+fall is reuse-specific, not a bigger-action-set artifact.
+
+**Result 2 — the honest correction on "transfer".** The naive test "growing beats
+no-skill after the shift" is **True even for a 0-overlap grammar** — because in an
+arithmetic DSL a macro is a *generically useful multi-step jump* (the RANDMACRO effect
+again). So beating `frozen_empty` does NOT prove grammar transfer. The clean signal is
+the **margin over `random_growing`** (count/length-matched random library): it isolates
+"learned structure still fits the shifted grammar" from "just having longer jumps". It
+**decays as the grammar diverges but stays positive** (6 seeds):
+
+| regime (freeze→shift) | growing | random | frozen | **grammar-specific margin** |
+|---|---|---|---|---|
+| R0_identical (same grammar) | 9.8 | 27.6 | 53.8 | **17.8** |
+| R1_partial (50% novel subs) | 19.3 | 32.1 | 50.8 | 12.8 |
+| R2_disjoint (100% novel subs) | 22.9 | 33.3 | 52.6 | **10.4** |
+
+**Reading:** there is no binary "transfers / doesn't". A grown skill carries *two*
+components — a generic-jump value that survives any grammar shift, and a
+grammar-specific value that **decays** with divergence (17.8 → 10.4) but does not
+vanish at zero overlap. The honest negative the design predicted (concrete macros
+can't *fully* transfer to a brand-new grammar) shows up as the **shrinking margin**,
+not as a rebound — and the applicability gate keeps cost low throughout (no OOD
+blow-up). True grammar-agnostic transfer needs *parametric* skills (variable binding),
+which the concrete-sequence representation does not have — the named next milestone.
+
+**Result 3 — compositional reach, and the gate's myopia squandering it (R2_depth).**
+On deeper compositions the frozen library *can* solve tasks ~**5.1× cheaper** than
+primitive brute force (`library_full` **682** vs `frozen_empty` **3462** nodes) — the
+skills genuinely extend reach. But the gated agent only reaches **3260** (barely below
+3462), because the **cheap 40-node probe is too myopic to discover a deep multi-macro
+solution** and falls back to primitives — the exact Phase-1.5B finding (one-step probes
+miss multi-skill compositions) reproduced in the streaming setting. The reach lives in
+the library; unlocking it needs a probe that can see compositional depth.
+
+**One line.** *Online-grown skills make per-task cost fall with experience (5× on the
+home grammar) and that gain is reuse-specific; under a grammar shift the gain splits
+into a generic-jump part that survives and a grammar-specific part that decays without
+collapsing — and the cheap applicability probe, by design, cannot unlock the library's
+deep-composition reach.* Reproduce: `python3 skill_compression_stream.py` (deterministic,
+6 seeds, well under a minute; artifact `artifacts/skill_compression_stream.json`).
+
+## Phase 3.2 — the depth-aware probe: fixing the gate's broken depth sensor
+
+Phase 3.1's R2_depth negative was precise: the library *can* solve deep compositions
+~5× cheaper than primitives (682 vs 3462 nodes), but the cheap fixed-40-node probe is
+**horizon-blind** — it cannot see far enough to discover a multi-macro solution, so it
+bails to primitive brute force. That is not "no skill"; it is a **search-horizon
+collapse** in the *selector*. The fix targets the sensor, not the skills (same library,
+same solver — only the gate's horizon control changes). `probe_macros_depth_aware`:
+
+1. **Adaptive horizon** — escalates the macro-probe budget instead of a tiny fixed cap.
+2. **Cost gradient, not cost** — tracks the best distance-to-target and, at each
+   checkpoint, bails only after `patience` consecutive windows with no improvement.
+   So it *pursues depth where the skills are paying off* and *abandons a foreign
+   grammar early* — credit assignment over latent search depth.
+
+New arm `growing_depth` runs the SAME frozen Phase-3.1 library; only the gate differs.
+**Result (6 seeds, `protocol_valid=True`, deterministic), test mean nodes/task:**
+
+| regime | cheap gate | **depth-aware** | random | frozen | depth speedup |
+|---|---|---|---|---|---|
+| R0_identical | 9.8 | 10.4 | 27.6 | 53.8 | ×0.94 (small overhead) |
+| R1_partial | 19.3 | 17.5 | 32.1 | 50.8 | ×1.10 |
+| R2_disjoint | 22.9 | **11.9** | 33.3 | 52.6 | **×1.92** |
+| R2_depth | 3260.7 | **1268.3** | 3399.4 | 3462.5 | **×2.57** (lib reach 682) |
+
+**Three readings:**
+1. **The squandered reach comes back.** On deep compositions the depth-aware gate
+   cuts cost ×2.57 vs the cheap gate (×3.4 → 964 at `--deep-probe-budget 8000`,
+   approaching the library's true 682 reach). The depth sensor was the bottleneck,
+   not the skills — confirming the Phase-3.1 diagnosis.
+2. **Budget converts to reach ONLY where the gradient is positive.** R0/R1/R2_disjoint
+   are *byte-for-byte unchanged* as `--deep-probe-budget` goes 2000→4000→8000 — foreign
+   and shallow tasks bail at the checkpoints regardless of the cap. The extra horizon
+   is spent exclusively on genuinely-deep reuse. This is the clean isolation: the cost
+   gradient *is* the restored `visibility(gate, depth)`.
+3. **No regression, no collapse — and a bonus.** Shallow R0 pays only a tiny escalation
+   overhead (9.8→10.4); R2_disjoint actually *improves* (22.9→11.9, the gradient bails
+   a misfitting library faster than the cheap probe's blind fallback). `no_regression`
+   and `no_collapse` hold every regime.
+
+**Honest residual.** Depth-aware recovers most, not all, of the reach (1268 vs 682 at
+the default budget; the gap is the escalation overhead the probe pays before finding).
+And it does not move the grammar-specific transfer margin (still 17.8→10.4) — that gap
+is a *representation* limit (concrete macros), the separate next milestone. The depth
+probe fixes the *selector*; parametric skills must fix the *representation*.
+
+**One line.** *The R2_depth "negative" was a blind selector, not a missing skill:
+a probe that escalates its horizon along the cost gradient unlocks the library's deep
+reach (×2.6–3.4) while spending the extra budget only where depth pays — leaving every
+shallow/foreign regime untouched.* Reproduce:
+`python3 skill_compression_stream.py` (the `growing_depth` arm); sweep
+`--deep-probe-budget / --probe-patience / --checkpoints`.
+
+## Phase 3.3 — typed skill schemas: a representation intervention that HONESTLY FAILS
+
+With routing fixed (Phase 3.2), the residual grammar-specific ceiling (margin 17.8 →
+10.4) was cleanly isolated to the third multiplier — `reach ≈ Σ P(use_i)·utility(i)`,
+where the depth probe lifted `P(use)` but never `utility(i)` (skill *representation*).
+A skill is a CONCRETE primitive sequence, so it only fires on its exact byte-sequence;
+a new grammar's different constants never match. `skill_compression_typed.py` tests the
+obvious fix: abstract each macro into an op-CLASS schema + constant slots
+(`M={c,e}`, `A={a,b,d}`; `[c,a,c] → (M,A,M)`), so a typed skill can match a novel
+grammar by *shape* and fill its constants. The structural bet is concrete: novel
+subroutine `N1=[d,e,a]` has schema `(A,M,A)` = train subroutine `S4=[a,c,b]`.
+
+Everything else is held fixed (same promoted skills, same solver, same depth-aware
+gate); only the action-set representation changes. The decisive control is `typed_random`
+— the SAME number of extra actions, random contents — because "more actions" is itself
+a generic speedup (the RANDMACRO lesson). **Result (6 seeds, deterministic), test mean
+nodes/task, concrete / typed / typed_random:**
+
+| regime | concrete | typed | typed_random | schema-specific (typed vs random) |
+|---|---|---|---|---|
+| R0_identical | 10.4 | 3.7 | 4.1 | +0.4 |
+| R1_partial | 17.5 | 4.8 | 4.8 | +0.0 |
+| R2_disjoint | 11.9 | 4.0 | 4.5 | **+0.5** |
+| R2_depth | 1268 | 1625 | 675 | **−950** |
+
+**Verdict: `representation_lifts_ceiling = False`.** Typed "helps" only as much as a
+matched RANDOM library does — the schema-specific margin on R2_disjoint is **+0.5**
+(noise), and on R2_depth typed is *worse* than both concrete and random (redundant
+near-duplicate instantiations inflate branching). The invariance checks falsify the
+naive fix exactly as designed:
+- **R2_disjoint does not rise schema-specifically** (+0.5 vs random).
+- **R2_depth is not stable** (moves 28% vs concrete) → by the pre-registered rule that
+  signals an action-count/routing effect, not a representation one.
+- A sweep confirms it: at `--max-inst-per-skill 99` (full schema) typed degrades
+  *everywhere* from branching explosion, while random of the same count stays fast.
+
+**Why it failed, precisely (the negative names the next mechanism).** The one novel
+subroutine that shares a home schema (`N1`, distance-3 from `[a,c,b]`) only enters the
+action set under *full* expansion — exactly the slot-explosion regime that kills search.
+Flat schema expansion just throws more concrete candidates at the solver = generic
+jumps, indistinguishable from random. The value of a parametric skill is **not** "more
+candidates in the action set"; it is **binding the slots to THIS task's target** —
+per-application constant *fitting*, not enumeration. That is the mechanism Phase 3.4
+must build (instantiate a schema toward the current goal), and it is what this clean
+negative isolates. Reproduce: `python3 skill_compression_typed.py`
+(sweep `--max-inst-per-skill / --max-typed-actions`).
+
+## Phase 3.4 / Test A — goal-conditioned slot policy: the agent FEELS the goal
+
+Phase 3.3 isolated the lesson: a useful representation is not an expanded action set,
+it is a *goal-conditioned constraint* on which instantiation to use (`lookahead ==
+implicit search ==` the collapse we already measured). So Phase 3.4 replaces
+"enumerate slots → search" with a one-shot POLICY `π(features(x,target)) → binding per
+slot` — a tiny MLP + per-slot softmax heads, Adam, trained on the agent's own solved
+`(x,target)→binding` experience for each promoted schema (`skill_compression_policy.py`).
+
+**Test A (goal sensitivity)** is the cheapest falsification that we have NOT just
+rebuilt enumeration, cleared before any search integration. Against a `goal_blind`
+baseline (always emit the schema's modal binding, ignoring the goal), on HELD-OUT
+goals (6 seeds, deterministic):
+
+| schema | goal-conditioned solve | goal-blind solve | sensitivity (distinct bindings / x0) |
+|---|---|---|---|
+| MAM | 0.265 | 0.098 | 2.48 |
+| AAA | 0.986 | 0.153 | 2.20 |
+| MAA | 0.464 | 0.095 | 2.15 |
+| AMA | 0.210 | 0.058 | 3.08 |
+| **mean** | **0.481** | **0.101** | **2.48** |
+
+**Test A PASSES.** The policy beats goal-blind **×4.8 (Δ+0.38)** and emits ~2.5 distinct
+bindings per `x0` as the target varies — the slot choice *tracks the goal*. This is the
+first measurement in the arc where conditioning the action space (not expanding it)
+produces a real, control-checked gain — exactly the mechanism Phase 3.3's negative
+named.
+
+**Honest bound.** Absolute accuracy is schema-dependent: additive `AAA` is near-solved
+(0.99 — a linear inverse), but multiplicative `MAM`/`AMA` are hard (0.21–0.27) because
+the `×2 / ×3` inverse is nonlinear for a tiny MLP on generic (leak-free) features. So
+goal-conditioning is **real and learnable** (the prerequisite), but not yet accurate
+enough to drop into the solver as-is. **Next (Test B/C, gated on this):** lift
+multiplicative-schema accuracy (richer policy — the recurrent SSM, or structured
+features) then wire the policy into the search and check the regime invariants —
+`R2_disjoint` beats `typed_random` by a *large* margin, `R2_depth` stays stable, and
+budget-sensitivity drops. Reproduce: `python3 skill_compression_policy.py`.
+
+**The arc, three orthogonal mechanisms now separated by measurement.** `reach ≈
+Σ P(use_i)·utility(i)`: Phase 3.1 grows the skills (reuse), Phase 3.2 lifts `P(use)`
+(routing/depth-visibility), Phase 3.3 proves `utility` cannot be raised by enumeration,
+and Phase 3.4/Test A shows it *can* be raised by goal-conditioning. The program's claim
+sharpened to one line: *intelligence gain is not in expanding the action space, but in
+conditioning it.*
+
+## Phase 3.4b-lite — slot INTERACTION policy: the bottleneck is structure, not size
+
+Phase 3.4 left a schema-dependent gap (additive `AAA` ~0.99; multiplicative `MAM`/
+`AMA` 0.21–0.27). The hypothesis to test before reaching for a bigger model: the gap
+is *interaction* — the policy models each slot independently, `P(slot_i|goal)`, but
+multiplicative schemas are entangled (`target = ((x·m1)+a1)·m2` couples the slots),
+needing `P(slot_i|goal,schema,slot_{<i})`. `skill_compression_policy_interaction.py`
+adds exactly that: an autoregressive head per slot conditioned on a learned context of
+the previously chosen slots. Greedy decode is **O(L), not enumeration** (the 3.3 trap).
+Control = the SAME independent 3.4 policy on the SAME split.
+
+**Result (6 seeds, held-out goals, deterministic), goal-conditioned solve:**
+
+| schema | independent (3.4) | interaction (3.4b) | gain | structure |
+|---|---|---|---|---|
+| AAA | 0.986 | 0.986 | +0.000 | separable |
+| MAA | 0.464 | 0.607 | **+0.143** | entangled |
+| AMA | 0.210 | 0.471 | **+0.261** | entangled |
+| MAM | 0.265 | 0.275 | +0.010 | entangled |
+
+**The interaction test PASSES** (entangled-schema gain +0.138, additive `AAA`
+unchanged): modeling slot coupling — not adding capacity or memory — is what lifts the
+hard schemas. A recurrent SSM justified only as a "bigger MLP" would not have produced
+this selective gain; the lever is *structure*.
+
+**The residual names the next structural variable: decode ORDER.** `MAM` barely moves
+(+0.01) and mean sensitivity stays 2.6 (< 3.0). `MAM = ((x·m1)+a1)·m2`: left-to-right
+decoding must commit `m1` (deeply nested, least determinable from the goal) before it
+can see `m2` (which the target most constrains — `target` is divisible by `m2`). `AMA`
+does not put its hardest slot first, so it jumps. The chain rule can express any joint,
+but at finite capacity the **conditioning direction** decides learnability. So the next
+lever is *dependency direction*, not memory — which is direct evidence that a
+fixed-order recurrent SSM would inherit the same `MAM` failure. The principled next step
+is an **order-agnostic / best-first interaction model** (resolve the most-constrained
+slot first) or a small message-passing policy over the slot-dependency graph — not a
+deeper sequential net. Reproduce: `python3 skill_compression_policy_interaction.py`.
+
+## Phase 3.4c — adaptive constraint propagation: an over-engineering check that FIRES
+
+Phase 3.4b left `MAM` an anomaly and blamed decode *order*. The tempting next step is
+"adaptive constraint propagation" — recompute, after each assignment, which unassigned
+slot is now most constrained (lowest predictive entropy) and resolve it next. 3.4c builds
+it honestly: an order-agnostic policy (masked-trained: reveal a random subset, predict
+the rest) decoded three ways — `random_order`, `static_first` (rank once at the empty
+assignment), `entropy_adaptive` (recompute each step). All O(L²), never enumeration.
+
+**Result (6 seeds, held-out goals, deterministic):**
+
+| schema | independent (3.4) | random-order | static best-first | entropy-adaptive |
+|---|---|---|---|---|
+| MAM | 0.265 | 0.353 | **0.431** | 0.412 |
+| AAA | 0.986 | 1.000 | 1.000 | 1.000 |
+| MAA | 0.476 | 0.524 | 0.643 | 0.631 |
+| AMA | 0.196 | 0.304 | 0.442 | 0.442 |
+
+**The fork resolves to ORDER BIAS, not constraint-resolution geometry — and the dynamic
+mechanism is over-engineering here:**
+1. **Ordering rescues `MAM`** (0.265 → 0.43, now in the MAA/AMA band): confirming the
+   3.4b diagnosis that fixed left-to-right was the failure.
+2. **Best-first beats random** (+0.076): *which* slot is resolved first carries real
+   information.
+3. **But `entropy_adaptive ≈ static_first` (−0.008)** — recomputing constraints after
+   each commit adds *nothing*. At L=3 the entropy ranking at the empty assignment already
+   identifies the right order. The pre-registered "adaptive > static" check returns
+   **False**: dynamic constraint propagation is not warranted at this scale. (A genuine
+   over-engineering guard firing is the intended outcome — the discipline working.)
+
+**The closing of the representation arc.** Having exhausted every *structural* lever in
+order — conditioning (3.4), interaction (3.4b), ordering (3.4c) — `MAM`/`AMA` still
+plateau (~0.43, sensitivity < 3). The residual is no longer structure; it is genuine
+**function approximation of the nonlinear `×2/×3` inverse**. That is the first and only
+point in the whole program where added capacity (a richer net / the recurrent SSM) is
+justified — *because* the cheaper structural explanations were ruled out first, not
+assumed away. Reproduce: `python3 skill_compression_policy_cp.py`.
+
 ## What would have proven us wrong (and didn't)
 
 - OFF matching the gates on reuse → did not happen (5× gap).
@@ -437,6 +726,33 @@ deployment add, out of scope for the confound-free sandbox.
   across 5 heterogeneous families, all 6 seeds (Phase 2.5).
 - The real-`pytest` cost being faked by the in-process proxy → ruled out:
   agreement `1.000` after fixing the stale-`.pyc` trap.
+- The online cost-per-task curve not actually falling, or falling only as a
+  bigger-action-set artifact → did not happen: `growing_gate` 20.0→4.4 beats both
+  `frozen_empty` (flat 25.4) and `random_growing` (12.4), all 6 seeds (Phase 3.1).
+- "Transfer" being a free pass from beating the no-skill baseline → caught: the
+  grammar-specific margin (vs the RANDOM-library control) is the honest signal, and
+  it *decays* with grammar divergence (17.8→10.4) — reported as a graded result, not
+  a binary win (Phase 3.1).
+- The depth-aware probe being a blanket budget increase that just slows shallow tasks
+  → ruled out: R0/R1/R2_disjoint are byte-identical across `--deep-probe-budget`
+  2000→8000; only deep-reuse tasks consume the extra horizon (Phase 3.2).
+- The R2_depth gap being a missing skill rather than a blind selector → ruled out:
+  the same frozen library, behind a depth-aware gate, recovers ×2.6–3.4 of the reach
+  (Phase 3.2).
+- Typed schemas lifting the grammar-specific ceiling → did NOT happen: the gain is
+  the generic-more-actions artifact (`typed_random` matches it; schema-specific margin
+  +0.5, R2_depth not stable). Flat schema expansion ≠ parametric fitting (Phase 3.3).
+- The goal-conditioned policy being secretly goal-blind (enumeration in disguise) →
+  ruled out: it beats the modal-binding baseline ×4.8 and emits ~2.5 distinct bindings
+  per state as the goal varies, on held-out goals (Phase 3.4 / Test A).
+- The multiplicative-schema gap being a model-capacity problem (fix = bigger net / SSM)
+  → ruled out: an autoregressive *interaction* model lifts entangled schemas (+0.14)
+  with no capacity increase, while separable AAA is unchanged — the bottleneck is slot
+  coupling, and the residual (MAM) isolates decode ORDER, not memory (Phase 3.4b).
+- Dynamic constraint propagation being needed to fix MAM → ruled out: static best-first
+  ordering already rescues MAM (0.27→0.43) and entropy-adaptive recomputation adds
+  nothing (−0.008). The over-engineering guard fired; the lever is order, not dynamics
+  (Phase 3.4c).
 
 ## What this is not
 
