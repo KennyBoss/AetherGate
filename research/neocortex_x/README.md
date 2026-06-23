@@ -61,6 +61,8 @@
   policy получает runtime manifest с rollback metadata.
 - Stage 22: contextual runtime loader, где promoted contextual manifest
   загружается как runtime snapshot с per-context action defaults.
+- Stage 23: contextual runtime execution, где загруженная contextual policy
+  выполняет cached context episodes и пишет action outputs + active compute.
 
 Важно: Stage 1/2 пока используют hand-coded agents. Это проверка harness,
 артефактов, метрик и pass/fail контракта, а не claim про обученный SSM или AGI.
@@ -99,6 +101,7 @@ make neocortex-x-stage19-contextual-policy-smoke
 make neocortex-x-stage20-contextual-policy-replay-smoke
 make neocortex-x-stage21-contextual-policy-promotion-smoke
 make neocortex-x-stage22-contextual-runtime-loader-smoke
+make neocortex-x-stage23-contextual-runtime-execution-smoke
 ```
 
 Прямой запуск:
@@ -245,6 +248,11 @@ python3 research/neocortex_x/stage21_contextual_policy_promotion.py \
 python3 research/neocortex_x/stage22_contextual_runtime_loader.py \
   --promotion-json artifacts/neocortex_x/stage21_contextual_policy_promotion.json \
   --output-json artifacts/neocortex_x/stage22_contextual_runtime_loader.json
+
+python3 research/neocortex_x/stage23_contextual_runtime_execution.py \
+  --runtime-json artifacts/neocortex_x/stage22_contextual_runtime_loader.json \
+  --contextual-json artifacts/neocortex_x/stage16_contextual_memory.json \
+  --output-json artifacts/neocortex_x/stage23_contextual_runtime_execution.json
 ```
 
 ## Артефакты
@@ -280,6 +288,7 @@ python3 research/neocortex_x/stage22_contextual_runtime_loader.py \
 - `artifacts/neocortex_x/stage20_contextual_policy_replay.json`
 - `artifacts/neocortex_x/stage21_contextual_policy_promotion.json`
 - `artifacts/neocortex_x/stage22_contextual_runtime_loader.json`
+- `artifacts/neocortex_x/stage23_contextual_runtime_execution.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 
