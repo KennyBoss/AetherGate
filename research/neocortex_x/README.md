@@ -73,6 +73,9 @@
 - Stage 27: store-backed contextual action gate, где SQLite-backed
   contextual decisions превращаются в bounded agent actions без возврата к
   unconditional fact memory.
+- Stage 28: append-only evidence log compaction, где conditional slots
+  записываются как immutable evidence events и детерминированно компактифицируются
+  в indexed query store.
 
 Важно: Stage 1/2 пока используют hand-coded agents. Это проверка harness,
 артефактов, метрик и pass/fail контракта, а не claim про обученный SSM или AGI.
@@ -116,6 +119,7 @@ make neocortex-x-stage24-contextual-self-monitor-smoke
 make neocortex-x-stage25-indexed-contextual-store-smoke
 make neocortex-x-stage26-store-backed-contextual-retrieval-smoke
 make neocortex-x-stage27-store-backed-contextual-action-gate-smoke
+make neocortex-x-stage28-evidence-log-compaction-smoke
 ```
 
 Прямой запуск:
@@ -285,6 +289,11 @@ python3 research/neocortex_x/stage26_store_backed_contextual_retrieval.py \
 python3 research/neocortex_x/stage27_store_backed_contextual_action_gate.py \
   --retrieval-json artifacts/neocortex_x/stage26_store_backed_contextual_retrieval.json \
   --output-json artifacts/neocortex_x/stage27_store_backed_contextual_action_gate.json
+
+python3 research/neocortex_x/stage28_append_only_evidence_log_compaction.py \
+  --contextual-json artifacts/neocortex_x/stage16_contextual_memory.json \
+  --output-db artifacts/neocortex_x/stage28_evidence_log_compacted_store.sqlite \
+  --output-json artifacts/neocortex_x/stage28_append_only_evidence_log_compaction.json
 ```
 
 ## Артефакты
@@ -326,6 +335,8 @@ python3 research/neocortex_x/stage27_store_backed_contextual_action_gate.py \
 - `artifacts/neocortex_x/stage25_indexed_contextual_memory_store.json`
 - `artifacts/neocortex_x/stage26_store_backed_contextual_retrieval.json`
 - `artifacts/neocortex_x/stage27_store_backed_contextual_action_gate.json`
+- `artifacts/neocortex_x/stage28_evidence_log_compacted_store.sqlite`
+- `artifacts/neocortex_x/stage28_append_only_evidence_log_compaction.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 
@@ -370,6 +381,8 @@ Scale research is part of the roadmap before larger memory benchmarks:
   provenance;
 - append-only evidence log plus compacted snapshots;
 - deterministic replay from evidence log into a queryable store;
+- Stage 28 preflights that contract: append-only evidence events are the
+  source of truth, while the SQLite query store is a compacted indexed view;
 - storage candidates: SQLite for preflight, DuckDB/Postgres for analytical and
   relational scale, Parquet/Arrow for columnar snapshots, RocksDB/LSM for
   high-write local stores, and hybrid symbolic+vector indexes for semantic

@@ -28,6 +28,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage25-indexed-contextual-store-smoke
 .PHONY: neocortex-x-stage26-store-backed-contextual-retrieval-smoke
 .PHONY: neocortex-x-stage27-store-backed-contextual-action-gate-smoke
+.PHONY: neocortex-x-stage28-evidence-log-compaction-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -79,6 +80,7 @@ help:
 	@echo "  make neocortex-x-stage25-indexed-contextual-store-smoke build indexed contextual memory store"
 	@echo "  make neocortex-x-stage26-store-backed-contextual-retrieval-smoke retrieve contextual memory from store"
 	@echo "  make neocortex-x-stage27-store-backed-contextual-action-gate-smoke act on store-backed contextual retrieval"
+	@echo "  make neocortex-x-stage28-evidence-log-compaction-smoke compact append-only evidence log"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -130,6 +132,7 @@ compile:
 		research/neocortex_x/stage25_indexed_contextual_memory_store.py \
 		research/neocortex_x/stage26_store_backed_contextual_retrieval.py \
 		research/neocortex_x/stage27_store_backed_contextual_action_gate.py \
+		research/neocortex_x/stage28_append_only_evidence_log_compaction.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -1120,6 +1123,12 @@ neocortex-x-stage27-store-backed-contextual-action-gate-smoke: neocortex-x-stage
 	$(PYTHON) research/neocortex_x/stage27_store_backed_contextual_action_gate.py \
 		--retrieval-json artifacts/neocortex_x/stage26_store_backed_contextual_retrieval.json \
 		--output-json artifacts/neocortex_x/stage27_store_backed_contextual_action_gate.json
+
+neocortex-x-stage28-evidence-log-compaction-smoke: neocortex-x-stage16-contextual-memory-smoke
+	$(PYTHON) research/neocortex_x/stage28_append_only_evidence_log_compaction.py \
+		--contextual-json artifacts/neocortex_x/stage16_contextual_memory.json \
+		--output-db artifacts/neocortex_x/stage28_evidence_log_compacted_store.sqlite \
+		--output-json artifacts/neocortex_x/stage28_append_only_evidence_log_compaction.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories
