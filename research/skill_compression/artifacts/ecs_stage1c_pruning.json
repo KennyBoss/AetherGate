@@ -1,0 +1,521 @@
+{
+  "config": {
+    "seeds": "11,17,23,41,73,101",
+    "train_tasks": 240,
+    "eval_tasks": 80,
+    "probe_tasks": 60,
+    "hidden": 32,
+    "max_macros": 8,
+    "lr": 0.02,
+    "steps_per_task": 4,
+    "batch": 32,
+    "eval_every": 40,
+    "max_depth": 8,
+    "budget": 200000,
+    "node_budget": 256,
+    "bf_depth": 16,
+    "output_json": "artifacts/ecs_stage1c_pruning.json"
+  },
+  "protocol_evidence": {
+    "held_out": true,
+    "prune_probe_blind_to_eval": true,
+    "compute_metric": "policy forward-passes (best-first), identical per arm",
+    "controls_present": [
+      "ecs_unpruned",
+      "dense"
+    ],
+    "axis_C_present": true,
+    "n_seeds": 6,
+    "valid": true
+  },
+  "recoverability_diagnostic": {
+    "mean_generative_len": 4.475,
+    "mean_shortest_len": 2.568,
+    "shortest_bypasses_generative_rate": 0.89,
+    "shortest_contains_hidden_subroutine_rate": 0.0217
+  },
+  "aggregate": {
+    "n_unpruned": 8,
+    "n_pruned": 7.333,
+    "match_unpruned": 0.5,
+    "held_ecs_unpruned": 12.373,
+    "held_ecs_pruned": 12.298,
+    "held_dense": 11.173,
+    "held_ecs_pruned_solve": 1.0,
+    "held_dense_solve": 1.0,
+    "axisC_ecs_unpruned": 38.698,
+    "axisC_ecs_pruned": 38.61,
+    "axisC_dense": 32.658,
+    "axisC_ecs_pruned_solve": 0.996,
+    "verdict": {
+      "recoverability": {
+        "mean_generative_len": 4.475,
+        "mean_shortest_len": 2.568,
+        "shortest_bypasses_generative_rate": 0.89,
+        "shortest_contains_hidden_subroutine_rate": 0.0217
+      },
+      "generative_recovery_is_illposed": true,
+      "pruning_reduces_forwards_vs_unpruned": true,
+      "pruned_beats_dense_held": false,
+      "pruned_beats_dense_held_seedfrac": "3/6",
+      "pruned_beats_dense_axisC": false,
+      "pruned_beats_dense_axisC_seedfrac": "2/6",
+      "matched_solve_rate": true,
+      "PASS_pathA": false
+    }
+  },
+  "seed_runs": [
+    {
+      "seed": 11,
+      "n_macros_unpruned": 8,
+      "n_macros_pruned": 7,
+      "macros_unpruned": [
+        "cea",
+        "ceac",
+        "acea",
+        "eac",
+        "ac",
+        "acb",
+        "ea",
+        "cb"
+      ],
+      "macros_pruned": [
+        "cea",
+        "ceac",
+        "acea",
+        "eac",
+        "ac",
+        "acb",
+        "ea"
+      ],
+      "utils": [
+        0.1333,
+        2.0833,
+        2.2333,
+        0.2,
+        1.9333,
+        1.2333,
+        1.0,
+        -0.55
+      ],
+      "hidden_subroutine_match_unpruned": 1,
+      "held": {
+        "ecs_unpruned": {
+          "mean_forwards": 8.6,
+          "solve_rate": 1.0,
+          "fire_rate": 0.7875,
+          "mean_path": 4.425
+        },
+        "ecs_pruned": {
+          "mean_forwards": 8.0625,
+          "solve_rate": 1.0,
+          "fire_rate": 0.7875,
+          "mean_path": 3.675
+        },
+        "dense": {
+          "mean_forwards": 10.7125,
+          "solve_rate": 1.0,
+          "fire_rate": 0.0,
+          "mean_path": 5.4625
+        }
+      },
+      "axisC": {
+        "ecs_unpruned": {
+          "mean_forwards": 36.4375,
+          "solve_rate": 1.0,
+          "fire_rate": 0.625,
+          "mean_path": 5.125
+        },
+        "ecs_pruned": {
+          "mean_forwards": 35.975,
+          "solve_rate": 1.0,
+          "fire_rate": 0.625,
+          "mean_path": 5.1625
+        },
+        "dense": {
+          "mean_forwards": 39.975,
+          "solve_rate": 1.0,
+          "fire_rate": 0.0,
+          "mean_path": 7.9125
+        }
+      }
+    },
+    {
+      "seed": 17,
+      "n_macros_unpruned": 8,
+      "n_macros_pruned": 6,
+      "macros_unpruned": [
+        "ac",
+        "cea",
+        "ea",
+        "ce",
+        "acb",
+        "cac",
+        "ca",
+        "cb"
+      ],
+      "macros_pruned": [
+        "ac",
+        "cea",
+        "ea",
+        "ce",
+        "acb",
+        "cac"
+      ],
+      "utils": [
+        45.9167,
+        16.4667,
+        11.2833,
+        4.6333,
+        1.55,
+        0.8,
+        -0.2333,
+        -0.6167
+      ],
+      "hidden_subroutine_match_unpruned": 2,
+      "held": {
+        "ecs_unpruned": {
+          "mean_forwards": 11.6875,
+          "solve_rate": 1.0,
+          "fire_rate": 0.9375,
+          "mean_path": 6.925
+        },
+        "ecs_pruned": {
+          "mean_forwards": 11.775,
+          "solve_rate": 1.0,
+          "fire_rate": 0.9375,
+          "mean_path": 6.825
+        },
+        "dense": {
+          "mean_forwards": 13.15,
+          "solve_rate": 1.0,
+          "fire_rate": 0.0,
+          "mean_path": 4.8125
+        }
+      },
+      "axisC": {
+        "ecs_unpruned": {
+          "mean_forwards": 45.6125,
+          "solve_rate": 0.9875,
+          "fire_rate": 0.95,
+          "mean_path": 5.569620253164557
+        },
+        "ecs_pruned": {
+          "mean_forwards": 45.55,
+          "solve_rate": 0.9875,
+          "fire_rate": 0.95,
+          "mean_path": 5.493670886075949
+        },
+        "dense": {
+          "mean_forwards": 36.6875,
+          "solve_rate": 1.0,
+          "fire_rate": 0.0,
+          "mean_path": 8.425
+        }
+      }
+    },
+    {
+      "seed": 23,
+      "n_macros_unpruned": 8,
+      "n_macros_pruned": 8,
+      "macros_unpruned": [
+        "ce",
+        "ace",
+        "acea",
+        "ac",
+        "cea",
+        "aced",
+        "ced",
+        "ea"
+      ],
+      "macros_pruned": [
+        "ce",
+        "ace",
+        "acea",
+        "ac",
+        "cea",
+        "aced",
+        "ced",
+        "ea"
+      ],
+      "utils": [
+        41.1333,
+        30.2167,
+        28.0333,
+        30.3833,
+        13.7333,
+        11.3167,
+        12.5667,
+        12.3833
+      ],
+      "hidden_subroutine_match_unpruned": 0,
+      "held": {
+        "ecs_unpruned": {
+          "mean_forwards": 5.85,
+          "solve_rate": 1.0,
+          "fire_rate": 0.6625,
+          "mean_path": 3.1125
+        },
+        "ecs_pruned": {
+          "mean_forwards": 5.85,
+          "solve_rate": 1.0,
+          "fire_rate": 0.6625,
+          "mean_path": 3.1125
+        },
+        "dense": {
+          "mean_forwards": 10.3,
+          "solve_rate": 1.0,
+          "fire_rate": 0.0,
+          "mean_path": 5.0125
+        }
+      },
+      "axisC": {
+        "ecs_unpruned": {
+          "mean_forwards": 28.5375,
+          "solve_rate": 1.0,
+          "fire_rate": 0.275,
+          "mean_path": 4.0125
+        },
+        "ecs_pruned": {
+          "mean_forwards": 28.5375,
+          "solve_rate": 1.0,
+          "fire_rate": 0.275,
+          "mean_path": 4.0125
+        },
+        "dense": {
+          "mean_forwards": 26.4625,
+          "solve_rate": 1.0,
+          "fire_rate": 0.0,
+          "mean_path": 7.475
+        }
+      }
+    },
+    {
+      "seed": 41,
+      "n_macros_unpruned": 8,
+      "n_macros_pruned": 7,
+      "macros_unpruned": [
+        "ae",
+        "aa",
+        "aae",
+        "aaea",
+        "ea",
+        "aea",
+        "baa",
+        "ba"
+      ],
+      "macros_pruned": [
+        "ae",
+        "aa",
+        "aae",
+        "aaea",
+        "ea",
+        "aea",
+        "baa"
+      ],
+      "utils": [
+        26.25,
+        26.1167,
+        6.85,
+        9.95,
+        9.3833,
+        5.1667,
+        8.1667,
+        0.0
+      ],
+      "hidden_subroutine_match_unpruned": 0,
+      "held": {
+        "ecs_unpruned": {
+          "mean_forwards": 20.4,
+          "solve_rate": 1.0,
+          "fire_rate": 0.875,
+          "mean_path": 3.025
+        },
+        "ecs_pruned": {
+          "mean_forwards": 20.4,
+          "solve_rate": 1.0,
+          "fire_rate": 0.875,
+          "mean_path": 3.025
+        },
+        "dense": {
+          "mean_forwards": 13.8,
+          "solve_rate": 1.0,
+          "fire_rate": 0.0,
+          "mean_path": 5.875
+        }
+      },
+      "axisC": {
+        "ecs_unpruned": {
+          "mean_forwards": 44.8125,
+          "solve_rate": 1.0,
+          "fire_rate": 0.275,
+          "mean_path": 4.125
+        },
+        "ecs_pruned": {
+          "mean_forwards": 44.8125,
+          "solve_rate": 1.0,
+          "fire_rate": 0.275,
+          "mean_path": 4.125
+        },
+        "dense": {
+          "mean_forwards": 33.4,
+          "solve_rate": 1.0,
+          "fire_rate": 0.0,
+          "mean_path": 8.35
+        }
+      }
+    },
+    {
+      "seed": 73,
+      "n_macros_unpruned": 8,
+      "n_macros_pruned": 8,
+      "macros_unpruned": [
+        "ae",
+        "aab",
+        "ab",
+        "aa",
+        "ea",
+        "bea",
+        "eaab",
+        "eaa"
+      ],
+      "macros_pruned": [
+        "ae",
+        "aab",
+        "ab",
+        "aa",
+        "ea",
+        "bea",
+        "eaab",
+        "eaa"
+      ],
+      "utils": [
+        16.9,
+        23.4167,
+        19.9667,
+        19.9167,
+        17.7,
+        28.6833,
+        27.65,
+        1.2
+      ],
+      "hidden_subroutine_match_unpruned": 0,
+      "held": {
+        "ecs_unpruned": {
+          "mean_forwards": 16.575,
+          "solve_rate": 1.0,
+          "fire_rate": 1.0,
+          "mean_path": 4.825
+        },
+        "ecs_pruned": {
+          "mean_forwards": 16.575,
+          "solve_rate": 1.0,
+          "fire_rate": 1.0,
+          "mean_path": 4.825
+        },
+        "dense": {
+          "mean_forwards": 8.05,
+          "solve_rate": 1.0,
+          "fire_rate": 0.0,
+          "mean_path": 6.0375
+        }
+      },
+      "axisC": {
+        "ecs_unpruned": {
+          "mean_forwards": 49.475,
+          "solve_rate": 0.9875,
+          "fire_rate": 0.9625,
+          "mean_path": 5.0886075949367084
+        },
+        "ecs_pruned": {
+          "mean_forwards": 49.475,
+          "solve_rate": 0.9875,
+          "fire_rate": 0.9625,
+          "mean_path": 5.0886075949367084
+        },
+        "dense": {
+          "mean_forwards": 29.025,
+          "solve_rate": 1.0,
+          "fire_rate": 0.0125,
+          "mean_path": 8.5125
+        }
+      }
+    },
+    {
+      "seed": 101,
+      "n_macros_unpruned": 8,
+      "n_macros_pruned": 8,
+      "macros_unpruned": [
+        "ab",
+        "abc",
+        "bc",
+        "aab",
+        "aabc",
+        "abca",
+        "abcb",
+        "aa"
+      ],
+      "macros_pruned": [
+        "ab",
+        "abc",
+        "bc",
+        "aab",
+        "aabc",
+        "abca",
+        "abcb",
+        "aa"
+      ],
+      "utils": [
+        76.15,
+        6.7,
+        7.9833,
+        5.9667,
+        5.85,
+        0.3,
+        0.3,
+        0.4333
+      ],
+      "hidden_subroutine_match_unpruned": 0,
+      "held": {
+        "ecs_unpruned": {
+          "mean_forwards": 11.125,
+          "solve_rate": 1.0,
+          "fire_rate": 0.875,
+          "mean_path": 4.575
+        },
+        "ecs_pruned": {
+          "mean_forwards": 11.125,
+          "solve_rate": 1.0,
+          "fire_rate": 0.875,
+          "mean_path": 4.575
+        },
+        "dense": {
+          "mean_forwards": 11.025,
+          "solve_rate": 1.0,
+          "fire_rate": 0.0,
+          "mean_path": 6.0625
+        }
+      },
+      "axisC": {
+        "ecs_unpruned": {
+          "mean_forwards": 27.3125,
+          "solve_rate": 1.0,
+          "fire_rate": 0.5125,
+          "mean_path": 4.7375
+        },
+        "ecs_pruned": {
+          "mean_forwards": 27.3125,
+          "solve_rate": 1.0,
+          "fire_rate": 0.5125,
+          "mean_path": 4.7375
+        },
+        "dense": {
+          "mean_forwards": 30.4,
+          "solve_rate": 1.0,
+          "fire_rate": 0.0,
+          "mean_path": 7.4375
+        }
+      }
+    }
+  ]
+}

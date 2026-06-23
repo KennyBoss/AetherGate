@@ -317,6 +317,42 @@ depth ≥3 across ≥6 seeds. If a library that provably captures the true subro
 does not beat dense once branching is priced in, the architectural claim fails at this
 scale and we say so.
 
+## 6e. Stage 1a'' — both halves resolve to ONE conclusion: wrong environment, not wrong method
+
+`ecs_stage1c_pruning.py` ran the §6d pre-registered test. Both halves came back negative
+in a way that, together, point past this DSL — and one half turned out **ill-posed**, so
+we report it rather than pretend it was a fair test (G).
+
+- **(b) Generative-subroutine recovery is ILL-POSED here (measured, not assumed).** A
+  recoverability probe over 600 sampled generative programs: the shortest-compute solution
+  is **strictly shorter than the generative program 89%** of the time and **contains a
+  whole hidden subroutine only 2.2%** of the time. The integer state *collapses* (many
+  programs hit the same number), so optimal-compute supervision almost never traverses the
+  "intended" subroutine. Match-rate ≈ 0 is therefore a property of the **environment**,
+  not a weak promoter: "recover the generative procedures" cannot be satisfied under
+  shortest-path supervision in a collapsing-state DSL. The only learnable skill here is a
+  recurring *optimal-path n-gram*.
+- **(a) Utility pruning helps, but cannot manufacture compression that the library does
+  not contain.** Marginal-forward-pass pruning (blind to eval) removes almost nothing
+  (8 → 7.3 macros) and held-out stays a **wash** (pruned 12.30 vs dense 11.17, 3/6 seeds);
+  Axis-C still fails (2/6). PASS_pathA = False. Crucially this **refines §6d's kmax claim**:
+  the earlier "kmax=2 wins −4.7" was a *fixed-small-library-from-the-start* effect (it
+  changes which macros ever get promoted), NOT the same as pruning a grown library — at the
+  trained config the individual macros are near-neutral, not net-harmful, so there is
+  nothing for pruning to cut. Library *size policy at promotion time* ≠ *post-hoc pruning*.
+
+**Unified conclusion (the honest end of the symbolic line).** Compression cannot be
+demonstrated in this DSL because the DSL's state collapses: the generative structure is
+invisible to optimal-compute supervision, so the library can only ever hold path n-grams
+that roughly break even against primitive search. This is **not** a failure of selection
+(fixed in 1a'), of pruning (1a''), or of scale (capacity-insensitive, 1a') — it is the
+**environment lacking observable generative structure**. The pre-registered escape is
+therefore not another symbolic tweak but the venue itself: a **rich-state environment
+where the generative procedure is observable** (real code / the AetherGate repair loop,
+where a "skill" is a reusable patch/procedure visible in the solution, not an emergent
+n-gram). That is Stage 2, and 1a'' is what earns the move — a measured boundary, not a
+pivot of convenience. Artifacts: `ecs_stage1c_pruning.json`.
+
 ## 7. Honest scope
 
 We are not out-training frontier LLMs and not claiming AGI. We are testing whether one
