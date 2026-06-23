@@ -244,6 +244,79 @@ best-first ordering). Pre-registered prediction table:
 claiming a curriculum artifact as emergence. The structural arc's residual is now also
 the empirical blocker of Stage 1 — the two lines meet on the same open problem.
 
+## 6d. Stage 1a' — result: selection fixed, compression still unproven (honest negative)
+
+`ecs_stage1b_selection.py` runs the named fix: the greedy independent-argmax commit is
+replaced by **policy-guided best-first search** (Phase-3.4c ordering — a wrong skill is
+recoverable by backtracking, not fatal). Metric correction baked in (G3): under search,
+active compute is **policy forward-passes (nodes expanded)**, counted identically for
+every arm, so search cost cannot hide. **6 seeds, `protocol_valid=True`, solve-rate 1.0
+on every seed.**
+
+| arm | active compute (forward-passes) |
+|---|---|
+| **ECS** (best-first + growing M) | 12.37 |
+| dense (shuffled) | 11.17 |
+| frozen-M (ECS policy, no usable skills) | 17.08 |
+| cache-M (held-out miss → primitives) | 17.08 |
+| random-routing (gate fire-rate matched, which-skill randomized) | 22.09 |
+| Axis-C: ECS 38.70 vs dense 32.66 (ECS axisC-solve 0.996) | |
+
+**PASS = False — and it lands on the pre-registered row 2** ("solve-rate recovers but
+compute ≈ dense → greedy/search ceiling, not selection"):
+
+- **The selection fix worked at its job.** Stage-1a's misfire/abstain collapse is gone:
+  solve-rate is fully matched (1.0 vs 1.0, all seeds), and ECS robustly beats *every
+  control that shares its policy* — frozen-M / cache-M (17.1) and random-routing (22.1).
+  So choosing the *right* skill via best-first is worth ~30% fewer forwards than mis-using
+  or ablating the skills. §6c's "value lives in the selection policy" is confirmed in that
+  direction: competent selection recovers what the naive head threw away.
+- **But the PASS bar — beat the independent dense baseline — is not cleared.** ECS vs
+  `dense` is a **seed-dependent wash** (ECS wins 3/6 held-out seeds, loses 3/6; mean 12.37
+  vs 11.17 sits inside the seed spread), and **Axis-C transfer does not survive** (dense
+  cheaper on 4/6 seeds; the small-config Axis-C win washed out at 6 seeds). A clean
+  primitive searcher with *no skill apparatus* is as cheap or cheaper.
+
+**Diagnosis (the new, sharper blocker).** Selection is no longer the wall. The residual is
+a **break-even**: the macro-augmented action set adds *search branching* that roughly
+cancels the *path-shortening* the macros buy. Skills beat their own misuse (vs
+random-routing) and their own ablation (vs frozen-M/cache-M), but not their own absence
+(vs dense). Two follow-up sweeps (`sweep_depth_breakeven.py` + a kmax probe) located the
+real lever — and *falsified my first guess*:
+
+- **Depth does NOT rescue it (pre-registered prediction falsified, kept visible).** I
+  predicted ECS would cross below dense past some composition depth `d*`. It does not: at
+  eval depths 2→6 the ECS−dense forward gap is `+1.2, +12.0, +13.7, +15.3, +2.3` — ECS is
+  *never* cheaper, `d* = None`, and the gap widens before collapsing only as both hit the
+  solve-rate floor. The depth hypothesis is dead; do not revive it.
+- **Library SIZE is the lever (the actual finding).** Sweeping the macro cap at fixed
+  everything-else, eval depth 3: `kmax=8` (the default) loses by **+12.0** forwards, but
+  `kmax=2` *wins* by **−4.7** (4/5 seeds, 23.3 vs 27.9). A small library beats dense; a
+  large one loses to it. The branching cost of macros is roughly linear in library size
+  while the path-saving saturates, so an unpruned library is net-negative.
+- **…but the macros are surface n-grams, not the true subroutines.** Inspecting promotions:
+  the library captures solution-path n-grams (`cea`, `ac`, `ceac`) straddling subroutine
+  boundaries, **not** the generative hidden subroutines (`cac`, `bbd`, `edd`, `acb`). At
+  kmax=8 they are blatantly redundant (`cea`/`ceac`/`acea`/`eac`/`ea`) — pure branching
+  noise. So even the kmax=2 win is "less noise," not "right abstraction," and Axis-C stays
+  a wash (kmax=2: ECS 23.3 ≈ dense 23.2 at depth 3; only −3.4 at depth 4).
+
+**Verdict, precise.** Compression — a cost-drop that beats the independent baseline AND
+transfers under Axis-C — remains **unproven**, but the blocker is now *named and localized*:
+not selection (fixed), but **library quality + size control**. This is exactly
+`codepy/CODEPY_TURING_COMPLETENESS_PLAN.md` **Path A (macro pruning)** and the abstraction
+gap the CodePy↔thesis section flagged ("storage emerging" — the library exists but does not
+yet capture the *generative* procedures). The two research lines meet on one mechanism.
+
+**Named next test (pre-registered, do not move post-hoc).** The fix is not more search but
+a *better, smaller* library. Falsifiable prediction: with (a) online macro pruning by
+marginal forward-pass utility (Path A) AND (b) promotion that recovers the generative
+subroutines (measured: promoted-macro ↔ hidden-subroutine match rate ↑ from the current
+~0), ECS at its pruned-optimal size should beat dense on held-out AND survive Axis-C at
+depth ≥3 across ≥6 seeds. If a library that provably captures the true subroutines still
+does not beat dense once branching is priced in, the architectural claim fails at this
+scale and we say so.
+
 ## 7. Honest scope
 
 We are not out-training frontier LLMs and not claiming AGI. We are testing whether one
