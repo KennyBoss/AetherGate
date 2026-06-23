@@ -19,6 +19,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage16-contextual-memory-smoke
 .PHONY: neocortex-x-stage17-contextual-action-gate-smoke
 .PHONY: neocortex-x-stage18-contextual-feedback-smoke
+.PHONY: neocortex-x-stage19-contextual-policy-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -61,6 +62,7 @@ help:
 	@echo "  make neocortex-x-stage16-contextual-memory-smoke conditional context-aware memory"
 	@echo "  make neocortex-x-stage17-contextual-action-gate-smoke contextual decision to action gate"
 	@echo "  make neocortex-x-stage18-contextual-feedback-smoke contextual action feedback ledger"
+	@echo "  make neocortex-x-stage19-contextual-policy-smoke contextual feedback to policy snapshot"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -103,6 +105,7 @@ compile:
 		research/neocortex_x/stage16_contextual_memory.py \
 		research/neocortex_x/stage17_contextual_action_gate.py \
 		research/neocortex_x/stage18_contextual_feedback.py \
+		research/neocortex_x/stage19_contextual_policy_update.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -1043,6 +1046,11 @@ neocortex-x-stage18-contextual-feedback-smoke: neocortex-x-stage17-contextual-ac
 	$(PYTHON) research/neocortex_x/stage18_contextual_feedback.py \
 		--contextual-action-json artifacts/neocortex_x/stage17_contextual_action_gate.json \
 		--output-json artifacts/neocortex_x/stage18_contextual_feedback.json
+
+neocortex-x-stage19-contextual-policy-smoke: neocortex-x-stage18-contextual-feedback-smoke
+	$(PYTHON) research/neocortex_x/stage19_contextual_policy_update.py \
+		--feedback-json artifacts/neocortex_x/stage18_contextual_feedback.json \
+		--output-json artifacts/neocortex_x/stage19_contextual_policy_update.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories
