@@ -4,7 +4,7 @@ BENCHMARK_CANDIDATE ?= artifacts/benchmarks/quick_compare_candidate.json
 MAX_REGRESSION ?= 0.25
 ARCH_SEEDS ?= 11,17,23
 
-.PHONY: help compile verify benchmark benchmark-standard compare ingest-gutenberg-demo ingest-gutenberg-bulk profile-text-demo profile-text-bpe-demo profile-text-bulk-bpe compare-text-demo compare-text-architectures-demo compare-text-architectures-million compare-long-context-recall-demo compare-assignment-recall-demo compare-multi-assignment-recall-demo compare-sparse-kv-routing-smoke compare-sparse-kv-routing-margin-smoke compare-sparse-kv-routing-hard-smoke compare-sparse-kv-routing-margin-multiseed compare-multi-query-assignment-recall-demo compare-assignment-distractor-recall-demo compare-assignment-alias-recall-demo compare-mixed-code-recall-demo compare-mixed-code-recall-multiseed compare-mixed-code-full-context-control compare-generated-python-code-recall-demo compare-generated-python-code-recall-multiseed compare-generated-python-code-full-context-control compare-real-python-code-recall-demo compare-real-python-code-recall-multiseed compare-real-python-code-full-context-control compare-real-python-code-full-context-multiseed compare-assignment-update-recall-demo text-experiment-demo text-experiment-bpe-demo text-leaderboard text-sweep-demo text-sweep-bpe-demo text-sweep-bulk-bpe plan-text-sweep-bulk run-text-sweep-plan-bulk promote-text-demo inspect-text-demo run-promoted-text-demo text-run-demo neocortex-x-stage0-smoke neocortex-x-stage1-smoke neocortex-x-stage2-smoke neocortex-x-stage3-smoke neocortex-x-stage4-smoke clean-artifacts
+.PHONY: help compile verify benchmark benchmark-standard compare ingest-gutenberg-demo ingest-gutenberg-bulk profile-text-demo profile-text-bpe-demo profile-text-bulk-bpe compare-text-demo compare-text-architectures-demo compare-text-architectures-million compare-long-context-recall-demo compare-assignment-recall-demo compare-multi-assignment-recall-demo compare-sparse-kv-routing-smoke compare-sparse-kv-routing-margin-smoke compare-sparse-kv-routing-hard-smoke compare-sparse-kv-routing-margin-multiseed compare-multi-query-assignment-recall-demo compare-assignment-distractor-recall-demo compare-assignment-alias-recall-demo compare-mixed-code-recall-demo compare-mixed-code-recall-multiseed compare-mixed-code-full-context-control compare-generated-python-code-recall-demo compare-generated-python-code-recall-multiseed compare-generated-python-code-full-context-control compare-real-python-code-recall-demo compare-real-python-code-recall-multiseed compare-real-python-code-full-context-control compare-real-python-code-full-context-multiseed compare-assignment-update-recall-demo text-experiment-demo text-experiment-bpe-demo text-leaderboard text-sweep-demo text-sweep-bpe-demo text-sweep-bulk-bpe plan-text-sweep-bulk run-text-sweep-plan-bulk promote-text-demo inspect-text-demo run-promoted-text-demo text-run-demo neocortex-x-stage0-smoke neocortex-x-stage1-smoke neocortex-x-stage2-smoke neocortex-x-stage3-smoke neocortex-x-stage4-smoke neocortex-x-stage5-smoke clean-artifacts
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -28,6 +28,7 @@ help:
 	@echo "  make neocortex-x-stage2-smoke                    stateful tape world smoke"
 	@echo "  make neocortex-x-stage3-smoke                    procedure reuse smoke"
 	@echo "  make neocortex-x-stage4-smoke                    short lookahead planning smoke"
+	@echo "  make neocortex-x-stage5-smoke                    open-world provenance smoke"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -848,6 +849,14 @@ neocortex-x-stage4-smoke:
 		--stage4-corridor-len 9 \
 		--stage4-horizon 4 \
 		--output-json artifacts/neocortex_x/stage4_planning.json
+
+neocortex-x-stage5-smoke:
+	$(PYTHON) research/neocortex_x/core_experiment.py \
+		--stage stage5 \
+		--seeds 11,17,23,29,31,37 \
+		--episodes 96 \
+		--stage5-contradiction-margin 0.20 \
+		--output-json artifacts/neocortex_x/stage5_open_world_adapter.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories

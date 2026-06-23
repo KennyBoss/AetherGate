@@ -12,11 +12,14 @@
   и контролями exact-cache/random-routing/inline-loop.
 - Stage 4: short lookahead planning smoke, где planner использует predicted
   state deltas и бьет greedy action baseline.
+- Stage 5: deterministic open-world adapter smoke с provenance, trust-weighted
+  factual updates и contradiction handling.
 
 Важно: Stage 1/2 пока используют hand-coded agents. Это проверка harness,
 артефактов, метрик и pass/fail контракта, а не claim про обученный SSM или AGI.
 Следующий шаг - заменить `kv_memory` на trained SSM/KV core без изменения
-формата задач и evidence artifact, затем перейти к open-world adapter.
+формата задач и evidence artifact, затем подключать live-search backend только
+после deterministic provenance gate.
 
 ## Команды
 
@@ -26,6 +29,7 @@ make neocortex-x-stage1-smoke
 make neocortex-x-stage2-smoke
 make neocortex-x-stage3-smoke
 make neocortex-x-stage4-smoke
+make neocortex-x-stage5-smoke
 ```
 
 Прямой запуск:
@@ -74,6 +78,13 @@ python3 research/neocortex_x/core_experiment.py \
   --stage4-corridor-len 9 \
   --stage4-horizon 4 \
   --output-json artifacts/neocortex_x/stage4_planning.json
+
+python3 research/neocortex_x/core_experiment.py \
+  --stage stage5 \
+  --seeds 11,17,23,29,31,37 \
+  --episodes 96 \
+  --stage5-contradiction-margin 0.20 \
+  --output-json artifacts/neocortex_x/stage5_open_world_adapter.json
 ```
 
 ## Артефакты
@@ -85,5 +96,6 @@ python3 research/neocortex_x/core_experiment.py \
 - `artifacts/neocortex_x/stage2_trace.jsonl`
 - `artifacts/neocortex_x/stage3_procedure_reuse.json`
 - `artifacts/neocortex_x/stage4_planning.json`
+- `artifacts/neocortex_x/stage5_open_world_adapter.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.

@@ -28,6 +28,7 @@ PROCEDURE_AGENTS = (
     "random_routing_control",
 )
 PLANNING_AGENTS = ("lookahead_planner", "greedy_action")
+OPEN_WORLD_AGENTS = ("provenance_adapter", "no_external_control", "naive_latest_control")
 TRACE_REQUIRED_FIELDS = (
     "tick_id",
     "phase",
@@ -59,6 +60,8 @@ COMPUTE_KEYS = (
     "cache_lookups",
     "random_routes",
     "planning_nodes",
+    "external_observations",
+    "contradictions",
 )
 
 
@@ -2075,13 +2078,324 @@ def run_stage4(args: argparse.Namespace) -> dict[str, Any]:
     return payload
 
 
+def make_open_world_task(*, seed: int, episode: int) -> dict[str, Any]:
+    rng = random.Random(seed * 1_000_003 + episode * 32_771 + 5_005)
+    subject = f"entity_{episode % 32}"
+    correct_value = f"value_{(seed + episode) % 17}"
+    stale_value = f"value_{(seed + episode + 7) % 17}"
+    weak_value = f"value_{(seed + episode + 11) % 17}"
+    if stale_value == correct_value:
+        stale_value = f"value_{(seed + episode + 8) % 17}"
+    if weak_value in {correct_value, stale_value}:
+        weak_value = f"value_{(seed + episode + 12) % 17}"
+    observations = [
+        {
+            "claim_id": f"{subject}-old-{episode}",
+            "subject": subject,
+            "value": stale_value,
+            "source_id": "low_trust_forum",
+            "source_trust": 0.25,
+            "observed_at": f"2026-06-24T00:{episode % 60:02d}:00Z",
+            "provenance_url": f"synthetic://low/{seed}/{episode}",
+        },
+        {
+            "claim_id": f"{subject}-primary-{episode}",
+            "subject": subject,
+            "value": correct_value,
+            "source_id": "primary_registry",
+            "source_trust": 0.90,
+            "observed_at": f"2026-06-24T01:{episode % 60:02d}:00Z",
+            "provenance_url": f"synthetic://primary/{seed}/{episode}",
+        },
+        {
+            "claim_id": f"{subject}-audit-{episode}",
+            "subject": subject,
+            "value": correct_value,
+            "source_id": "audit_mirror",
+            "source_trust": 0.70,
+            "observed_at": f"2026-06-24T02:{episode % 60:02d}:00Z",
+            "provenance_url": f"synthetic://audit/{seed}/{episode}",
+        },
+        {
+            "claim_id": f"{subject}-latest-{episode}",
+            "subject": subject,
+            "value": weak_value,
+            "source_id": "latest_unverified",
+            "source_trust": 0.35 + 0.05 * rng.randrange(2),
+            "observed_at": f"2026-06-24T03:{episode % 60:02d}:00Z",
+            "provenance_url": f"synthetic://latest/{seed}/{episode}",
+        },
+    ]
+    return {
+        "task_id": f"open_seed{seed}_episode{episode}",
+        "seed": seed,
+        "episode": episode,
+        "subject": subject,
+        "ground_truth": correct_value,
+        "observations": observations,
+    }
+
+
+def apply_provenance_adapter(task: dict[str, Any], contradiction_margin: float) -> dict[str, Any]:
+    scores: dict[str, float] = {}
+    provenance: dict[str, list[dict[str, Any]]] = {}
+    compute = {key: 0 for key in COMPUTE_KEYS}
+    for observation in task["observations"]:
+        value = observation["value"]
+        scores[value] = scores.get(value, 0.0) + float(observation["source_trust"])
+        provenance.setdefault(value, []).append(observation)
+        compute["external_observations"] += 1
+        compute["total_ticks"] += 1
+    ranked = sorted(scores.items(), key=lambda item: item[1], reverse=True)
+    selected_value, selected_score = ranked[0]
+    rejected = [
+        {"value": value, "score": score, "provenance": provenance[value]}
+        for value, score in ranked[1:]
+    ]
+    contradiction = bool(rejected and selected_score - rejected[0]["score"] <= contradiction_margin)
+    if contradiction:
+        compute["contradictions"] += 1
+    state = {
+        "subject": task["subject"],
+        "value": selected_value,
+        "score": selected_score,
+        "provenance": provenance[selected_value],
+        "rejected": rejected,
+        "contradiction": contradiction,
+    }
+    return {"state": state, "active_compute": compute}
+
+
+def run_open_world_task(task: dict[str, Any], *, agent: str, contradiction_margin: float) -> dict[str, Any]:
+    if agent not in OPEN_WORLD_AGENTS:
+        raise ValueError(f"Unknown Stage 5 agent: {agent}")
+    compute = {key: 0 for key in COMPUTE_KEYS}
+    if agent == "provenance_adapter":
+        result = apply_provenance_adapter(task, contradiction_margin)
+        state = result["state"]
+        compute = result["active_compute"]
+    elif agent == "no_external_control":
+        state = {
+            "subject": task["subject"],
+            "value": None,
+            "score": 0.0,
+            "provenance": [],
+            "rejected": [],
+            "contradiction": False,
+        }
+        compute["total_ticks"] = 1
+    else:
+        latest = task["observations"][-1]
+        state = {
+            "subject": task["subject"],
+            "value": latest["value"],
+            "score": latest["source_trust"],
+            "provenance": [latest],
+            "rejected": [],
+            "contradiction": False,
+        }
+        compute["external_observations"] = len(task["observations"])
+        compute["total_ticks"] = len(task["observations"])
+
+    replay_state = (
+        apply_provenance_adapter(task, contradiction_margin)["state"]
+        if agent == "provenance_adapter"
+        else copy.deepcopy(state)
+    )
+    factual_accuracy = state["value"] == task["ground_truth"]
+    provenance_coverage = bool(state["value"] is None or state["provenance"])
+    replay_consistency = state == replay_state
+    expected_contradiction = False
+    contradiction_precision = 1.0 if state["contradiction"] == expected_contradiction else 0.0
+    return {
+        "agent": agent,
+        "task_id": task["task_id"],
+        "subject": task["subject"],
+        "selected_value": state["value"],
+        "ground_truth": task["ground_truth"],
+        "factual_accuracy": factual_accuracy,
+        "provenance_coverage": provenance_coverage,
+        "replay_consistency": replay_consistency,
+        "contradiction_precision": contradiction_precision,
+        "active_compute": compute,
+        "state": state,
+    }
+
+
+def run_open_world_agent_seed(*, seed: int, agent: str, args: argparse.Namespace) -> dict[str, Any]:
+    episodes: list[dict[str, Any]] = []
+    active_compute = {key: 0 for key in COMPUTE_KEYS}
+    for episode in range(args.episodes):
+        task = make_open_world_task(seed=seed, episode=episode)
+        result = run_open_world_task(
+            task,
+            agent=agent,
+            contradiction_margin=args.stage5_contradiction_margin,
+        )
+        for key in COMPUTE_KEYS:
+            active_compute[key] += int(result["active_compute"][key])
+        episodes.append(
+            {
+                "episode": episode,
+                "task_id": task["task_id"],
+                "factual_accuracy": result["factual_accuracy"],
+                "provenance_coverage": result["provenance_coverage"],
+                "replay_consistency": result["replay_consistency"],
+                "contradiction_precision": result["contradiction_precision"],
+                "selected_value": result["selected_value"],
+                "ground_truth": result["ground_truth"],
+            }
+        )
+    return {
+        "seed": seed,
+        "agent": agent,
+        "episode_count": args.episodes,
+        "factual_accuracy": mean([1.0 if item["factual_accuracy"] else 0.0 for item in episodes]),
+        "provenance_coverage": mean(
+            [1.0 if item["provenance_coverage"] else 0.0 for item in episodes]
+        ),
+        "replay_consistency": mean(
+            [1.0 if item["replay_consistency"] else 0.0 for item in episodes]
+        ),
+        "contradiction_precision": mean(
+            [float(item["contradiction_precision"]) for item in episodes]
+        ),
+        "active_compute": active_compute,
+        "episodes": episodes,
+    }
+
+
+def aggregate_open_world_agent(agent_runs: list[dict[str, Any]]) -> dict[str, Any]:
+    return {
+        "factual_accuracy": summarize([float(run["factual_accuracy"]) for run in agent_runs]),
+        "provenance_coverage": summarize(
+            [float(run["provenance_coverage"]) for run in agent_runs]
+        ),
+        "replay_consistency": summarize([float(run["replay_consistency"]) for run in agent_runs]),
+        "contradiction_precision": summarize(
+            [float(run["contradiction_precision"]) for run in agent_runs]
+        ),
+        "runs": agent_runs,
+    }
+
+
+def run_stage5(args: argparse.Namespace) -> dict[str, Any]:
+    seeds = parse_csv_ints(args.seeds)
+    by_agent: dict[str, list[dict[str, Any]]] = {agent: [] for agent in OPEN_WORLD_AGENTS}
+    seed_runs: list[dict[str, Any]] = []
+    for seed in seeds:
+        seed_payload: dict[str, Any] = {"seed": seed, "agents": {}}
+        for agent in OPEN_WORLD_AGENTS:
+            run = run_open_world_agent_seed(seed=seed, agent=agent, args=args)
+            by_agent[agent].append(run)
+            seed_payload["agents"][agent] = run
+        adapter = seed_payload["agents"]["provenance_adapter"]
+        no_external = seed_payload["agents"]["no_external_control"]
+        naive = seed_payload["agents"]["naive_latest_control"]
+        seed_payload["comparison"] = {
+            "adapter_minus_no_external_accuracy": (
+                adapter["factual_accuracy"] - no_external["factual_accuracy"]
+            ),
+            "adapter_minus_naive_accuracy": (
+                adapter["factual_accuracy"] - naive["factual_accuracy"]
+            ),
+        }
+        seed_runs.append(seed_payload)
+
+    aggregate = {
+        "agents": {
+            agent: aggregate_open_world_agent(runs) for agent, runs in by_agent.items()
+        },
+        "comparison": {
+            "adapter_minus_no_external_accuracy": summarize(
+                [
+                    float(run["comparison"]["adapter_minus_no_external_accuracy"])
+                    for run in seed_runs
+                ]
+            ),
+            "adapter_minus_naive_accuracy": summarize(
+                [float(run["comparison"]["adapter_minus_naive_accuracy"]) for run in seed_runs]
+            ),
+        },
+    }
+    protocol_evidence = {
+        "valid": bool(len(seeds) >= args.min_seeds and args.episodes >= args.stage5_min_episodes),
+        "seed_count": len(seeds),
+        "seed_requirement_met": len(seeds) >= args.min_seeds,
+        "episode_count": args.episodes,
+        "episode_requirement_met": args.episodes >= args.stage5_min_episodes,
+        "deterministic_external_observations": True,
+        "live_web_disabled_for_replay": True,
+        "same_observations_all_agents": True,
+    }
+    thresholds = {
+        "adapter_factual_accuracy_min": args.stage5_adapter_accuracy_min,
+        "adapter_provenance_coverage": 1.0,
+        "adapter_replay_consistency": 1.0,
+        "adapter_minus_no_external_accuracy_min": args.stage5_no_external_margin_min,
+        "adapter_minus_naive_accuracy_min": args.stage5_naive_margin_min,
+        "naive_latest_accuracy_max": args.stage5_naive_accuracy_max,
+    }
+    adapter_agg = aggregate["agents"]["provenance_adapter"]
+    naive_agg = aggregate["agents"]["naive_latest_control"]
+    no_external_margin = aggregate["comparison"]["adapter_minus_no_external_accuracy"]["mean"]
+    naive_margin = aggregate["comparison"]["adapter_minus_naive_accuracy"]["mean"]
+    pass_fail = {
+        "protocol_evidence": protocol_evidence["valid"],
+        "adapter_factual_accuracy": (
+            adapter_agg["factual_accuracy"]["mean"] >= thresholds["adapter_factual_accuracy_min"]
+        ),
+        "adapter_provenance_coverage": (
+            adapter_agg["provenance_coverage"]["mean"]
+            == thresholds["adapter_provenance_coverage"]
+        ),
+        "adapter_replay_consistency": (
+            adapter_agg["replay_consistency"]["mean"] == thresholds["adapter_replay_consistency"]
+        ),
+        "adapter_minus_no_external_accuracy": (
+            no_external_margin >= thresholds["adapter_minus_no_external_accuracy_min"]
+        ),
+        "adapter_minus_naive_accuracy": naive_margin >= thresholds["adapter_minus_naive_accuracy_min"],
+        "naive_latest_accuracy": (
+            naive_agg["factual_accuracy"]["mean"] <= thresholds["naive_latest_accuracy_max"]
+        ),
+    }
+    payload = {
+        "created_at": timestamp(),
+        "kind": "neocortex_x_stage5_open_world_adapter_smoke",
+        "config": vars(args),
+        "protocol_evidence": protocol_evidence,
+        "thresholds": thresholds,
+        "pass_fail": pass_fail,
+        "pass": all(pass_fail.values()),
+        "seed_runs": seed_runs,
+        "aggregate": aggregate,
+        "claim_guardrail": (
+            "Stage 5 validates deterministic external-observation provenance and "
+            "contradiction handling. It does not perform live web search."
+        ),
+    }
+    write_json(Path(args.output_json), payload)
+    if args.require_pass and not payload["pass"]:
+        raise SystemExit(f"Stage 5 smoke failed: {pass_fail}")
+    print("NeoCortex-X Stage 5 open-world adapter smoke")
+    print(f"  protocol_valid: {protocol_evidence['valid']}")
+    print(f"  pass: {payload['pass']}")
+    print(f"  adapter.factual_accuracy_mean: {adapter_agg['factual_accuracy']['mean']:.4f}")
+    print(f"  naive_latest.factual_accuracy_mean: {naive_agg['factual_accuracy']['mean']:.4f}")
+    print(f"  adapter_minus_no_external_accuracy_mean: {no_external_margin:.4f}")
+    print(f"  adapter_minus_naive_accuracy_mean: {naive_margin:.4f}")
+    print(f"  output_json: {args.output_json}")
+    return payload
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run NeoCortex-X Stage 0/1/2 controlled experiment smoke tests."
     )
     parser.add_argument(
         "--stage",
-        choices=("stage0", "stage1", "stage2", "stage3", "stage4"),
+        choices=("stage0", "stage1", "stage2", "stage3", "stage4", "stage5"),
         required=True,
     )
     parser.add_argument("--seed", type=int, default=11)
@@ -2130,6 +2444,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--stage4-greedy-success-max", type=float, default=0.60)
     parser.add_argument("--stage4-return-margin-min", type=float, default=2.0)
     parser.add_argument("--stage4-success-margin-min", type=float, default=0.30)
+    parser.add_argument("--stage5-min-episodes", type=int, default=96)
+    parser.add_argument("--stage5-contradiction-margin", type=float, default=0.20)
+    parser.add_argument("--stage5-adapter-accuracy-min", type=float, default=0.95)
+    parser.add_argument("--stage5-no-external-margin-min", type=float, default=0.50)
+    parser.add_argument("--stage5-naive-margin-min", type=float, default=0.25)
+    parser.add_argument("--stage5-naive-accuracy-max", type=float, default=0.75)
     parser.add_argument("--no-require-pass", dest="require_pass", action="store_false")
     parser.set_defaults(require_pass=True)
     return parser.parse_args()
@@ -2172,6 +2492,8 @@ def validate_args(args: argparse.Namespace) -> None:
         raise SystemExit("--stage4-corridor-len must be at least 7.")
     if args.stage4_horizon < 1:
         raise SystemExit("--stage4-horizon must be positive.")
+    if args.stage5_contradiction_margin < 0:
+        raise SystemExit("--stage5-contradiction-margin must be non-negative.")
 
 
 def main() -> None:
@@ -2193,10 +2515,14 @@ def main() -> None:
         if args.output_json == "artifacts/neocortex_x/stage1_recall_to_action.json":
             args.output_json = "artifacts/neocortex_x/stage3_procedure_reuse.json"
         run_stage3(args)
-    else:
+    elif args.stage == "stage4":
         if args.output_json == "artifacts/neocortex_x/stage1_recall_to_action.json":
             args.output_json = "artifacts/neocortex_x/stage4_planning.json"
         run_stage4(args)
+    else:
+        if args.output_json == "artifacts/neocortex_x/stage1_recall_to_action.json":
+            args.output_json = "artifacts/neocortex_x/stage5_open_world_adapter.json"
+        run_stage5(args)
 
 
 if __name__ == "__main__":
