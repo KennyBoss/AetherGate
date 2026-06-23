@@ -317,7 +317,7 @@ depth ≥3 across ≥6 seeds. If a library that provably captures the true subro
 does not beat dense once branching is priced in, the architectural claim fails at this
 scale and we say so.
 
-## 6e. Stage 1a'' — both halves resolve to ONE conclusion: wrong environment, not wrong method
+## 6e. Stage 1a'' — pruning + a recoverability probe (superseded in part by §6f)
 
 `ecs_stage1c_pruning.py` ran the §6d pre-registered test. Both halves came back negative
 in a way that, together, point past this DSL — and one half turned out **ill-posed**, so
@@ -352,6 +352,57 @@ where the generative procedure is observable** (real code / the AetherGate repai
 where a "skill" is a reusable patch/procedure visible in the solution, not an emergent
 n-gram). That is Stage 2, and 1a'' is what earns the move — a measured boundary, not a
 pivot of convenience. Artifacts: `ecs_stage1c_pruning.json`.
+
+> **Correction (see §6f).** §6e concluded the blocker was *observability* (wrong
+> environment). The follow-up disentangling experiment shows that was only half right: the
+> blocker is **sufficiency**, which a domain change does NOT fix. §6f supersedes the
+> "Stage 2 is justified" reading below.
+
+## 6f. Stage 1b — disentangling: the ceiling itself fails (the real end of the symbolic line)
+
+OpenAI's reading of §6e — "you trained shortcuts, not programs" — is correct but raised
+the decisive question: is shortcut-dominance a property of the SUPERVISION (fixable) or
+the DOMAIN/METHOD (fatal)? `ecs_stage1d_disentangle.py` separates two axes in the SAME
+DSL, no domain change (which would beg the question). **6 seeds, deterministic.**
+
+**(A) Identifiability — YES, it was the supervision.** Online promotion under a
+*generative* teacher (the true subroutine decomposition) recovers **3.8/4** hidden
+subroutines (match-rate 0.48; the rest are legitimate 2-grams within them) vs **0.02**
+under the shortest-path teacher. So "ECS learns shortcuts not programs" was an artifact of
+optimal-compute supervision, and is fully fixable by aligning the teacher. OpenAI's
+diagnosis confirmed.
+
+**(B) Sufficiency — NO, and decisively. This is the result.** Hand ECS the **ORACLE
+library = the exact four hidden subroutines** and run the canonical best-first selector
+(the ceiling for *any* promotion method). It **loses to dense**: held-out **20.0 vs 11.2
+forward-passes (oracle wins 1/6 seeds)**, Axis-C **56.3 vs 32.7 (0/6)**, matched solve.
+The *perfect* library, competently selected, is *worse* than no library at all.
+
+| axis | result | meaning |
+|---|---|---|
+| (A) identifiability | match 0.48 (gen) vs 0.02 (shortest) | program WAS identifiable — supervision artifact |
+| (B) sufficiency (oracle lib) | held 20.0 vs dense 11.2; Axis-C 56.3 vs 32.7 | even the true programs do NOT pay |
+
+**Decision (pre-registered branch A=yes, B=no): the compression thesis fails at this
+scale regardless of domain.** The mechanism is now exact and general: in discrete
+best-first search every macro adds a *branch at every expanded node* (search cost ∝
+action-set size) while saving at most a few path steps; the branching tax dominates the
+path-saving, so macro-augmentation is **net-negative even with a perfect, fully-aligned
+library**. This is NOT observability (a richer domain would not change the search
+arithmetic), NOT selection (best-first is competent), NOT promotion quality (oracle is the
+ceiling). **A domain change to AetherGate would not rescue it** — §6e's "Stage 2 justified"
+reading is retracted.
+
+**What this means for the program (honest, load-bearing).** The "discrete macro library +
+search" instantiation of experience-compression does not yield a marginal-compute win at
+this scale, even at its ceiling. The win the whole line is chasing — *compressed
+experience lowering inference cost* — must come from a substrate where reuse does NOT pay
+a per-node branching tax: i.e. **amortized into the policy/weights (parametric skills that
+add no branching), not bolted on as extra discrete actions a searcher must branch over.**
+That is a genuine redirection named by measurement, not a tweak. The KV-memory / SSM
+backbone (recall amortized in state, O(1), no branching) is the substrate that escapes the
+tax — which is where Stage 2 should actually go: skills as *learned fast-weights*, not
+search actions. Artifacts: `ecs_stage1d_disentangle.json`.
 
 ## 7. Honest scope
 

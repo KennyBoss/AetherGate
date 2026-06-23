@@ -1,0 +1,516 @@
+{
+  "config": {
+    "seeds": "11,17,23,41,73,101",
+    "train_tasks": 240,
+    "eval_tasks": 80,
+    "hidden": 32,
+    "max_macros": 8,
+    "lr": 0.02,
+    "steps_per_task": 4,
+    "batch": 32,
+    "eval_every": 40,
+    "max_depth": 8,
+    "budget": 200000,
+    "node_budget": 256,
+    "bf_depth": 16,
+    "output_json": "artifacts/ecs_stage1d_disentangle.json"
+  },
+  "protocol_evidence": {
+    "held_out": true,
+    "two_teachers": [
+      "shortest_path",
+      "generative_program"
+    ],
+    "oracle_library": "exact hidden subroutines (sufficiency ceiling)",
+    "compute_metric": "policy forward-passes (best-first), identical per arm",
+    "n_seeds": 6,
+    "valid": true
+  },
+  "aggregate": {
+    "match_rate_shortest": 0.021,
+    "match_rate_generative": 0.479,
+    "match_count_generative": 3.833,
+    "held_oracle": 20.006,
+    "held_grown": 12.373,
+    "held_dense": 11.173,
+    "held_oracle_solve": 1.0,
+    "held_dense_solve": 1.0,
+    "axisC_oracle": 56.281,
+    "axisC_grown": 38.698,
+    "axisC_dense": 32.658,
+    "verdict": {
+      "A_identifiable_under_generative_supervision": true,
+      "B_oracle_beats_dense_held": false,
+      "B_held_seedfrac": "1/6",
+      "B_oracle_beats_dense_axisC": false,
+      "B_axisC_seedfrac": "0/6",
+      "B_sufficient": false,
+      "matched_solve_rate": true,
+      "decision": "A=yes,B=no: programs identifiable but do NOT pay -> compression thesis fails at this scale (any domain)"
+    }
+  },
+  "seed_runs": [
+    {
+      "seed": 11,
+      "identifiability": {
+        "shortest": {
+          "n_macros": 8,
+          "macros": [
+            "cea",
+            "ceac",
+            "eac",
+            "ac",
+            "ea",
+            "ae",
+            "aa",
+            "eea"
+          ],
+          "hidden_match": 0,
+          "match_rate": 0.0
+        },
+        "generative": {
+          "n_macros": 8,
+          "macros": [
+            "bbd",
+            "bbdc",
+            "bdca",
+            "cac",
+            "ac",
+            "acb",
+            "acbc",
+            "bcac"
+          ],
+          "hidden_match": 3,
+          "match_rate": 0.375
+        }
+      },
+      "sufficiency": {
+        "held": {
+          "oracle_ecs": {
+            "mean_forwards": 13.125,
+            "solve_rate": 1.0,
+            "fire_rate": 0.7875,
+            "mean_path": 3.35
+          },
+          "grown_ecs": {
+            "mean_forwards": 8.6,
+            "solve_rate": 1.0,
+            "fire_rate": 0.7875,
+            "mean_path": 4.425
+          },
+          "dense": {
+            "mean_forwards": 10.7125,
+            "solve_rate": 1.0,
+            "fire_rate": 0.0,
+            "mean_path": 5.4625
+          }
+        },
+        "axisC": {
+          "oracle_ecs": {
+            "mean_forwards": 43.425,
+            "solve_rate": 1.0,
+            "fire_rate": 0.625,
+            "mean_path": 4.725
+          },
+          "grown_ecs": {
+            "mean_forwards": 36.4375,
+            "solve_rate": 1.0,
+            "fire_rate": 0.625,
+            "mean_path": 5.125
+          },
+          "dense": {
+            "mean_forwards": 39.975,
+            "solve_rate": 1.0,
+            "fire_rate": 0.0,
+            "mean_path": 7.9125
+          }
+        }
+      }
+    },
+    {
+      "seed": 17,
+      "identifiability": {
+        "shortest": {
+          "n_macros": 8,
+          "macros": [
+            "ac",
+            "cea",
+            "ea",
+            "bea",
+            "ae",
+            "aeea",
+            "aae",
+            "aee"
+          ],
+          "hidden_match": 0,
+          "match_rate": 0.0
+        },
+        "generative": {
+          "n_macros": 8,
+          "macros": [
+            "edd",
+            "dded",
+            "dedd",
+            "bbd",
+            "cac",
+            "ac",
+            "edde",
+            "acb"
+          ],
+          "hidden_match": 4,
+          "match_rate": 0.5
+        }
+      },
+      "sufficiency": {
+        "held": {
+          "oracle_ecs": {
+            "mean_forwards": 22.4375,
+            "solve_rate": 1.0,
+            "fire_rate": 0.9375,
+            "mean_path": 6.675
+          },
+          "grown_ecs": {
+            "mean_forwards": 11.6875,
+            "solve_rate": 1.0,
+            "fire_rate": 0.9375,
+            "mean_path": 6.925
+          },
+          "dense": {
+            "mean_forwards": 13.15,
+            "solve_rate": 1.0,
+            "fire_rate": 0.0,
+            "mean_path": 4.8125
+          }
+        },
+        "axisC": {
+          "oracle_ecs": {
+            "mean_forwards": 61.3875,
+            "solve_rate": 1.0,
+            "fire_rate": 0.95,
+            "mean_path": 6.0125
+          },
+          "grown_ecs": {
+            "mean_forwards": 45.6125,
+            "solve_rate": 0.9875,
+            "fire_rate": 0.95,
+            "mean_path": 5.569620253164557
+          },
+          "dense": {
+            "mean_forwards": 36.6875,
+            "solve_rate": 1.0,
+            "fire_rate": 0.0,
+            "mean_path": 8.425
+          }
+        }
+      }
+    },
+    {
+      "seed": 23,
+      "identifiability": {
+        "shortest": {
+          "n_macros": 8,
+          "macros": [
+            "ce",
+            "acea",
+            "ea",
+            "cea",
+            "bea",
+            "ab",
+            "ae",
+            "be"
+          ],
+          "hidden_match": 0,
+          "match_rate": 0.0
+        },
+        "generative": {
+          "n_macros": 8,
+          "macros": [
+            "acb",
+            "acca",
+            "cac",
+            "ac",
+            "bbd",
+            "edd",
+            "dded",
+            "dedd"
+          ],
+          "hidden_match": 4,
+          "match_rate": 0.5
+        }
+      },
+      "sufficiency": {
+        "held": {
+          "oracle_ecs": {
+            "mean_forwards": 10.1875,
+            "solve_rate": 1.0,
+            "fire_rate": 0.6625,
+            "mean_path": 3.7
+          },
+          "grown_ecs": {
+            "mean_forwards": 5.85,
+            "solve_rate": 1.0,
+            "fire_rate": 0.6625,
+            "mean_path": 3.1125
+          },
+          "dense": {
+            "mean_forwards": 10.3,
+            "solve_rate": 1.0,
+            "fire_rate": 0.0,
+            "mean_path": 5.0125
+          }
+        },
+        "axisC": {
+          "oracle_ecs": {
+            "mean_forwards": 36.1375,
+            "solve_rate": 1.0,
+            "fire_rate": 0.275,
+            "mean_path": 5.1875
+          },
+          "grown_ecs": {
+            "mean_forwards": 28.5375,
+            "solve_rate": 1.0,
+            "fire_rate": 0.275,
+            "mean_path": 4.0125
+          },
+          "dense": {
+            "mean_forwards": 26.4625,
+            "solve_rate": 1.0,
+            "fire_rate": 0.0,
+            "mean_path": 7.475
+          }
+        }
+      }
+    },
+    {
+      "seed": 41,
+      "identifiability": {
+        "shortest": {
+          "n_macros": 8,
+          "macros": [
+            "ae",
+            "bbc",
+            "aab",
+            "ea",
+            "ac",
+            "aa",
+            "ab",
+            "bea"
+          ],
+          "hidden_match": 0,
+          "match_rate": 0.0
+        },
+        "generative": {
+          "n_macros": 8,
+          "macros": [
+            "edd",
+            "bbd",
+            "acb",
+            "ac",
+            "cac",
+            "bb",
+            "bd",
+            "dbbd"
+          ],
+          "hidden_match": 4,
+          "match_rate": 0.5
+        }
+      },
+      "sufficiency": {
+        "held": {
+          "oracle_ecs": {
+            "mean_forwards": 17.075,
+            "solve_rate": 1.0,
+            "fire_rate": 0.875,
+            "mean_path": 2.75
+          },
+          "grown_ecs": {
+            "mean_forwards": 20.4,
+            "solve_rate": 1.0,
+            "fire_rate": 0.875,
+            "mean_path": 3.025
+          },
+          "dense": {
+            "mean_forwards": 13.8,
+            "solve_rate": 1.0,
+            "fire_rate": 0.0,
+            "mean_path": 5.875
+          }
+        },
+        "axisC": {
+          "oracle_ecs": {
+            "mean_forwards": 58.65,
+            "solve_rate": 1.0,
+            "fire_rate": 0.275,
+            "mean_path": 4.7
+          },
+          "grown_ecs": {
+            "mean_forwards": 44.8125,
+            "solve_rate": 1.0,
+            "fire_rate": 0.275,
+            "mean_path": 4.125
+          },
+          "dense": {
+            "mean_forwards": 33.4,
+            "solve_rate": 1.0,
+            "fire_rate": 0.0,
+            "mean_path": 8.35
+          }
+        }
+      }
+    },
+    {
+      "seed": 73,
+      "identifiability": {
+        "shortest": {
+          "n_macros": 8,
+          "macros": [
+            "ae",
+            "ced",
+            "ab",
+            "acb",
+            "ea",
+            "eea",
+            "aab",
+            "bea"
+          ],
+          "hidden_match": 1,
+          "match_rate": 0.125
+        },
+        "generative": {
+          "n_macros": 8,
+          "macros": [
+            "acb",
+            "ac",
+            "cb",
+            "edd",
+            "cac",
+            "bbd",
+            "ca",
+            "bb"
+          ],
+          "hidden_match": 4,
+          "match_rate": 0.5
+        }
+      },
+      "sufficiency": {
+        "held": {
+          "oracle_ecs": {
+            "mean_forwards": 10.875,
+            "solve_rate": 1.0,
+            "fire_rate": 1.0,
+            "mean_path": 5.3
+          },
+          "grown_ecs": {
+            "mean_forwards": 16.575,
+            "solve_rate": 1.0,
+            "fire_rate": 1.0,
+            "mean_path": 4.825
+          },
+          "dense": {
+            "mean_forwards": 8.05,
+            "solve_rate": 1.0,
+            "fire_rate": 0.0,
+            "mean_path": 6.0375
+          }
+        },
+        "axisC": {
+          "oracle_ecs": {
+            "mean_forwards": 39.0875,
+            "solve_rate": 1.0,
+            "fire_rate": 0.9625,
+            "mean_path": 5.5625
+          },
+          "grown_ecs": {
+            "mean_forwards": 49.475,
+            "solve_rate": 0.9875,
+            "fire_rate": 0.9625,
+            "mean_path": 5.0886075949367084
+          },
+          "dense": {
+            "mean_forwards": 29.025,
+            "solve_rate": 1.0,
+            "fire_rate": 0.0125,
+            "mean_path": 8.5125
+          }
+        }
+      }
+    },
+    {
+      "seed": 101,
+      "identifiability": {
+        "shortest": {
+          "n_macros": 8,
+          "macros": [
+            "ab",
+            "abc",
+            "ea",
+            "bea",
+            "eac",
+            "ac",
+            "bc",
+            "eea"
+          ],
+          "hidden_match": 0,
+          "match_rate": 0.0
+        },
+        "generative": {
+          "n_macros": 8,
+          "macros": [
+            "edd",
+            "dd",
+            "bbd",
+            "acb",
+            "ac",
+            "cac",
+            "ed",
+            "ca"
+          ],
+          "hidden_match": 4,
+          "match_rate": 0.5
+        }
+      },
+      "sufficiency": {
+        "held": {
+          "oracle_ecs": {
+            "mean_forwards": 46.3375,
+            "solve_rate": 1.0,
+            "fire_rate": 0.875,
+            "mean_path": 5.075
+          },
+          "grown_ecs": {
+            "mean_forwards": 11.125,
+            "solve_rate": 1.0,
+            "fire_rate": 0.875,
+            "mean_path": 4.575
+          },
+          "dense": {
+            "mean_forwards": 11.025,
+            "solve_rate": 1.0,
+            "fire_rate": 0.0,
+            "mean_path": 6.0625
+          }
+        },
+        "axisC": {
+          "oracle_ecs": {
+            "mean_forwards": 99,
+            "solve_rate": 0.925,
+            "fire_rate": 0.5125,
+            "mean_path": 4.972972972972973
+          },
+          "grown_ecs": {
+            "mean_forwards": 27.3125,
+            "solve_rate": 1.0,
+            "fire_rate": 0.5125,
+            "mean_path": 4.7375
+          },
+          "dense": {
+            "mean_forwards": 30.4,
+            "solve_rate": 1.0,
+            "fire_rate": 0.0,
+            "mean_path": 7.4375
+          }
+        }
+      }
+    }
+  ]
+}
