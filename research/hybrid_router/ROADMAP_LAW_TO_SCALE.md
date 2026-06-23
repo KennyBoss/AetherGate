@@ -110,10 +110,16 @@ attention) against router+memory (O(1) lookup). Plot **accuracy vs FLOPs**.
   wins (law-consistent). One honest figure.
 - **Kill:** no crossover at this scale → frontier is a scale-only effect; report.
 
-## Stage 4 — The Headroom Meter (productization) → a tool
-Package: given two models + a task → output `headroom` + a routing recommendation
-in seconds, **no training**. The law as a diagnostic CTOs can run.
-- **Exit:** a CLI/lib that ingests two model-output sets and emits the verdict.
+## Stage 4 — The Headroom Meter (productization) → ✅ DONE (shippable tool)
+`headroom_meter/headroom_meter.py`: a dependency-free CLI/lib that ingests the
+per-item correctness of two systems (json/csv/stdin) and emits a verdict —
+**COMBINE / DEPLOY-DOMINANT / DON'T-COMBINE** — plus headroom, failure overlap,
+error-orthogonality, and (with an optional cue) the captured-headroom fraction.
+No training, no weights. Deterministic.
+- **Exit met:** reproduces all three regimes; on Stage-0 real data
+  (`best = 1.0`) it returns DEPLOY-DOMINANT — the Law's exact call. README frames
+  the honest claim (constant state cost vs context-growing cost), not "SSM wins".
+- The law as a diagnostic any team can run on its own eval outputs today.
 
 ## Stage 5 — Scale (the castle) → real models, real benchmarks
 Swap the tiny experts for a small pretrained Transformer + a real retrieval memory;
