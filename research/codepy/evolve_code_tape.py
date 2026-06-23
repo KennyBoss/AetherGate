@@ -86,6 +86,7 @@ TAPE_BLOCKS = (
     "r0 = r1",
     "r1 = r0",
     "r1 = where(p, r0, r1)",
+    "sort2(r0, r1)",
 )
 
 TARGET_DESCRIPTIONS = {
@@ -121,6 +122,7 @@ class EvalMetrics(NamedTuple):
 
 class TapeExecution(NamedTuple):
     output: jax.Array
+    final_tape: jax.Array
     read_steps: jax.Array
     write_steps: jax.Array
     move_steps: jax.Array
@@ -142,9 +144,20 @@ def target_values(vectors: jax.Array, target: str) -> jax.Array:
 
 
 def make_dataset(
-    target: str, cases: int, input_len: int
+    target: str, cases: int, input_len: int, *, rich_seed: int | None = None
 ) -> tuple[jax.Array, jax.Array, jax.Array, jax.Array]:
     values = np.asarray([-2.0, -1.0, 0.0, 1.0, 2.0], dtype=np.float32)
+    if rich_seed is not None:
+        # Rich mode: many freshly sampled vectors so fitting train ~= generalizing.
+        # Train and holdout drawn from the SAME distribution but disjoint seeds;
+        # this is the anti-overfitting fix for two-variable targets (e.g. argmax).
+        rng_tr = np.random.default_rng(rich_seed)
+        rng_ho = np.random.default_rng(rich_seed + 9973)
+        train_rows = rng_tr.choice(values, size=(cases, input_len))
+        holdout_rows = rng_ho.choice(values, size=(cases, input_len))
+        train_x = jnp.asarray(train_rows, dtype=jnp.float32)
+        holdout_x = jnp.asarray(holdout_rows, dtype=jnp.float32)
+        return train_x, target_values(train_x, target), holdout_x, target_values(holdout_x, target)
     train_rows = []
     holdout_rows = []
     for i in range(cases):
@@ -274,6 +287,11 @@ def execute_programs(
         r0 = select_op(op_ids, 27, jnp.where(old_predicate, old_ptr.astype(jnp.float32), old_r0), r0)
         r1 = select_op(op_ids, 28, jnp.where(old_predicate, old_ptr.astype(jnp.float32), old_r1), r1)
         r1 = select_op(op_ids, 34, jnp.where(old_predicate, old_r0, old_r1), r1)
+        # compare-exchange atom (id 35): (r0, r1) <- (min, max) simultaneously from old values.
+        # The missing primitive surfaced by the swap_if_gt2 search: a 2-register conditional
+        # swap cannot be expressed across separate pc steps (no temp; only r0, r1 exist).
+        r0 = select_op(op_ids, 35, jnp.minimum(old_r0, old_r1), r0)
+        r1 = select_op(op_ids, 35, jnp.maximum(old_r0, old_r1), r1)
         conditional_steps = conditional_steps + (
             (op_ids == 16)
             | (op_ids == 17)
@@ -324,7 +342,7 @@ def execute_programs(
     (
         r0,
         _,
-        _,
+        final_tape,
         _,
         _,
         _,
@@ -359,6 +377,7 @@ def execute_programs(
     )
     return TapeExecution(
         output=r0,
+        final_tape=final_tape,
         read_steps=jnp.mean(read_steps, axis=1),
         write_steps=jnp.mean(write_steps, axis=1),
         move_steps=jnp.mean(move_steps, axis=1),
@@ -648,7 +667,10 @@ def run(args: argparse.Namespace) -> None:
     if args.trace_top_k < 0 or args.trace_sample_k < 0:
         raise SystemExit("--trace-top-k and --trace-sample-k must be >= 0")
 
-    train_x, train_y, holdout_x, holdout_y = make_dataset(args.target, args.cases, args.input_len)
+    train_x, train_y, holdout_x, holdout_y = make_dataset(
+        args.target, args.cases, args.input_len,
+        rich_seed=(args.seed + 1) if args.rich_data else None,
+    )
     vocab_size = len(TAPE_BLOCKS)
     key = jax.random.PRNGKey(args.seed)
     key, init_key = jax.random.split(key)
@@ -928,6 +950,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--stop-mse", type=float, default=1.0e-8)
     parser.add_argument("--log-every", type=int, default=10)
     parser.add_argument("--inject-reference", action="store_true")
+    parser.add_argument("--rich-data", action="store_true",
+                        help="sample many random cases instead of the fixed stride pattern "
+                             "(anti-overfitting; fitting train ~= generalizing)")
     parser.add_argument("--output-json", default=None)
     parser.add_argument("--trace-jsonl", default=None)
     parser.add_argument("--trace-all", action="store_true")

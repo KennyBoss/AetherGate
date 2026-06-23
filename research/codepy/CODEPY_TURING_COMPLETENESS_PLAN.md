@@ -165,7 +165,9 @@ The extra conditional block is inert because the predicate stays false, and
 the trailing read is harmless after the accumulation loop. This is a first
 autonomous stateful discovery result.
 
-### Stage 5A ladder — current frontier (autonomous, fresh-distribution certified)
+### Stage 5A ladder
+
+### Path C: Compression Verification (pre-registered Stage-3) — current frontier (autonomous, fresh-distribution certified)
 
 The built-in train/holdout is a thin 32-case stride pattern; a program can hit
 `holdout_mse=0` while still being wrong on the true input distribution. So
@@ -491,3 +493,22 @@ re-approximating each procedure. If instead matched performance still requires
 the weights to re-encode the procedures (frozen-backbone ablation kills the
 drop), the inversion is false for our system and "LLM = selector" stays out of
 the conclusions. Do not assume the inversion — measure it.
+
+**Goal:** Verify that the compression thesis holds under the two impostor controls (G2): as library grows, active-compute on held-out Axis-C must drop while parameter count stays flat; frozen-backbone ablation must kill the effect. This test is pre-registered here and will be implemented in `ecs_stage3_composition.py`.
+
+**Setup:** same DSL + bounded-loop engine from Path B; skill memory now contains only *procedural* skills (macros) that can be invoked inside loops. The library grows online via promotion (see §Path A), but this experiment freezes the growth rule to a single macro cap `kmax` per run — we sweep it across {2,8}.
+
+**Metric:** active-compute = forward-passes of the best-first search, counted identically for every arm. Cost is measured on a held-out split that was *never* used during skill creation (blind library growth).
+
+**Arms:**
+1. **ECS(kmax)** — recurrent backbone + bounded M(kmax) + learned gate `g_t` over per-task reachability probes, best-first search, growing M blind to eval splits.
+2. **dense(kmax)** — parameter-matched recurrent net (no memory, no gate), same solver and search budget as ECS.
+3. **frozen-backbone** — ECS with backbone frozen after warmup; only M and `g_t` adapt → isolates hidden-state-attractor explanation.
+
+**The pass/fail metric:** let `A(e)` = mean active-compute/task on the held-out reuse split after cumulative exposure `e` at matched per-task loss `L*`.
+- **PASS** iff: `A_ECS(e)` decreases with `e`; its slope is significantly steeper (95% CI, ≥6 seeds) than `dense+curriculum` AND `frozen-backbone`; the drop survives Axis-C; and `ECS` matches `dense` loss at `L*`.
+- **FAIL** iff any control matches the slope (`dense`→param-reuse; `frozen-backbone`→attractors), OR the drop vanishes under Axis-C (→ table memorization).
+
+This is exactly the Stage-2 pre-registered test for CodePy, aligned with `MODEL_THESIS §6e`. Artifact: `ecs_stage3_composition.json`. **Pre-registered prediction:** ECS at its pruned-optimal size should beat dense on held-out AND survive Axis-C at depth ≥3 across ≥6 seeds. If not, the architectural claim fails — we say so.
+
+**Reading.** This is the intended use of the contract: a naive build was *prevented* from claiming a curriculum artifact as emergence. The structural arc's residual is now also the empirical blocker of Stage 1 — the two lines meet on the same open problem.
