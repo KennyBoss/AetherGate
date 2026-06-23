@@ -57,6 +57,8 @@
   policy snapshot по таблице `context_decision -> action`.
 - Stage 20: contextual policy replay, где Stage 19 snapshot применяется к
   Stage 17 context decisions и проверяется против global-prior control.
+- Stage 21: contextual policy promotion, где replay-validated contextual
+  policy получает runtime manifest с rollback metadata.
 
 Важно: Stage 1/2 пока используют hand-coded agents. Это проверка harness,
 артефактов, метрик и pass/fail контракта, а не claim про обученный SSM или AGI.
@@ -93,6 +95,7 @@ make neocortex-x-stage17-contextual-action-gate-smoke
 make neocortex-x-stage18-contextual-feedback-smoke
 make neocortex-x-stage19-contextual-policy-smoke
 make neocortex-x-stage20-contextual-policy-replay-smoke
+make neocortex-x-stage21-contextual-policy-promotion-smoke
 ```
 
 Прямой запуск:
@@ -230,6 +233,11 @@ python3 research/neocortex_x/stage20_contextual_policy_replay.py \
   --contextual-action-json artifacts/neocortex_x/stage17_contextual_action_gate.json \
   --policy-json artifacts/neocortex_x/stage19_contextual_policy_update.json \
   --output-json artifacts/neocortex_x/stage20_contextual_policy_replay.json
+
+python3 research/neocortex_x/stage21_contextual_policy_promotion.py \
+  --replay-json artifacts/neocortex_x/stage20_contextual_policy_replay.json \
+  --policy-json artifacts/neocortex_x/stage19_contextual_policy_update.json \
+  --output-json artifacts/neocortex_x/stage21_contextual_policy_promotion.json
 ```
 
 ## Артефакты
@@ -263,6 +271,7 @@ python3 research/neocortex_x/stage20_contextual_policy_replay.py \
 - `artifacts/neocortex_x/stage18_contextual_feedback.json`
 - `artifacts/neocortex_x/stage19_contextual_policy_update.json`
 - `artifacts/neocortex_x/stage20_contextual_policy_replay.json`
+- `artifacts/neocortex_x/stage21_contextual_policy_promotion.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 
