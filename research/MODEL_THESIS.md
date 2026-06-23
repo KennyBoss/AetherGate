@@ -103,6 +103,8 @@ growth is **blind** to all held-out/dissociation splits.
 
 ## 4. What would prove us wrong (kept visible)
 
+**CodePy verification.** The CodePy compression test (Path C) in `CODEPY_TURING_COMPLETENESS_PLAN.md` provides an independent pre-registered benchmark for the same claim — active-compute drop on held-out Axis-C with frozen-backbone control. That test's outcome will be cross-referenced here once executed.
+
 1. Cost falls only on memorized inputs, not held-out instances → caching, not compression.
 2. `dense+curriculum` reproduces the slope → it was task ordering / silent param reuse.
 3. Gain needs the explicit MDL loss to appear → engineered, not emergent (weaker claim; G2).
@@ -448,6 +450,119 @@ that lower cost on *novel compositions*, not just familiar ones. That — not th
 is now the lone open problem, and it is the same Axis-C wall the structural arc (3.3–3.4)
 and every Stage-1 arm hit. The substrate question is settled; the composition question is
 the whole remaining game. Artifacts: `ecs_stage2_fastweight.json`.
+
+## 6h. Stage 2A — composition diagnostic: the wall is NOT the selector (H2 excluded, H1 confirmed)
+
+`ecs_stage2a_composition.py` tests whether the Axis-C failure in §6g is selector blindness
+(H2: Deltas compose, gate can't pick them on novel-depth targets) vs non-compositional
+Delta form (H1: Deltas are local accelerators that don't chain). The discriminating
+instrument is **oracle routing**: hand the policy perfect knowledge of which subroutine is
+active at each state, forcing `Δ_k` from the composition plan instead of the learned gate.
+If oracle << gate AND oracle ≤ cdense at depth 3 → H2; if oracle ≈ gate AND neither beats
+cdense → H1; if oracle >> cdense → H3 (conflict). **Depth ladder (1/2/3 subroutines), 6
+seeds, deterministic, solve-rate ≥ 0.985 everywhere.**
+
+| depth | gate | oracle | off | cdense | disc | orc<gate | orc<cdense | gate<cdense |
+|-------|------|--------|-----|--------|------|----------|------------|-------------|
+| 1 | 4.16 | 3.60 | 4.28 | 5.85 | 4.15 | 6/6 | 6/6 | 6/6 |
+| 2 | 16.15 | 14.22 | 14.98 | 13.25 | 18.30 | 5/6 | 3/6 | 1/6 |
+| 3 | 45.73 | 44.29 | 47.60 | 42.92 | 63.80 | 3/6 | 3/6 | 3/6 |
+
+**H2 and H3 are excluded. H1 is confirmed as the positive diagnosis.**
+
+- **H2 (selector blindness) EXCLUDED.** Oracle ≈ gate at **every** depth: 3.60≈4.16,
+  14.22≈16.15, 44.29≈45.73. The learned gate already selects the right skill — adding
+  composition context to the gate would not help, because even an omniscient selector
+  doesn't beat cdense. The gate is NOT the bottleneck.
+- **H3 (Delta conflict) EXCLUDED.** Oracle does not degrade relative to gate — it tracks
+  it or slightly improves. The Deltas do not actively conflict in logit space even when
+  chained correctly. This is the clean opposite of the discrete-macro case (§6f), where
+  the oracle library was *worse* than no library (20.0 vs 11.2).
+- **H1 (not compositional) CONFIRMED.** At depth 1, skills clearly help (gate 4.16 <
+  cdense 5.85, 6/6 seeds). By depth 2, the advantage has already reversed (cdense 13.25 <
+  gate 16.15, gate wins 1/6). At depth 3, everything is a wash inside seed spread (gate
+  45.73 ≈ oracle 44.29 ≈ cdense 42.92, 3/6 each way). The `Δ_k` fast-weight is a LOCAL
+  accelerator — it faithfully biases the policy toward the right primitives *within* a
+  familiar subroutine — but chaining three such biases across three subroutines at novel
+  depth neither cumulates into a cheaper solution nor beats a separately-trained
+  skill-free policy.
+
+**Additional signature: skill-conditioned training degrades the base policy at novel
+depth.** At depth 1, `off` (same policy, skills disabled) beats cdense (4.28 < 5.85) —
+the skill-trained policy is better even without skills. At depth 3 this reverses: `off`
+47.60 >> cdense 42.92 — the skill-trained policy's base is *worse* at composition than a
+policy that never saw skills. The training that installs local Deltas subtly narrows the
+policy, making it less general at unfamiliar depth. This is a second-order effect distinct
+from the primary H1 result, but it reinforces the diagnosis: the current skill form does
+not compose, and the training that produces it trades generality for local speed.
+
+**Cross-line convergence with CodePy.** The CodePy tape DSL provides an independent
+measurement of the same wall. `diag_sort3_expressible.py` hand-builds a sorting-network
+program (sort3 = three compare-exchanges over adjacent tape cells, 22 ops → 0.0 MSE on
+3 input distributions). sort3 IS expressible — the tape, registers, and `sort2(r0,r1)`
+block fully encode it. But the evolution probe (`evolve_tape_output.py`) could NOT find it
+— the probe's program-length ceiling (12) was below the network's length (22). So in two
+independent substrates:
+- **Expressibility** exists: ECS's true subroutines reduce local cost (depth 1, 6/6);
+  CodePy's tape encodes sort3 exactly.
+- **Composition is not found by search/selection**: ECS's Deltas don't chain at novel
+  depth; CodePy's evolution can't scale the program length to express the sorting network.
+- **The selector is not the bottleneck in either**: ECS's oracle ≈ gate (selector is
+  competent); CodePy's hand-built program works immediately (no hidden subroutine, just
+  length). The wall is not about *choosing* the right skill — it is about *assembling*
+  them into longer compositions.
+
+### The meta-hypothesis (earned, not assumed)
+
+The convergence of these two negative diagnostics across independent substrates does NOT
+license declaring composition a new independent resource. It licenses a precise
+architectural diagnosis:
+
+> **The missing dynamic is state porting across skill boundaries.** The fast-weight
+> `Δ_k(s)` is a local edit conditioning on the current state `s` only — it biases
+> primitives *within* a single subroutine's execution but carries no information from the
+> preceding skill or about the remaining composition depth. When three subroutines are
+> chained, each `Δ_k` fires in isolation at its local state, blind to: (a) which
+> subroutine just finished, (b) what depth we are at, (c) what the state trajectory
+> through the previous subroutine "means" for the current one. The Deltas don't conflict
+> (H3 excluded), the gate selects correctly (H2 excluded) — but nothing ports state
+> from one skill to the next. Each skill accelerates its own segment; the transitions
+> between segments are unmodeled, so the cumulative saving never crosses the break-even
+> at novel depth.
+
+This is NOT a claim about a new resource class. It is a falsifiable claim about the
+**mechanism that is absent**: a compositional operator that transforms the state
+representation between skills — not selecting *which* skill, not storing the skill
+itself, but carrying the *consequence* of skill k into the precondition of skill k+1.
+
+In CodePy this same absence takes a different surface form but the same structure: the
+tape stores state that IS ported across blocks (write→read is built in), but the
+evolutionary search cannot assemble blocks into a program long enough to encode the
+sorting network (22 ops > 12-op probe). Expressibility exists (state porting is
+representable), but the assembly mechanism — program-length scaling in evolution — is
+the missing dynamic there. Two substrates, one gap: neither has a working mechanism for
+assembling local skills into longer compositions.
+
+**Current standing.** The observed results — depth-1 advantage (6/6 seeds), depth-2
+reversal (cdense already cheaper), depth-3 wash with oracle ≈ gate — are **consistent**
+with the missing-state-porting hypothesis. A local Δ_k that cannot condition on prior-skill
+state or remaining composition depth naturally produces: (a) a clean local benefit when one
+skill fires in isolation; (b) a shrinking benefit as skills chain, because no information
+crosses skill boundaries; (c) no advantage from oracle routing, because the issue is not
+*which* skill fires but that the skill form has no cross-boundary dynamic. However,
+consistency is not proof. The hypothesis predicts that adding state-porting (Δ_k conditioned
+on prior-skill context) should restore the depth-1 advantage at depth 3 — that prediction is
+now pre-registered as a falsifiable test, not admitted as a conclusion.
+
+**Pre-registered (not moved post-hoc):** the next experiment is NOT a composition-aware
+gate (H2 excluded) and NOT another flat-edit Δ tweak. It is a measurement of whether
+adding **state porting** to the fast-weight form — `Δ_k(s, c)` where `c` encodes what
+the previous skill left behind (a summary of the state trajectory through the prior
+subroutine, or simply the remaining composition depth) — restores the depth-1 advantage
+at depth 3. If depth-conditioned Deltas still wash out, the missing dynamic is deeper
+than state porting and the fast-weight substrate needs a different composition mechanism
+(e.g., recurrent state updates that chain, rather than additive local edits that don't).
+Artifacts: `ecs_stage2a_composition.json`.
 
 ## 7. Honest scope
 

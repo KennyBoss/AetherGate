@@ -401,6 +401,131 @@ robustness, (b) the natural multi-pass target **bubble/3-permutation** built fro
 chained compare-exchanges — which is exactly where the deferred `halt` / phase
 boundary is expected to be *earned* from a measured multi-pass failure.
 
+### sort3 correction — it is straight-line, and the failure is SEARCH, not halt (2026-06-23)
+
+The prediction above ("sort3 is multi-pass; needs a phase boundary / real halt")
+is **wrong, by measurement.** Two runs settle it:
+
+1. **Evolution run** (pop 32,768 × 400 gens × 30 steps, len 16, seed 41): plateaued
+   at holdout tape-MSE **0.576** (target ~0), stuck in a partial-sort local optimum
+   for 400 generations. The best program even grew a backward branch
+   (`pc = where(p, 3, pc+1)`) and two `sort2`s, but never escaped.
+2. **Hand-built expressibility check** (`verify_sort3.py`): the 3-comparator
+   sorting network `(0,1)(1,2)(0,1)` — three `sort2` compare-exchanges with
+   load/store around each, 24 straight-line ops, **no halt, no loop, no multi-pass**
+   — sorts **256/256 triples exactly, tape-MSE = 0.**
+
+So sort3 **IS expressible** with the existing block set (the `sort2` atom earned by
+`swap_if_gt2` already suffices), and the executor handles it. The plateau is a
+**discovery/search failure**: partial comparator networks give no fitness gradient
+toward the full network, so mutation+elitism can't climb the 24-op composition.
+
+**Two corrections to the framing above:**
+- **Fixed-length sortN is straight-line code** (a sorting network), NOT multi-pass.
+  It needs no `halt` and no phase boundary. The multi-pass / phase-boundary / `halt`
+  argument (lines ~339-341, ~352-357, ~400-402) applies to **length-invariant
+  (variable-N) sorting** — where the number of passes depends on the input length —
+  NOT to sort3. sort3 is the wrong target to "earn halt" from; it earns nothing.
+- The real barrier sort3 exposes is **search dynamics on deep straight-line
+  compositions**, a different problem from the executor/semantics gap. Candidate
+  next steps: curriculum from `swap_if_gt2` → seed/graft the certified comparator,
+  reward partial-sortedness (e.g. count of correctly-ordered adjacent pairs) to
+  create a gradient, or larger/diversified search. The deferred `halt` should be
+  earned from a genuine **variable-N** target, not from sort3.
+
+### Reframing: the open problem is now search landscape, not DSL expressivity (2026-06-23)
+
+The sort3 experiment corrected the causal chain. The old hypothesis:
+
+```text
+sort3 not found → therefore halt is needed → halt will unlock sort3
+```
+
+The direct counterexample:
+
+```text
+sort3 EXISTS in the DSL (verified: 256/256, MSE=0)
+sort3 works perfectly
+halt is NOT used
+```
+
+Therefore: **halt is not the bottleneck for sort3.** The necessity of halt for
+fixed-length sortN is experimentally disproven.
+
+This changes what the open problem IS. Before, the question was:
+
+> "How to make the DSL more powerful?"
+
+Now, the question is:
+
+> "How to make the search landscape traversable for deep compositions?"
+
+The distinction matters: the DSL can already express five algorithms (sum,
+count_positive, argmax, swap_if_gt2, sort3). That is substantially stronger than
+several weeks ago. The bottleneck is NOT expressivity — it is **findability**.
+The program exists, the search does not reach it.
+
+#### What NOT to do next (and why)
+
+| Candidate | Verdict | Reason |
+|-----------|---------|--------|
+| variable-N sort | **No** | Mixes search + halt + loops + composition + length simultaneously. Uninformative pass or fail — cannot localize cause. |
+| new primitive | **No** | `sort2` was earned from a measured representational gap. For sort3, no such gap exists — it is already expressible. No measurement demands a new block. |
+| add halt now | **No** | sort3 was the predicted justification. That prediction failed. Halt must be earned from a genuine variable-N target. |
+
+#### What to do next: curriculum / grafting / inversion reward
+
+The current configuration is a rare, clean testbed for composition:
+
+```text
+sort2        — FOUND and certified (2/4 seeds, fresh-distribution verified)
+sort3        — EXPRESSIBLE but NOT found (plateau at MSE 0.576)
+```
+
+This isolates the search-landscape problem. Four conditions:
+
+1. **Start from scratch** (baseline — already failed).
+2. **Start from certified `swap_if_gt2`** (curriculum: does seeding a known
+   component unlock the composition?).
+3. **Start from two grafted `sort2` blocks** (grafting: does injecting the
+   building block bypass the discovery bottleneck?).
+4. **Inversion-count reward instead of MSE** (landscape: partial comparator
+   networks reduce inversions monotonically even when incomplete, creating a
+   gradient that MSE flattens).
+
+If conditions 2–4 dramatically help → the barrier is genuinely search dynamics,
+and curriculum/grafting/landscape-shaping are the right tools.
+If they do NOT help → the problem is deeper (program representation, fitness
+landscape geometry beyond local optima).
+
+#### Convergence with fast-weight / ECS line
+
+This is a non-trivial convergence of two previously independent research lines:
+
+| Line | Substrate | Bottleneck found |
+|------|-----------|-----------------|
+| CodePy (symbolic) | Discrete programs, block DSL | **Composition** of existing primitives |
+| ECS (parametric) | Fast-weight, continuous | **Composition** of existing skills |
+
+Both lines have expressivity. Both lines have memory/storage. Both lines hit the
+same wall: **composing already-existing building blocks into larger structures.**
+This is unlikely to be coincidence. It suggests composition is a
+substrate-independent search problem — not solved by scaling population,
+generations, or parameter count. The next experiment (curriculum/grafting/
+landscape) attacks this directly.
+
+**Status table after sort3:**
+
+| Question | Status |
+|----------|--------|
+| Are loops expressible? | Yes |
+| Is there length invariance? | Yes |
+| Are there memory transforms? | Yes |
+| Is sort3 expressible? | **Yes** (measured) |
+| Is halt needed for sort3? | **No** (measured) |
+| Can search discover sort3 autonomously? | **Not yet** (plateau) |
+| Main open question | **Composition and search landscape** |
+
 ## CodePy ↔ MODEL_THESIS: storage emerging, selection unresolved, compression unproven
 
 The tempting one-liner — "CodePy solves storage, ECS must solve selection" —
@@ -422,7 +547,8 @@ What is NOT yet demonstrated is that the library grows into an increasingly
 powerful set of procedures:
 
 ```text
-sum4 -> count_positive -> argmax -> sort3 -> new algorithms
+sum4 [found] -> count_positive [injected] -> argmax [found] -> swap_if_gt2 [found]
+sort3 [expressible, NOT found] -> ...search landscape is the blocker, not DSL
 ```
 
 The library exists, but its ability to become a more capable procedure set is
