@@ -17,6 +17,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage14-runtime-loader-smoke
 .PHONY: neocortex-x-stage15-runtime-execution-smoke
 .PHONY: neocortex-x-stage16-contextual-memory-smoke
+.PHONY: neocortex-x-stage17-contextual-action-gate-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -57,6 +58,7 @@ help:
 	@echo "  make neocortex-x-stage14-runtime-loader-smoke    load promoted policy runtime"
 	@echo "  make neocortex-x-stage15-runtime-execution-smoke execute runtime policy traces"
 	@echo "  make neocortex-x-stage16-contextual-memory-smoke conditional context-aware memory"
+	@echo "  make neocortex-x-stage17-contextual-action-gate-smoke contextual decision to action gate"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -97,6 +99,7 @@ compile:
 		research/neocortex_x/stage14_runtime_loader.py \
 		research/neocortex_x/stage15_runtime_execution.py \
 		research/neocortex_x/stage16_contextual_memory.py \
+		research/neocortex_x/stage17_contextual_action_gate.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -1027,6 +1030,11 @@ neocortex-x-stage16-contextual-memory-smoke: neocortex-x-stage6-packets-smoke
 	$(PYTHON) research/neocortex_x/stage16_contextual_memory.py \
 		--packet-json artifacts/neocortex_x/stage6_evidence_packets.json \
 		--output-json artifacts/neocortex_x/stage16_contextual_memory.json
+
+neocortex-x-stage17-contextual-action-gate-smoke: neocortex-x-stage16-contextual-memory-smoke
+	$(PYTHON) research/neocortex_x/stage17_contextual_action_gate.py \
+		--contextual-json artifacts/neocortex_x/stage16_contextual_memory.json \
+		--output-json artifacts/neocortex_x/stage17_contextual_action_gate.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories
