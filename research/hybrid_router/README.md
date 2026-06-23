@@ -138,3 +138,44 @@ when errors are *orthogonal* (not LRU) and the task distribution gives *headroom
 The guards, not the headline accuracy, are what make that statement trustworthy.
 
 Run: `python3 hybrid_router_real_expert.py`
+
+## The error-geometry law (`hybrid_router_error_geometry.py`)
+
+Both experts are mechanistic, so the real frontier is not "replace an expert" but
+the **error-geometry axis**. A controllable knob `corr` makes a fraction of
+queries *hard* — BOTH experts fail together (correlated failure). Sweeping
+`corr × cue_noise` (6 seeds, deterministic) factorises routing value cleanly:
+
+**HEADROOM** `= oracle − best_single` — depends on `corr` only (flat across cue):
+
+| corr \ cue | 0.0 | 2.0 | 8.0 |
+|---|---|---|---|
+| 0.00 | 0.24 | 0.25 | 0.23 |
+| 0.25 | 0.18 | 0.19 | 0.18 |
+| 0.50 | 0.13 | 0.12 | 0.12 |
+| 0.75 | 0.06 | 0.06 | 0.05 |
+| 1.00 | 0.00 | 0.00 | 0.00 |
+
+**EFFICIENCY** `= advantage / headroom` — depends on `cue_noise` only (flat across corr):
+
+| corr \ cue | 0.0 | 2.0 | 8.0 |
+|---|---|---|---|
+| 0.00 | 1.00 | 0.96 | 0.70 |
+| 0.50 | 1.00 | 0.95 | 0.73 |
+| 0.75 | 1.00 | 0.95 | 0.70 |
+| 1.00 | nan | nan | nan |
+
+**The law (measured, factorised):**
+`routing_advantage = headroom(corr) × efficiency(cue_noise)`, the two axes
+**orthogonal** — headroom collapses linearly to 0 as errors correlate (`≈ 0.24·(1−corr)`),
+flat in cue noise; efficiency degrades with cue noise, flat in corr.
+
+So **routing is a property of error geometry, not model capacity.** At `corr = 1`
+the routing advantage is **0 even when the regime is perfectly identifiable**
+(`cue = 0`, efficiency would-be `1.0`): no amount of signal recovers value when
+the experts fail *together*. Routing exists **iff** errors are orthogonal; the
+identifiability axis only sets how much of that error-geometry headroom is
+captured. The v1.0 `complementarity × identifiability` decomposition is now
+confirmed with mechanistic experts and the error axis made explicit.
+
+Run: `python3 hybrid_router_error_geometry.py`
