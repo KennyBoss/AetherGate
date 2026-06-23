@@ -44,6 +44,21 @@
     "ecs_axisC_steps": 14.438,
     "dense_axisC_steps": 14.129,
     "ecs_axisC_solve": 0.627,
+    "oracle_held_prim": 3.275,
+    "oracle_held_skill": 1.996,
+    "oracle_axisC_prim": 4.667,
+    "oracle_axisC_skill": 2.677,
+    "ceiling": {
+      "held_prim": 3.275,
+      "held_skill": 1.996,
+      "held_gain": 1.279,
+      "axisC_prim": 4.667,
+      "axisC_skill": 2.677,
+      "axisC_gain": 1.99,
+      "library_has_abstractions": true,
+      "abstractions_compose_to_depth": true,
+      "diagnosis": "A/B: selector is the bottleneck (build 1a')"
+    },
     "verdict": {
       "matched_solve_rate": false,
       "ecs_cheaper_than_all_controls": false,
@@ -399,6 +414,12 @@
           "solve_rate": 0.75,
           "fire_rate": 0.0
         }
+      },
+      "oracle": {
+        "held_prim": 3.212,
+        "held_skill": 1.962,
+        "axisC_prim": 4.562,
+        "axisC_skill": 2.612
       }
     },
     {
@@ -746,6 +767,12 @@
           "solve_rate": 0.5875,
           "fire_rate": 0.0
         }
+      },
+      "oracle": {
+        "held_prim": 3.175,
+        "held_skill": 1.925,
+        "axisC_prim": 4.688,
+        "axisC_skill": 2.562
       }
     },
     {
@@ -1093,6 +1120,12 @@
           "solve_rate": 0.925,
           "fire_rate": 0.0
         }
+      },
+      "oracle": {
+        "held_prim": 2.875,
+        "held_skill": 1.738,
+        "axisC_prim": 4.525,
+        "axisC_skill": 2.337
       }
     },
     {
@@ -1440,6 +1473,12 @@
           "solve_rate": 0.675,
           "fire_rate": 0.0
         }
+      },
+      "oracle": {
+        "held_prim": 3.3,
+        "held_skill": 2.163,
+        "axisC_prim": 4.888,
+        "axisC_skill": 3.038
       }
     },
     {
@@ -1787,6 +1826,12 @@
           "solve_rate": 0.8,
           "fire_rate": 0.0125
         }
+      },
+      "oracle": {
+        "held_prim": 3.475,
+        "held_skill": 1.925,
+        "axisC_prim": 4.75,
+        "axisC_skill": 2.75
       }
     },
     {
@@ -2134,6 +2179,12 @@
           "solve_rate": 0.7875,
           "fire_rate": 0.0
         }
+      },
+      "oracle": {
+        "held_prim": 3.612,
+        "held_skill": 2.263,
+        "axisC_prim": 4.588,
+        "axisC_skill": 2.763
       }
     }
   ]

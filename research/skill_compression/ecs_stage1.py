@@ -221,6 +221,19 @@ def train_stream(seed, stream, hidden, kmax, lr, steps_per_task, batch_size,
     return pol, lib, curve
 
 
+def oracle_steps(tasks, actions, max_depth, budget):
+    """Ceiling diagnostic: ACTIVE COMPUTE of the SHORTEST action path (perfect
+    selection) under `actions`. Pure search, no learning — upper bound on what any
+    selector could achieve. Distinguishes 'library lacks abstractions' (C) from
+    'learned policy cannot realize them' (A)."""
+    vals = []
+    for x0, t in tasks:
+        p = teacher_actions(x0, t, actions, max_depth, budget)
+        if p is not None:
+            vals.append(len(p))
+    return (statistics.mean(vals) if vals else float("nan"), len(vals) / len(tasks))
+
+
 def slope(curve, idx=1):
     xs = np.array([c[0] for c in curve], float)
     ys = np.array([c[idx] for c in curve], float)
@@ -273,6 +286,16 @@ def run_seed(seed, cfg):
     ecs_axisC = eval_split(ecs_pol, axisC, ecs_macros, cap, "ecs", seed)
     dense_axisC = eval_split(dense_pol, axisC, [], cap, "dense", seed)
 
+    # --- ORACLE CEILING (perfect selection; pure search) — distinguishes A vs C ---
+    prim_actions = B.primitive_actions()
+    skill_actions = prim_actions + ecs_macros
+    held_prim = oracle_steps(held, prim_actions, cfg.max_depth, cfg.budget)
+    held_skill = oracle_steps(held, skill_actions, cfg.max_depth, cfg.budget)
+    axisC_prim = oracle_steps(axisC, prim_actions, cfg.max_depth, cfg.budget)
+    axisC_skill = oracle_steps(axisC, skill_actions, cfg.max_depth, cfg.budget)
+    oracle = {"held_prim": round(held_prim[0], 3), "held_skill": round(held_skill[0], 3),
+              "axisC_prim": round(axisC_prim[0], 3), "axisC_skill": round(axisC_skill[0], 3)}
+
     return {
         "seed": seed,
         "n_macros": len(ecs_macros),
@@ -285,6 +308,7 @@ def run_seed(seed, cfg):
         "final": {"ecs": ecs_final, "dense": dense_final, "frozenM": frozenM_final,
                   "cacheM": cacheM_final, "random_routing": rand_final},
         "axisC": {"ecs": ecs_axisC, "dense": dense_axisC},
+        "oracle": oracle,
     }
 
 
@@ -314,6 +338,25 @@ def aggregate(runs):
     out["dense_axisC_steps"], _ = fm(["axisC", "dense", "mean_steps"])
     out["ecs_axisC_solve"], _ = fm(["axisC", "ecs", "solve_rate"])
 
+    out["oracle_held_prim"], _ = fm(["oracle", "held_prim"])
+    out["oracle_held_skill"], _ = fm(["oracle", "held_skill"])
+    out["oracle_axisC_prim"], _ = fm(["oracle", "axisC_prim"])
+    out["oracle_axisC_skill"], _ = fm(["oracle", "axisC_skill"])
+    # A-vs-C: does a PERFECT selector have anything to win? (ceiling diagnostic)
+    held_ceiling_gain = round(out["oracle_held_prim"] - out["oracle_held_skill"], 3)
+    axisC_ceiling_gain = round(out["oracle_axisC_prim"] - out["oracle_axisC_skill"], 3)
+    out["ceiling"] = {
+        "held_prim": out["oracle_held_prim"], "held_skill": out["oracle_held_skill"],
+        "held_gain": held_ceiling_gain,
+        "axisC_prim": out["oracle_axisC_prim"], "axisC_skill": out["oracle_axisC_skill"],
+        "axisC_gain": axisC_ceiling_gain,
+        # pre-registered: gain>~0.5 step => abstractions exist => bottleneck is the
+        # learned policy (A/B), build a selector. gain~0 => library inadequate (C).
+        "library_has_abstractions": held_ceiling_gain > 0.5,
+        "abstractions_compose_to_depth": axisC_ceiling_gain > 0.5,
+        "diagnosis": ("A/B: selector is the bottleneck (build 1a')" if held_ceiling_gain > 0.5
+                      else "C: library inadequate (fix representation/promotion, not selector)"),
+    }
     # matched-loss guard: ECS solve-rate must match dense (within 0.05)
     matched = abs(out["ecs_final_solve"] - out["dense_final_solve"]) <= 0.05
     # core: ECS cheaper than every control at full exposure (active compute)
@@ -384,6 +427,13 @@ def main():
           f"dense {agg['slope_dense']:+.4f}  frozen-bb {agg['slope_frozen_backbone']:+.4f}")
     print(f"  Axis-C (novel composition):  ECS {agg['ecs_axisC_steps']:.2f} (solve {agg['ecs_axisC_solve']}) "
           f"vs dense {agg['dense_axisC_steps']:.2f}")
+    c = agg["ceiling"]
+    print(f"\n  ORACLE CEILING (perfect selection, pure search) — distinguishes A vs C:")
+    print(f"    held-out : prim-optimal {c['held_prim']:.2f}  skill-optimal {c['held_skill']:.2f}  "
+          f"gain {c['held_gain']:+.2f}")
+    print(f"    Axis-C   : prim-optimal {c['axisC_prim']:.2f}  skill-optimal {c['axisC_skill']:.2f}  "
+          f"gain {c['axisC_gain']:+.2f}")
+    print(f"    => {c['diagnosis']}")
     print(f"\n  VERDICT: matched_solve={v['matched_solve_rate']}  cheaper_than_all={v['ecs_cheaper_than_all_controls']}")
     print(f"           declines_vs_curric={v['ecs_declines_vs_curriculum']}  axisC={v['survives_axisC']}  frozen_bb={v['survives_frozen_backbone']}")
     print(f"  => STAGE 1a PASS = {v['PASS']}")

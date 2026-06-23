@@ -211,11 +211,34 @@ abstains (→ ECS ≈ primitive ablation) or misfires (→ solve-rate drop). Eme
 **gated by the same residual** the structural arc isolated (3.3–3.4): goal-conditioned
 selection of the right parametric skill.
 
-**Named fix → Stage 1a'.** Replace the naive per-step selection head with the Phase-3.4b/c
-selection machinery (autoregressive interaction + best-first ordering over the skill
-choice). Prediction (falsifiable): with competent selection, ECS matches dense
-solve-rate AND beats `dense+curriculum`/`random-routing` on active compute AND survives
-Axis-C. If it still fails to beat curriculum, the law is not architectural here.
+**Oracle-ceiling diagnostic (pre-registered, distinguishes A vs C).** Before building a
+stronger selector we measured the perfect-selection ceiling (shortest action path under
+primitives vs primitives+skills, pure search): held-out **prim-optimal 3.27 → skill-optimal
+2.00** (gain +1.28); Axis-C **4.67 → 2.68** (gain +1.99, composes to depth). So the library
+DOES hold useful, composing abstractions → **C (inadequate library) is ruled out**; the
+bottleneck is realization. Honest refinement: the learned ECS (9.04) is far from the
+skill-ceiling (2.0) — but `dense` (7.80) is equally far from its primitive-ceiling (3.27),
+so the deficit is **per-step selection quality broadly (A)**, with skill-selection harder
+on top; B (representation) is not separable from weak selection in this greedy setup. Part
+of the gap is the **greedy-decode ceiling** (a per-step policy cannot match a non-greedy
+search optimum), so 1a''s fair target is ECS-selector vs dense-selector at matched decode
+regime — *pre-registered, not to be moved post-hoc*.
+
+**Selection is now high-stakes (the most telling number).** `random-routing` 22.6 vs
+`dense` 7.8 means a wrong skill call is *catastrophic*, a right one is a big saving — the
+library has stopped being a "safe accelerator" and become a tool-use / MoE / program-
+synthesis–like regime where the value lives entirely in the selection policy.
+
+**Named fix → Stage 1a' (a test of hypothesis A, not a claim).** Replace the naive
+per-step head with the Phase-3.4b/c selection machinery (autoregressive interaction +
+best-first ordering). Pre-registered prediction table:
+
+| if outcome | conclusion |
+|---|---|
+| ECS→dense solve-rate, compute ↓, beats curriculum + survives Axis-C | A confirmed: selection was the bottleneck |
+| solve-rate recovers but compute ≈ dense | greedy-decode ceiling dominates; need search/recurrence |
+| slope stays ≈ dense+curriculum | not architectural here; the drop is curriculum |
+| no change at all | bottleneck deeper than selection (B); revisit representation |
 
 **Reading.** This is the intended use of the contract: a naive build was *prevented* from
 claiming a curriculum artifact as emergence. The structural arc's residual is now also
