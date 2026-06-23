@@ -76,6 +76,8 @@
 - Stage 28: append-only evidence log compaction, где conditional slots
   записываются как immutable evidence events и детерминированно компактифицируются
   в indexed query store.
+- Stage 29: contextual memory scale probe, где thousands-of-records synthetic
+  dataset измеряет ingest, compaction, indexed lookup и JSON scan baseline.
 
 Важно: Stage 1/2 пока используют hand-coded agents. Это проверка harness,
 артефактов, метрик и pass/fail контракта, а не claim про обученный SSM или AGI.
@@ -120,6 +122,7 @@ make neocortex-x-stage25-indexed-contextual-store-smoke
 make neocortex-x-stage26-store-backed-contextual-retrieval-smoke
 make neocortex-x-stage27-store-backed-contextual-action-gate-smoke
 make neocortex-x-stage28-evidence-log-compaction-smoke
+make neocortex-x-stage29-scale-probe-smoke
 ```
 
 Прямой запуск:
@@ -294,6 +297,13 @@ python3 research/neocortex_x/stage28_append_only_evidence_log_compaction.py \
   --contextual-json artifacts/neocortex_x/stage16_contextual_memory.json \
   --output-db artifacts/neocortex_x/stage28_evidence_log_compacted_store.sqlite \
   --output-json artifacts/neocortex_x/stage28_append_only_evidence_log_compaction.json
+
+python3 research/neocortex_x/stage29_contextual_memory_scale_probe.py \
+  --records 5000 \
+  --queries 256 \
+  --json-scan-queries 64 \
+  --output-db artifacts/neocortex_x/stage29_scale_probe.sqlite \
+  --output-json artifacts/neocortex_x/stage29_contextual_memory_scale_probe.json
 ```
 
 ## Артефакты
@@ -337,6 +347,8 @@ python3 research/neocortex_x/stage28_append_only_evidence_log_compaction.py \
 - `artifacts/neocortex_x/stage27_store_backed_contextual_action_gate.json`
 - `artifacts/neocortex_x/stage28_evidence_log_compacted_store.sqlite`
 - `artifacts/neocortex_x/stage28_append_only_evidence_log_compaction.json`
+- `artifacts/neocortex_x/stage29_scale_probe.sqlite`
+- `artifacts/neocortex_x/stage29_contextual_memory_scale_probe.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 
@@ -383,6 +395,8 @@ Scale research is part of the roadmap before larger memory benchmarks:
 - deterministic replay from evidence log into a queryable store;
 - Stage 28 preflights that contract: append-only evidence events are the
   source of truth, while the SQLite query store is a compacted indexed view;
+- Stage 29 adds a fast thousands-of-records probe for ingest, compaction,
+  indexed lookup latency, and JSON scan baseline speedup before the 10M+ run;
 - storage candidates: SQLite for preflight, DuckDB/Postgres for analytical and
   relational scale, Parquet/Arrow for columnar snapshots, RocksDB/LSM for
   high-write local stores, and hybrid symbolic+vector indexes for semantic
