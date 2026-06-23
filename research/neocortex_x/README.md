@@ -10,6 +10,8 @@
   `compare_long_context_recall.py` и мапит held-out value recall в `act(value)`.
 - Stage 2: stateful CodePy-like tape world с `tape`, `ptr`, `pc`, регистрами,
   bounded execution и baseline comparison.
+- Stage 2B: learned trace policy для tape world, обученная imitation learning
+  from oracle traces и проверенная на held-out tasks.
 - Stage 3: procedure reuse smoke с bounded `sum_segment`, Axis-S/Axis-C задачами
   и контролями exact-cache/random-routing/inline-loop.
 - Stage 4: short lookahead planning smoke, где planner использует predicted
@@ -30,6 +32,7 @@ make neocortex-x-stage0-smoke
 make neocortex-x-stage1-smoke
 make neocortex-x-stage1b-trained-smoke
 make neocortex-x-stage2-smoke
+make neocortex-x-stage2b-learned-smoke
 make neocortex-x-stage3-smoke
 make neocortex-x-stage4-smoke
 make neocortex-x-stage5-smoke
@@ -69,6 +72,9 @@ python3 research/neocortex_x/core_experiment.py \
   --output-json artifacts/neocortex_x/stage2_stateful_tape_world.json \
   --output-trace artifacts/neocortex_x/stage2_trace.jsonl
 
+python3 research/neocortex_x/stage2b_learned_tape_policy.py \
+  --output-json artifacts/neocortex_x/stage2b_learned_tape_policy.json
+
 python3 research/neocortex_x/core_experiment.py \
   --stage stage3 \
   --seeds 11,17,23,29,31,37 \
@@ -103,6 +109,7 @@ python3 research/neocortex_x/core_experiment.py \
 - `artifacts/neocortex_x/stage1b_inner_long_context_recall.json`
 - `artifacts/neocortex_x/stage2_stateful_tape_world.json`
 - `artifacts/neocortex_x/stage2_trace.jsonl`
+- `artifacts/neocortex_x/stage2b_learned_tape_policy.json`
 - `artifacts/neocortex_x/stage3_procedure_reuse.json`
 - `artifacts/neocortex_x/stage4_planning.json`
 - `artifacts/neocortex_x/stage5_open_world_adapter.json`
