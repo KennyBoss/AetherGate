@@ -22,6 +22,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage19-contextual-policy-smoke
 .PHONY: neocortex-x-stage20-contextual-policy-replay-smoke
 .PHONY: neocortex-x-stage21-contextual-policy-promotion-smoke
+.PHONY: neocortex-x-stage22-contextual-runtime-loader-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -67,6 +68,7 @@ help:
 	@echo "  make neocortex-x-stage19-contextual-policy-smoke contextual feedback to policy snapshot"
 	@echo "  make neocortex-x-stage20-contextual-policy-replay-smoke replay contextual policy snapshot"
 	@echo "  make neocortex-x-stage21-contextual-policy-promotion-smoke promote contextual runtime policy"
+	@echo "  make neocortex-x-stage22-contextual-runtime-loader-smoke load contextual runtime policy"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -112,6 +114,7 @@ compile:
 		research/neocortex_x/stage19_contextual_policy_update.py \
 		research/neocortex_x/stage20_contextual_policy_replay.py \
 		research/neocortex_x/stage21_contextual_policy_promotion.py \
+		research/neocortex_x/stage22_contextual_runtime_loader.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -1069,6 +1072,11 @@ neocortex-x-stage21-contextual-policy-promotion-smoke: neocortex-x-stage20-conte
 		--replay-json artifacts/neocortex_x/stage20_contextual_policy_replay.json \
 		--policy-json artifacts/neocortex_x/stage19_contextual_policy_update.json \
 		--output-json artifacts/neocortex_x/stage21_contextual_policy_promotion.json
+
+neocortex-x-stage22-contextual-runtime-loader-smoke: neocortex-x-stage21-contextual-policy-promotion-smoke
+	$(PYTHON) research/neocortex_x/stage22_contextual_runtime_loader.py \
+		--promotion-json artifacts/neocortex_x/stage21_contextual_policy_promotion.json \
+		--output-json artifacts/neocortex_x/stage22_contextual_runtime_loader.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories
