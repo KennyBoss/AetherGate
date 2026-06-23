@@ -26,6 +26,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage23-contextual-runtime-execution-smoke
 .PHONY: neocortex-x-stage24-contextual-self-monitor-smoke
 .PHONY: neocortex-x-stage25-indexed-contextual-store-smoke
+.PHONY: neocortex-x-stage26-store-backed-contextual-retrieval-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -75,6 +76,7 @@ help:
 	@echo "  make neocortex-x-stage23-contextual-runtime-execution-smoke execute contextual runtime traces"
 	@echo "  make neocortex-x-stage24-contextual-self-monitor-smoke monitor contextual runtime traces"
 	@echo "  make neocortex-x-stage25-indexed-contextual-store-smoke build indexed contextual memory store"
+	@echo "  make neocortex-x-stage26-store-backed-contextual-retrieval-smoke retrieve contextual memory from store"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -124,6 +126,7 @@ compile:
 		research/neocortex_x/stage23_contextual_runtime_execution.py \
 		research/neocortex_x/stage24_contextual_self_monitor.py \
 		research/neocortex_x/stage25_indexed_contextual_memory_store.py \
+		research/neocortex_x/stage26_store_backed_contextual_retrieval.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -1103,6 +1106,12 @@ neocortex-x-stage25-indexed-contextual-store-smoke: neocortex-x-stage16-contextu
 		--contextual-json artifacts/neocortex_x/stage16_contextual_memory.json \
 		--output-db artifacts/neocortex_x/stage25_contextual_memory.sqlite \
 		--output-json artifacts/neocortex_x/stage25_indexed_contextual_memory_store.json
+
+neocortex-x-stage26-store-backed-contextual-retrieval-smoke: neocortex-x-stage25-indexed-contextual-store-smoke
+	$(PYTHON) research/neocortex_x/stage26_store_backed_contextual_retrieval.py \
+		--store-json artifacts/neocortex_x/stage25_indexed_contextual_memory_store.json \
+		--store-db artifacts/neocortex_x/stage25_contextual_memory.sqlite \
+		--output-json artifacts/neocortex_x/stage26_store_backed_contextual_retrieval.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories

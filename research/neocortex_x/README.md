@@ -68,6 +68,8 @@
 - Stage 25: indexed contextual memory store, где Stage 16 conditional slots
   загружаются в SQLite artifact со схемой и индексами; JSON остается только
   smoke report.
+- Stage 26: store-backed contextual retrieval, где contextual decisions
+  принимаются через SQLite lookup вместо in-memory JSON slots.
 
 Важно: Stage 1/2 пока используют hand-coded agents. Это проверка harness,
 артефактов, метрик и pass/fail контракта, а не claim про обученный SSM или AGI.
@@ -109,6 +111,7 @@ make neocortex-x-stage22-contextual-runtime-loader-smoke
 make neocortex-x-stage23-contextual-runtime-execution-smoke
 make neocortex-x-stage24-contextual-self-monitor-smoke
 make neocortex-x-stage25-indexed-contextual-store-smoke
+make neocortex-x-stage26-store-backed-contextual-retrieval-smoke
 ```
 
 Прямой запуск:
@@ -269,6 +272,11 @@ python3 research/neocortex_x/stage25_indexed_contextual_memory_store.py \
   --contextual-json artifacts/neocortex_x/stage16_contextual_memory.json \
   --output-db artifacts/neocortex_x/stage25_contextual_memory.sqlite \
   --output-json artifacts/neocortex_x/stage25_indexed_contextual_memory_store.json
+
+python3 research/neocortex_x/stage26_store_backed_contextual_retrieval.py \
+  --store-json artifacts/neocortex_x/stage25_indexed_contextual_memory_store.json \
+  --store-db artifacts/neocortex_x/stage25_contextual_memory.sqlite \
+  --output-json artifacts/neocortex_x/stage26_store_backed_contextual_retrieval.json
 ```
 
 ## Артефакты
@@ -308,6 +316,7 @@ python3 research/neocortex_x/stage25_indexed_contextual_memory_store.py \
 - `artifacts/neocortex_x/stage24_contextual_self_monitor.json`
 - `artifacts/neocortex_x/stage25_contextual_memory.sqlite`
 - `artifacts/neocortex_x/stage25_indexed_contextual_memory_store.json`
+- `artifacts/neocortex_x/stage26_store_backed_contextual_retrieval.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 
