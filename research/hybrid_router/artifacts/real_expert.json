@@ -1,0 +1,119 @@
+{
+  "config": {
+    "seeds": "11,17,23,41,73,101",
+    "n_ops": 1200,
+    "n_keys": 24,
+    "window": 8,
+    "lag": 3,
+    "p_write": 0.5,
+    "vocab": 16,
+    "cue_noises": "0,2,4,8,16,32",
+    "hidden": 8,
+    "epochs": 250,
+    "lr": 0.03,
+    "output_json": "artifacts/real_expert.json"
+  },
+  "table": {
+    "0.0": {
+      "local": 0.6356,
+      "memory": 0.758,
+      "oracle": 1.0,
+      "router": 1.0,
+      "mem_frac": 0.373,
+      "router_local_fav": 1.0,
+      "router_mem_fav": 1.0,
+      "router_shuffled": 0.6356,
+      "best_single": 0.758,
+      "headroom": 0.242,
+      "efficiency": 1.0,
+      "min_regime_adv": 1.0,
+      "shuffle_gap": 0.3644
+    },
+    "2.0": {
+      "local": 0.6331,
+      "memory": 0.7527,
+      "oracle": 1.0,
+      "router": 0.9894,
+      "mem_frac": 0.3682,
+      "router_local_fav": 1.0,
+      "router_mem_fav": 0.9713,
+      "router_shuffled": 0.6339,
+      "best_single": 0.7527,
+      "headroom": 0.2473,
+      "efficiency": 0.9571,
+      "min_regime_adv": 0.9713,
+      "shuffle_gap": 0.3555
+    },
+    "4.0": {
+      "local": 0.6319,
+      "memory": 0.7552,
+      "oracle": 1.0,
+      "router": 0.9642,
+      "mem_frac": 0.3525,
+      "router_local_fav": 0.9922,
+      "router_mem_fav": 0.9076,
+      "router_shuffled": 0.6311,
+      "best_single": 0.7552,
+      "headroom": 0.2448,
+      "efficiency": 0.8538,
+      "min_regime_adv": 0.9076,
+      "shuffle_gap": 0.3331
+    },
+    "8.0": {
+      "local": 0.6342,
+      "memory": 0.7653,
+      "oracle": 1.0,
+      "router": 0.9304,
+      "mem_frac": 0.3636,
+      "router_local_fav": 0.9574,
+      "router_mem_fav": 0.8347,
+      "router_shuffled": 0.6322,
+      "best_single": 0.7653,
+      "headroom": 0.2347,
+      "efficiency": 0.7035,
+      "min_regime_adv": 0.8347,
+      "shuffle_gap": 0.2982
+    },
+    "16.0": {
+      "local": 0.6201,
+      "memory": 0.7604,
+      "oracle": 1.0,
+      "router": 0.889,
+      "mem_frac": 0.4204,
+      "router_local_fav": 0.8499,
+      "router_mem_fav": 0.8003,
+      "router_shuffled": 0.6201,
+      "best_single": 0.7604,
+      "headroom": 0.2396,
+      "efficiency": 0.5367,
+      "min_regime_adv": 0.8003,
+      "shuffle_gap": 0.2689
+    },
+    "32.0": {
+      "local": 0.6252,
+      "memory": 0.7722,
+      "oracle": 1.0,
+      "router": 0.8252,
+      "mem_frac": 0.4607,
+      "router_local_fav": 0.7168,
+      "router_mem_fav": 0.7064,
+      "router_shuffled": 0.6306,
+      "best_single": 0.7722,
+      "headroom": 0.2278,
+      "efficiency": 0.2327,
+      "min_regime_adv": 0.7064,
+      "shuffle_gap": 0.1946
+    }
+  },
+  "critical_cue_noise": 32.0,
+  "guards": {
+    "G1": "efficiency=advantage/headroom",
+    "G2": "min_regime_adv: router acc in the WEAKER regime",
+    "G3": "shuffle_gap: real-features minus shuffled-features"
+  },
+  "protocol_evidence": {
+    "real_mechanistic_memory_expert": true,
+    "n_seeds": 6,
+    "valid": true
+  }
+}

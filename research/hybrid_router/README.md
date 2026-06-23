@@ -89,3 +89,52 @@ exactly while `cue_noise < N* ≈ 2`; above it routing collapses to the best sin
 expert no matter how complementary the experts are.**
 
 Run: `python3 hybrid_router_phase_diagram.py`
+
+## Expert replacement: analytic → REAL mechanistic expert (`hybrid_router_real_expert.py`)
+
+Staged from the v1.0 baseline tag: keep the router architecture frozen, replace
+the **analytic** memory expert (correct-by-fiat) with a **mechanistic** one whose
+errors *emerge*, and re-measure with three built-in anti-illusion guards —
+because this is exactly where systems start to "lie beautifully".
+
+**Guards (each caught something real):**
+- **G1 headroom = oracle − best_single** + `efficiency = advantage/headroom`.
+- **G2 min-regime advantage** — router accuracy in the *weaker* regime (catches
+  "always pick the dominant expert" collapse).
+- **G3 shuffle control** — router on permuted features must collapse to
+  best_single; `shuffle_gap` ≈ the real advantage iff the win is regime inference.
+
+**Two honest failures the guards exposed before any "win" was claimed:**
+1. Naïve real memory = an **LRU** store evicts *old* bindings — the *same* axis
+   the local expert fails on → **correlated errors → headroom ≈ 0** → routing is
+   pointless (`efficiency = nan`, all guards zero). A high-looking accuracy was
+   *not* routing.
+2. With a complementary mechanism but the *natural* query distribution, memory
+   dominates (`0.96`), leaving **headroom ≈ 0.045**: `efficiency = 1.0` looked
+   perfect, but `shuffle_gap ≈ 0.04` revealed the absolute stakes were tiny — the
+   classic "small oracle-gap ≠ good routing" trap, caught by reporting headroom.
+
+**The honest win.** Memory remodelled as a **write-commit-lag** store (fresh
+writes read stale, settled reads correct — eventual consistency) gives errors
+*orthogonal* to the local window; balancing the recency bands restores headroom:
+
+| cue_noise | LOC | MEM | best | ORACLE | ROUTER | efficiency | min-regime | shuffle_gap |
+|---|---|---|---|---|---|---|---|---|
+| 0 | 0.64 | 0.76 | 0.76 | 1.00 | 1.00 | 1.00 | 1.00 | 0.36 |
+| 4 | 0.63 | 0.76 | 0.76 | 1.00 | 0.96 | 0.85 | 0.91 | 0.33 |
+| 8 | 0.63 | 0.77 | 0.77 | 1.00 | 0.93 | 0.70 | 0.83 | 0.30 |
+| 16 | 0.62 | 0.76 | 0.76 | 1.00 | 0.89 | 0.54 | 0.80 | 0.27 |
+| 32 | 0.63 | 0.77 | 0.77 | 1.00 | 0.83 | 0.23 | 0.71 | 0.19 |
+
+- Routing over a **real** expert beats best-single by **+0.24**, near oracle, and
+  **all three guards pass**: `headroom ≈ 0.25`, `min-regime ≈ 1.0` (bilateral, not
+  dominance), `shuffle_gap ≈ advantage` (regime inference, not leakage).
+- The **phase structure reproduces** — efficiency collapses monotonically with cue
+  noise, crossing 0.5 at `N* ≈ 32` *recency-units* (not comparable to the analytic
+  `±1`-unit `N* ≈ 2`; the law, not the constant, transfers).
+
+**Takeaway.** Routing value survives the move from fiat to mechanism — but only
+when errors are *orthogonal* (not LRU) and the task distribution gives *headroom*.
+The guards, not the headline accuracy, are what make that statement trustworthy.
+
+Run: `python3 hybrid_router_real_expert.py`
