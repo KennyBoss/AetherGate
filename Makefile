@@ -25,6 +25,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage22-contextual-runtime-loader-smoke
 .PHONY: neocortex-x-stage23-contextual-runtime-execution-smoke
 .PHONY: neocortex-x-stage24-contextual-self-monitor-smoke
+.PHONY: neocortex-x-stage25-indexed-contextual-store-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -73,6 +74,7 @@ help:
 	@echo "  make neocortex-x-stage22-contextual-runtime-loader-smoke load contextual runtime policy"
 	@echo "  make neocortex-x-stage23-contextual-runtime-execution-smoke execute contextual runtime traces"
 	@echo "  make neocortex-x-stage24-contextual-self-monitor-smoke monitor contextual runtime traces"
+	@echo "  make neocortex-x-stage25-indexed-contextual-store-smoke build indexed contextual memory store"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -121,6 +123,7 @@ compile:
 		research/neocortex_x/stage22_contextual_runtime_loader.py \
 		research/neocortex_x/stage23_contextual_runtime_execution.py \
 		research/neocortex_x/stage24_contextual_self_monitor.py \
+		research/neocortex_x/stage25_indexed_contextual_memory_store.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -1094,6 +1097,12 @@ neocortex-x-stage24-contextual-self-monitor-smoke: neocortex-x-stage23-contextua
 	$(PYTHON) research/neocortex_x/stage24_contextual_self_monitor.py \
 		--execution-json artifacts/neocortex_x/stage23_contextual_runtime_execution.json \
 		--output-json artifacts/neocortex_x/stage24_contextual_self_monitor.json
+
+neocortex-x-stage25-indexed-contextual-store-smoke: neocortex-x-stage16-contextual-memory-smoke
+	$(PYTHON) research/neocortex_x/stage25_indexed_contextual_memory_store.py \
+		--contextual-json artifacts/neocortex_x/stage16_contextual_memory.json \
+		--output-db artifacts/neocortex_x/stage25_contextual_memory.sqlite \
+		--output-json artifacts/neocortex_x/stage25_indexed_contextual_memory_store.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories
