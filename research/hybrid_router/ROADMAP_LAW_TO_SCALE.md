@@ -61,13 +61,39 @@ transformer-exclusive capability (long-range *compositional reasoning*, not
 retrieval or local copy) — which needs a real LM-grade task, not available cheaply
 here. The Law stands; this pair simply isn't complementary.
 
-## Stage 1 — Mini-router on real experts → capture the headroom
-Wire the router over the two real experts' per-query outputs, trained on cheap
-cues only. Run the **3 anti-illusion guards** (efficiency/headroom, min-regime,
-shuffle).
-- **Exit:** router ≈ oracle, beats best_single, all guards pass.
-- **Kill:** router can't capture headroom from cheap cues → identifiability too
-  low on real signals (an honest finding about real cues).
+## Stage 3 — Efficiency frontier → ✅ DONE (the honest facade, real models)
+`stage3_efficiency_frontier.py` (delay = 96): sweep the Transformer context, train
+real models, plot recall vs effective compute (`params × context` = cost of
+retaining information; the SSM's recurrent state is O(1) in delay).
+
+**Result (real trained models):**
+
+| ctx | tf recall | eff_cost | cost / SSM |
+|---|---|---|---|
+| 16 | 0.062 | 203K | 16× |
+| 32 | 0.062 | 406K | 33× |
+| 64 | 0.062 | 812K | 66× |
+| **96** | **1.000** | 1.22M | **98.7×** |
+| 128 | 1.000 | 1.63M | 132× |
+
+**SSM: recall `1.000` at eff_cost `12,350`, context-independent.** The
+context-capped Transformer sits at chance until its context reaches the delay
+(`ctx ≥ 96`), then matches recall — but at **~99× the effective compute**, and the
+gap grows linearly with delay (attention must hold context ∝ delay; memory holds
+O(1) state). This is the supported headline: *memory matches attention's recall at
+a fraction of the cost — and the margin widens as the dependency lengthens.*
+Consistent with `RESULTS.md`'s ~341× recurrent-state footprint ratio.
+
+Honest caveat: at this tiny param-matched scale `d_model` floors at 30, so raw
+FLOPs barely differ; the real, large gap is in **state/memory cost**, which is the
+metric that matters for long-context retention.
+
+---
+
+## (Skipped for this pair) Stage 1/2 — router on real experts
+Not run: Stage 0.5 showed no headroom (memory dominates), so there is nothing to
+route. The router line stays validated at small scale (`v2.0` law); the real-model
+story is the efficiency frontier above.
 
 ## Stage 2 — The prediction test (the science punchline)
 Use Stage-0 `headroom` + a measured `efficiency` to **predict**
