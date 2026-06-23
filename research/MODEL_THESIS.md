@@ -404,6 +404,51 @@ backbone (recall amortized in state, O(1), no branching) is the substrate that e
 tax — which is where Stage 2 should actually go: skills as *learned fast-weights*, not
 search actions. Artifacts: `ecs_stage1d_disentangle.json`.
 
+## 6g. Stage 2 (falsification) — parametric skill beats BOTH discrete and clean-dense in-distribution; transfer still open
+
+`ecs_stage2_fastweight.py` runs the single two-sided test §6f named: the SAME true
+subroutines expressed as **context-gated fast-weights** (a learned additive shift `Δ_k` on
+the 5 primitive-action logits, fired by a per-skill gate) vs the **discrete-macro** form
+(the broken class) vs **dense**. The parametric skill never adds an action — the action
+set stays size-5 — so it pays no branching tax; cost is forward-passes, counted
+identically. Two controls for dense: skills-off-same-policy AND a **cleanly-trained dense**
+that never saw skill structure (removes the "param just had more training" confound).
+Interference measured explicitly (skills-on minus skills-off on single-skill sets).
+**6 seeds, deterministic, solve-rate 1.0 everywhere.**
+
+| arm (forward-passes) | held-out | Axis-C |
+|---|---|---|
+| **param-skill (Δ on logits)** | **6.51** | 37.35 |
+| clean dense (fair control) | 8.32 | 32.30 |
+| dense (same policy, skills off) | 6.88 | 36.56 |
+| discrete-macro (the §6f broken class) | 7.49 | 50.81 |
+| interference (on−off, single-skill) | mean 0.044, max 0.13 | |
+
+**The mechanism claim is CONFIRMED (first skill apparatus in the line to beat no-skill):**
+- **param < discrete** (6.51 vs 7.49) — the branching tax is really avoided by moving the
+  skill into dynamics-space. The §6f redirection was correct.
+- **param < clean dense** (6.51 vs 8.32, **5/6 seeds**, ~22%) — a real in-distribution win
+  against a separately-trained baseline that never saw skills. Not the training confound.
+- **Interference is negligible** (mean 0.044) — the named hidden tax did not appear. So the
+  pre-registered "param wins + low interference" branch fires: **dynamics-space skills work
+  where discrete-search skills could not.**
+
+**But the honest limit — compositional transfer still fails (the line's one invariant).**
+Axis-C: param **37.35 > clean dense 32.30** (2/6). The fast-weight skills help on familiar
+depth and do **not** compose to novel depth. So this is an *in-distribution* compression
+win, not yet the transferring compression the thesis ultimately requires. Every stage of
+this line has died on Axis-C; the class change fixed the *cost-of-acting* (branching tax)
+but not *composition*.
+
+**Precise standing.** For the first time a skill mechanism is net-positive vs no-skill at
+its own compute budget, with no branching tax and no interference — the parametric/
+fast-weight class is validated as the right substrate (consistent with the KV-memory/SSM
+direction). What remains unproven, exactly as before, is **compositional transfer**: skills
+that lower cost on *novel compositions*, not just familiar ones. That — not the substrate —
+is now the lone open problem, and it is the same Axis-C wall the structural arc (3.3–3.4)
+and every Stage-1 arm hit. The substrate question is settled; the composition question is
+the whole remaining game. Artifacts: `ecs_stage2_fastweight.json`.
+
 ## 7. Honest scope
 
 We are not out-training frontier LLMs and not claiming AGI. We are testing whether one
