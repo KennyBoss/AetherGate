@@ -4,7 +4,7 @@ BENCHMARK_CANDIDATE ?= artifacts/benchmarks/quick_compare_candidate.json
 MAX_REGRESSION ?= 0.25
 ARCH_SEEDS ?= 11,17,23
 
-.PHONY: help compile verify benchmark benchmark-standard compare ingest-gutenberg-demo ingest-gutenberg-bulk profile-text-demo profile-text-bpe-demo profile-text-bulk-bpe compare-text-demo compare-text-architectures-demo compare-text-architectures-million compare-long-context-recall-demo compare-assignment-recall-demo compare-multi-assignment-recall-demo compare-sparse-kv-routing-smoke compare-sparse-kv-routing-margin-smoke compare-sparse-kv-routing-hard-smoke compare-sparse-kv-routing-margin-multiseed compare-multi-query-assignment-recall-demo compare-assignment-distractor-recall-demo compare-assignment-alias-recall-demo compare-mixed-code-recall-demo compare-mixed-code-recall-multiseed compare-mixed-code-full-context-control compare-generated-python-code-recall-demo compare-generated-python-code-recall-multiseed compare-generated-python-code-full-context-control compare-real-python-code-recall-demo compare-real-python-code-recall-multiseed compare-real-python-code-full-context-control compare-real-python-code-full-context-multiseed compare-assignment-update-recall-demo text-experiment-demo text-experiment-bpe-demo text-leaderboard text-sweep-demo text-sweep-bpe-demo text-sweep-bulk-bpe plan-text-sweep-bulk run-text-sweep-plan-bulk promote-text-demo inspect-text-demo run-promoted-text-demo text-run-demo clean-artifacts
+.PHONY: help compile verify benchmark benchmark-standard compare ingest-gutenberg-demo ingest-gutenberg-bulk profile-text-demo profile-text-bpe-demo profile-text-bulk-bpe compare-text-demo compare-text-architectures-demo compare-text-architectures-million compare-long-context-recall-demo compare-assignment-recall-demo compare-multi-assignment-recall-demo compare-sparse-kv-routing-smoke compare-sparse-kv-routing-margin-smoke compare-sparse-kv-routing-hard-smoke compare-sparse-kv-routing-margin-multiseed compare-multi-query-assignment-recall-demo compare-assignment-distractor-recall-demo compare-assignment-alias-recall-demo compare-mixed-code-recall-demo compare-mixed-code-recall-multiseed compare-mixed-code-full-context-control compare-generated-python-code-recall-demo compare-generated-python-code-recall-multiseed compare-generated-python-code-full-context-control compare-real-python-code-recall-demo compare-real-python-code-recall-multiseed compare-real-python-code-full-context-control compare-real-python-code-full-context-multiseed compare-assignment-update-recall-demo text-experiment-demo text-experiment-bpe-demo text-leaderboard text-sweep-demo text-sweep-bpe-demo text-sweep-bulk-bpe plan-text-sweep-bulk run-text-sweep-plan-bulk promote-text-demo inspect-text-demo run-promoted-text-demo text-run-demo neocortex-x-stage0-smoke neocortex-x-stage1-smoke clean-artifacts
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -21,6 +21,10 @@ help:
 	@echo "  make compare-sparse-kv-routing-margin-multiseed  near-binary read gate, multi-seed"
 	@echo "  make compare-real-python-code-recall-multiseed   real-repo AST binding recall"
 	@echo "  make compare-text-architectures-million          SSM vs Transformer, million-token"
+	@echo ""
+	@echo "NeoCortex-X:"
+	@echo "  make neocortex-x-stage0-smoke                    trace/replay instrumentation"
+	@echo "  make neocortex-x-stage1-smoke                    recall-to-action smoke"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -44,6 +48,7 @@ compile:
 		run_text_architecture_multiseed.py \
 		compare_long_context_recall.py \
 		run_long_context_recall_multiseed.py \
+		research/neocortex_x/core_experiment.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -785,6 +790,29 @@ text-run-demo:
 		--sample-steps 8 \
 		--output-json artifacts/text_run_demo.json
 
+neocortex-x-stage0-smoke:
+	$(PYTHON) research/neocortex_x/core_experiment.py \
+		--stage stage0 \
+		--seed 11 \
+		--key-count 16 \
+		--value-count 16 \
+		--binding-count 4 \
+		--delay 24 \
+		--baseline-window 8 \
+		--output-json artifacts/neocortex_x/stage0_smoke.json \
+		--output-trace artifacts/neocortex_x/stage0_trace.jsonl
+
+neocortex-x-stage1-smoke:
+	$(PYTHON) research/neocortex_x/core_experiment.py \
+		--stage stage1 \
+		--seeds 11,17,23,29,31,37 \
+		--episodes 128 \
+		--key-count 16 \
+		--value-count 16 \
+		--binding-count 4 \
+		--delay 24 \
+		--baseline-window 8 \
+		--output-json artifacts/neocortex_x/stage1_recall_to_action.json
+
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories
-
