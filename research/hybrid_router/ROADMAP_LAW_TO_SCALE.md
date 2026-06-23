@@ -29,14 +29,37 @@ dominant expert* (exactly the `RESULTS.md` story).
 **Lesson (refines the plan):** real-model headroom needs a task where **neither**
 architecture dominates — each must own an *exclusive* win region. → Stage 0.5.
 
-## Stage 0.5 — A mixed regime where neither expert dominates (headroom hunt)
-A stream interleaving each architecture's *exclusive* strength so both are partial:
-memory-exclusive long-delay recall + transformer-exclusive in-window/compositional
-queries the single-slot memory mishandles.
-- **Exit:** real-model regime with `headroom > 0.05` and `best_single < 0.95`.
-- **Kill:** no such regime for these two architectures → honest conclusion *they
-  are not complementary at this scale*; the demo becomes the efficiency frontier
-  (Stage 3), not a router story. Either way a real result.
+## Stage 0.5 — Headroom hunt on real models → ✅ DONE (honest negative)
+`stage05_mixed_headroom.py` builds a mixed stream (RECALL = far binding;
+LOCAL-COPY = copy a token `offset` back, in the Transformer window) and trains the
+real context-capped Transformer + real KV-memory SSM on it.
+
+**Result (real models):**
+
+| | RECALL | LOCAL | ALL |
+|---|---|---|---|
+| SSM | 0.317 | **1.000** | 0.649 |
+| Transformer | 0.117 | **1.000** | 0.546 |
+
+`oracle = 0.684`, `best_single = 0.649`, **`headroom = 0.035`** (noise-level).
+
+**The transformer has NO exclusive region.** The recurrent SSM does positional
+LOCAL-copy *as well* as attention (both `1.000`) and beats it on RECALL — so the
+KV-memory SSM is a functional **superset** of the context-capped Transformer on
+this family. The tiny headroom is just two recall-weak models making slightly
+different errors, not real complementarity.
+
+**Kill-condition fired honestly:** no complementary regime for THIS real pair.
+Per the Law that is the correct outcome (no orthogonal failure → no routing
+value) — but it means the *router/hybrid* demo is **not supported on these
+architectures+tasks**. The supported story is the **efficiency frontier**: the
+memory-SSM matches/beats the Transformer at far lower compute (`RESULTS.md`).
+
+**Decision:** skip Stages 1–2 for this pair (nothing to route). Re-route the plan
+to **Stage 3 (efficiency frontier)** as the honest facade, OR seek a genuinely
+transformer-exclusive capability (long-range *compositional reasoning*, not
+retrieval or local copy) — which needs a real LM-grade task, not available cheaply
+here. The Law stands; this pair simply isn't complementary.
 
 ## Stage 1 — Mini-router on real experts → capture the headroom
 Wire the router over the two real experts' per-query outputs, trained on cheap
