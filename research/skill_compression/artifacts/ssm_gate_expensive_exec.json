@@ -1,0 +1,438 @@
+{
+  "config": {
+    "seeds": "11,17,23,41,73,101",
+    "train_tasks": 120,
+    "eval_tasks": 80,
+    "gate_train": 200,
+    "max_depth": 6,
+    "node_budget": 2000000,
+    "freq_k": 3,
+    "util_penalty": 1.0,
+    "util_threshold": 2.0,
+    "max_macros": 8,
+    "probe_budget": 40,
+    "hidden": 8,
+    "epochs": 300,
+    "lr": 0.02,
+    "gate_threshold": 0.5,
+    "exec_penalty": 100,
+    "output_json": "artifacts/ssm_gate_expensive_exec.json"
+  },
+  "protocol_evidence": {
+    "held_out": true,
+    "gate_trained_on_own_experience_not_eval": true,
+    "feature_cost_charged_to_gate": true,
+    "n_seeds": 6,
+    "valid": true
+  },
+  "aggregate": {
+    "off": {
+      "reuse": 54.4,
+      "ood": 125.9
+    },
+    "util": {
+      "reuse": 11.9,
+      "ood": 456.0
+    },
+    "util_app": {
+      "reuse": 109.5,
+      "ood": 194.8
+    },
+    "ssm_gate": {
+      "reuse": 109.1,
+      "ood": 176.6
+    }
+  },
+  "verdict": {
+    "ssm_gate_reuse": 109.1,
+    "util_app_reuse": 109.5,
+    "ssm_gate_ood": 176.6,
+    "util_app_ood": 194.8,
+    "matches_or_beats_on_reuse": true,
+    "matches_or_beats_on_ood": true,
+    "user_bar_passed": true,
+    "gate_fire_rate_reuse": 0.921,
+    "gate_fire_rate_ood": 0.748,
+    "gate_train_acc": 0.932
+  },
+  "seed_runs": [
+    {
+      "seed": 11,
+      "held_out": true,
+      "n_macros": 8,
+      "gate_train_acc": 0.92,
+      "gate_base_rate": 0.685,
+      "off": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 41.1625,
+          "median_nodes": 18.0
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 46.225,
+          "median_nodes": 17.0
+        }
+      },
+      "util": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 7.25,
+          "median_nodes": 4.0
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 14.5,
+          "median_nodes": 4.0
+        }
+      },
+      "util_app": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 107.675,
+          "median_nodes": 4.0
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 122.8875,
+          "median_nodes": 4.0
+        }
+      },
+      "ssm_gate": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 99.425,
+          "fire_rate": 0.8375
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 111.0125,
+          "fire_rate": 0.8
+        }
+      }
+    },
+    {
+      "seed": 17,
+      "held_out": true,
+      "n_macros": 8,
+      "gate_train_acc": 0.925,
+      "gate_base_rate": 0.8,
+      "off": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 56.1875,
+          "median_nodes": 26.0
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 183.3125,
+          "median_nodes": 17.0
+        }
+      },
+      "util": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 6.7,
+          "median_nodes": 7.0
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 31.1875,
+          "median_nodes": 5.5
+        }
+      },
+      "util_app": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 106.7,
+          "median_nodes": 7.0
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 245.875,
+          "median_nodes": 5.5
+        }
+      },
+      "ssm_gate": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 107.5,
+          "fire_rate": 0.925
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 236.6,
+          "fire_rate": 0.8375
+        }
+      }
+    },
+    {
+      "seed": 23,
+      "held_out": true,
+      "n_macros": 8,
+      "gate_train_acc": 0.92,
+      "gate_base_rate": 0.76,
+      "off": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 51.6625,
+          "median_nodes": 19.0
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 100.4875,
+          "median_nodes": 12.0
+        }
+      },
+      "util": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 5.2875,
+          "median_nodes": 3.0
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 7.875,
+          "median_nodes": 4.0
+        }
+      },
+      "util_app": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 105.2875,
+          "median_nodes": 3.0
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 113.25,
+          "median_nodes": 4.0
+        }
+      },
+      "ssm_gate": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 100.7875,
+          "fire_rate": 0.875
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 88.8125,
+          "fire_rate": 0.675
+        }
+      }
+    },
+    {
+      "seed": 41,
+      "held_out": true,
+      "n_macros": 8,
+      "gate_train_acc": 0.995,
+      "gate_base_rate": 0.805,
+      "off": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 59.6,
+          "median_nodes": 18.0
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 112.85,
+          "median_nodes": 7.0
+        }
+      },
+      "util": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 7.225,
+          "median_nodes": 4.0
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 665.75,
+          "median_nodes": 4.0
+        }
+      },
+      "util_app": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 107.3375,
+          "median_nodes": 4.0
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 198.05,
+          "median_nodes": 4.0
+        }
+      },
+      "ssm_gate": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 109.825,
+          "fire_rate": 0.95
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 171.1625,
+          "fire_rate": 0.65
+        }
+      }
+    },
+    {
+      "seed": 73,
+      "held_out": true,
+      "n_macros": 8,
+      "gate_train_acc": 0.92,
+      "gate_base_rate": 0.835,
+      "off": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 67.7,
+          "median_nodes": 26.0
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 198.1875,
+          "median_nodes": 14.0
+        }
+      },
+      "util": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 7.5875,
+          "median_nodes": 4.0
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 192.9625,
+          "median_nodes": 4.0
+        }
+      },
+      "util_app": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 108,
+          "median_nodes": 4.0
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 283.325,
+          "median_nodes": 4.0
+        }
+      },
+      "ssm_gate": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 114.2375,
+          "fire_rate": 0.9875
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 270.55,
+          "fire_rate": 0.8125
+        }
+      }
+    },
+    {
+      "seed": 101,
+      "held_out": true,
+      "n_macros": 8,
+      "gate_train_acc": 0.915,
+      "gate_base_rate": 0.8,
+      "off": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 49.925,
+          "median_nodes": 37.0
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 114.1125,
+          "median_nodes": 12.0
+        }
+      },
+      "util": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 37.25,
+          "median_nodes": 5.0
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 1823.7125,
+          "median_nodes": 4.0
+        }
+      },
+      "util_app": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 121.8125,
+          "median_nodes": 5.0
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 205.2,
+          "median_nodes": 4.0
+        }
+      },
+      "ssm_gate": {
+        "reuse": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 122.7625,
+          "fire_rate": 0.95
+        },
+        "ood": {
+          "n": 80,
+          "solve_rate": 1.0,
+          "mean_nodes": 181.4375,
+          "fire_rate": 0.7125
+        }
+      }
+    }
+  ]
+}

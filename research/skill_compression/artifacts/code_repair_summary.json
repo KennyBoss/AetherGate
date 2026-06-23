@@ -1,0 +1,238 @@
+{
+  "config": {
+    "seeds": "11,17,23,41,73,101",
+    "lib_size": 6,
+    "test_cases": 5,
+    "probe_cases": 2,
+    "gate_train": 160,
+    "eval_bugs": 80,
+    "hidden": 8,
+    "epochs": 300,
+    "lr": 0.02,
+    "output_json": "artifacts/code_repair_summary.json"
+  },
+  "gate_acc": 0.995,
+  "cost_law": "P* = (base_ssm - base_app)/(1 - fire_rate), units: cost per skill attempt",
+  "summary": {
+    "reuse": {
+      "off_runs": 23.61,
+      "app_runs": 3.5,
+      "ssm_runs": 5.99,
+      "fire_rate": 1.0,
+      "P_star_mean": 214.0,
+      "P_star_std": 1.4,
+      "P_star_ci95": [
+        201.3,
+        226.7
+      ],
+      "P_star_per_seed": [
+        215.0,
+        213.0
+      ]
+    },
+    "ood": {
+      "off_runs": 15.02,
+      "app_runs": 17.72,
+      "ssm_runs": 15.87,
+      "fire_rate": 0.09,
+      "P_star_mean": -2.0,
+      "P_star_std": 0.3,
+      "P_star_ci95": [
+        -2.3,
+        -1.7
+      ],
+      "P_star_per_seed": [
+        -1.7,
+        -2.1,
+        -2.1,
+        -1.7,
+        -2.2,
+        -2.3
+      ]
+    },
+    "mixed": {
+      "off_runs": 19.31,
+      "app_runs": 10.61,
+      "ssm_runs": 10.93,
+      "fire_rate": 0.54,
+      "P_star_mean": 0.7,
+      "P_star_std": 0.2,
+      "P_star_ci95": [
+        0.4,
+        1.0
+      ],
+      "P_star_per_seed": [
+        0.9,
+        0.4,
+        0.8,
+        1.0,
+        0.5,
+        0.6
+      ]
+    }
+  },
+  "seed_runs": [
+    {
+      "seed": 11,
+      "gate_acc": 0.994,
+      "lib_size": 6,
+      "reuse": {
+        "off": 23.7375,
+        "base_app": 3.6875,
+        "base_ssm": 6.0875,
+        "fire_rate": 1.0,
+        "P_star": null
+      },
+      "ood": {
+        "off": 15.475,
+        "base_app": 18.7,
+        "base_ssm": 17.099999999999998,
+        "fire_rate": 0.0625,
+        "P_star": -1.706666666666668
+      },
+      "mixed": {
+        "base_app": 11.19375,
+        "base_ssm": 11.59375,
+        "fire_rate": 0.53125,
+        "off": 19.60625,
+        "P_star": 0.853333333333334
+      }
+    },
+    {
+      "seed": 17,
+      "gate_acc": 1.0,
+      "lib_size": 6,
+      "reuse": {
+        "off": 23.0625,
+        "base_app": 3.4875,
+        "base_ssm": 5.8875,
+        "fire_rate": 1.0,
+        "P_star": null
+      },
+      "ood": {
+        "off": 15.9,
+        "base_app": 19.4875,
+        "base_ssm": 17.4375,
+        "fire_rate": 0.0375,
+        "P_star": -2.1298701298701306
+      },
+      "mixed": {
+        "base_app": 11.4875,
+        "base_ssm": 11.6625,
+        "fire_rate": 0.51875,
+        "off": 19.48125,
+        "P_star": 0.3636363636363615
+      }
+    },
+    {
+      "seed": 23,
+      "gate_acc": 0.994,
+      "lib_size": 6,
+      "reuse": {
+        "off": 24.2875,
+        "base_app": 3.4125,
+        "base_ssm": 6.1000000000000005,
+        "fire_rate": 0.9875,
+        "P_star": 215.0000000000008
+      },
+      "ood": {
+        "off": 14.95,
+        "base_app": 17.3375,
+        "base_ssm": 15.4125,
+        "fire_rate": 0.1,
+        "P_star": -2.1388888888888875
+      },
+      "mixed": {
+        "base_app": 10.375,
+        "base_ssm": 10.75625,
+        "fire_rate": 0.5437500000000001,
+        "off": 19.61875,
+        "P_star": 0.8356164383561637
+      }
+    },
+    {
+      "seed": 41,
+      "gate_acc": 0.994,
+      "lib_size": 6,
+      "reuse": {
+        "off": 23.5875,
+        "base_app": 3.475,
+        "base_ssm": 5.875,
+        "fire_rate": 1.0,
+        "P_star": null
+      },
+      "ood": {
+        "off": 16.6125,
+        "base_app": 18.2125,
+        "base_ssm": 16.7125,
+        "fire_rate": 0.1125,
+        "P_star": -1.6901408450704227
+      },
+      "mixed": {
+        "base_app": 10.84375,
+        "base_ssm": 11.29375,
+        "fire_rate": 0.55625,
+        "off": 20.1,
+        "P_star": 1.014084507042252
+      }
+    },
+    {
+      "seed": 73,
+      "gate_acc": 1.0,
+      "lib_size": 6,
+      "reuse": {
+        "off": 23.225,
+        "base_app": 3.2625,
+        "base_ssm": 5.6625000000000005,
+        "fire_rate": 1.0,
+        "P_star": null
+      },
+      "ood": {
+        "off": 13.8375,
+        "base_app": 16.325,
+        "base_ssm": 14.3875,
+        "fire_rate": 0.125,
+        "P_star": -2.2142857142857144
+      },
+      "mixed": {
+        "base_app": 9.79375,
+        "base_ssm": 10.025,
+        "fire_rate": 0.5625,
+        "off": 18.53125,
+        "P_star": 0.528571428571431
+      }
+    },
+    {
+      "seed": 101,
+      "gate_acc": 0.988,
+      "lib_size": 6,
+      "reuse": {
+        "off": 23.7375,
+        "base_app": 3.675,
+        "base_ssm": 6.3375,
+        "fire_rate": 0.9875,
+        "P_star": 213.0000000000008
+      },
+      "ood": {
+        "off": 13.3375,
+        "base_app": 16.275,
+        "base_ssm": 14.1625,
+        "fire_rate": 0.1,
+        "P_star": -2.347222222222221
+      },
+      "mixed": {
+        "base_app": 9.975,
+        "base_ssm": 10.25,
+        "fire_rate": 0.5437500000000001,
+        "off": 18.5375,
+        "P_star": 0.6027397260273981
+      }
+    }
+  ],
+  "protocol_evidence": {
+    "real_code_execution": true,
+    "n_seeds": 6,
+    "held_out_fresh_bugs": true,
+    "valid": true
+  }
+}

@@ -1,0 +1,282 @@
+{
+  "task_id": "sample",
+  "repo_dir": "/var/folders/50/3jw_np6x7qq8_v07f22ly0bh0000gn/T/tmphchaox94/sample/repo",
+  "buggy_path": "proj/adder.py",
+  "smoke_cmd": [
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "-k",
+    "test_adder"
+  ],
+  "full_cmd": [
+    "python3",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider"
+  ],
+  "patch_space": [
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x * y) * 0\n"
+      },
+      "label": "**0",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x * y) * 1\n"
+      },
+      "label": "**1",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x * y) * 2\n"
+      },
+      "label": "**2",
+      "from_library": true
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x * y) * 3\n"
+      },
+      "label": "**3",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x * y) + 0\n"
+      },
+      "label": "*+0",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x * y) + 1\n"
+      },
+      "label": "*+1",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x * y) + 2\n"
+      },
+      "label": "*+2",
+      "from_library": true
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x * y) + 3\n"
+      },
+      "label": "*+3",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x * y) - 0\n"
+      },
+      "label": "*-0",
+      "from_library": true
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x * y) - 1\n"
+      },
+      "label": "*-1",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x * y) - 2\n"
+      },
+      "label": "*-2",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x * y) - 3\n"
+      },
+      "label": "*-3",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x + y) * 0\n"
+      },
+      "label": "+*0",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x + y) * 1\n"
+      },
+      "label": "+*1",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x + y) * 2\n"
+      },
+      "label": "+*2",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x + y) * 3\n"
+      },
+      "label": "+*3",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x + y) + 0\n"
+      },
+      "label": "++0",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x + y) + 1\n"
+      },
+      "label": "++1",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x + y) + 2\n"
+      },
+      "label": "++2",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x + y) + 3\n"
+      },
+      "label": "++3",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x + y) - 0\n"
+      },
+      "label": "+-0",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x + y) - 1\n"
+      },
+      "label": "+-1",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x + y) - 2\n"
+      },
+      "label": "+-2",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x + y) - 3\n"
+      },
+      "label": "+-3",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x - y) * 0\n"
+      },
+      "label": "-*0",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x - y) * 1\n"
+      },
+      "label": "-*1",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x - y) * 2\n"
+      },
+      "label": "-*2",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x - y) * 3\n"
+      },
+      "label": "-*3",
+      "from_library": true
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x - y) + 0\n"
+      },
+      "label": "-+0",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x - y) + 1\n"
+      },
+      "label": "-+1",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x - y) + 2\n"
+      },
+      "label": "-+2",
+      "from_library": true
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x - y) + 3\n"
+      },
+      "label": "-+3",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x - y) - 0\n"
+      },
+      "label": "--0",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x - y) - 1\n"
+      },
+      "label": "--1",
+      "from_library": true
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x - y) - 2\n"
+      },
+      "label": "--2",
+      "from_library": false
+    },
+    {
+      "files": {
+        "proj/adder.py": "def fn(x, y):\n    return (x - y) - 3\n"
+      },
+      "label": "--3",
+      "from_library": false
+    }
+  ],
+  "meta": {
+    "kind": "reuse",
+    "buggy_module": "adder",
+    "correct": "--1"
+  }
+}

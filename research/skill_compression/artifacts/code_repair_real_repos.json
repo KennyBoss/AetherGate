@@ -1,0 +1,214 @@
+{
+  "config": {
+    "seeds": "11,17,23,41,73,101",
+    "per_family": 6,
+    "lib_seed": 777,
+    "test_cases": 5,
+    "probe_cases": 2,
+    "gate_train": 160,
+    "eval_bugs": 80,
+    "hidden": 8,
+    "epochs": 300,
+    "lr": 0.02,
+    "real_pytest_sample": 10,
+    "output_json": "artifacts/code_repair_real_repos.json"
+  },
+  "gate_acc": 0.873,
+  "summary": {
+    "reuse": {
+      "off": 8.942,
+      "app": 2.604,
+      "ssm": 6.077,
+      "fire_rate": 0.567
+    },
+    "mixed": {
+      "off": 8.251,
+      "app": 5.852,
+      "ssm": 7.522,
+      "fire_rate": 0.37
+    },
+    "ood": {
+      "off": 7.56,
+      "app": 9.1,
+      "ssm": 8.967,
+      "fire_rate": 0.173
+    }
+  },
+  "fire_structure": {
+    "ordering": "fire_reuse > fire_mixed > fire_ood",
+    "holds_all_seeds": true,
+    "per_seed": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "fire_reuse_mean_ci95": [
+      0.567,
+      0.178
+    ],
+    "fire_ood_mean_ci95": [
+      0.173,
+      0.057
+    ]
+  },
+  "real_pytest_calibration": {
+    "pytest_runs": 71,
+    "total_wall_s": 10.42,
+    "wall_per_run_s": 0.1468,
+    "pass_fail_agreement": 1.0
+  },
+  "ci_savings": {
+    "ssm_vs_off_runs_pct": 8.8,
+    "ssm_vs_app_runs_pct": -28.5,
+    "ci_seconds_saved_per_bug_ssm_vs_off": 0.107
+  },
+  "seed_runs": [
+    {
+      "seed": 11,
+      "gate_acc": 0.887,
+      "reuse": {
+        "off": 10.2875,
+        "base_app": 2.3625,
+        "base_ssm": 6.215,
+        "fire_rate": 0.6125
+      },
+      "ood": {
+        "off": 8.45,
+        "base_app": 10.9125,
+        "base_ssm": 10.4575,
+        "fire_rate": 0.15
+      },
+      "mixed": {
+        "off": 9.368749999999999,
+        "base_app": 6.637499999999999,
+        "base_ssm": 8.33625,
+        "fire_rate": 0.38125000000000003
+      }
+    },
+    {
+      "seed": 17,
+      "gate_acc": 0.844,
+      "reuse": {
+        "off": 8.4625,
+        "base_app": 2.4875,
+        "base_ssm": 4.9175,
+        "fire_rate": 0.6625
+      },
+      "ood": {
+        "off": 7.775,
+        "base_app": 8.725,
+        "base_ssm": 8.975,
+        "fire_rate": 0.2
+      },
+      "mixed": {
+        "off": 8.11875,
+        "base_app": 5.606249999999999,
+        "base_ssm": 6.94625,
+        "fire_rate": 0.43125
+      }
+    },
+    {
+      "seed": 23,
+      "gate_acc": 0.894,
+      "reuse": {
+        "off": 8.425,
+        "base_app": 2.4,
+        "base_ssm": 6.64,
+        "fire_rate": 0.4375
+      },
+      "ood": {
+        "off": 6.9125,
+        "base_app": 8.3375,
+        "base_ssm": 8.04,
+        "fire_rate": 0.175
+      },
+      "mixed": {
+        "off": 7.66875,
+        "base_app": 5.36875,
+        "base_ssm": 7.34,
+        "fire_rate": 0.30625
+      }
+    },
+    {
+      "seed": 41,
+      "gate_acc": 0.869,
+      "reuse": {
+        "off": 8.9125,
+        "base_app": 2.725,
+        "base_ssm": 7.555,
+        "fire_rate": 0.2875
+      },
+      "ood": {
+        "off": 7.6125,
+        "base_app": 9.5125,
+        "base_ssm": 9.2925,
+        "fire_rate": 0.0875
+      },
+      "mixed": {
+        "off": 8.2625,
+        "base_app": 6.1187499999999995,
+        "base_ssm": 8.42375,
+        "fire_rate": 0.1875
+      }
+    },
+    {
+      "seed": 73,
+      "gate_acc": 0.869,
+      "reuse": {
+        "off": 7.575,
+        "base_app": 2.8375,
+        "base_ssm": 4.7575,
+        "fire_rate": 0.7375
+      },
+      "ood": {
+        "off": 7.3375,
+        "base_app": 8.25,
+        "base_ssm": 8.58,
+        "fire_rate": 0.25
+      },
+      "mixed": {
+        "off": 7.456250000000001,
+        "base_app": 5.54375,
+        "base_ssm": 6.66875,
+        "fire_rate": 0.49375
+      }
+    },
+    {
+      "seed": 101,
+      "gate_acc": 0.875,
+      "reuse": {
+        "off": 9.9875,
+        "base_app": 2.8125,
+        "base_ssm": 6.3775,
+        "fire_rate": 0.6625
+      },
+      "ood": {
+        "off": 7.275,
+        "base_app": 8.8625,
+        "base_ssm": 8.455,
+        "fire_rate": 0.175
+      },
+      "mixed": {
+        "off": 8.631250000000001,
+        "base_app": 5.8375,
+        "base_ssm": 7.41625,
+        "fire_rate": 0.41874999999999996
+      }
+    }
+  ],
+  "protocol_evidence": {
+    "heterogeneous_families": [
+      "arith2",
+      "cmp",
+      "linear",
+      "select",
+      "offbyone"
+    ],
+    "real_pytest_subprocess": true,
+    "n_seeds": 6,
+    "valid": true
+  }
+}

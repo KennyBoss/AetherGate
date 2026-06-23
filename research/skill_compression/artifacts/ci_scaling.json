@@ -1,0 +1,99 @@
+{
+  "config": {
+    "seeds": "11,17,23,41,73,101",
+    "per_family": 6,
+    "lib_seed": 777,
+    "test_cases": 5,
+    "probe_cases": 2,
+    "gate_train": 160,
+    "eval_bugs": 80,
+    "hidden": 8,
+    "epochs": 300,
+    "lr": 0.02,
+    "regimes": "1,3,10,30,100",
+    "bug_volume": 1000,
+    "output_json": "artifacts/ci_scaling.json"
+  },
+  "run_counts": {
+    "off_full": 8.251,
+    "app_full": 5.852,
+    "ssm_full": 5.661,
+    "ssm_probe": 4.651
+  },
+  "pytest_t0_seconds": 0.1835,
+  "crossover_P_star_heaviness": {
+    "mean": 13.29,
+    "ci95_halfwidth": 9.99,
+    "per_seed": [
+      19.92,
+      9.37,
+      6.67,
+      17.19
+    ],
+    "formula": "P* = ssm_probe / (app_full - ssm_full)"
+  },
+  "regime_table": [
+    {
+      "P": 1.0,
+      "off_s": 1.5141,
+      "app_s": 1.0738,
+      "ssm_s": 1.8923,
+      "ssm_saves_vs_app_s_per_bug": -0.8184,
+      "ssm_saves_vs_off_s_per_bug": -0.3782,
+      "ssm_beats_app": false,
+      "saved_vs_app_min_per_volume": -13.6,
+      "saved_vs_off_min_per_volume": -6.3
+    },
+    {
+      "P": 3.0,
+      "off_s": 4.5422,
+      "app_s": 3.2215,
+      "ssm_s": 3.9699,
+      "ssm_saves_vs_app_s_per_bug": -0.7483,
+      "ssm_saves_vs_off_s_per_bug": 0.5723,
+      "ssm_beats_app": false,
+      "saved_vs_app_min_per_volume": -12.5,
+      "saved_vs_off_min_per_volume": 9.5
+    },
+    {
+      "P": 10.0,
+      "off_s": 15.1406,
+      "app_s": 10.7385,
+      "ssm_s": 11.2414,
+      "ssm_saves_vs_app_s_per_bug": -0.503,
+      "ssm_saves_vs_off_s_per_bug": 3.8992,
+      "ssm_beats_app": false,
+      "saved_vs_app_min_per_volume": -8.4,
+      "saved_vs_off_min_per_volume": 65.0
+    },
+    {
+      "P": 30.0,
+      "off_s": 45.4219,
+      "app_s": 32.2154,
+      "ssm_s": 32.0174,
+      "ssm_saves_vs_app_s_per_bug": 0.198,
+      "ssm_saves_vs_off_s_per_bug": 13.4045,
+      "ssm_beats_app": true,
+      "saved_vs_app_min_per_volume": 3.3,
+      "saved_vs_off_min_per_volume": 223.4
+    },
+    {
+      "P": 100.0,
+      "off_s": 151.4065,
+      "app_s": 107.3846,
+      "ssm_s": 104.7332,
+      "ssm_saves_vs_app_s_per_bug": 2.6514,
+      "ssm_saves_vs_off_s_per_bug": 46.6732,
+      "ssm_beats_app": true,
+      "saved_vs_app_min_per_volume": 44.2,
+      "saved_vs_off_min_per_volume": 777.9
+    }
+  ],
+  "protocol_evidence": {
+    "deterministic_counts": true,
+    "analytic_cost_model": true,
+    "real_pytest_calibrated": true,
+    "n_seeds": 6,
+    "valid": true
+  }
+}

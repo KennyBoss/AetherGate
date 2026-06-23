@@ -1,0 +1,335 @@
+{
+  "config": {
+    "seeds": [
+      11,
+      17,
+      23,
+      41,
+      73,
+      101
+    ],
+    "validate_at": 120
+  },
+  "cost_law": "C_app(P)=base_app+P ; C_ssm(P)=base_ssm+fire_rate*P ; P*=(base_ssm-base_app)/(1-fire_rate)",
+  "law_validation": {
+    "max_abs_error_nodes": 0.0,
+    "exact": true,
+    "rows": [
+      {
+        "seed": 11,
+        "split": "reuse",
+        "P": 120,
+        "pred_app": 127.67,
+        "meas_app": 127.67,
+        "pred_ssm": 116.17,
+        "meas_ssm": 116.17,
+        "app_err": 0.0,
+        "ssm_err": 0.0
+      },
+      {
+        "seed": 11,
+        "split": "ood",
+        "P": 120,
+        "pred_app": 142.89,
+        "meas_app": 142.89,
+        "pred_ssm": 127.01,
+        "meas_ssm": 127.01,
+        "app_err": 0.0,
+        "ssm_err": 0.0
+      },
+      {
+        "seed": 17,
+        "split": "reuse",
+        "P": 120,
+        "pred_app": 126.7,
+        "meas_app": 126.7,
+        "pred_ssm": 126.0,
+        "meas_ssm": 126,
+        "app_err": 0.0,
+        "ssm_err": 0.0
+      },
+      {
+        "seed": 17,
+        "split": "ood",
+        "P": 120,
+        "pred_app": 265.88,
+        "meas_app": 265.88,
+        "pred_ssm": 253.35,
+        "meas_ssm": 253.35,
+        "app_err": 0.0,
+        "ssm_err": 0.0
+      },
+      {
+        "seed": 23,
+        "split": "reuse",
+        "P": 120,
+        "pred_app": 125.29,
+        "meas_app": 125.29,
+        "pred_ssm": 118.29,
+        "meas_ssm": 118.29,
+        "app_err": 0.0,
+        "ssm_err": 0.0
+      },
+      {
+        "seed": 23,
+        "split": "ood",
+        "P": 120,
+        "pred_app": 133.25,
+        "meas_app": 133.25,
+        "pred_ssm": 102.31,
+        "meas_ssm": 102.31,
+        "app_err": 0.0,
+        "ssm_err": 0.0
+      },
+      {
+        "seed": 41,
+        "split": "reuse",
+        "P": 120,
+        "pred_app": 127.34,
+        "meas_app": 127.34,
+        "pred_ssm": 128.82,
+        "meas_ssm": 128.82,
+        "app_err": 0.0,
+        "ssm_err": 0.0
+      },
+      {
+        "seed": 41,
+        "split": "ood",
+        "P": 120,
+        "pred_app": 218.05,
+        "meas_app": 218.05,
+        "pred_ssm": 184.16,
+        "meas_ssm": 184.16,
+        "app_err": 0.0,
+        "ssm_err": 0.0
+      },
+      {
+        "seed": 73,
+        "split": "reuse",
+        "P": 120,
+        "pred_app": 128,
+        "meas_app": 128,
+        "pred_ssm": 133.99,
+        "meas_ssm": 133.99,
+        "app_err": 0,
+        "ssm_err": 0.0
+      },
+      {
+        "seed": 73,
+        "split": "ood",
+        "P": 120,
+        "pred_app": 303.32,
+        "meas_app": 303.32,
+        "pred_ssm": 286.8,
+        "meas_ssm": 286.8,
+        "app_err": 0.0,
+        "ssm_err": 0.0
+      },
+      {
+        "seed": 101,
+        "split": "reuse",
+        "P": 120,
+        "pred_app": 141.81,
+        "meas_app": 141.81,
+        "pred_ssm": 141.76,
+        "meas_ssm": 141.76,
+        "app_err": 0.0,
+        "ssm_err": 0.0
+      },
+      {
+        "seed": 101,
+        "split": "ood",
+        "P": 120,
+        "pred_app": 225.2,
+        "meas_app": 225.2,
+        "pred_ssm": 195.69,
+        "meas_ssm": 195.69,
+        "app_err": 0.0,
+        "ssm_err": 0.0
+      }
+    ]
+  },
+  "P_star_summary": {
+    "reuse": {
+      "P_star_mean": 181.9,
+      "P_star_std": 207.6,
+      "ci95_half_width": 217.9,
+      "t_value": 2.571,
+      "ci95_low": -36.0,
+      "ci95_high": 399.9,
+      "P_star_per_seed": [
+        49.2,
+        110.7,
+        64.0,
+        149.7,
+        599.0,
+        119.0
+      ]
+    },
+    "ood": {
+      "P_star_mean": 30.1,
+      "P_star_std": 10.2,
+      "ci95_half_width": 10.7,
+      "t_value": 2.571,
+      "ci95_low": 19.5,
+      "ci95_high": 40.8,
+      "P_star_per_seed": [
+        40.6,
+        42.9,
+        24.8,
+        23.2,
+        31.9,
+        17.3
+      ]
+    },
+    "mixed": {
+      "P_star_mean": 47.2,
+      "P_star_std": 15.0,
+      "ci95_half_width": 15.7,
+      "t_value": 2.571,
+      "ci95_low": 31.5,
+      "ci95_high": 62.9,
+      "P_star_per_seed": [
+        44.5,
+        64.3,
+        35.7,
+        39.0,
+        67.3,
+        32.4
+      ]
+    }
+  },
+  "per_seed": [
+    {
+      "seed": 11,
+      "reuse": {
+        "base_app": 7.675,
+        "base_ssm": 15.675,
+        "fire_rate": 0.8375,
+        "P_star": 49.23076923076924
+      },
+      "ood": {
+        "base_app": 22.8875,
+        "base_ssm": 31.0125,
+        "fire_rate": 0.8,
+        "P_star": 40.62500000000001
+      },
+      "mixed": {
+        "base_app": 15.28125,
+        "base_ssm": 23.34375,
+        "fire_rate": 0.8187500000000001,
+        "P_star": 44.48275862068968
+      }
+    },
+    {
+      "seed": 17,
+      "reuse": {
+        "base_app": 6.7,
+        "base_ssm": 15,
+        "fire_rate": 0.925,
+        "P_star": 110.66666666666674
+      },
+      "ood": {
+        "base_app": 145.875,
+        "base_ssm": 152.85,
+        "fire_rate": 0.8375,
+        "P_star": 42.92307692307689
+      },
+      "mixed": {
+        "base_app": 76.2875,
+        "base_ssm": 83.925,
+        "fire_rate": 0.8812500000000001,
+        "P_star": 64.31578947368428
+      }
+    },
+    {
+      "seed": 23,
+      "reuse": {
+        "base_app": 5.2875,
+        "base_ssm": 13.2875,
+        "fire_rate": 0.875,
+        "P_star": 64.0
+      },
+      "ood": {
+        "base_app": 13.25,
+        "base_ssm": 21.3125,
+        "fire_rate": 0.675,
+        "P_star": 24.80769230769231
+      },
+      "mixed": {
+        "base_app": 9.26875,
+        "base_ssm": 17.3,
+        "fire_rate": 0.775,
+        "P_star": 35.69444444444445
+      }
+    },
+    {
+      "seed": 41,
+      "reuse": {
+        "base_app": 7.3375,
+        "base_ssm": 14.825,
+        "fire_rate": 0.95,
+        "P_star": 149.74999999999986
+      },
+      "ood": {
+        "base_app": 98.05,
+        "base_ssm": 106.1625,
+        "fire_rate": 0.65,
+        "P_star": 23.178571428571423
+      },
+      "mixed": {
+        "base_app": 52.69375,
+        "base_ssm": 60.49375,
+        "fire_rate": 0.8,
+        "P_star": 38.99999999999999
+      }
+    },
+    {
+      "seed": 73,
+      "reuse": {
+        "base_app": 8,
+        "base_ssm": 15.4875,
+        "fire_rate": 0.9875,
+        "P_star": 599.0000000000022
+      },
+      "ood": {
+        "base_app": 183.325,
+        "base_ssm": 189.3,
+        "fire_rate": 0.8125,
+        "P_star": 31.866666666666788
+      },
+      "mixed": {
+        "base_app": 95.6625,
+        "base_ssm": 102.39375000000001,
+        "fire_rate": 0.9,
+        "P_star": 67.31250000000018
+      }
+    },
+    {
+      "seed": 101,
+      "reuse": {
+        "base_app": 21.8125,
+        "base_ssm": 27.7625,
+        "fire_rate": 0.95,
+        "P_star": 118.99999999999989
+      },
+      "ood": {
+        "base_app": 105.2,
+        "base_ssm": 110.1875,
+        "fire_rate": 0.7125,
+        "P_star": 17.347826086956513
+      },
+      "mixed": {
+        "base_app": 63.50625,
+        "base_ssm": 68.975,
+        "fire_rate": 0.83125,
+        "P_star": 32.407407407407376
+      }
+    }
+  ],
+  "protocol_evidence": {
+    "n_seeds": 6,
+    "held_out": true,
+    "valid": true
+  }
+}

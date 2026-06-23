@@ -1,0 +1,79 @@
+{
+  "config": {
+    "seeds": "11,17,23,41,73,101",
+    "per_module": 6,
+    "lib_seed": 777,
+    "probe_cases": 2,
+    "gate_train": 160,
+    "eval_bugs": 60,
+    "hidden": 8,
+    "epochs": 300,
+    "lr": 0.02,
+    "regimes": "1,3,10,30,100",
+    "bug_volume": 1000,
+    "real_validation": 6,
+    "output_json": "artifacts/aethergate_harness.json"
+  },
+  "gate_acc": 0.885,
+  "fire_structure": {
+    "reuse": 0.642,
+    "mixed": 0.455,
+    "ood": 0.267,
+    "reuse_gt_ood_all_seeds": true
+  },
+  "counts_mixed": {
+    "off_full": 9.081,
+    "app_full": 5.806,
+    "ssm_full": 5.929,
+    "ssm_smoke": 4.867,
+    "smk_full": 3.481,
+    "smk_smoke": 4.867,
+    "fire_rate": 0.455
+  },
+  "real_pytest_validation": {
+    "agreement": 1.0,
+    "t0_seconds": 0.1756,
+    "real_pytest_runs": 78
+  },
+  "crossover_P_star_learned_gate": null,
+  "crossover_P_star_smoke_filter": 2.09,
+  "regime_table": [
+    {
+      "P": 1.0,
+      "smk_saves_vs_app_min": -7.4,
+      "smk_saves_vs_off_min": 2.1,
+      "smoke_beats_app": false
+    },
+    {
+      "P": 3.0,
+      "smk_saves_vs_app_min": 6.2,
+      "smk_saves_vs_off_min": 34.9,
+      "smoke_beats_app": true
+    },
+    {
+      "P": 10.0,
+      "smk_saves_vs_app_min": 53.8,
+      "smk_saves_vs_off_min": 149.6,
+      "smoke_beats_app": true
+    },
+    {
+      "P": 30.0,
+      "smk_saves_vs_app_min": 189.9,
+      "smk_saves_vs_off_min": 477.4,
+      "smoke_beats_app": true
+    },
+    {
+      "P": 100.0,
+      "smk_saves_vs_app_min": 666.2,
+      "smk_saves_vs_off_min": 1624.7,
+      "smoke_beats_app": true
+    }
+  ],
+  "protocol_evidence": {
+    "real_multi_file_repo": true,
+    "real_pytest": true,
+    "fast_backend_agreement": 1.0,
+    "n_seeds": 6,
+    "valid": true
+  }
+}

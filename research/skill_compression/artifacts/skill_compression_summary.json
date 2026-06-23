@@ -1,0 +1,1573 @@
+{
+  "config": {
+    "seeds": "11,17,23,41,73,101",
+    "train_tasks": 120,
+    "eval_tasks": 80,
+    "max_depth": 6,
+    "node_budget": 2000000,
+    "freq_k": 3,
+    "util_penalty": 1.0,
+    "util_threshold": 2.0,
+    "max_macros": 8,
+    "probe_budget": 40,
+    "output_json": "artifacts/skill_compression_summary.json"
+  },
+  "protocol_evidence": {
+    "held_out": true,
+    "subroutine_reuse_present": true,
+    "randmacro_control_present": true,
+    "no_reuse_eval_present": true,
+    "applicability_gate_present": true,
+    "n_seeds": 6,
+    "parameter_matched": "identical DSL + solver across arms",
+    "valid": true
+  },
+  "aggregate": {
+    "off.eval_reuse.mean_nodes": 54.4,
+    "off.eval_reuse.solve_rate": 1.0,
+    "off.eval_no_reuse.mean_nodes": 125.9,
+    "off.eval_no_reuse.solve_rate": 1.0,
+    "freq.eval_reuse.mean_nodes": 10.1,
+    "freq.eval_reuse.solve_rate": 1.0,
+    "freq.eval_no_reuse.mean_nodes": 359.4,
+    "freq.eval_no_reuse.solve_rate": 1.0,
+    "util.eval_reuse.mean_nodes": 11.9,
+    "util.eval_reuse.solve_rate": 1.0,
+    "util.eval_no_reuse.mean_nodes": 456.0,
+    "util.eval_no_reuse.solve_rate": 1.0,
+    "randmacro.eval_reuse.mean_nodes": 16.1,
+    "randmacro.eval_reuse.solve_rate": 1.0,
+    "randmacro.eval_no_reuse.mean_nodes": 34.4,
+    "randmacro.eval_no_reuse.solve_rate": 1.0,
+    "util_app.eval_reuse.mean_nodes": 9.5,
+    "util_app.eval_reuse.solve_rate": 1.0,
+    "util_app.eval_no_reuse.mean_nodes": 94.8,
+    "util_app.eval_no_reuse.solve_rate": 1.0
+  },
+  "verdict": {
+    "off_reuse_mean_nodes": 54.4,
+    "util_reuse_mean_nodes": 11.9,
+    "randmacro_reuse_mean_nodes": 16.1,
+    "util_app_reuse_mean_nodes": 9.5,
+    "util_speedup_vs_off": 4.57,
+    "util_app_speedup_vs_off": 5.73,
+    "randmacro_speedup_vs_off": 3.38,
+    "util_beats_freq": false,
+    "util_beats_randmacro": true,
+    "compression_pays_on_reuse": true,
+    "gain_is_reuse_specific_not_just_longer_jumps": true,
+    "ood_penalty_off_noreuse": 125.9,
+    "ood_penalty_util_noreuse": 456.0,
+    "ood_penalty_util_app_noreuse": 94.8,
+    "app_keeps_reuse_gain": true,
+    "app_cuts_ood_penalty": true
+  },
+  "seed_runs": [
+    {
+      "seed": 11,
+      "held_out": true,
+      "gates": {
+        "off": {
+          "n_macros": 0,
+          "macros": [],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 41.1625,
+            "median_nodes": 18.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 46.225,
+            "median_nodes": 17.0
+          },
+          "promotions": []
+        },
+        "freq": {
+          "n_macros": 8,
+          "macros": [
+            "M0=ac",
+            "M1=ce",
+            "M2=ae",
+            "M3=ea",
+            "M4=cb",
+            "M5=aa",
+            "M6=cea",
+            "M7=acb"
+          ],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 6.85,
+            "median_nodes": 5.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 12.175,
+            "median_nodes": 4.0
+          },
+          "promotions": [
+            {
+              "macro": "ac",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ce",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ae",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ea",
+              "count": 4,
+              "score": 4.0
+            },
+            {
+              "macro": "cb",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "aa",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "cea",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "acb",
+              "count": 3,
+              "score": 3.0
+            }
+          ]
+        },
+        "util": {
+          "n_macros": 8,
+          "macros": [
+            "M0=cea",
+            "M1=ceac",
+            "M2=acea",
+            "M3=eac",
+            "M4=ac",
+            "M5=acb",
+            "M6=ea",
+            "M7=cb"
+          ],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 7.25,
+            "median_nodes": 4.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 14.5,
+            "median_nodes": 4.0
+          },
+          "promotions": [
+            {
+              "macro": "cea",
+              "count": 2,
+              "score": 4.0
+            },
+            {
+              "macro": "ceac",
+              "count": 2,
+              "score": 5.0
+            },
+            {
+              "macro": "acea",
+              "count": 2,
+              "score": 4.0
+            },
+            {
+              "macro": "eac",
+              "count": 4,
+              "score": 5.0
+            },
+            {
+              "macro": "ac",
+              "count": 7,
+              "score": 3.0
+            },
+            {
+              "macro": "acb",
+              "count": 4,
+              "score": 3.0
+            },
+            {
+              "macro": "ea",
+              "count": 9,
+              "score": 3.0
+            },
+            {
+              "macro": "cb",
+              "count": 10,
+              "score": 3.0
+            }
+          ]
+        },
+        "randmacro": {
+          "n_macros": 8,
+          "macros": [
+            "R0=cbe",
+            "R1=cddc",
+            "R2=caea",
+            "R3=ead",
+            "R4=ba",
+            "R5=cac",
+            "R6=ae",
+            "R7=ca"
+          ],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 5.8375,
+            "median_nodes": 4.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 9.45,
+            "median_nodes": 4.0
+          },
+          "promotions": []
+        },
+        "util_app": {
+          "n_macros": 8,
+          "macros": [
+            "M0=cea",
+            "M1=ceac",
+            "M2=acea",
+            "M3=eac",
+            "M4=ac",
+            "M5=acb",
+            "M6=ea",
+            "M7=cb"
+          ],
+          "probe_budget": 40,
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 7.675,
+            "median_nodes": 4.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 22.8875,
+            "median_nodes": 4.0
+          },
+          "promotions": [
+            {
+              "macro": "cea",
+              "count": 2,
+              "score": 4.0
+            },
+            {
+              "macro": "ceac",
+              "count": 2,
+              "score": 5.0
+            },
+            {
+              "macro": "acea",
+              "count": 2,
+              "score": 4.0
+            },
+            {
+              "macro": "eac",
+              "count": 4,
+              "score": 5.0
+            },
+            {
+              "macro": "ac",
+              "count": 7,
+              "score": 3.0
+            },
+            {
+              "macro": "acb",
+              "count": 4,
+              "score": 3.0
+            },
+            {
+              "macro": "ea",
+              "count": 9,
+              "score": 3.0
+            },
+            {
+              "macro": "cb",
+              "count": 10,
+              "score": 3.0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seed": 17,
+      "held_out": true,
+      "gates": {
+        "off": {
+          "n_macros": 0,
+          "macros": [],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 56.1875,
+            "median_nodes": 26.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 183.3125,
+            "median_nodes": 17.0
+          },
+          "promotions": []
+        },
+        "freq": {
+          "n_macros": 8,
+          "macros": [
+            "M0=ac",
+            "M1=bc",
+            "M2=ea",
+            "M3=ce",
+            "M4=cea",
+            "M5=cb",
+            "M6=acb",
+            "M7=ca"
+          ],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 9.9125,
+            "median_nodes": 7.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 41.75,
+            "median_nodes": 5.5
+          },
+          "promotions": [
+            {
+              "macro": "ac",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "bc",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ea",
+              "count": 4,
+              "score": 4.0
+            },
+            {
+              "macro": "ce",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "cea",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "cb",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "acb",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ca",
+              "count": 3,
+              "score": 3.0
+            }
+          ]
+        },
+        "util": {
+          "n_macros": 8,
+          "macros": [
+            "M0=ac",
+            "M1=cea",
+            "M2=ea",
+            "M3=ce",
+            "M4=acb",
+            "M5=cac",
+            "M6=ca",
+            "M7=cb"
+          ],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 6.7,
+            "median_nodes": 7.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 31.1875,
+            "median_nodes": 5.5
+          },
+          "promotions": [
+            {
+              "macro": "ac",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "cea",
+              "count": 2,
+              "score": 3.0
+            },
+            {
+              "macro": "ea",
+              "count": 5,
+              "score": 3.0
+            },
+            {
+              "macro": "ce",
+              "count": 6,
+              "score": 3.0
+            },
+            {
+              "macro": "acb",
+              "count": 4,
+              "score": 4.0
+            },
+            {
+              "macro": "cac",
+              "count": 4,
+              "score": 3.0
+            },
+            {
+              "macro": "ca",
+              "count": 9,
+              "score": 3.0
+            },
+            {
+              "macro": "cb",
+              "count": 10,
+              "score": 3.0
+            }
+          ]
+        },
+        "randmacro": {
+          "n_macros": 8,
+          "macros": [
+            "R0=ae",
+            "R1=aae",
+            "R2=bc",
+            "R3=ae",
+            "R4=ece",
+            "R5=edc",
+            "R6=da",
+            "R7=ec"
+          ],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 23.925,
+            "median_nodes": 7.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 33.15,
+            "median_nodes": 5.0
+          },
+          "promotions": []
+        },
+        "util_app": {
+          "n_macros": 8,
+          "macros": [
+            "M0=ac",
+            "M1=cea",
+            "M2=ea",
+            "M3=ce",
+            "M4=acb",
+            "M5=cac",
+            "M6=ca",
+            "M7=cb"
+          ],
+          "probe_budget": 40,
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 6.7,
+            "median_nodes": 7.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 145.875,
+            "median_nodes": 5.5
+          },
+          "promotions": [
+            {
+              "macro": "ac",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "cea",
+              "count": 2,
+              "score": 3.0
+            },
+            {
+              "macro": "ea",
+              "count": 5,
+              "score": 3.0
+            },
+            {
+              "macro": "ce",
+              "count": 6,
+              "score": 3.0
+            },
+            {
+              "macro": "acb",
+              "count": 4,
+              "score": 4.0
+            },
+            {
+              "macro": "cac",
+              "count": 4,
+              "score": 3.0
+            },
+            {
+              "macro": "ca",
+              "count": 9,
+              "score": 3.0
+            },
+            {
+              "macro": "cb",
+              "count": 10,
+              "score": 3.0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seed": 23,
+      "held_out": true,
+      "gates": {
+        "off": {
+          "n_macros": 0,
+          "macros": [],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 51.6625,
+            "median_nodes": 19.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 100.4875,
+            "median_nodes": 12.0
+          },
+          "promotions": []
+        },
+        "freq": {
+          "n_macros": 8,
+          "macros": [
+            "M0=ce",
+            "M1=ea",
+            "M2=ac",
+            "M3=ace",
+            "M4=cb",
+            "M5=cea",
+            "M6=acb",
+            "M7=be"
+          ],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 6.65,
+            "median_nodes": 4.5
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 8.3875,
+            "median_nodes": 4.0
+          },
+          "promotions": [
+            {
+              "macro": "ce",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ea",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ac",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ace",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "cb",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "cea",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "acb",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "be",
+              "count": 3,
+              "score": 3.0
+            }
+          ]
+        },
+        "util": {
+          "n_macros": 8,
+          "macros": [
+            "M0=ce",
+            "M1=ace",
+            "M2=acea",
+            "M3=ac",
+            "M4=cea",
+            "M5=aced",
+            "M6=ced",
+            "M7=ea"
+          ],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 5.2875,
+            "median_nodes": 3.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 7.875,
+            "median_nodes": 4.0
+          },
+          "promotions": [
+            {
+              "macro": "ce",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ace",
+              "count": 2,
+              "score": 3.0
+            },
+            {
+              "macro": "acea",
+              "count": 2,
+              "score": 4.0
+            },
+            {
+              "macro": "ac",
+              "count": 6,
+              "score": 3.0
+            },
+            {
+              "macro": "cea",
+              "count": 4,
+              "score": 4.0
+            },
+            {
+              "macro": "aced",
+              "count": 3,
+              "score": 4.0
+            },
+            {
+              "macro": "ced",
+              "count": 5,
+              "score": 4.0
+            },
+            {
+              "macro": "ea",
+              "count": 10,
+              "score": 3.0
+            }
+          ]
+        },
+        "randmacro": {
+          "n_macros": 8,
+          "macros": [
+            "R0=be",
+            "R1=bba",
+            "R2=abeb",
+            "R3=bc",
+            "R4=aed",
+            "R5=edda",
+            "R6=bdc",
+            "R7=bc"
+          ],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 15.8,
+            "median_nodes": 8.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 31.85,
+            "median_nodes": 4.0
+          },
+          "promotions": []
+        },
+        "util_app": {
+          "n_macros": 8,
+          "macros": [
+            "M0=ce",
+            "M1=ace",
+            "M2=acea",
+            "M3=ac",
+            "M4=cea",
+            "M5=aced",
+            "M6=ced",
+            "M7=ea"
+          ],
+          "probe_budget": 40,
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 5.2875,
+            "median_nodes": 3.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 13.25,
+            "median_nodes": 4.0
+          },
+          "promotions": [
+            {
+              "macro": "ce",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ace",
+              "count": 2,
+              "score": 3.0
+            },
+            {
+              "macro": "acea",
+              "count": 2,
+              "score": 4.0
+            },
+            {
+              "macro": "ac",
+              "count": 6,
+              "score": 3.0
+            },
+            {
+              "macro": "cea",
+              "count": 4,
+              "score": 4.0
+            },
+            {
+              "macro": "aced",
+              "count": 3,
+              "score": 4.0
+            },
+            {
+              "macro": "ced",
+              "count": 5,
+              "score": 4.0
+            },
+            {
+              "macro": "ea",
+              "count": 10,
+              "score": 3.0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seed": 41,
+      "held_out": true,
+      "gates": {
+        "off": {
+          "n_macros": 0,
+          "macros": [],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 59.6,
+            "median_nodes": 18.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 112.85,
+            "median_nodes": 7.0
+          },
+          "promotions": []
+        },
+        "freq": {
+          "n_macros": 8,
+          "macros": [
+            "M0=ae",
+            "M1=aa",
+            "M2=ea",
+            "M3=ac",
+            "M4=ce",
+            "M5=cea",
+            "M6=ba",
+            "M7=baa"
+          ],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 8.8375,
+            "median_nodes": 5.5
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 59.075,
+            "median_nodes": 4.0
+          },
+          "promotions": [
+            {
+              "macro": "ae",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "aa",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ea",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ac",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ce",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "cea",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ba",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "baa",
+              "count": 3,
+              "score": 3.0
+            }
+          ]
+        },
+        "util": {
+          "n_macros": 8,
+          "macros": [
+            "M0=ae",
+            "M1=aa",
+            "M2=aae",
+            "M3=aaea",
+            "M4=ea",
+            "M5=aea",
+            "M6=baa",
+            "M7=ba"
+          ],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 7.225,
+            "median_nodes": 4.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 665.75,
+            "median_nodes": 4.0
+          },
+          "promotions": [
+            {
+              "macro": "ae",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "aa",
+              "count": 4,
+              "score": 3.0
+            },
+            {
+              "macro": "aae",
+              "count": 3,
+              "score": 4.0
+            },
+            {
+              "macro": "aaea",
+              "count": 2,
+              "score": 3.0
+            },
+            {
+              "macro": "ea",
+              "count": 7,
+              "score": 3.0
+            },
+            {
+              "macro": "aea",
+              "count": 4,
+              "score": 3.0
+            },
+            {
+              "macro": "baa",
+              "count": 5,
+              "score": 4.0
+            },
+            {
+              "macro": "ba",
+              "count": 10,
+              "score": 3.0
+            }
+          ]
+        },
+        "randmacro": {
+          "n_macros": 8,
+          "macros": [
+            "R0=db",
+            "R1=ea",
+            "R2=bbb",
+            "R3=dbde",
+            "R4=da",
+            "R5=ebd",
+            "R6=abe",
+            "R7=db"
+          ],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 10.8375,
+            "median_nodes": 9.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 98.7375,
+            "median_nodes": 3.0
+          },
+          "promotions": []
+        },
+        "util_app": {
+          "n_macros": 8,
+          "macros": [
+            "M0=ae",
+            "M1=aa",
+            "M2=aae",
+            "M3=aaea",
+            "M4=ea",
+            "M5=aea",
+            "M6=baa",
+            "M7=ba"
+          ],
+          "probe_budget": 40,
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 7.3375,
+            "median_nodes": 4.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 98.05,
+            "median_nodes": 4.0
+          },
+          "promotions": [
+            {
+              "macro": "ae",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "aa",
+              "count": 4,
+              "score": 3.0
+            },
+            {
+              "macro": "aae",
+              "count": 3,
+              "score": 4.0
+            },
+            {
+              "macro": "aaea",
+              "count": 2,
+              "score": 3.0
+            },
+            {
+              "macro": "ea",
+              "count": 7,
+              "score": 3.0
+            },
+            {
+              "macro": "aea",
+              "count": 4,
+              "score": 3.0
+            },
+            {
+              "macro": "baa",
+              "count": 5,
+              "score": 4.0
+            },
+            {
+              "macro": "ba",
+              "count": 10,
+              "score": 3.0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seed": 73,
+      "held_out": true,
+      "gates": {
+        "off": {
+          "n_macros": 0,
+          "macros": [],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 67.7,
+            "median_nodes": 26.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 198.1875,
+            "median_nodes": 14.0
+          },
+          "promotions": []
+        },
+        "freq": {
+          "n_macros": 8,
+          "macros": [
+            "M0=ae",
+            "M1=ab",
+            "M2=aa",
+            "M3=aab",
+            "M4=ea",
+            "M5=ba",
+            "M6=be",
+            "M7=ac"
+          ],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 15.6875,
+            "median_nodes": 9.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 210.3875,
+            "median_nodes": 7.0
+          },
+          "promotions": [
+            {
+              "macro": "ae",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ab",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "aa",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "aab",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ea",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ba",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "be",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ac",
+              "count": 3,
+              "score": 3.0
+            }
+          ]
+        },
+        "util": {
+          "n_macros": 8,
+          "macros": [
+            "M0=ae",
+            "M1=aab",
+            "M2=ab",
+            "M3=aa",
+            "M4=ea",
+            "M5=bea",
+            "M6=eaab",
+            "M7=eaa"
+          ],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 7.5875,
+            "median_nodes": 4.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 192.9625,
+            "median_nodes": 4.0
+          },
+          "promotions": [
+            {
+              "macro": "ae",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "aab",
+              "count": 2,
+              "score": 3.0
+            },
+            {
+              "macro": "ab",
+              "count": 5,
+              "score": 3.0
+            },
+            {
+              "macro": "aa",
+              "count": 6,
+              "score": 3.0
+            },
+            {
+              "macro": "ea",
+              "count": 7,
+              "score": 3.0
+            },
+            {
+              "macro": "bea",
+              "count": 4,
+              "score": 3.0
+            },
+            {
+              "macro": "eaab",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "eaa",
+              "count": 5,
+              "score": 3.0
+            }
+          ]
+        },
+        "randmacro": {
+          "n_macros": 8,
+          "macros": [
+            "R0=dd",
+            "R1=ddc",
+            "R2=ca",
+            "R3=ee",
+            "R4=dd",
+            "R5=eba",
+            "R6=ebac",
+            "R7=bed"
+          ],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 11.7,
+            "median_nodes": 4.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 17.7625,
+            "median_nodes": 4.0
+          },
+          "promotions": []
+        },
+        "util_app": {
+          "n_macros": 8,
+          "macros": [
+            "M0=ae",
+            "M1=aab",
+            "M2=ab",
+            "M3=aa",
+            "M4=ea",
+            "M5=bea",
+            "M6=eaab",
+            "M7=eaa"
+          ],
+          "probe_budget": 40,
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 8,
+            "median_nodes": 4.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 183.325,
+            "median_nodes": 4.0
+          },
+          "promotions": [
+            {
+              "macro": "ae",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "aab",
+              "count": 2,
+              "score": 3.0
+            },
+            {
+              "macro": "ab",
+              "count": 5,
+              "score": 3.0
+            },
+            {
+              "macro": "aa",
+              "count": 6,
+              "score": 3.0
+            },
+            {
+              "macro": "ea",
+              "count": 7,
+              "score": 3.0
+            },
+            {
+              "macro": "bea",
+              "count": 4,
+              "score": 3.0
+            },
+            {
+              "macro": "eaab",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "eaa",
+              "count": 5,
+              "score": 3.0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seed": 101,
+      "held_out": true,
+      "gates": {
+        "off": {
+          "n_macros": 0,
+          "macros": [],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 49.925,
+            "median_nodes": 37.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 114.1125,
+            "median_nodes": 12.0
+          },
+          "promotions": []
+        },
+        "freq": {
+          "n_macros": 8,
+          "macros": [
+            "M0=ab",
+            "M1=abc",
+            "M2=bc",
+            "M3=ea",
+            "M4=aa",
+            "M5=aab",
+            "M6=ca",
+            "M7=cb"
+          ],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 12.675,
+            "median_nodes": 9.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 1824.4875,
+            "median_nodes": 4.0
+          },
+          "promotions": [
+            {
+              "macro": "ab",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "abc",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "bc",
+              "count": 4,
+              "score": 4.0
+            },
+            {
+              "macro": "ea",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "aa",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "aab",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "ca",
+              "count": 4,
+              "score": 4.0
+            },
+            {
+              "macro": "cb",
+              "count": 4,
+              "score": 4.0
+            }
+          ]
+        },
+        "util": {
+          "n_macros": 8,
+          "macros": [
+            "M0=ab",
+            "M1=abc",
+            "M2=bc",
+            "M3=aab",
+            "M4=aabc",
+            "M5=abca",
+            "M6=abcb",
+            "M7=aa"
+          ],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 37.25,
+            "median_nodes": 5.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 1823.7125,
+            "median_nodes": 4.0
+          },
+          "promotions": [
+            {
+              "macro": "ab",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "abc",
+              "count": 2,
+              "score": 3.0
+            },
+            {
+              "macro": "bc",
+              "count": 5,
+              "score": 3.0
+            },
+            {
+              "macro": "aab",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "aabc",
+              "count": 3,
+              "score": 5.0
+            },
+            {
+              "macro": "abca",
+              "count": 3,
+              "score": 4.0
+            },
+            {
+              "macro": "abcb",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "aa",
+              "count": 10,
+              "score": 3.0
+            }
+          ]
+        },
+        "randmacro": {
+          "n_macros": 8,
+          "macros": [
+            "R0=ab",
+            "R1=bda",
+            "R2=da",
+            "R3=acd",
+            "R4=acae",
+            "R5=eccc",
+            "R6=ecce",
+            "R7=de"
+          ],
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 28.675,
+            "median_nodes": 12.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 15.2,
+            "median_nodes": 4.0
+          },
+          "promotions": []
+        },
+        "util_app": {
+          "n_macros": 8,
+          "macros": [
+            "M0=ab",
+            "M1=abc",
+            "M2=bc",
+            "M3=aab",
+            "M4=aabc",
+            "M5=abca",
+            "M6=abcb",
+            "M7=aa"
+          ],
+          "probe_budget": 40,
+          "eval_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 21.8125,
+            "median_nodes": 5.0
+          },
+          "eval_no_reuse": {
+            "n": 80,
+            "solve_rate": 1.0,
+            "mean_nodes": 105.2,
+            "median_nodes": 4.0
+          },
+          "promotions": [
+            {
+              "macro": "ab",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "abc",
+              "count": 2,
+              "score": 3.0
+            },
+            {
+              "macro": "bc",
+              "count": 5,
+              "score": 3.0
+            },
+            {
+              "macro": "aab",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "aabc",
+              "count": 3,
+              "score": 5.0
+            },
+            {
+              "macro": "abca",
+              "count": 3,
+              "score": 4.0
+            },
+            {
+              "macro": "abcb",
+              "count": 3,
+              "score": 3.0
+            },
+            {
+              "macro": "aa",
+              "count": 10,
+              "score": 3.0
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
