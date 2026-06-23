@@ -181,6 +181,46 @@ they never relax a falsifier.
   framing: this is amortized behavioral re-compilation (test-time training / fast-weights /
   amortized-inference family), not self-modifying AGI.
 
+## 6c. Stage 1a — result: the law does NOT emerge from naive training (honest negative)
+
+`ecs_stage1.py` runs the contract with a *trained* per-step gate + growing skill memory
+over the task stream (decode-steps = active compute; the Markov form of the backbone,
+recurrence deferred to Stage 2). **6 seeds, deterministic, `protocol_valid=True`.**
+
+| arm | active compute (steps) | solve-rate |
+|---|---|---|
+| **ECS** (trained gate + growing M) | 9.04 | 0.856 |
+| dense (shuffled) | 7.80 | 1.00 |
+| frozen-M = cache-M (ECS policy, no usable skills) | 10.60 | — |
+| random-routing | 22.56 | — |
+| ECS slope −0.030 vs **dense+curriculum slope −0.032** | (identical) | |
+
+**PASS = False, and every guard fired as designed:**
+- **Matched-loss guard FAILS:** ECS solve-rate 0.856 < dense 1.00 — the gate sometimes
+  fires a skill that overshoots and fails to solve within the cap. Skills *hurt*
+  reliability, so a cheaper step-count would be uncomparable anyway.
+- **Curriculum control fires:** ECS's decline (−0.030) equals `dense+curriculum`
+  (−0.032) → the cost-drop over the stream is **task ordering, not skill compression**.
+- **No Axis-C transfer:** ECS 14.44 ≈ dense 14.13 on novel compositions.
+
+**Diagnosis (precise, and it closes the loop).** The law fails to emerge for one reason:
+**skill *selection* is the unsolved goal-conditioned inverse** — the exact Phase-3.4
+wall. `random-routing`'s blow-up (22.6) shows firing is only safe with the *right*
+skill; the naive independent per-step head cannot pick it, so the trained gate either
+abstains (→ ECS ≈ primitive ablation) or misfires (→ solve-rate drop). Emergence is
+**gated by the same residual** the structural arc isolated (3.3–3.4): goal-conditioned
+selection of the right parametric skill.
+
+**Named fix → Stage 1a'.** Replace the naive per-step selection head with the Phase-3.4b/c
+selection machinery (autoregressive interaction + best-first ordering over the skill
+choice). Prediction (falsifiable): with competent selection, ECS matches dense
+solve-rate AND beats `dense+curriculum`/`random-routing` on active compute AND survives
+Axis-C. If it still fails to beat curriculum, the law is not architectural here.
+
+**Reading.** This is the intended use of the contract: a naive build was *prevented* from
+claiming a curriculum artifact as emergence. The structural arc's residual is now also
+the empirical blocker of Stage 1 — the two lines meet on the same open problem.
+
 ## 7. Honest scope
 
 We are not out-training frontier LLMs and not claiming AGI. We are testing whether one
