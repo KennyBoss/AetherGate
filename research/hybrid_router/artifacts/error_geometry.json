@@ -1,0 +1,175 @@
+{
+  "config": {
+    "seeds": "11,17,23,41,73,101",
+    "corrs": "0.0,0.25,0.5,0.75,1.0",
+    "cue_noises": "0.0,2.0,8.0",
+    "n_ops": 1200,
+    "n_keys": 24,
+    "window": 8,
+    "lag": 3,
+    "p_write": 0.5,
+    "vocab": 16,
+    "hidden": 8,
+    "epochs": 250,
+    "lr": 0.03,
+    "output_json": "artifacts/error_geometry.json"
+  },
+  "grid": {
+    "corr=0.0,cue=0.0": {
+      "headroom": 0.242,
+      "advantage": 0.242,
+      "efficiency": 1.0,
+      "min_regime": 1.0,
+      "shuffle_gap": 0.3644,
+      "best": 0.758,
+      "oracle": 1.0,
+      "router": 1.0
+    },
+    "corr=0.0,cue=2.0": {
+      "headroom": 0.2473,
+      "advantage": 0.2367,
+      "efficiency": 0.9577,
+      "min_regime": 0.9713,
+      "shuffle_gap": 0.3555,
+      "best": 0.7527,
+      "oracle": 1.0,
+      "router": 0.9894
+    },
+    "corr=0.0,cue=8.0": {
+      "headroom": 0.2347,
+      "advantage": 0.1651,
+      "efficiency": 0.7016,
+      "min_regime": 0.8347,
+      "shuffle_gap": 0.2982,
+      "best": 0.7653,
+      "oracle": 1.0,
+      "router": 0.9304
+    },
+    "corr=0.25,cue=0.0": {
+      "headroom": 0.1819,
+      "advantage": 0.1819,
+      "efficiency": 1.0,
+      "min_regime": 1.0,
+      "shuffle_gap": 0.2634,
+      "best": 0.56,
+      "oracle": 0.7419,
+      "router": 0.7419
+    },
+    "corr=0.25,cue=2.0": {
+      "headroom": 0.1873,
+      "advantage": 0.1803,
+      "efficiency": 0.9631,
+      "min_regime": 0.9744,
+      "shuffle_gap": 0.2597,
+      "best": 0.5534,
+      "oracle": 0.7407,
+      "router": 0.7337
+    },
+    "corr=0.25,cue=8.0": {
+      "headroom": 0.176,
+      "advantage": 0.1283,
+      "efficiency": 0.7303,
+      "min_regime": 0.8485,
+      "shuffle_gap": 0.2213,
+      "best": 0.5655,
+      "oracle": 0.7416,
+      "router": 0.6938
+    },
+    "corr=0.5,cue=0.0": {
+      "headroom": 0.1269,
+      "advantage": 0.1269,
+      "efficiency": 1.0,
+      "min_regime": 1.0,
+      "shuffle_gap": 0.1864,
+      "best": 0.3866,
+      "oracle": 0.5135,
+      "router": 0.5135
+    },
+    "corr=0.5,cue=2.0": {
+      "headroom": 0.1231,
+      "advantage": 0.1176,
+      "efficiency": 0.9542,
+      "min_regime": 0.9707,
+      "shuffle_gap": 0.1836,
+      "best": 0.3883,
+      "oracle": 0.5114,
+      "router": 0.5059
+    },
+    "corr=0.5,cue=8.0": {
+      "headroom": 0.1181,
+      "advantage": 0.0862,
+      "efficiency": 0.7286,
+      "min_regime": 0.8557,
+      "shuffle_gap": 0.1566,
+      "best": 0.3954,
+      "oracle": 0.5135,
+      "router": 0.4816
+    },
+    "corr=0.75,cue=0.0": {
+      "headroom": 0.0595,
+      "advantage": 0.0595,
+      "efficiency": 1.0,
+      "min_regime": 1.0,
+      "shuffle_gap": 0.0846,
+      "best": 0.1791,
+      "oracle": 0.2387,
+      "router": 0.2387
+    },
+    "corr=0.75,cue=2.0": {
+      "headroom": 0.0591,
+      "advantage": 0.0563,
+      "efficiency": 0.9515,
+      "min_regime": 0.969,
+      "shuffle_gap": 0.0851,
+      "best": 0.181,
+      "oracle": 0.2401,
+      "router": 0.2373
+    },
+    "corr=0.75,cue=8.0": {
+      "headroom": 0.0516,
+      "advantage": 0.0361,
+      "efficiency": 0.6995,
+      "min_regime": 0.8447,
+      "shuffle_gap": 0.0753,
+      "best": 0.1888,
+      "oracle": 0.2404,
+      "router": 0.2249
+    },
+    "corr=1.0,cue=0.0": {
+      "headroom": 0.0,
+      "advantage": 0.0,
+      "efficiency": null,
+      "min_regime": 0.0,
+      "shuffle_gap": 0.0,
+      "best": 0.0,
+      "oracle": 0.0,
+      "router": 0.0
+    },
+    "corr=1.0,cue=2.0": {
+      "headroom": 0.0,
+      "advantage": 0.0,
+      "efficiency": null,
+      "min_regime": 0.0,
+      "shuffle_gap": 0.0,
+      "best": 0.0,
+      "oracle": 0.0,
+      "router": 0.0
+    },
+    "corr=1.0,cue=8.0": {
+      "headroom": 0.0,
+      "advantage": 0.0,
+      "efficiency": null,
+      "min_regime": 0.0,
+      "shuffle_gap": 0.0,
+      "best": 0.0,
+      "oracle": 0.0,
+      "router": 0.0
+    }
+  },
+  "law": "headroom~f(corr); efficiency~g(cue_noise); routing_advantage=headroom*efficiency",
+  "protocol_evidence": {
+    "both_experts_mechanistic": true,
+    "n_seeds": 6,
+    "valid": true
+  }
+}
