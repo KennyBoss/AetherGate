@@ -41,6 +41,8 @@
   следующем deterministic decision cycle.
 - Stage 13: policy promotion, где replay-validated policy получает runtime
   manifest с rollback metadata.
+- Stage 14: runtime policy loader, где promoted manifest загружается как
+  рабочий runtime snapshot с smoke decisions.
 
 Важно: Stage 1/2 пока используют hand-coded agents. Это проверка harness,
 артефактов, метрик и pass/fail контракта, а не claim про обученный SSM или AGI.
@@ -70,6 +72,7 @@ make neocortex-x-stage10-feedback-smoke
 make neocortex-x-stage11-policy-smoke
 make neocortex-x-stage12-policy-replay-smoke
 make neocortex-x-stage13-promote-policy-smoke
+make neocortex-x-stage14-runtime-loader-smoke
 ```
 
 Прямой запуск:
@@ -177,6 +180,10 @@ python3 research/neocortex_x/stage13_policy_promotion.py \
   --replay-json artifacts/neocortex_x/stage12_policy_replay.json \
   --policy-json artifacts/neocortex_x/stage11_policy_update.json \
   --output-json artifacts/neocortex_x/stage13_policy_promotion.json
+
+python3 research/neocortex_x/stage14_runtime_loader.py \
+  --promotion-json artifacts/neocortex_x/stage13_policy_promotion.json \
+  --output-json artifacts/neocortex_x/stage14_runtime_loader.json
 ```
 
 ## Артефакты
@@ -203,5 +210,6 @@ python3 research/neocortex_x/stage13_policy_promotion.py \
 - `artifacts/neocortex_x/stage11_policy_update.json`
 - `artifacts/neocortex_x/stage12_policy_replay.json`
 - `artifacts/neocortex_x/stage13_policy_promotion.json`
+- `artifacts/neocortex_x/stage14_runtime_loader.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
