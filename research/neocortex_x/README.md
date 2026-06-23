@@ -29,6 +29,8 @@
   provenance state превращается в compact memory key + factual packet.
 - Stage 7: memory retrieval smoke, где evidence packets индексируются и
   достаются по subject, compact query и memory key.
+- Stage 8: temporal freshness policy, где past packet + present observation
+  дают future memory action: keep, refresh или flag_conflict.
 
 Важно: Stage 1/2 пока используют hand-coded agents. Это проверка harness,
 артефактов, метрик и pass/fail контракта, а не claim про обученный SSM или AGI.
@@ -52,6 +54,7 @@ make neocortex-x-stage5-smoke
 make neocortex-x-stage5b-cached-smoke
 make neocortex-x-stage6-packets-smoke
 make neocortex-x-stage7-memory-smoke
+make neocortex-x-stage8-freshness-smoke
 ```
 
 Прямой запуск:
@@ -133,6 +136,10 @@ python3 research/neocortex_x/stage6_evidence_packets.py \
 python3 research/neocortex_x/stage7_memory_retrieval.py \
   --packet-json artifacts/neocortex_x/stage6_evidence_packets.json \
   --output-json artifacts/neocortex_x/stage7_memory_retrieval.json
+
+python3 research/neocortex_x/stage8_temporal_freshness.py \
+  --packet-json artifacts/neocortex_x/stage6_evidence_packets.json \
+  --output-json artifacts/neocortex_x/stage8_temporal_freshness.json
 ```
 
 ## Артефакты
@@ -153,5 +160,6 @@ python3 research/neocortex_x/stage7_memory_retrieval.py \
 - `artifacts/neocortex_x/stage5b_live_cached_adapter.json`
 - `artifacts/neocortex_x/stage6_evidence_packets.json`
 - `artifacts/neocortex_x/stage7_memory_retrieval.json`
+- `artifacts/neocortex_x/stage8_temporal_freshness.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.

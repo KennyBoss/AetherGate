@@ -8,6 +8,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage5b-cached-smoke
 .PHONY: neocortex-x-stage6-packets-smoke
 .PHONY: neocortex-x-stage7-memory-smoke
+.PHONY: neocortex-x-stage8-freshness-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -39,6 +40,7 @@ help:
 	@echo "  make neocortex-x-stage5b-cached-smoke            cached live-shaped provenance adapter"
 	@echo "  make neocortex-x-stage6-packets-smoke            provenance memory evidence packets"
 	@echo "  make neocortex-x-stage7-memory-smoke             long-term packet memory retrieval"
+	@echo "  make neocortex-x-stage8-freshness-smoke          temporal memory freshness policy"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -70,6 +72,7 @@ compile:
 		research/neocortex_x/stage5b_live_cached_adapter.py \
 		research/neocortex_x/stage6_evidence_packets.py \
 		research/neocortex_x/stage7_memory_retrieval.py \
+		research/neocortex_x/stage8_temporal_freshness.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -952,6 +955,11 @@ neocortex-x-stage7-memory-smoke: neocortex-x-stage6-packets-smoke
 	$(PYTHON) research/neocortex_x/stage7_memory_retrieval.py \
 		--packet-json artifacts/neocortex_x/stage6_evidence_packets.json \
 		--output-json artifacts/neocortex_x/stage7_memory_retrieval.json
+
+neocortex-x-stage8-freshness-smoke: neocortex-x-stage6-packets-smoke
+	$(PYTHON) research/neocortex_x/stage8_temporal_freshness.py \
+		--packet-json artifacts/neocortex_x/stage6_evidence_packets.json \
+		--output-json artifacts/neocortex_x/stage8_temporal_freshness.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories
