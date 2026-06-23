@@ -20,7 +20,7 @@ Design spec: `docs/superpowers/specs/2026-06-23-neocortex-x-core-experiment-desi
 Grid-world corridor with traps:
 
 - state: position, goal, trap cells, budget, halted;
-- actions: left/right/stay;
+- actions: left/right/jump/stay;
 - immediate reward: tempting local reward near trap;
 - terminal reward: goal reward;
 - penalty: trap and step cost.
@@ -47,7 +47,7 @@ compute proportional to expanded nodes.
 
 ## Pass/Fail Thresholds
 
-For `--seeds 11,17,23,29,31,37`, `--episodes >= 96`:
+For `--seeds 11,17,23,29,31,37`, `--episodes >= 96`, `--stage4-horizon 4`:
 
 - `protocol_evidence.valid = true`;
 - `lookahead_planner.task_success_mean >= 0.90`;

@@ -27,6 +27,7 @@ PROCEDURE_AGENTS = (
     "exact_cache_control",
     "random_routing_control",
 )
+PLANNING_AGENTS = ("lookahead_planner", "greedy_action")
 TRACE_REQUIRED_FIELDS = (
     "tick_id",
     "phase",
@@ -57,6 +58,7 @@ COMPUTE_KEYS = (
     "procedure_steps",
     "cache_lookups",
     "random_routes",
+    "planning_nodes",
 )
 
 
@@ -1675,11 +1677,413 @@ def run_stage3(args: argparse.Namespace) -> dict[str, Any]:
     return payload
 
 
+ACTIONS = ("left", "right", "jump", "stay")
+ACTION_SEQUENCE_CACHE: dict[int, list[tuple[str, ...]]] = {}
+
+
+def make_planning_task(*, seed: int, episode: int, corridor_len: int) -> dict[str, Any]:
+    if corridor_len < 7:
+        raise ValueError("corridor_len must be at least 7.")
+    rng = random.Random(seed * 1_000_003 + episode * 12_289 + 4_004)
+    start = 1 + (episode % 2)
+    goal = corridor_len - 1
+    trap = min(start + 2 + rng.randrange(2), corridor_len - 2)
+    lure = trap - 1
+    return {
+        "task_id": f"plan_seed{seed}_episode{episode}",
+        "seed": seed,
+        "episode": episode,
+        "corridor_len": corridor_len,
+        "start": start,
+        "goal": goal,
+        "trap": trap,
+        "lure": lure,
+        "max_steps": corridor_len + 3,
+        "step_cost": -0.05,
+        "lure_reward": 1.0,
+        "goal_reward": 6.0,
+        "trap_penalty": -6.0,
+    }
+
+
+def initial_planning_state(task: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "position": task["start"],
+        "visited_lure": False,
+        "halted": False,
+        "terminal": None,
+        "return": 0.0,
+        "steps": 0,
+    }
+
+
+def planning_transition(
+    state: dict[str, Any], task: dict[str, Any], action: str
+) -> tuple[dict[str, Any], dict[str, Any], float]:
+    if action not in ACTIONS:
+        raise ValueError(f"Unknown action: {action}")
+    before = state
+    after = {
+        "position": int(state["position"]),
+        "visited_lure": bool(state["visited_lure"]),
+        "halted": bool(state["halted"]),
+        "terminal": state["terminal"],
+        "return": float(state["return"]),
+        "steps": int(state["steps"]),
+    }
+    if before["halted"]:
+        return after, {"action": action, "already_halted": True}, 0.0
+
+    if action == "left":
+        after["position"] = max(0, before["position"] - 1)
+    elif action == "right":
+        after["position"] = min(task["corridor_len"] - 1, before["position"] + 1)
+    elif action == "jump":
+        after["position"] = min(task["corridor_len"] - 1, before["position"] + 2)
+    else:
+        after["position"] = before["position"]
+
+    reward = float(task["step_cost"])
+    if after["position"] == task["lure"] and not before["visited_lure"]:
+        reward += float(task["lure_reward"])
+        after["visited_lure"] = True
+    if after["position"] == task["trap"]:
+        reward += float(task["trap_penalty"])
+        after["halted"] = True
+        after["terminal"] = "trap"
+    elif after["position"] == task["goal"]:
+        reward += float(task["goal_reward"])
+        after["halted"] = True
+        after["terminal"] = "goal"
+
+    after["steps"] = before["steps"] + 1
+    after["return"] = round(before["return"] + reward, 8)
+    if after["steps"] >= task["max_steps"] and not after["halted"]:
+        after["halted"] = True
+        after["terminal"] = "budget"
+
+    delta = {
+        "action": action,
+        "position_before": before["position"],
+        "position_after": after["position"],
+        "visited_lure_before": before["visited_lure"],
+        "visited_lure_after": after["visited_lure"],
+        "halted_before": before["halted"],
+        "halted_after": after["halted"],
+        "terminal": after["terminal"],
+        "reward": reward,
+        "return_after": after["return"],
+        "steps_after": after["steps"],
+    }
+    return after, delta, reward
+
+
+def score_action_one_step(state: dict[str, Any], task: dict[str, Any], action: str) -> float:
+    _after, _delta, reward = planning_transition(state, task, action)
+    return reward
+
+
+def evaluate_sequence(
+    state: dict[str, Any], task: dict[str, Any], sequence: tuple[str, ...]
+) -> tuple[float, int]:
+    rollout = {
+        "position": int(state["position"]),
+        "visited_lure": bool(state["visited_lure"]),
+        "halted": bool(state["halted"]),
+        "terminal": state["terminal"],
+        "return": float(state["return"]),
+        "steps": int(state["steps"]),
+    }
+    total = 0.0
+    nodes = 0
+    discount = 1.0
+    for action in sequence:
+        nodes += 1
+        rollout, _delta, reward = planning_transition(rollout, task, action)
+        total += discount * reward
+        discount *= 0.98
+        if rollout["halted"]:
+            break
+    return total, nodes
+
+
+def action_sequences(horizon: int) -> list[tuple[str, ...]]:
+    cached = ACTION_SEQUENCE_CACHE.get(horizon)
+    if cached is not None:
+        return cached
+    sequences: list[tuple[str, ...]] = [()]
+    for _depth in range(horizon):
+        sequences = [seq + (action,) for seq in sequences for action in ACTIONS]
+    ACTION_SEQUENCE_CACHE[horizon] = sequences
+    return sequences
+
+
+def choose_planning_action(
+    state: dict[str, Any], task: dict[str, Any], *, agent: str, horizon: int
+) -> tuple[str, int]:
+    if agent == "greedy_action":
+        tie_preference = {"stay": 3, "left": 2, "jump": 1, "right": 0}
+        scored = [
+            (score_action_one_step(state, task, action), tie_preference[action], action)
+            for action in ACTIONS
+        ]
+        scored.sort(reverse=True)
+        return scored[0][2], len(ACTIONS)
+    if agent != "lookahead_planner":
+        raise ValueError(f"Unknown Stage 4 agent: {agent}")
+
+    best_score = float("-inf")
+    best_action = "stay"
+    expanded = 0
+    for sequence in action_sequences(horizon):
+        if not sequence:
+            continue
+        score, nodes = evaluate_sequence(state, task, sequence)
+        expanded += nodes
+        # Tie-break toward rightward progress when expected return is equal.
+        if score > best_score or (score == best_score and sequence[0] == "right"):
+            best_score = score
+            best_action = sequence[0]
+    return best_action, expanded
+
+
+def run_planning_episode(
+    task: dict[str, Any], *, agent: str, horizon: int
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    if agent not in PLANNING_AGENTS:
+        raise ValueError(f"Unknown Stage 4 agent: {agent}")
+    state = initial_planning_state(task)
+    records: list[dict[str, Any]] = []
+    exact_delta_count = 0
+    active_compute = {key: 0 for key in COMPUTE_KEYS}
+
+    while not state["halted"]:
+        before_digest = state_digest(state)
+        action, expanded = choose_planning_action(state, task, agent=agent, horizon=horizon)
+        predicted_after, predicted_delta, predicted_reward = planning_transition(state, task, action)
+        actual_after, actual_delta, reward = planning_transition(state, task, action)
+        if predicted_after != actual_after:
+            raise RuntimeError("Deterministic planning predictor diverged from transition.")
+        if predicted_delta == actual_delta:
+            exact_delta_count += 1
+
+        active_compute["total_ticks"] += 1
+        active_compute["env_actions"] += 1
+        active_compute["planning_nodes"] += expanded
+        record = {
+            "tick_id": len(records),
+            "episode": task["episode"],
+            "task_id": task["task_id"],
+            "agent": agent,
+            "phase": "planning_step",
+            "event_type": "planning_step",
+            "observation": {"task": task, "state": copy.deepcopy(state)},
+            "gates": {
+                **empty_gates(),
+                "env_action": True,
+                "stop": bool(actual_after["halted"]),
+            },
+            "action": {"kind": "move", "value": action, "expanded_nodes": expanded},
+            "predicted_delta": predicted_delta,
+            "actual_delta": actual_delta,
+            "state_before_digest": before_digest,
+            "state_after_digest": state_digest(actual_after),
+            "reward": reward,
+            "predicted_reward": predicted_reward,
+            "active_compute": copy.deepcopy(active_compute),
+        }
+        records.append(record)
+        state = actual_after
+
+    success = state["terminal"] == "goal"
+    metrics = {
+        "task_success": success,
+        "return": float(state["return"]),
+        "trajectory_horizon": int(state["steps"]),
+        "planning_nodes": active_compute["planning_nodes"],
+        "world_delta_exact_rate": exact_delta_count / len(records) if records else 0.0,
+        "active_compute": active_compute,
+        "terminal": state["terminal"],
+    }
+    return records, metrics
+
+
+def run_planning_agent_seed(*, seed: int, agent: str, args: argparse.Namespace) -> dict[str, Any]:
+    episodes: list[dict[str, Any]] = []
+    active_compute = {key: 0 for key in COMPUTE_KEYS}
+    for episode in range(args.episodes):
+        task = make_planning_task(
+            seed=seed,
+            episode=episode,
+            corridor_len=args.stage4_corridor_len,
+        )
+        _records, metrics = run_planning_episode(
+            task,
+            agent=agent,
+            horizon=args.stage4_horizon,
+        )
+        for key in COMPUTE_KEYS:
+            active_compute[key] += int(metrics["active_compute"][key])
+        episodes.append(
+            {
+                "episode": episode,
+                "task_id": task["task_id"],
+                "task_success": metrics["task_success"],
+                "return": metrics["return"],
+                "trajectory_horizon": metrics["trajectory_horizon"],
+                "planning_nodes": metrics["planning_nodes"],
+                "world_delta_exact_rate": metrics["world_delta_exact_rate"],
+                "terminal": metrics["terminal"],
+            }
+        )
+    return {
+        "seed": seed,
+        "agent": agent,
+        "episode_count": args.episodes,
+        "task_success": mean([1.0 if item["task_success"] else 0.0 for item in episodes]),
+        "return": mean([float(item["return"]) for item in episodes]),
+        "trajectory_horizon": mean([float(item["trajectory_horizon"]) for item in episodes]),
+        "planning_nodes": mean([float(item["planning_nodes"]) for item in episodes]),
+        "world_delta_exact_rate": mean(
+            [float(item["world_delta_exact_rate"]) for item in episodes]
+        ),
+        "active_compute": active_compute,
+        "episodes": episodes,
+    }
+
+
+def aggregate_planning_agent(agent_runs: list[dict[str, Any]]) -> dict[str, Any]:
+    return {
+        "task_success": summarize([float(run["task_success"]) for run in agent_runs]),
+        "return": summarize([float(run["return"]) for run in agent_runs]),
+        "trajectory_horizon": summarize([float(run["trajectory_horizon"]) for run in agent_runs]),
+        "planning_nodes": summarize([float(run["planning_nodes"]) for run in agent_runs]),
+        "world_delta_exact_rate": summarize(
+            [float(run["world_delta_exact_rate"]) for run in agent_runs]
+        ),
+        "runs": agent_runs,
+    }
+
+
+def run_stage4(args: argparse.Namespace) -> dict[str, Any]:
+    seeds = parse_csv_ints(args.seeds)
+    by_agent: dict[str, list[dict[str, Any]]] = {agent: [] for agent in PLANNING_AGENTS}
+    seed_runs: list[dict[str, Any]] = []
+    for seed in seeds:
+        seed_payload: dict[str, Any] = {"seed": seed, "agents": {}}
+        for agent in PLANNING_AGENTS:
+            run = run_planning_agent_seed(seed=seed, agent=agent, args=args)
+            by_agent[agent].append(run)
+            seed_payload["agents"][agent] = run
+        planner = seed_payload["agents"]["lookahead_planner"]
+        greedy = seed_payload["agents"]["greedy_action"]
+        seed_payload["comparison"] = {
+            "planner_minus_greedy_return": planner["return"] - greedy["return"],
+            "planner_minus_greedy_success": planner["task_success"] - greedy["task_success"],
+            "planner_minus_greedy_nodes": planner["planning_nodes"] - greedy["planning_nodes"],
+        }
+        seed_runs.append(seed_payload)
+
+    aggregate = {
+        "agents": {
+            agent: aggregate_planning_agent(runs) for agent, runs in by_agent.items()
+        },
+        "comparison": {
+            "planner_minus_greedy_return": summarize(
+                [float(run["comparison"]["planner_minus_greedy_return"]) for run in seed_runs]
+            ),
+            "planner_minus_greedy_success": summarize(
+                [float(run["comparison"]["planner_minus_greedy_success"]) for run in seed_runs]
+            ),
+            "planner_minus_greedy_nodes": summarize(
+                [float(run["comparison"]["planner_minus_greedy_nodes"]) for run in seed_runs]
+            ),
+        },
+    }
+    protocol_evidence = {
+        "valid": bool(
+            len(seeds) >= args.min_seeds
+            and args.episodes >= args.stage4_min_episodes
+            and args.stage4_horizon >= 3
+            and args.stage4_corridor_len >= 7
+        ),
+        "seed_count": len(seeds),
+        "seed_requirement_met": len(seeds) >= args.min_seeds,
+        "episode_count": args.episodes,
+        "episode_requirement_met": args.episodes >= args.stage4_min_episodes,
+        "horizon": args.stage4_horizon,
+        "corridor_len": args.stage4_corridor_len,
+        "same_predictor_both_agents": True,
+        "deterministic_world_model": True,
+    }
+    thresholds = {
+        "planner_success_min": args.stage4_planner_success_min,
+        "greedy_success_max": args.stage4_greedy_success_max,
+        "planner_minus_greedy_return_min": args.stage4_return_margin_min,
+        "planner_minus_greedy_success_min": args.stage4_success_margin_min,
+        "planner_world_delta_exact_rate": 1.0,
+    }
+    planner_agg = aggregate["agents"]["lookahead_planner"]
+    greedy_agg = aggregate["agents"]["greedy_action"]
+    return_margin = aggregate["comparison"]["planner_minus_greedy_return"]["mean"]
+    success_margin = aggregate["comparison"]["planner_minus_greedy_success"]["mean"]
+    nodes_margin = aggregate["comparison"]["planner_minus_greedy_nodes"]["mean"]
+    pass_fail = {
+        "protocol_evidence": protocol_evidence["valid"],
+        "planner_success": planner_agg["task_success"]["mean"] >= thresholds["planner_success_min"],
+        "greedy_success": greedy_agg["task_success"]["mean"] <= thresholds["greedy_success_max"],
+        "planner_minus_greedy_return": (
+            return_margin >= thresholds["planner_minus_greedy_return_min"]
+        ),
+        "planner_minus_greedy_success": (
+            success_margin >= thresholds["planner_minus_greedy_success_min"]
+        ),
+        "planner_world_delta_exact_rate": (
+            planner_agg["world_delta_exact_rate"]["mean"]
+            == thresholds["planner_world_delta_exact_rate"]
+        ),
+        "planner_expands_more_nodes": nodes_margin > 0.0,
+    }
+
+    payload = {
+        "created_at": timestamp(),
+        "kind": "neocortex_x_stage4_planning_smoke",
+        "config": vars(args),
+        "protocol_evidence": protocol_evidence,
+        "thresholds": thresholds,
+        "pass_fail": pass_fail,
+        "pass": all(pass_fail.values()),
+        "seed_runs": seed_runs,
+        "aggregate": aggregate,
+        "claim_guardrail": (
+            "Stage 4 validates short lookahead over exact predicted deltas. "
+            "It is not yet a learned world model or open-world planning claim."
+        ),
+    }
+    write_json(Path(args.output_json), payload)
+    if args.require_pass and not payload["pass"]:
+        raise SystemExit(f"Stage 4 smoke failed: {pass_fail}")
+    print("NeoCortex-X Stage 4 planning smoke")
+    print(f"  protocol_valid: {protocol_evidence['valid']}")
+    print(f"  pass: {payload['pass']}")
+    print(f"  planner.task_success_mean: {planner_agg['task_success']['mean']:.4f}")
+    print(f"  greedy.task_success_mean: {greedy_agg['task_success']['mean']:.4f}")
+    print(f"  planner_minus_greedy_return_mean: {return_margin:.4f}")
+    print(f"  planner_minus_greedy_success_mean: {success_margin:.4f}")
+    print(f"  planner_minus_greedy_nodes_mean: {nodes_margin:.4f}")
+    print(f"  output_json: {args.output_json}")
+    return payload
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run NeoCortex-X Stage 0/1/2 controlled experiment smoke tests."
     )
-    parser.add_argument("--stage", choices=("stage0", "stage1", "stage2", "stage3"), required=True)
+    parser.add_argument(
+        "--stage",
+        choices=("stage0", "stage1", "stage2", "stage3", "stage4"),
+        required=True,
+    )
     parser.add_argument("--seed", type=int, default=11)
     parser.add_argument("--seeds", default="11,17,23,29,31,37")
     parser.add_argument("--episodes", type=int, default=128)
@@ -1719,6 +2123,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--stage3-compute-drop-min", type=float, default=4.0)
     parser.add_argument("--stage3-random-success-max", type=float, default=0.40)
     parser.add_argument("--stage3-reuse-count-min", type=float, default=2.0)
+    parser.add_argument("--stage4-min-episodes", type=int, default=96)
+    parser.add_argument("--stage4-corridor-len", type=int, default=9)
+    parser.add_argument("--stage4-horizon", type=int, default=4)
+    parser.add_argument("--stage4-planner-success-min", type=float, default=0.90)
+    parser.add_argument("--stage4-greedy-success-max", type=float, default=0.60)
+    parser.add_argument("--stage4-return-margin-min", type=float, default=2.0)
+    parser.add_argument("--stage4-success-margin-min", type=float, default=0.30)
     parser.add_argument("--no-require-pass", dest="require_pass", action="store_false")
     parser.set_defaults(require_pass=True)
     return parser.parse_args()
@@ -1757,6 +2168,10 @@ def validate_args(args: argparse.Namespace) -> None:
         raise SystemExit("--stage3-segment-len must be positive.")
     if args.stage3_call_overhead < 0:
         raise SystemExit("--stage3-call-overhead must be non-negative.")
+    if args.stage4_corridor_len < 7:
+        raise SystemExit("--stage4-corridor-len must be at least 7.")
+    if args.stage4_horizon < 1:
+        raise SystemExit("--stage4-horizon must be positive.")
 
 
 def main() -> None:
@@ -1774,10 +2189,14 @@ def main() -> None:
         if args.output_trace == "artifacts/neocortex_x/stage0_trace.jsonl":
             args.output_trace = "artifacts/neocortex_x/stage2_trace.jsonl"
         run_stage2(args)
-    else:
+    elif args.stage == "stage3":
         if args.output_json == "artifacts/neocortex_x/stage1_recall_to_action.json":
             args.output_json = "artifacts/neocortex_x/stage3_procedure_reuse.json"
         run_stage3(args)
+    else:
+        if args.output_json == "artifacts/neocortex_x/stage1_recall_to_action.json":
+            args.output_json = "artifacts/neocortex_x/stage4_planning.json"
+        run_stage4(args)
 
 
 if __name__ == "__main__":
