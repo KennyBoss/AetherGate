@@ -51,6 +51,8 @@
 - Stage 17: contextual action gate, где решения Stage 16 превращаются в
   bounded agent actions: ответ из контекстной памяти, ответ с context scope,
   уточняющий вопрос или запрос evidence.
+- Stage 18: contextual feedback loop, где результаты Stage 17 превращаются в
+  reward-bearing feedback events без ложного штрафа за другой контекст.
 
 Важно: Stage 1/2 пока используют hand-coded agents. Это проверка harness,
 артефактов, метрик и pass/fail контракта, а не claim про обученный SSM или AGI.
@@ -84,6 +86,7 @@ make neocortex-x-stage14-runtime-loader-smoke
 make neocortex-x-stage15-runtime-execution-smoke
 make neocortex-x-stage16-contextual-memory-smoke
 make neocortex-x-stage17-contextual-action-gate-smoke
+make neocortex-x-stage18-contextual-feedback-smoke
 ```
 
 Прямой запуск:
@@ -208,6 +211,10 @@ python3 research/neocortex_x/stage16_contextual_memory.py \
 python3 research/neocortex_x/stage17_contextual_action_gate.py \
   --contextual-json artifacts/neocortex_x/stage16_contextual_memory.json \
   --output-json artifacts/neocortex_x/stage17_contextual_action_gate.json
+
+python3 research/neocortex_x/stage18_contextual_feedback.py \
+  --contextual-action-json artifacts/neocortex_x/stage17_contextual_action_gate.json \
+  --output-json artifacts/neocortex_x/stage18_contextual_feedback.json
 ```
 
 ## Артефакты
@@ -238,6 +245,7 @@ python3 research/neocortex_x/stage17_contextual_action_gate.py \
 - `artifacts/neocortex_x/stage15_runtime_execution.json`
 - `artifacts/neocortex_x/stage16_contextual_memory.json`
 - `artifacts/neocortex_x/stage17_contextual_action_gate.json`
+- `artifacts/neocortex_x/stage18_contextual_feedback.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 
