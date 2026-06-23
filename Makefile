@@ -20,6 +20,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage17-contextual-action-gate-smoke
 .PHONY: neocortex-x-stage18-contextual-feedback-smoke
 .PHONY: neocortex-x-stage19-contextual-policy-smoke
+.PHONY: neocortex-x-stage20-contextual-policy-replay-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -63,6 +64,7 @@ help:
 	@echo "  make neocortex-x-stage17-contextual-action-gate-smoke contextual decision to action gate"
 	@echo "  make neocortex-x-stage18-contextual-feedback-smoke contextual action feedback ledger"
 	@echo "  make neocortex-x-stage19-contextual-policy-smoke contextual feedback to policy snapshot"
+	@echo "  make neocortex-x-stage20-contextual-policy-replay-smoke replay contextual policy snapshot"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -106,6 +108,7 @@ compile:
 		research/neocortex_x/stage17_contextual_action_gate.py \
 		research/neocortex_x/stage18_contextual_feedback.py \
 		research/neocortex_x/stage19_contextual_policy_update.py \
+		research/neocortex_x/stage20_contextual_policy_replay.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -1051,6 +1054,12 @@ neocortex-x-stage19-contextual-policy-smoke: neocortex-x-stage18-contextual-feed
 	$(PYTHON) research/neocortex_x/stage19_contextual_policy_update.py \
 		--feedback-json artifacts/neocortex_x/stage18_contextual_feedback.json \
 		--output-json artifacts/neocortex_x/stage19_contextual_policy_update.json
+
+neocortex-x-stage20-contextual-policy-replay-smoke: neocortex-x-stage19-contextual-policy-smoke
+	$(PYTHON) research/neocortex_x/stage20_contextual_policy_replay.py \
+		--contextual-action-json artifacts/neocortex_x/stage17_contextual_action_gate.json \
+		--policy-json artifacts/neocortex_x/stage19_contextual_policy_update.json \
+		--output-json artifacts/neocortex_x/stage20_contextual_policy_replay.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories
