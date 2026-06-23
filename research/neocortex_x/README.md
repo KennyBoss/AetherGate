@@ -6,6 +6,8 @@
 - Stage 1: recall-to-action smoke, где `kv_memory` должен превратить отложенное
   bind/query воспоминание в корректное действие, а `context_window` служит
   короткоконтекстным baseline.
+- Stage 1B: trained SSM/KV wrapper, который запускает существующий
+  `compare_long_context_recall.py` и мапит held-out value recall в `act(value)`.
 - Stage 2: stateful CodePy-like tape world с `tape`, `ptr`, `pc`, регистрами,
   bounded execution и baseline comparison.
 - Stage 3: procedure reuse smoke с bounded `sum_segment`, Axis-S/Axis-C задачами
@@ -26,6 +28,7 @@
 ```bash
 make neocortex-x-stage0-smoke
 make neocortex-x-stage1-smoke
+make neocortex-x-stage1b-trained-smoke
 make neocortex-x-stage2-smoke
 make neocortex-x-stage3-smoke
 make neocortex-x-stage4-smoke
@@ -50,6 +53,10 @@ python3 research/neocortex_x/core_experiment.py \
   --delay 24 \
   --baseline-window 8 \
   --output-json artifacts/neocortex_x/stage1_recall_to_action.json
+
+python3 research/neocortex_x/stage1b_trained_recall_to_action.py \
+  --output-json artifacts/neocortex_x/stage1b_trained_recall_to_action.json \
+  --inner-json artifacts/neocortex_x/stage1b_inner_long_context_recall.json
 
 python3 research/neocortex_x/core_experiment.py \
   --stage stage2 \
@@ -92,6 +99,8 @@ python3 research/neocortex_x/core_experiment.py \
 - `artifacts/neocortex_x/stage0_smoke.json`
 - `artifacts/neocortex_x/stage0_trace.jsonl`
 - `artifacts/neocortex_x/stage1_recall_to_action.json`
+- `artifacts/neocortex_x/stage1b_trained_recall_to_action.json`
+- `artifacts/neocortex_x/stage1b_inner_long_context_recall.json`
 - `artifacts/neocortex_x/stage2_stateful_tape_world.json`
 - `artifacts/neocortex_x/stage2_trace.jsonl`
 - `artifacts/neocortex_x/stage3_procedure_reuse.json`

@@ -4,7 +4,7 @@ BENCHMARK_CANDIDATE ?= artifacts/benchmarks/quick_compare_candidate.json
 MAX_REGRESSION ?= 0.25
 ARCH_SEEDS ?= 11,17,23
 
-.PHONY: help compile verify benchmark benchmark-standard compare ingest-gutenberg-demo ingest-gutenberg-bulk profile-text-demo profile-text-bpe-demo profile-text-bulk-bpe compare-text-demo compare-text-architectures-demo compare-text-architectures-million compare-long-context-recall-demo compare-assignment-recall-demo compare-multi-assignment-recall-demo compare-sparse-kv-routing-smoke compare-sparse-kv-routing-margin-smoke compare-sparse-kv-routing-hard-smoke compare-sparse-kv-routing-margin-multiseed compare-multi-query-assignment-recall-demo compare-assignment-distractor-recall-demo compare-assignment-alias-recall-demo compare-mixed-code-recall-demo compare-mixed-code-recall-multiseed compare-mixed-code-full-context-control compare-generated-python-code-recall-demo compare-generated-python-code-recall-multiseed compare-generated-python-code-full-context-control compare-real-python-code-recall-demo compare-real-python-code-recall-multiseed compare-real-python-code-full-context-control compare-real-python-code-full-context-multiseed compare-assignment-update-recall-demo text-experiment-demo text-experiment-bpe-demo text-leaderboard text-sweep-demo text-sweep-bpe-demo text-sweep-bulk-bpe plan-text-sweep-bulk run-text-sweep-plan-bulk promote-text-demo inspect-text-demo run-promoted-text-demo text-run-demo neocortex-x-stage0-smoke neocortex-x-stage1-smoke neocortex-x-stage2-smoke neocortex-x-stage3-smoke neocortex-x-stage4-smoke neocortex-x-stage5-smoke clean-artifacts
+.PHONY: help compile verify benchmark benchmark-standard compare ingest-gutenberg-demo ingest-gutenberg-bulk profile-text-demo profile-text-bpe-demo profile-text-bulk-bpe compare-text-demo compare-text-architectures-demo compare-text-architectures-million compare-long-context-recall-demo compare-assignment-recall-demo compare-multi-assignment-recall-demo compare-sparse-kv-routing-smoke compare-sparse-kv-routing-margin-smoke compare-sparse-kv-routing-hard-smoke compare-sparse-kv-routing-margin-multiseed compare-multi-query-assignment-recall-demo compare-assignment-distractor-recall-demo compare-assignment-alias-recall-demo compare-mixed-code-recall-demo compare-mixed-code-recall-multiseed compare-mixed-code-full-context-control compare-generated-python-code-recall-demo compare-generated-python-code-recall-multiseed compare-generated-python-code-full-context-control compare-real-python-code-recall-demo compare-real-python-code-recall-multiseed compare-real-python-code-full-context-control compare-real-python-code-full-context-multiseed compare-assignment-update-recall-demo text-experiment-demo text-experiment-bpe-demo text-leaderboard text-sweep-demo text-sweep-bpe-demo text-sweep-bulk-bpe plan-text-sweep-bulk run-text-sweep-plan-bulk promote-text-demo inspect-text-demo run-promoted-text-demo text-run-demo neocortex-x-stage0-smoke neocortex-x-stage1-smoke neocortex-x-stage1b-trained-smoke neocortex-x-stage2-smoke neocortex-x-stage3-smoke neocortex-x-stage4-smoke neocortex-x-stage5-smoke clean-artifacts
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -25,6 +25,7 @@ help:
 	@echo "NeoCortex-X:"
 	@echo "  make neocortex-x-stage0-smoke                    trace/replay instrumentation"
 	@echo "  make neocortex-x-stage1-smoke                    recall-to-action smoke"
+	@echo "  make neocortex-x-stage1b-trained-smoke           trained SSM/KV action mapping"
 	@echo "  make neocortex-x-stage2-smoke                    stateful tape world smoke"
 	@echo "  make neocortex-x-stage3-smoke                    procedure reuse smoke"
 	@echo "  make neocortex-x-stage4-smoke                    short lookahead planning smoke"
@@ -53,6 +54,7 @@ compile:
 		compare_long_context_recall.py \
 		run_long_context_recall_multiseed.py \
 		research/neocortex_x/core_experiment.py \
+		research/neocortex_x/stage1b_trained_recall_to_action.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -817,6 +819,33 @@ neocortex-x-stage1-smoke:
 		--delay 24 \
 		--baseline-window 8 \
 		--output-json artifacts/neocortex_x/stage1_recall_to_action.json
+
+neocortex-x-stage1b-trained-smoke:
+	$(PYTHON) research/neocortex_x/stage1b_trained_recall_to_action.py \
+		--train-records 512 \
+		--eval-records 256 \
+		--key-count 16 \
+		--value-count 16 \
+		--binding-count 4 \
+		--delay 32 \
+		--transformer-context 8 \
+		--epochs 12 \
+		--batch-size 64 \
+		--learning-rate 0.003 \
+		--ssm-variant sparse-kv-memory \
+		--ssm-input-dim 48 \
+		--ssm-state-dim 64 \
+		--init-assignment-kv-memory \
+		--kv-read-gate-l1 0.5 \
+		--kv-read-gate-l1-start 0.0 \
+		--kv-read-gate-l1-ramp-epochs 6 \
+		--kv-read-gate-target 0.02 \
+		--kv-read-gate-target-weight 5.0 \
+		--kv-read-gate-entropy-weight 0.01 \
+		--kv-read-gate-query-margin 0.9 \
+		--kv-read-gate-query-margin-weight 2.0 \
+		--output-json artifacts/neocortex_x/stage1b_trained_recall_to_action.json \
+		--inner-json artifacts/neocortex_x/stage1b_inner_long_context_recall.json
 
 neocortex-x-stage2-smoke:
 	$(PYTHON) research/neocortex_x/core_experiment.py \
