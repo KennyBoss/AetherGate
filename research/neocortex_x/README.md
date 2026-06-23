@@ -70,6 +70,9 @@
   smoke report.
 - Stage 26: store-backed contextual retrieval, где contextual decisions
   принимаются через SQLite lookup вместо in-memory JSON slots.
+- Stage 27: store-backed contextual action gate, где SQLite-backed
+  contextual decisions превращаются в bounded agent actions без возврата к
+  unconditional fact memory.
 
 Важно: Stage 1/2 пока используют hand-coded agents. Это проверка harness,
 артефактов, метрик и pass/fail контракта, а не claim про обученный SSM или AGI.
@@ -112,6 +115,7 @@ make neocortex-x-stage23-contextual-runtime-execution-smoke
 make neocortex-x-stage24-contextual-self-monitor-smoke
 make neocortex-x-stage25-indexed-contextual-store-smoke
 make neocortex-x-stage26-store-backed-contextual-retrieval-smoke
+make neocortex-x-stage27-store-backed-contextual-action-gate-smoke
 ```
 
 Прямой запуск:
@@ -277,6 +281,10 @@ python3 research/neocortex_x/stage26_store_backed_contextual_retrieval.py \
   --store-json artifacts/neocortex_x/stage25_indexed_contextual_memory_store.json \
   --store-db artifacts/neocortex_x/stage25_contextual_memory.sqlite \
   --output-json artifacts/neocortex_x/stage26_store_backed_contextual_retrieval.json
+
+python3 research/neocortex_x/stage27_store_backed_contextual_action_gate.py \
+  --retrieval-json artifacts/neocortex_x/stage26_store_backed_contextual_retrieval.json \
+  --output-json artifacts/neocortex_x/stage27_store_backed_contextual_action_gate.json
 ```
 
 ## Артефакты
@@ -317,12 +325,54 @@ python3 research/neocortex_x/stage26_store_backed_contextual_retrieval.py \
 - `artifacts/neocortex_x/stage25_contextual_memory.sqlite`
 - `artifacts/neocortex_x/stage25_indexed_contextual_memory_store.json`
 - `artifacts/neocortex_x/stage26_store_backed_contextual_retrieval.json`
+- `artifacts/neocortex_x/stage27_store_backed_contextual_action_gate.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 
-Stage 16 intentionally keeps JSON as a small deterministic smoke artifact only.
-Stage 25 turns that scale note into an indexed SQLite preflight. The 10M+
-record path remains future storage/index research: indexed
-subject/property/context schemas, append-only evidence logs, compacted
-snapshots, deterministic replay, and candidates such as DuckDB, Postgres,
-Parquet/Arrow, RocksDB/LSM, and hybrid symbolic+vector indexes.
+## Context-Aware Memory Principle
+
+NeoCortex-X memory must not store unconditional facts such as `sky = blue`.
+That shape loses the conditions that made the observation true. The stable
+unit is a conditional memory slot:
+
+```text
+subject + property + value + context_vector + confidence + provenance
+```
+
+Example:
+
+```text
+subject = sky
+property = expected_color
+value = blue
+context = {time_of_day: daytime, weather: clear, location: earth}
+```
+
+If the system later sees `sky = black`, that is not automatically a conflict.
+With `time_of_day = night`, it is a different context. With missing context,
+the correct action is to ask for context. With same-context incompatible value,
+the correct action is to request more evidence. This is the bridge from fact
+memory into world-model memory: reality is usually `if context C, then X`,
+not global `X = Y`.
+
+## Scale Track
+
+JSON is not the memory database. JSON is acceptable for deterministic smoke
+reports, small fixtures, and replay summaries. At 10M+ records it becomes the
+wrong substrate for primary memory: poor partial updates, expensive scans,
+weak indexing, and awkward concurrency.
+
+Scale research is part of the roadmap before larger memory benchmarks:
+
+- schema for conditional slots, context dimensions, provenance, confidence,
+  temporal validity, and alias groups;
+- indexed symbolic lookup by `(subject, property)`, exact/partial context, and
+  provenance;
+- append-only evidence log plus compacted snapshots;
+- deterministic replay from evidence log into a queryable store;
+- storage candidates: SQLite for preflight, DuckDB/Postgres for analytical and
+  relational scale, Parquet/Arrow for columnar snapshots, RocksDB/LSM for
+  high-write local stores, and hybrid symbolic+vector indexes for semantic
+  candidate retrieval;
+- benchmark target: 10M+ conditional records with measured ingest throughput,
+  lookup latency, storage size, index usage, and replay determinism.
