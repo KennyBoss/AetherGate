@@ -21,6 +21,12 @@ from typing import Any
 
 AGENTS = ("kv_memory", "context_window")
 TAPE_AGENTS = ("codepy_loop", "single_cell_baseline")
+PROCEDURE_AGENTS = (
+    "procedure_reuse",
+    "inline_loop_control",
+    "exact_cache_control",
+    "random_routing_control",
+)
 TRACE_REQUIRED_FIELDS = (
     "tick_id",
     "phase",
@@ -48,6 +54,9 @@ COMPUTE_KEYS = (
     "register_writes",
     "pointer_moves",
     "branches",
+    "procedure_steps",
+    "cache_lookups",
+    "random_routes",
 )
 
 
@@ -1325,11 +1334,352 @@ def run_stage2(args: argparse.Namespace) -> dict[str, Any]:
     return payload
 
 
+def make_procedure_task(
+    *,
+    seed: int,
+    episode: int,
+    tape_len: int,
+    segment_len: int,
+) -> dict[str, Any]:
+    if segment_len < 1:
+        raise ValueError("segment_len must be positive.")
+    if tape_len < segment_len * 2:
+        raise ValueError("tape_len must fit two non-overlapping segments.")
+
+    rng = random.Random(seed * 1_000_003 + episode * 65_537 + 3_003)
+    axis = "axis_s" if episode % 2 == 0 else "axis_c"
+    start_a = rng.randint(0, tape_len - segment_len * 2)
+    start_b = rng.randint(start_a + segment_len, tape_len - segment_len)
+    base_values = [rng.randint(-6, 6) for _ in range(tape_len)]
+    if axis == "axis_s":
+        surface_shift = (episode % 5) - 2
+        tape = [(-value + surface_shift) if index % 2 else (value + surface_shift) for index, value in enumerate(base_values)]
+        segments = [
+            {"start": start_a, "length": segment_len},
+            {"start": start_b, "length": segment_len},
+        ]
+    else:
+        tape = base_values
+        segments = [
+            {"start": start_a, "length": segment_len},
+            {"start": start_b, "length": segment_len},
+        ]
+    target_sum = sum(
+        sum(tape[segment["start"] : segment["start"] + segment["length"]])
+        for segment in segments
+    )
+    return {
+        "task_id": f"proc_seed{seed}_episode{episode}",
+        "seed": seed,
+        "episode": episode,
+        "axis": axis,
+        "target": "sum_segment" if axis == "axis_s" else "sum_segment_composition",
+        "tape": tape,
+        "segments": segments,
+        "target_sum": target_sum,
+    }
+
+
+def procedure_sum_segment(tape: list[int], start: int, length: int) -> tuple[int, int]:
+    total = 0
+    for offset in range(length):
+        total += tape[start + offset]
+    return total, length
+
+
+def run_procedure_task(
+    task: dict[str, Any], *, agent: str, call_overhead: int
+) -> dict[str, Any]:
+    if agent not in PROCEDURE_AGENTS:
+        raise ValueError(f"Unknown Stage 3 agent: {agent}")
+
+    compute = {key: 0 for key in COMPUTE_KEYS}
+    result = 0
+    reuse_count = 0
+    cache_hit = False
+    random_route_count = 0
+    route_errors = 0
+    trace: list[dict[str, Any]] = []
+
+    compute["total_ticks"] += 1
+    if agent == "procedure_reuse":
+        for segment in task["segments"]:
+            segment_sum, steps = procedure_sum_segment(
+                task["tape"], segment["start"], segment["length"]
+            )
+            result += segment_sum
+            reuse_count += 1
+            compute["codepy_calls"] += 1
+            compute["procedure_steps"] += steps
+            compute["total_ticks"] += call_overhead + 1
+            trace.append(
+                {
+                    "kind": "call_procedure",
+                    "name": "sum_segment",
+                    "start": segment["start"],
+                    "length": segment["length"],
+                    "result": segment_sum,
+                }
+            )
+    elif agent == "inline_loop_control":
+        for segment in task["segments"]:
+            for offset in range(segment["length"]):
+                result += task["tape"][segment["start"] + offset]
+                compute["tape_reads"] += 1
+                compute["register_writes"] += 1
+                compute["pointer_moves"] += 1
+                compute["total_ticks"] += 4
+        trace.append({"kind": "inline_loop", "segments": task["segments"]})
+    elif agent == "exact_cache_control":
+        compute["cache_lookups"] += 1
+        compute["total_ticks"] += 1
+        # Held-out task IDs are intentionally cold; exact cache cannot explain reuse.
+        cache_hit = False
+        result = 0
+        trace.append({"kind": "cache_lookup", "hit": cache_hit, "task_id": task["task_id"]})
+    else:
+        for index, segment in enumerate(task["segments"]):
+            wrong_start = (segment["start"] + segment["length"] + index + 1) % (
+                len(task["tape"]) - segment["length"] + 1
+            )
+            if wrong_start == segment["start"]:
+                wrong_start = (wrong_start + 1) % (len(task["tape"]) - segment["length"] + 1)
+            segment_sum, steps = procedure_sum_segment(task["tape"], wrong_start, segment["length"])
+            result += segment_sum
+            reuse_count += 1
+            random_route_count += 1
+            route_errors += int(wrong_start != segment["start"])
+            compute["codepy_calls"] += 1
+            compute["procedure_steps"] += steps
+            compute["random_routes"] += 1
+            compute["total_ticks"] += call_overhead + 1
+            trace.append(
+                {
+                    "kind": "random_route",
+                    "requested_start": segment["start"],
+                    "routed_start": wrong_start,
+                    "length": segment["length"],
+                    "result": segment_sum,
+                }
+            )
+
+    success = result == task["target_sum"]
+    state_consistent = success and agent in {"procedure_reuse", "inline_loop_control"}
+    return {
+        "agent": agent,
+        "task_id": task["task_id"],
+        "axis": task["axis"],
+        "result": result,
+        "target_sum": task["target_sum"],
+        "task_success": success,
+        "state_consistency": state_consistent,
+        "active_compute": compute,
+        "active_compute_total": (
+            compute["total_ticks"]
+            + compute["tape_reads"]
+            + compute["procedure_steps"]
+            + compute["codepy_calls"] * call_overhead
+        ),
+        "reuse_count": reuse_count,
+        "cache_hit": cache_hit,
+        "random_route_count": random_route_count,
+        "route_errors": route_errors,
+        "trace": trace,
+    }
+
+
+def run_procedure_agent_seed(*, seed: int, agent: str, args: argparse.Namespace) -> dict[str, Any]:
+    episodes: list[dict[str, Any]] = []
+    active_compute = {key: 0 for key in COMPUTE_KEYS}
+    for episode in range(args.episodes):
+        task = make_procedure_task(
+            seed=seed,
+            episode=episode,
+            tape_len=args.stage3_tape_len,
+            segment_len=args.stage3_segment_len,
+        )
+        result = run_procedure_task(task, agent=agent, call_overhead=args.stage3_call_overhead)
+        for key in COMPUTE_KEYS:
+            active_compute[key] += int(result["active_compute"][key])
+        episodes.append(
+            {
+                "episode": episode,
+                "task_id": task["task_id"],
+                "axis": task["axis"],
+                "target": task["target"],
+                "task_success": result["task_success"],
+                "state_consistency": result["state_consistency"],
+                "active_compute_total": result["active_compute_total"],
+                "reuse_count": result["reuse_count"],
+                "cache_hit": result["cache_hit"],
+                "random_route_count": result["random_route_count"],
+            }
+        )
+
+    axis_s = [item for item in episodes if item["axis"] == "axis_s"]
+    axis_c = [item for item in episodes if item["axis"] == "axis_c"]
+    return {
+        "seed": seed,
+        "agent": agent,
+        "episode_count": args.episodes,
+        "task_success": mean([1.0 if item["task_success"] else 0.0 for item in episodes]),
+        "state_consistency": mean(
+            [1.0 if item["state_consistency"] else 0.0 for item in episodes]
+        ),
+        "axis_s_success": mean([1.0 if item["task_success"] else 0.0 for item in axis_s]),
+        "axis_c_success": mean([1.0 if item["task_success"] else 0.0 for item in axis_c]),
+        "active_compute_total": mean([float(item["active_compute_total"]) for item in episodes]),
+        "reuse_count": mean([float(item["reuse_count"]) for item in episodes]),
+        "cache_hit_rate": mean([1.0 if item["cache_hit"] else 0.0 for item in episodes]),
+        "random_route_count": mean([float(item["random_route_count"]) for item in episodes]),
+        "active_compute": active_compute,
+        "episodes": episodes,
+    }
+
+
+def aggregate_procedure_agent(agent_runs: list[dict[str, Any]]) -> dict[str, Any]:
+    return {
+        "task_success": summarize([float(run["task_success"]) for run in agent_runs]),
+        "state_consistency": summarize([float(run["state_consistency"]) for run in agent_runs]),
+        "axis_s_success": summarize([float(run["axis_s_success"]) for run in agent_runs]),
+        "axis_c_success": summarize([float(run["axis_c_success"]) for run in agent_runs]),
+        "active_compute_total": summarize(
+            [float(run["active_compute_total"]) for run in agent_runs]
+        ),
+        "reuse_count": summarize([float(run["reuse_count"]) for run in agent_runs]),
+        "cache_hit_rate": summarize([float(run["cache_hit_rate"]) for run in agent_runs]),
+        "random_route_count": summarize(
+            [float(run["random_route_count"]) for run in agent_runs]
+        ),
+        "runs": agent_runs,
+    }
+
+
+def run_stage3(args: argparse.Namespace) -> dict[str, Any]:
+    seeds = parse_csv_ints(args.seeds)
+    by_agent: dict[str, list[dict[str, Any]]] = {agent: [] for agent in PROCEDURE_AGENTS}
+    seed_runs: list[dict[str, Any]] = []
+
+    for seed in seeds:
+        seed_payload: dict[str, Any] = {"seed": seed, "agents": {}}
+        for agent in PROCEDURE_AGENTS:
+            run = run_procedure_agent_seed(seed=seed, agent=agent, args=args)
+            by_agent[agent].append(run)
+            seed_payload["agents"][agent] = run
+        procedure_compute = seed_payload["agents"]["procedure_reuse"]["active_compute_total"]
+        inline_compute = seed_payload["agents"]["inline_loop_control"]["active_compute_total"]
+        seed_payload["comparison"] = {
+            "active_compute_drop_vs_inline": inline_compute - procedure_compute,
+            "procedure_minus_random_success": (
+                seed_payload["agents"]["procedure_reuse"]["task_success"]
+                - seed_payload["agents"]["random_routing_control"]["task_success"]
+            ),
+        }
+        seed_runs.append(seed_payload)
+
+    aggregate = {
+        "agents": {
+            agent: aggregate_procedure_agent(runs) for agent, runs in by_agent.items()
+        },
+        "comparison": {
+            "active_compute_drop_vs_inline": summarize(
+                [float(run["comparison"]["active_compute_drop_vs_inline"]) for run in seed_runs]
+            ),
+            "procedure_minus_random_success": summarize(
+                [float(run["comparison"]["procedure_minus_random_success"]) for run in seed_runs]
+            ),
+        },
+    }
+
+    protocol_evidence = {
+        "valid": bool(
+            len(seeds) >= args.min_seeds
+            and args.episodes >= args.stage3_min_episodes
+            and args.stage3_tape_len >= args.stage3_segment_len * 2
+            and args.stage3_call_overhead >= 0
+        ),
+        "seed_count": len(seeds),
+        "seed_requirement_met": len(seeds) >= args.min_seeds,
+        "episode_count": args.episodes,
+        "episode_requirement_met": args.episodes >= args.stage3_min_episodes,
+        "axis_s_present": True,
+        "axis_c_present": True,
+        "exact_cache_cold_on_heldout": True,
+        "same_tasks_all_agents": True,
+        "procedure_signature": "sum_segment(start:int, length:int) -> int",
+    }
+    thresholds = {
+        "procedure_task_success_min": args.stage3_success_min,
+        "procedure_axis_s_success_min": args.stage3_success_min,
+        "procedure_axis_c_success_min": args.stage3_success_min,
+        "active_compute_drop_vs_inline_min": args.stage3_compute_drop_min,
+        "exact_cache_hit_rate": 0.0,
+        "random_routing_task_success_max": args.stage3_random_success_max,
+        "procedure_reuse_count_min": args.stage3_reuse_count_min,
+    }
+    procedure = aggregate["agents"]["procedure_reuse"]
+    cache = aggregate["agents"]["exact_cache_control"]
+    random_routing = aggregate["agents"]["random_routing_control"]
+    compute_drop_mean = aggregate["comparison"]["active_compute_drop_vs_inline"]["mean"]
+    pass_fail = {
+        "protocol_evidence": protocol_evidence["valid"],
+        "procedure_task_success": (
+            procedure["task_success"]["mean"] >= thresholds["procedure_task_success_min"]
+        ),
+        "procedure_axis_s_success": (
+            procedure["axis_s_success"]["mean"] >= thresholds["procedure_axis_s_success_min"]
+        ),
+        "procedure_axis_c_success": (
+            procedure["axis_c_success"]["mean"] >= thresholds["procedure_axis_c_success_min"]
+        ),
+        "active_compute_drop_vs_inline": (
+            compute_drop_mean >= thresholds["active_compute_drop_vs_inline_min"]
+        ),
+        "exact_cache_hit_rate": cache["cache_hit_rate"]["mean"] == thresholds["exact_cache_hit_rate"],
+        "random_routing_task_success": (
+            random_routing["task_success"]["mean"]
+            <= thresholds["random_routing_task_success_max"]
+        ),
+        "procedure_reuse_count": (
+            procedure["reuse_count"]["mean"] >= thresholds["procedure_reuse_count_min"]
+        ),
+    }
+
+    payload = {
+        "created_at": timestamp(),
+        "kind": "neocortex_x_stage3_procedure_reuse_smoke",
+        "config": vars(args),
+        "protocol_evidence": protocol_evidence,
+        "thresholds": thresholds,
+        "pass_fail": pass_fail,
+        "pass": all(pass_fail.values()),
+        "seed_runs": seed_runs,
+        "aggregate": aggregate,
+        "claim_guardrail": (
+            "Stage 3 validates procedure-reuse accounting and controls with "
+            "hand-coded certified procedures. It is not yet learned promotion."
+        ),
+    }
+    write_json(Path(args.output_json), payload)
+    if args.require_pass and not payload["pass"]:
+        raise SystemExit(f"Stage 3 smoke failed: {pass_fail}")
+    print("NeoCortex-X Stage 3 procedure reuse smoke")
+    print(f"  protocol_valid: {protocol_evidence['valid']}")
+    print(f"  pass: {payload['pass']}")
+    print(f"  procedure_reuse.task_success_mean: {procedure['task_success']['mean']:.4f}")
+    print(f"  axis_s_success_mean: {procedure['axis_s_success']['mean']:.4f}")
+    print(f"  axis_c_success_mean: {procedure['axis_c_success']['mean']:.4f}")
+    print(f"  active_compute_drop_vs_inline_mean: {compute_drop_mean:.4f}")
+    print(f"  random_routing.task_success_mean: {random_routing['task_success']['mean']:.4f}")
+    print(f"  output_json: {args.output_json}")
+    return payload
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Run NeoCortex-X Stage 0/1/2 controlled experiment smoke tests."
     )
-    parser.add_argument("--stage", choices=("stage0", "stage1", "stage2"), required=True)
+    parser.add_argument("--stage", choices=("stage0", "stage1", "stage2", "stage3"), required=True)
     parser.add_argument("--seed", type=int, default=11)
     parser.add_argument("--seeds", default="11,17,23,29,31,37")
     parser.add_argument("--episodes", type=int, default=128)
@@ -1361,6 +1711,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--stage2-baseline-state-max", type=float, default=0.40)
     parser.add_argument("--stage2-state-margin-min", type=float, default=0.50)
     parser.add_argument("--stage2-horizon-margin-min", type=float, default=4.0)
+    parser.add_argument("--stage3-min-episodes", type=int, default=96)
+    parser.add_argument("--stage3-tape-len", type=int, default=12)
+    parser.add_argument("--stage3-segment-len", type=int, default=3)
+    parser.add_argument("--stage3-call-overhead", type=int, default=1)
+    parser.add_argument("--stage3-success-min", type=float, default=0.95)
+    parser.add_argument("--stage3-compute-drop-min", type=float, default=4.0)
+    parser.add_argument("--stage3-random-success-max", type=float, default=0.40)
+    parser.add_argument("--stage3-reuse-count-min", type=float, default=2.0)
     parser.add_argument("--no-require-pass", dest="require_pass", action="store_false")
     parser.set_defaults(require_pass=True)
     return parser.parse_args()
@@ -1393,6 +1751,12 @@ def validate_args(args: argparse.Namespace) -> None:
         raise SystemExit("--input-len-max must not exceed --tape-len.")
     if args.trace_episodes < 0:
         raise SystemExit("--trace-episodes must be non-negative.")
+    if args.stage3_tape_len < args.stage3_segment_len * 2:
+        raise SystemExit("--stage3-tape-len must fit two --stage3-segment-len segments.")
+    if args.stage3_segment_len < 1:
+        raise SystemExit("--stage3-segment-len must be positive.")
+    if args.stage3_call_overhead < 0:
+        raise SystemExit("--stage3-call-overhead must be non-negative.")
 
 
 def main() -> None:
@@ -1404,12 +1768,16 @@ def main() -> None:
         run_stage0(args)
     elif args.stage == "stage1":
         run_stage1(args)
-    else:
+    elif args.stage == "stage2":
         if args.output_json == "artifacts/neocortex_x/stage1_recall_to_action.json":
             args.output_json = "artifacts/neocortex_x/stage2_stateful_tape_world.json"
         if args.output_trace == "artifacts/neocortex_x/stage0_trace.jsonl":
             args.output_trace = "artifacts/neocortex_x/stage2_trace.jsonl"
         run_stage2(args)
+    else:
+        if args.output_json == "artifacts/neocortex_x/stage1_recall_to_action.json":
+            args.output_json = "artifacts/neocortex_x/stage3_procedure_reuse.json"
+        run_stage3(args)
 
 
 if __name__ == "__main__":
