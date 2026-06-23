@@ -70,15 +70,16 @@ efficiency grid (rows = overlap, cols = cue_noise):
 
 | overlap \ cue_noise | 0.0 | 0.25 | 0.5 | 1.0 | 2.0 | 4.0 |
 |---|---|---|---|---|---|---|
-| 0.00 | 1.00 | 1.00 | 0.95 | 0.67 | 0.37 | 0.11 |
-| 0.25 | 1.00 | 1.00 | 0.96 | 0.69 | 0.32 | 0.15 |
-| 0.50 | 1.00 | 1.00 | 0.95 | 0.62 | 0.38 | 0.16 |
-| 0.75 | 1.00 | 1.00 | 0.91 | 0.76 | 0.33 | 0.10 |
+| 0.00 | 1.00 | 1.00 | 0.96 | 0.67 | 0.34 | 0.13 |
+| 0.25 | 1.00 | 1.00 | 0.95 | 0.67 | 0.35 | 0.15 |
+| 0.50 | 1.00 | 1.00 | 0.94 | 0.68 | 0.33 | 0.15 |
+| 0.75 | 1.00 | 1.00 | 0.93 | 0.70 | 0.33 | 0.13 |
 
 - **Efficiency depends only on cue noise, not on overlap** — flat down every
-  column, and the critical collapse noise is `N* = 2.0` for *all* overlaps.
-  *Regime identifiability alone sets the phase boundary.*
-- **Headroom depends only on overlap** (`0.48 → 0.35 → 0.25 → 0.12`), independent
+  column (e.g. cue=2.0 → `0.33–0.35` across all overlaps), and the critical
+  collapse noise is `N* = 2.0` for *all* overlaps. *Regime identifiability alone
+  sets the phase boundary.*
+- **Headroom depends only on overlap** (`0.49 → 0.35 → 0.25 → 0.11`), independent
   of cue noise. *Error orthogonality alone sets the magnitude.*
 
 So `routing_value ≈ complementarity(headroom) × identifiability(efficiency)` —

@@ -1,6 +1,6 @@
 {
   "config": {
-    "seeds": "11,17,23",
+    "seeds": "11,17,23,41,73,101",
     "overlaps": "0.0,0.25,0.5,0.75",
     "cue_noises": "0.0,0.25,0.5,1.0,2.0,4.0",
     "train_q": 400,
@@ -9,200 +9,200 @@
     "epochs": 250,
     "lr": 0.03,
     "eff_collapse": 0.5,
-    "output_json": "artifacts/phase_diagram.json"
+    "output_json": "/tmp/a.json"
   },
   "grid": {
     "ov=0.0,cue=0.0": {
-      "best": 0.5175,
-      "oracle": 1.0,
-      "router": 1.0,
-      "headroom": 0.4825,
-      "efficiency": 1.0,
-      "mem_frac": 0.4942
-    },
-    "ov=0.0,cue=0.25": {
-      "best": 0.5167,
-      "oracle": 1.0,
-      "router": 1.0,
-      "headroom": 0.4833,
-      "efficiency": 1.0,
-      "mem_frac": 0.4967
-    },
-    "ov=0.0,cue=0.5": {
-      "best": 0.5225,
-      "oracle": 1.0,
-      "router": 0.9767,
-      "headroom": 0.4775,
-      "efficiency": 0.9513,
-      "mem_frac": 0.4875
-    },
-    "ov=0.0,cue=1.0": {
-      "best": 0.5183,
-      "oracle": 1.0,
-      "router": 0.8417,
-      "headroom": 0.4817,
-      "efficiency": 0.6712,
-      "mem_frac": 0.505
-    },
-    "ov=0.0,cue=2.0": {
       "best": 0.5133,
       "oracle": 1.0,
-      "router": 0.6933,
+      "router": 1.0,
       "headroom": 0.4867,
-      "efficiency": 0.3684,
-      "mem_frac": 0.4333
+      "efficiency": 1.0,
+      "mem_frac": 0.5
+    },
+    "ov=0.0,cue=0.25": {
+      "best": 0.52,
+      "oracle": 1.0,
+      "router": 1.0,
+      "headroom": 0.48,
+      "efficiency": 1.0,
+      "mem_frac": 0.4867
+    },
+    "ov=0.0,cue=0.5": {
+      "best": 0.5233,
+      "oracle": 1.0,
+      "router": 0.9788,
+      "headroom": 0.4767,
+      "efficiency": 0.9555,
+      "mem_frac": 0.4954
+    },
+    "ov=0.0,cue=1.0": {
+      "best": 0.5171,
+      "oracle": 1.0,
+      "router": 0.8425,
+      "headroom": 0.4829,
+      "efficiency": 0.6735,
+      "mem_frac": 0.5079
+    },
+    "ov=0.0,cue=2.0": {
+      "best": 0.5108,
+      "oracle": 1.0,
+      "router": 0.6771,
+      "headroom": 0.4892,
+      "efficiency": 0.3392,
+      "mem_frac": 0.4646
     },
     "ov=0.0,cue=4.0": {
-      "best": 0.5375,
+      "best": 0.5279,
       "oracle": 1.0,
-      "router": 0.5908,
-      "headroom": 0.4625,
-      "efficiency": 0.1137,
-      "mem_frac": 0.5433
+      "router": 0.5904,
+      "headroom": 0.4721,
+      "efficiency": 0.1315,
+      "mem_frac": 0.5033
     },
     "ov=0.25,cue=0.0": {
-      "best": 0.6475,
+      "best": 0.6483,
       "oracle": 1.0,
       "router": 1.0,
-      "headroom": 0.3525,
+      "headroom": 0.3517,
       "efficiency": 1.0,
-      "mem_frac": 0.4925
+      "mem_frac": 0.5017
     },
     "ov=0.25,cue=0.25": {
-      "best": 0.6475,
+      "best": 0.645,
       "oracle": 1.0,
       "router": 1.0,
-      "headroom": 0.3525,
+      "headroom": 0.355,
       "efficiency": 1.0,
-      "mem_frac": 0.5092
+      "mem_frac": 0.5071
     },
     "ov=0.25,cue=0.5": {
-      "best": 0.6392,
+      "best": 0.6388,
       "oracle": 1.0,
-      "router": 0.9842,
-      "headroom": 0.3608,
-      "efficiency": 0.9553,
-      "mem_frac": 0.5
+      "router": 0.9821,
+      "headroom": 0.3613,
+      "efficiency": 0.9499,
+      "mem_frac": 0.4958
     },
     "ov=0.25,cue=1.0": {
-      "best": 0.6625,
+      "best": 0.6613,
       "oracle": 1.0,
-      "router": 0.8958,
-      "headroom": 0.3375,
-      "efficiency": 0.6892,
-      "mem_frac": 0.5
+      "router": 0.8908,
+      "headroom": 0.3387,
+      "efficiency": 0.6737,
+      "mem_frac": 0.4992
     },
     "ov=0.25,cue=2.0": {
-      "best": 0.6533,
+      "best": 0.6421,
       "oracle": 1.0,
-      "router": 0.765,
-      "headroom": 0.3467,
-      "efficiency": 0.321,
-      "mem_frac": 0.4617
+      "router": 0.7679,
+      "headroom": 0.3579,
+      "efficiency": 0.3506,
+      "mem_frac": 0.4863
     },
     "ov=0.25,cue=4.0": {
-      "best": 0.635,
+      "best": 0.6404,
       "oracle": 1.0,
-      "router": 0.69,
-      "headroom": 0.365,
-      "efficiency": 0.1501,
-      "mem_frac": 0.4733
+      "router": 0.6954,
+      "headroom": 0.3596,
+      "efficiency": 0.1518,
+      "mem_frac": 0.4821
     },
     "ov=0.5,cue=0.0": {
-      "best": 0.7542,
+      "best": 0.7508,
       "oracle": 1.0,
       "router": 1.0,
-      "headroom": 0.2458,
+      "headroom": 0.2492,
       "efficiency": 1.0,
-      "mem_frac": 0.51
-    },
-    "ov=0.5,cue=0.25": {
-      "best": 0.7608,
-      "oracle": 1.0,
-      "router": 1.0,
-      "headroom": 0.2392,
-      "efficiency": 1.0,
-      "mem_frac": 0.4725
-    },
-    "ov=0.5,cue=0.5": {
-      "best": 0.7542,
-      "oracle": 1.0,
-      "router": 0.9867,
-      "headroom": 0.2458,
-      "efficiency": 0.9459,
-      "mem_frac": 0.4883
-    },
-    "ov=0.5,cue=1.0": {
-      "best": 0.7567,
-      "oracle": 1.0,
-      "router": 0.9083,
-      "headroom": 0.2433,
-      "efficiency": 0.6232,
       "mem_frac": 0.5117
     },
-    "ov=0.5,cue=2.0": {
-      "best": 0.76,
+    "ov=0.5,cue=0.25": {
+      "best": 0.7633,
       "oracle": 1.0,
-      "router": 0.8517,
-      "headroom": 0.24,
-      "efficiency": 0.3819,
-      "mem_frac": 0.4675
+      "router": 1.0,
+      "headroom": 0.2367,
+      "efficiency": 1.0,
+      "mem_frac": 0.4858
+    },
+    "ov=0.5,cue=0.5": {
+      "best": 0.7567,
+      "oracle": 1.0,
+      "router": 0.9863,
+      "headroom": 0.2433,
+      "efficiency": 0.9436,
+      "mem_frac": 0.4846
+    },
+    "ov=0.5,cue=1.0": {
+      "best": 0.7604,
+      "oracle": 1.0,
+      "router": 0.9237,
+      "headroom": 0.2396,
+      "efficiency": 0.6819,
+      "mem_frac": 0.5212
+    },
+    "ov=0.5,cue=2.0": {
+      "best": 0.7638,
+      "oracle": 1.0,
+      "router": 0.8438,
+      "headroom": 0.2362,
+      "efficiency": 0.3333,
+      "mem_frac": 0.475
     },
     "ov=0.5,cue=4.0": {
       "best": 0.7625,
       "oracle": 1.0,
-      "router": 0.8008,
+      "router": 0.7992,
       "headroom": 0.2375,
-      "efficiency": 0.1561,
-      "mem_frac": 0.5
+      "efficiency": 0.1516,
+      "mem_frac": 0.5337
     },
     "ov=0.75,cue=0.0": {
-      "best": 0.8842,
+      "best": 0.8875,
       "oracle": 1.0,
       "router": 1.0,
-      "headroom": 0.1158,
+      "headroom": 0.1125,
       "efficiency": 1.0,
-      "mem_frac": 0.4883
+      "mem_frac": 0.4929
     },
     "ov=0.75,cue=0.25": {
-      "best": 0.8942,
+      "best": 0.8967,
       "oracle": 1.0,
       "router": 1.0,
-      "headroom": 0.1058,
+      "headroom": 0.1033,
       "efficiency": 1.0,
-      "mem_frac": 0.5075
+      "mem_frac": 0.5179
     },
     "ov=0.75,cue=0.5": {
-      "best": 0.8858,
+      "best": 0.88,
       "oracle": 1.0,
-      "router": 0.9892,
-      "headroom": 0.1142,
-      "efficiency": 0.9061,
-      "mem_frac": 0.505
+      "router": 0.9921,
+      "headroom": 0.12,
+      "efficiency": 0.9337,
+      "mem_frac": 0.5071
     },
     "ov=0.75,cue=1.0": {
-      "best": 0.8725,
+      "best": 0.8775,
       "oracle": 1.0,
-      "router": 0.97,
-      "headroom": 0.1275,
-      "efficiency": 0.7648,
-      "mem_frac": 0.5192
+      "router": 0.9637,
+      "headroom": 0.1225,
+      "efficiency": 0.7008,
+      "mem_frac": 0.4954
     },
     "ov=0.75,cue=2.0": {
-      "best": 0.875,
+      "best": 0.8792,
       "oracle": 1.0,
-      "router": 0.9158,
-      "headroom": 0.125,
-      "efficiency": 0.327,
-      "mem_frac": 0.49
+      "router": 0.9187,
+      "headroom": 0.1208,
+      "efficiency": 0.3327,
+      "mem_frac": 0.5188
     },
     "ov=0.75,cue=4.0": {
-      "best": 0.8842,
+      "best": 0.8833,
       "oracle": 1.0,
-      "router": 0.8958,
-      "headroom": 0.1158,
-      "efficiency": 0.1,
-      "mem_frac": 0.5292
+      "router": 0.8979,
+      "headroom": 0.1167,
+      "efficiency": 0.1255,
+      "mem_frac": 0.4983
     }
   },
   "critical_cue_noise_per_overlap": {
@@ -213,7 +213,7 @@
   },
   "protocol_evidence": {
     "order_param": "efficiency=(router-best)/headroom",
-    "n_seeds": 3,
+    "n_seeds": 6,
     "valid": true
   }
 }
