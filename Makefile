@@ -7,6 +7,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: help compile verify benchmark benchmark-standard compare ingest-gutenberg-demo ingest-gutenberg-bulk profile-text-demo profile-text-bpe-demo profile-text-bulk-bpe compare-text-demo compare-text-architectures-demo compare-text-architectures-million compare-long-context-recall-demo compare-assignment-recall-demo compare-multi-assignment-recall-demo compare-sparse-kv-routing-smoke compare-sparse-kv-routing-margin-smoke compare-sparse-kv-routing-hard-smoke compare-sparse-kv-routing-margin-multiseed compare-multi-query-assignment-recall-demo compare-assignment-distractor-recall-demo compare-assignment-alias-recall-demo compare-mixed-code-recall-demo compare-mixed-code-recall-multiseed compare-mixed-code-full-context-control compare-generated-python-code-recall-demo compare-generated-python-code-recall-multiseed compare-generated-python-code-full-context-control compare-real-python-code-recall-demo compare-real-python-code-recall-multiseed compare-real-python-code-full-context-control compare-real-python-code-full-context-multiseed compare-assignment-update-recall-demo text-experiment-demo text-experiment-bpe-demo text-leaderboard text-sweep-demo text-sweep-bpe-demo text-sweep-bulk-bpe plan-text-sweep-bulk run-text-sweep-plan-bulk promote-text-demo inspect-text-demo run-promoted-text-demo text-run-demo neocortex-x-stage0-smoke neocortex-x-stage1-smoke neocortex-x-stage1b-trained-smoke neocortex-x-stage2-smoke neocortex-x-stage2b-learned-smoke neocortex-x-stage3-smoke neocortex-x-stage3b-promotion-smoke neocortex-x-stage4-smoke neocortex-x-stage4b-world-model-smoke neocortex-x-stage5-smoke clean-artifacts
 .PHONY: neocortex-x-stage5b-cached-smoke
 .PHONY: neocortex-x-stage6-packets-smoke
+.PHONY: neocortex-x-stage7-memory-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -37,6 +38,7 @@ help:
 	@echo "  make neocortex-x-stage5-smoke                    open-world provenance smoke"
 	@echo "  make neocortex-x-stage5b-cached-smoke            cached live-shaped provenance adapter"
 	@echo "  make neocortex-x-stage6-packets-smoke            provenance memory evidence packets"
+	@echo "  make neocortex-x-stage7-memory-smoke             long-term packet memory retrieval"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -67,6 +69,7 @@ compile:
 		research/neocortex_x/stage4b_learned_world_model.py \
 		research/neocortex_x/stage5b_live_cached_adapter.py \
 		research/neocortex_x/stage6_evidence_packets.py \
+		research/neocortex_x/stage7_memory_retrieval.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -944,6 +947,11 @@ neocortex-x-stage6-packets-smoke:
 	$(PYTHON) research/neocortex_x/stage6_evidence_packets.py \
 		--fixture-json research/neocortex_x/fixtures/stage5b_cached_observations.json \
 		--output-json artifacts/neocortex_x/stage6_evidence_packets.json
+
+neocortex-x-stage7-memory-smoke: neocortex-x-stage6-packets-smoke
+	$(PYTHON) research/neocortex_x/stage7_memory_retrieval.py \
+		--packet-json artifacts/neocortex_x/stage6_evidence_packets.json \
+		--output-json artifacts/neocortex_x/stage7_memory_retrieval.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories
