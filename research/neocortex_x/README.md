@@ -45,6 +45,9 @@
   рабочий runtime snapshot с smoke decisions.
 - Stage 15: runtime execution trace, где загруженная policy выполняет cached
   temporal episodes и пишет action outputs + active compute.
+- Stage 16: context-aware memory, где один subject/property может иметь разные
+  истинные значения при разных условиях, а missing context приводит к
+  `request_context` вместо ложного `flag_conflict`.
 
 Важно: Stage 1/2 пока используют hand-coded agents. Это проверка harness,
 артефактов, метрик и pass/fail контракта, а не claim про обученный SSM или AGI.
@@ -76,6 +79,7 @@ make neocortex-x-stage12-policy-replay-smoke
 make neocortex-x-stage13-promote-policy-smoke
 make neocortex-x-stage14-runtime-loader-smoke
 make neocortex-x-stage15-runtime-execution-smoke
+make neocortex-x-stage16-contextual-memory-smoke
 ```
 
 Прямой запуск:
@@ -192,6 +196,10 @@ python3 research/neocortex_x/stage15_runtime_execution.py \
   --runtime-json artifacts/neocortex_x/stage14_runtime_loader.json \
   --temporal-json artifacts/neocortex_x/stage8_temporal_freshness.json \
   --output-json artifacts/neocortex_x/stage15_runtime_execution.json
+
+python3 research/neocortex_x/stage16_contextual_memory.py \
+  --packet-json artifacts/neocortex_x/stage6_evidence_packets.json \
+  --output-json artifacts/neocortex_x/stage16_contextual_memory.json
 ```
 
 ## Артефакты
@@ -220,5 +228,12 @@ python3 research/neocortex_x/stage15_runtime_execution.py \
 - `artifacts/neocortex_x/stage13_policy_promotion.json`
 - `artifacts/neocortex_x/stage14_runtime_loader.json`
 - `artifacts/neocortex_x/stage15_runtime_execution.json`
+- `artifacts/neocortex_x/stage16_contextual_memory.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
+
+Stage 16 intentionally keeps JSON as a small deterministic smoke artifact only.
+The 10M+ record path is tracked as future storage/index research: indexed
+subject/property/context schemas, append-only evidence logs, compacted
+snapshots, deterministic replay, and candidates such as SQLite/DuckDB,
+Postgres, Parquet/Arrow, RocksDB/LSM, and hybrid symbolic+vector indexes.
