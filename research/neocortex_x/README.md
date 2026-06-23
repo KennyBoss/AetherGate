@@ -18,6 +18,8 @@
   certification перед reuse.
 - Stage 4: short lookahead planning smoke, где planner использует predicted
   state deltas и бьет greedy action baseline.
+- Stage 4B: learned world-model planner, где transition table обучается из
+  опыта и используется для lookahead.
 - Stage 5: deterministic open-world adapter smoke с provenance, trust-weighted
   factual updates и contradiction handling.
 
@@ -38,6 +40,7 @@ make neocortex-x-stage2b-learned-smoke
 make neocortex-x-stage3-smoke
 make neocortex-x-stage3b-promotion-smoke
 make neocortex-x-stage4-smoke
+make neocortex-x-stage4b-world-model-smoke
 make neocortex-x-stage5-smoke
 ```
 
@@ -98,6 +101,9 @@ python3 research/neocortex_x/core_experiment.py \
   --stage4-horizon 4 \
   --output-json artifacts/neocortex_x/stage4_planning.json
 
+python3 research/neocortex_x/stage4b_learned_world_model.py \
+  --output-json artifacts/neocortex_x/stage4b_learned_world_model.json
+
 python3 research/neocortex_x/core_experiment.py \
   --stage stage5 \
   --seeds 11,17,23,29,31,37 \
@@ -119,6 +125,7 @@ python3 research/neocortex_x/core_experiment.py \
 - `artifacts/neocortex_x/stage3_procedure_reuse.json`
 - `artifacts/neocortex_x/stage3b_learned_procedure_promotion.json`
 - `artifacts/neocortex_x/stage4_planning.json`
+- `artifacts/neocortex_x/stage4b_learned_world_model.json`
 - `artifacts/neocortex_x/stage5_open_world_adapter.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
