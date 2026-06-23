@@ -33,6 +33,8 @@
   дают future memory action: keep, refresh или flag_conflict.
 - Stage 9: memory action gate, где freshness action превращается в действие
   агента: answer_from_memory, update_memory_and_answer или request_more_evidence.
+- Stage 10: feedback loop, где action outcome превращается в reward и
+  feedback event для будущего усиления/ревью политики.
 
 Важно: Stage 1/2 пока используют hand-coded agents. Это проверка harness,
 артефактов, метрик и pass/fail контракта, а не claim про обученный SSM или AGI.
@@ -58,6 +60,7 @@ make neocortex-x-stage6-packets-smoke
 make neocortex-x-stage7-memory-smoke
 make neocortex-x-stage8-freshness-smoke
 make neocortex-x-stage9-action-gate-smoke
+make neocortex-x-stage10-feedback-smoke
 ```
 
 Прямой запуск:
@@ -147,6 +150,10 @@ python3 research/neocortex_x/stage8_temporal_freshness.py \
 python3 research/neocortex_x/stage9_action_gate.py \
   --temporal-json artifacts/neocortex_x/stage8_temporal_freshness.json \
   --output-json artifacts/neocortex_x/stage9_action_gate.json
+
+python3 research/neocortex_x/stage10_feedback_loop.py \
+  --action-gate-json artifacts/neocortex_x/stage9_action_gate.json \
+  --output-json artifacts/neocortex_x/stage10_feedback_loop.json
 ```
 
 ## Артефакты
@@ -169,5 +176,6 @@ python3 research/neocortex_x/stage9_action_gate.py \
 - `artifacts/neocortex_x/stage7_memory_retrieval.json`
 - `artifacts/neocortex_x/stage8_temporal_freshness.json`
 - `artifacts/neocortex_x/stage9_action_gate.json`
+- `artifacts/neocortex_x/stage10_feedback_loop.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.

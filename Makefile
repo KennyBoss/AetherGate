@@ -10,6 +10,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage7-memory-smoke
 .PHONY: neocortex-x-stage8-freshness-smoke
 .PHONY: neocortex-x-stage9-action-gate-smoke
+.PHONY: neocortex-x-stage10-feedback-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -43,6 +44,7 @@ help:
 	@echo "  make neocortex-x-stage7-memory-smoke             long-term packet memory retrieval"
 	@echo "  make neocortex-x-stage8-freshness-smoke          temporal memory freshness policy"
 	@echo "  make neocortex-x-stage9-action-gate-smoke        memory freshness to action gate"
+	@echo "  make neocortex-x-stage10-feedback-smoke          action outcome feedback ledger"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -76,6 +78,7 @@ compile:
 		research/neocortex_x/stage7_memory_retrieval.py \
 		research/neocortex_x/stage8_temporal_freshness.py \
 		research/neocortex_x/stage9_action_gate.py \
+		research/neocortex_x/stage10_feedback_loop.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -968,6 +971,11 @@ neocortex-x-stage9-action-gate-smoke: neocortex-x-stage8-freshness-smoke
 	$(PYTHON) research/neocortex_x/stage9_action_gate.py \
 		--temporal-json artifacts/neocortex_x/stage8_temporal_freshness.json \
 		--output-json artifacts/neocortex_x/stage9_action_gate.json
+
+neocortex-x-stage10-feedback-smoke: neocortex-x-stage9-action-gate-smoke
+	$(PYTHON) research/neocortex_x/stage10_feedback_loop.py \
+		--action-gate-json artifacts/neocortex_x/stage9_action_gate.json \
+		--output-json artifacts/neocortex_x/stage10_feedback_loop.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories
