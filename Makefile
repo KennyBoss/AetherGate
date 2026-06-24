@@ -36,6 +36,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage33-clarification-feedback-smoke
 .PHONY: neocortex-x-stage34-clarification-policy-smoke
 .PHONY: neocortex-x-stage35-clarification-policy-replay-smoke
+.PHONY: neocortex-x-stage36-clarification-policy-promotion-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -95,6 +96,7 @@ help:
 	@echo "  make neocortex-x-stage33-clarification-feedback-smoke score clarification feedback"
 	@echo "  make neocortex-x-stage34-clarification-policy-smoke update clarification key policy"
 	@echo "  make neocortex-x-stage35-clarification-policy-replay-smoke replay clarification key policy"
+	@echo "  make neocortex-x-stage36-clarification-policy-promotion-smoke promote clarification key policy"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -154,6 +156,7 @@ compile:
 		research/neocortex_x/stage33_clarification_feedback_ledger.py \
 		research/neocortex_x/stage34_clarification_policy_update.py \
 		research/neocortex_x/stage35_clarification_policy_replay.py \
+		research/neocortex_x/stage36_clarification_policy_promotion.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -1194,6 +1197,12 @@ neocortex-x-stage35-clarification-policy-replay-smoke: neocortex-x-stage34-clari
 		--partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
 		--policy-json artifacts/neocortex_x/stage34_clarification_policy_update.json \
 		--output-json artifacts/neocortex_x/stage35_clarification_policy_replay.json
+
+neocortex-x-stage36-clarification-policy-promotion-smoke: neocortex-x-stage35-clarification-policy-replay-smoke
+	$(PYTHON) research/neocortex_x/stage36_clarification_policy_promotion.py \
+		--replay-json artifacts/neocortex_x/stage35_clarification_policy_replay.json \
+		--policy-json artifacts/neocortex_x/stage34_clarification_policy_update.json \
+		--output-json artifacts/neocortex_x/stage36_clarification_policy_promotion.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories
