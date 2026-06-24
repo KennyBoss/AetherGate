@@ -39,6 +39,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage36-clarification-policy-promotion-smoke
 .PHONY: neocortex-x-stage37-clarification-runtime-loader-smoke
 .PHONY: neocortex-x-stage38-clarification-runtime-execution-smoke
+.PHONY: neocortex-x-stage39-clarification-runtime-self-monitor-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -101,6 +102,7 @@ help:
 	@echo "  make neocortex-x-stage36-clarification-policy-promotion-smoke promote clarification key policy"
 	@echo "  make neocortex-x-stage37-clarification-runtime-loader-smoke load clarification runtime policy"
 	@echo "  make neocortex-x-stage38-clarification-runtime-execution-smoke execute clarification runtime traces"
+	@echo "  make neocortex-x-stage39-clarification-runtime-self-monitor-smoke monitor clarification runtime traces"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -163,6 +165,7 @@ compile:
 		research/neocortex_x/stage36_clarification_policy_promotion.py \
 		research/neocortex_x/stage37_clarification_runtime_loader.py \
 		research/neocortex_x/stage38_clarification_runtime_execution.py \
+		research/neocortex_x/stage39_clarification_runtime_self_monitor.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -1220,6 +1223,11 @@ neocortex-x-stage38-clarification-runtime-execution-smoke: neocortex-x-stage37-c
 		--runtime-json artifacts/neocortex_x/stage37_clarification_runtime_loader.json \
 		--partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
 		--output-json artifacts/neocortex_x/stage38_clarification_runtime_execution.json
+
+neocortex-x-stage39-clarification-runtime-self-monitor-smoke: neocortex-x-stage38-clarification-runtime-execution-smoke
+	$(PYTHON) research/neocortex_x/stage39_clarification_runtime_self_monitor.py \
+		--execution-json artifacts/neocortex_x/stage38_clarification_runtime_execution.json \
+		--output-json artifacts/neocortex_x/stage39_clarification_runtime_self_monitor.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories

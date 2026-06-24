@@ -97,6 +97,9 @@
 - Stage 38: clarification runtime execution, где Stage 37 runtime policy
   выполняет bounded clarification loop на Stage 30 partial-context episodes и
   пишет answer outputs + active compute.
+- Stage 39: clarification runtime self-monitor, где Stage 38 traces
+  превращаются в monitor records с реконструкцией runtime path, output,
+  selected keys, target preservation и active compute.
 - Planned storage research gate: перед 10M+ conditional records JSON остается
   только форматом отчетов/fixtures; primary memory должна пройти benchmark
   append-only evidence log + deterministic compaction + indexed query store.
@@ -179,6 +182,7 @@ make neocortex-x-stage35-clarification-policy-replay-smoke
 make neocortex-x-stage36-clarification-policy-promotion-smoke
 make neocortex-x-stage37-clarification-runtime-loader-smoke
 make neocortex-x-stage38-clarification-runtime-execution-smoke
+make neocortex-x-stage39-clarification-runtime-self-monitor-smoke
 ```
 
 Прямой запуск:
@@ -404,6 +408,10 @@ python3 research/neocortex_x/stage38_clarification_runtime_execution.py \
   --runtime-json artifacts/neocortex_x/stage37_clarification_runtime_loader.json \
   --partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
   --output-json artifacts/neocortex_x/stage38_clarification_runtime_execution.json
+
+python3 research/neocortex_x/stage39_clarification_runtime_self_monitor.py \
+  --execution-json artifacts/neocortex_x/stage38_clarification_runtime_execution.json \
+  --output-json artifacts/neocortex_x/stage39_clarification_runtime_self_monitor.json
 ```
 
 ## Артефакты
@@ -459,6 +467,7 @@ python3 research/neocortex_x/stage38_clarification_runtime_execution.py \
 - `artifacts/neocortex_x/stage36_clarification_policy_promotion.json`
 - `artifacts/neocortex_x/stage37_clarification_runtime_loader.json`
 - `artifacts/neocortex_x/stage38_clarification_runtime_execution.json`
+- `artifacts/neocortex_x/stage39_clarification_runtime_self_monitor.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 
@@ -521,6 +530,9 @@ Scale research is part of the roadmap before larger memory benchmarks:
 - Stage 38 executes the promoted Stage 37 clarification runtime policy over
   Stage 30 partial-context episodes, records bounded clarification steps,
   answer outputs, target preservation, and active compute;
+- Stage 39 monitors those runtime traces by reconstructing direct-answer vs
+  clarify-then-answer paths, selected context keys, output consistency, target
+  preservation, and active compute;
 - storage candidates: SQLite for preflight, DuckDB/Postgres for analytical and
   relational scale, Parquet/Arrow for columnar snapshots, RocksDB/LSM for
   high-write local stores, and hybrid symbolic+vector indexes for semantic
