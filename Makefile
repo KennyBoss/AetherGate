@@ -33,6 +33,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage30-partial-context-smoke
 .PHONY: neocortex-x-stage31-disambiguation-gate-smoke
 .PHONY: neocortex-x-stage32-clarification-resolution-smoke
+.PHONY: neocortex-x-stage33-clarification-feedback-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -89,6 +90,7 @@ help:
 	@echo "  make neocortex-x-stage30-partial-context-smoke   probe partial-context retrieval"
 	@echo "  make neocortex-x-stage31-disambiguation-gate-smoke answer-or-clarify partial context"
 	@echo "  make neocortex-x-stage32-clarification-resolution-smoke resolve clarified context"
+	@echo "  make neocortex-x-stage33-clarification-feedback-smoke score clarification feedback"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -145,6 +147,7 @@ compile:
 		research/neocortex_x/stage30_partial_context_scale_retrieval.py \
 		research/neocortex_x/stage31_partial_context_disambiguation_gate.py \
 		research/neocortex_x/stage32_clarification_resolution_loop.py \
+		research/neocortex_x/stage33_clarification_feedback_ledger.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -1169,6 +1172,11 @@ neocortex-x-stage32-clarification-resolution-smoke: neocortex-x-stage31-disambig
 		--partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
 		--disambiguation-json artifacts/neocortex_x/stage31_partial_context_disambiguation_gate.json \
 		--output-json artifacts/neocortex_x/stage32_clarification_resolution_loop.json
+
+neocortex-x-stage33-clarification-feedback-smoke: neocortex-x-stage32-clarification-resolution-smoke
+	$(PYTHON) research/neocortex_x/stage33_clarification_feedback_ledger.py \
+		--resolution-json artifacts/neocortex_x/stage32_clarification_resolution_loop.json \
+		--output-json artifacts/neocortex_x/stage33_clarification_feedback_ledger.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories
