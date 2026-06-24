@@ -12,6 +12,7 @@ CodePy кэш	Хранение формул, кода, вычислений (Num
 Квантовый модуль	Гибридная quantum-classical архитектура
 Context-aware Memory	Условные знания: не `X = Y`, а `при условиях C: X = Y`
 Scale Storage Track	JSON только для отчетов/fixtures; память требует индексированного store
+Conditional Hypergraph	Замена плохого fact graph на context-scoped slots/hyperedges
 🏗️ Архитектурные Слои
 [Интерфейс] → [Восприятие] → [РАЗУМ] → [Действие]
                     ↓
@@ -51,6 +52,44 @@ provenance = observation/evidence refs
 Это мост от `память фактов` к `World Model`: мир редко работает как `A = B`.
 Чаще он работает как `если C, то A = B`.
 
+🌐 Conditional Hypergraph вместо плохого графа памяти
+Плохой граф памяти:
+
+```text
+sky --color--> blue
+```
+
+Он превращает частое наблюдение в ложный вечный закон. Лучше хранить не простое
+ребро, а условный слот/гиперребро:
+
+```text
+(subject=sky, property=expected_color)
+  @ context(time_of_day=daytime, weather=clear, location=earth)
+  -> value=blue
+```
+
+Тогда память работает как набор контекстных распределений:
+
+```text
+небо
+├─ днём + ясно + Земля        -> обычно голубое
+├─ ночью + ясно + Земля       -> обычно тёмное
+├─ закат + чистый горизонт    -> красно-оранжевое
+├─ рассвет + аэрозоли/облака  -> розово-жёлтое
+└─ облачность                 -> зависит от толщины и типа облаков
+```
+
+Conflict logic:
+
+- если контекст отличается, это не конфликт, а другой conditional slot;
+- если контекст неполный, система спрашивает недостающий ключ;
+- если контекст тот же, но value несовместим, нужен evidence/provenance check;
+- если наблюдения повторяются в том же контексте, растёт confidence;
+- если частота меняется, обновляется распределение, а не стирается старый факт.
+
+Это уже не “база фактов”, а маленькая модель мира: память знает, при каких
+условиях утверждение истинно, вероятно, устарело или требует уточнения.
+
 💾 Масштабирование памяти
 JSON не является долговременной базой памяти. Он подходит для smoke reports,
 fixtures и воспроизводимых summary, но на 10M+ записей начнутся проблемы с
@@ -65,12 +104,32 @@ fixtures и воспроизводимых summary, но на 10M+ записе�
   hybrid symbolic+vector index;
 - benchmark: 10M+ conditional records, ingest throughput, lookup latency,
   storage size, deterministic replay.
+
+Scale research gate перед 10M+:
+
+```text
+append-only evidence log  ->  deterministic compaction  ->  indexed query stores
+        source of truth                  replay                  fast retrieval
+```
+
+Критерии выбора storage слоя:
+
+- exact lookup по `subject/property/context`;
+- partial-context retrieval по нескольким известным ключам;
+- быстрый выбор уточняющего ключа при ambiguity;
+- p95/p99 latency, а не только среднее время;
+- ingest throughput и compaction time;
+- размер на диске и цена индексов;
+- crash/replay safety;
+- возможность хранить provenance без раздувания горячих индексов;
+- совместимость с будущим symbolic + vector retrieval.
+
 ⚡ Преимущества над LLM/Трансформерами
 Проблема GPT/Claude	Решение NeoCortex-X
 ❌ Нет долговременной памяти	✅ Синаптическая пластичность + CodePy
 ❌ Только предсказание токенов	✅ Планирование через World Model
 ❌ Чёрный ящик	✅ Моносемантичность (как BDH)
-❌ Забывает контекст	✅ Фрактальная иерархическая память
+❌ Забывает контекст	✅ Conditional Hypergraph + фрактальная память
 ❌ Нет сознания	✅ Измеримое Φ (Phi) через IIT
 ❌ 500+ Вт на запрос	✅ <0.1 Вт (нейроморфный hardware)
 🎯 Фазовый Переход к AGI
@@ -124,6 +183,8 @@ Neuromorphic Computing — Intel Loihi, IBM NorthPole (энергоэффект�
 
 Начать с CodePy — самый простой компонент, даст немедленную пользу
 Добавить World Model — интеграция с JEPA/V-JEPA из Meta AI
+Добавить Context-aware Memory — заменить `X = Y` на conditional slots
+Перед 10M+ памяти провести storage/index research — JSON только для отчетов
 Масштабировать нейроны — начать с 1M → 100M → 1B
 Интегрировать интернет — real-time search для фактчекинга
 Измерять Phi — отслеживать прогресс к фазовому переходу

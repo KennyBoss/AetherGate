@@ -88,6 +88,36 @@
   за сужение candidates и сохранение target slot.
 - Stage 34: clarification policy update, где feedback по context keys
   превращается в normalized policy snapshot для выбора уточняющего ключа.
+- Planned Stage 35: clarification policy replay, где Stage 34 key policy
+  применяется к partial-context episodes и сравнивается с fixed/static controls.
+- Planned storage research gate: перед 10M+ conditional records JSON остается
+  только форматом отчетов/fixtures; primary memory должна пройти benchmark
+  append-only evidence log + deterministic compaction + indexed query store.
+
+## Context-Aware Memory Principle
+
+NeoCortex-X не должен хранить глобальные факты вида `X = Y`, если значение
+зависит от условий. Базовая единица долговременной памяти:
+
+```text
+subject + property + value + context_vector + confidence + provenance
+```
+
+Пример `sky -> blue` является плохой памятью. Правильная форма:
+`sky.expected_color = blue` при `time_of_day=daytime`,
+`weather=clear`, `location=earth`. Наблюдение `sky = dark` ночью не является
+конфликтом; это другой conditional slot. Конфликт возникает только когда
+контекст совпадает, а value/provenance расходятся.
+
+Практический contract для stages 30+:
+
+- partial context возвращает candidate set, а не преждевременный global answer;
+- ambiguity превращается в уточнение недостающего context key;
+- clarification policy учится выбирать самый информативный ключ;
+- JSON reports не считаются primary memory и используются только для smoke,
+  fixtures и deterministic summaries;
+- scale work должен проверять p95/p99 lookup, ingest, compaction, disk size,
+  replay safety и index usage на больших conditional datasets.
 
 Важно: Stage 1/2 пока используют hand-coded agents. Это проверка harness,
 артефактов, метрик и pass/fail контракта, а не claim про обученный SSM или AGI.
