@@ -86,6 +86,8 @@
   сужает candidate set до правильного conditional slot.
 - Stage 33: clarification feedback ledger, где шаги уточнения получают reward
   за сужение candidates и сохранение target slot.
+- Stage 34: clarification policy update, где feedback по context keys
+  превращается в normalized policy snapshot для выбора уточняющего ключа.
 
 Важно: Stage 1/2 пока используют hand-coded agents. Это проверка harness,
 артефактов, метрик и pass/fail контракта, а не claim про обученный SSM или AGI.
@@ -135,6 +137,7 @@ make neocortex-x-stage30-partial-context-smoke
 make neocortex-x-stage31-disambiguation-gate-smoke
 make neocortex-x-stage32-clarification-resolution-smoke
 make neocortex-x-stage33-clarification-feedback-smoke
+make neocortex-x-stage34-clarification-policy-smoke
 ```
 
 Прямой запуск:
@@ -337,6 +340,10 @@ python3 research/neocortex_x/stage32_clarification_resolution_loop.py \
 python3 research/neocortex_x/stage33_clarification_feedback_ledger.py \
   --resolution-json artifacts/neocortex_x/stage32_clarification_resolution_loop.json \
   --output-json artifacts/neocortex_x/stage33_clarification_feedback_ledger.json
+
+python3 research/neocortex_x/stage34_clarification_policy_update.py \
+  --feedback-json artifacts/neocortex_x/stage33_clarification_feedback_ledger.json \
+  --output-json artifacts/neocortex_x/stage34_clarification_policy_update.json
 ```
 
 ## Артефакты
@@ -387,6 +394,7 @@ python3 research/neocortex_x/stage33_clarification_feedback_ledger.py \
 - `artifacts/neocortex_x/stage31_partial_context_disambiguation_gate.json`
 - `artifacts/neocortex_x/stage32_clarification_resolution_loop.json`
 - `artifacts/neocortex_x/stage33_clarification_feedback_ledger.json`
+- `artifacts/neocortex_x/stage34_clarification_policy_update.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 
@@ -444,6 +452,8 @@ Scale research is part of the roadmap before larger memory benchmarks:
   candidates, and resolving to the target conditional slot;
 - Stage 33 records feedback over clarification keys, making the next policy
   update measurable instead of heuristic;
+- Stage 34 turns that feedback into a deterministic clarification-key policy
+  snapshot with normalized probabilities;
 - storage candidates: SQLite for preflight, DuckDB/Postgres for analytical and
   relational scale, Parquet/Arrow for columnar snapshots, RocksDB/LSM for
   high-write local stores, and hybrid symbolic+vector indexes for semantic
