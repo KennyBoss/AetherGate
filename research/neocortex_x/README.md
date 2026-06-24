@@ -82,6 +82,8 @@
   возвращает indexed candidate set и exact-context rerank выбирает нужный slot.
 - Stage 31: partial-context disambiguation gate, где candidate ambiguity
   превращается в answer-or-clarify action с выбором недостающего context key.
+- Stage 32: clarification resolution loop, где ответ на уточняющий context key
+  сужает candidate set до правильного conditional slot.
 
 Важно: Stage 1/2 пока используют hand-coded agents. Это проверка harness,
 артефактов, метрик и pass/fail контракта, а не claim про обученный SSM или AGI.
@@ -129,6 +131,7 @@ make neocortex-x-stage28-evidence-log-compaction-smoke
 make neocortex-x-stage29-scale-probe-smoke
 make neocortex-x-stage30-partial-context-smoke
 make neocortex-x-stage31-disambiguation-gate-smoke
+make neocortex-x-stage32-clarification-resolution-smoke
 ```
 
 Прямой запуск:
@@ -322,6 +325,11 @@ python3 research/neocortex_x/stage30_partial_context_scale_retrieval.py \
 python3 research/neocortex_x/stage31_partial_context_disambiguation_gate.py \
   --partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
   --output-json artifacts/neocortex_x/stage31_partial_context_disambiguation_gate.json
+
+python3 research/neocortex_x/stage32_clarification_resolution_loop.py \
+  --partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
+  --disambiguation-json artifacts/neocortex_x/stage31_partial_context_disambiguation_gate.json \
+  --output-json artifacts/neocortex_x/stage32_clarification_resolution_loop.json
 ```
 
 ## Артефакты
@@ -370,6 +378,7 @@ python3 research/neocortex_x/stage31_partial_context_disambiguation_gate.py \
 - `artifacts/neocortex_x/stage30_partial_context.sqlite`
 - `artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json`
 - `artifacts/neocortex_x/stage31_partial_context_disambiguation_gate.json`
+- `artifacts/neocortex_x/stage32_clarification_resolution_loop.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 
@@ -423,6 +432,8 @@ Scale research is part of the roadmap before larger memory benchmarks:
 - Stage 31 maps partial-context ambiguity to bounded actions: answer when the
   candidate set is unique, otherwise ask for the most informative missing
   context dimension;
+- Stage 32 closes that loop by applying the clarification answer, narrowing
+  candidates, and resolving to the target conditional slot;
 - storage candidates: SQLite for preflight, DuckDB/Postgres for analytical and
   relational scale, Parquet/Arrow for columnar snapshots, RocksDB/LSM for
   high-write local stores, and hybrid symbolic+vector indexes for semantic
