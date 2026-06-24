@@ -78,6 +78,8 @@
   в indexed query store.
 - Stage 29: contextual memory scale probe, где thousands-of-records synthetic
   dataset измеряет ingest, compaction, indexed lookup и JSON scan baseline.
+- Stage 30: partial-context scale retrieval, где неполный context vector
+  возвращает indexed candidate set и exact-context rerank выбирает нужный slot.
 
 Важно: Stage 1/2 пока используют hand-coded agents. Это проверка harness,
 артефактов, метрик и pass/fail контракта, а не claim про обученный SSM или AGI.
@@ -123,6 +125,7 @@ make neocortex-x-stage26-store-backed-contextual-retrieval-smoke
 make neocortex-x-stage27-store-backed-contextual-action-gate-smoke
 make neocortex-x-stage28-evidence-log-compaction-smoke
 make neocortex-x-stage29-scale-probe-smoke
+make neocortex-x-stage30-partial-context-smoke
 ```
 
 Прямой запуск:
@@ -304,6 +307,14 @@ python3 research/neocortex_x/stage29_contextual_memory_scale_probe.py \
   --json-scan-queries 64 \
   --output-db artifacts/neocortex_x/stage29_scale_probe.sqlite \
   --output-json artifacts/neocortex_x/stage29_contextual_memory_scale_probe.json
+
+python3 research/neocortex_x/stage30_partial_context_scale_retrieval.py \
+  --records 5000 \
+  --queries 256 \
+  --json-scan-queries 64 \
+  --candidate-limit 64 \
+  --output-db artifacts/neocortex_x/stage30_partial_context.sqlite \
+  --output-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json
 ```
 
 ## Артефакты
@@ -349,6 +360,8 @@ python3 research/neocortex_x/stage29_contextual_memory_scale_probe.py \
 - `artifacts/neocortex_x/stage28_append_only_evidence_log_compaction.json`
 - `artifacts/neocortex_x/stage29_scale_probe.sqlite`
 - `artifacts/neocortex_x/stage29_contextual_memory_scale_probe.json`
+- `artifacts/neocortex_x/stage30_partial_context.sqlite`
+- `artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 
@@ -397,6 +410,8 @@ Scale research is part of the roadmap before larger memory benchmarks:
   source of truth, while the SQLite query store is a compacted indexed view;
 - Stage 29 adds a fast thousands-of-records probe for ingest, compaction,
   indexed lookup latency, and JSON scan baseline speedup before the 10M+ run;
+- Stage 30 adds partial-context retrieval over that scale shape, because real
+  observations often include only some context dimensions;
 - storage candidates: SQLite for preflight, DuckDB/Postgres for analytical and
   relational scale, Parquet/Arrow for columnar snapshots, RocksDB/LSM for
   high-write local stores, and hybrid symbolic+vector indexes for semantic
