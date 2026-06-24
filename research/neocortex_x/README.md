@@ -94,6 +94,9 @@
   clarification-key policy получает runtime manifest с rollback metadata.
 - Stage 37: clarification runtime loader, где promoted clarification manifest
   загружается как runtime snapshot с smoke decisions по context keys.
+- Stage 38: clarification runtime execution, где Stage 37 runtime policy
+  выполняет bounded clarification loop на Stage 30 partial-context episodes и
+  пишет answer outputs + active compute.
 - Planned storage research gate: перед 10M+ conditional records JSON остается
   только форматом отчетов/fixtures; primary memory должна пройти benchmark
   append-only evidence log + deterministic compaction + indexed query store.
@@ -175,6 +178,7 @@ make neocortex-x-stage34-clarification-policy-smoke
 make neocortex-x-stage35-clarification-policy-replay-smoke
 make neocortex-x-stage36-clarification-policy-promotion-smoke
 make neocortex-x-stage37-clarification-runtime-loader-smoke
+make neocortex-x-stage38-clarification-runtime-execution-smoke
 ```
 
 Прямой запуск:
@@ -395,6 +399,11 @@ python3 research/neocortex_x/stage36_clarification_policy_promotion.py \
 python3 research/neocortex_x/stage37_clarification_runtime_loader.py \
   --promotion-json artifacts/neocortex_x/stage36_clarification_policy_promotion.json \
   --output-json artifacts/neocortex_x/stage37_clarification_runtime_loader.json
+
+python3 research/neocortex_x/stage38_clarification_runtime_execution.py \
+  --runtime-json artifacts/neocortex_x/stage37_clarification_runtime_loader.json \
+  --partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
+  --output-json artifacts/neocortex_x/stage38_clarification_runtime_execution.json
 ```
 
 ## Артефакты
@@ -449,6 +458,7 @@ python3 research/neocortex_x/stage37_clarification_runtime_loader.py \
 - `artifacts/neocortex_x/stage35_clarification_policy_replay.json`
 - `artifacts/neocortex_x/stage36_clarification_policy_promotion.json`
 - `artifacts/neocortex_x/stage37_clarification_runtime_loader.json`
+- `artifacts/neocortex_x/stage38_clarification_runtime_execution.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 
@@ -508,6 +518,9 @@ Scale research is part of the roadmap before larger memory benchmarks:
   update measurable instead of heuristic;
 - Stage 34 turns that feedback into a deterministic clarification-key policy
   snapshot with normalized probabilities;
+- Stage 38 executes the promoted Stage 37 clarification runtime policy over
+  Stage 30 partial-context episodes, records bounded clarification steps,
+  answer outputs, target preservation, and active compute;
 - storage candidates: SQLite for preflight, DuckDB/Postgres for analytical and
   relational scale, Parquet/Arrow for columnar snapshots, RocksDB/LSM for
   high-write local stores, and hybrid symbolic+vector indexes for semantic
