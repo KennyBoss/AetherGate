@@ -88,8 +88,8 @@
   за сужение candidates и сохранение target slot.
 - Stage 34: clarification policy update, где feedback по context keys
   превращается в normalized policy snapshot для выбора уточняющего ключа.
-- Planned Stage 35: clarification policy replay, где Stage 34 key policy
-  применяется к partial-context episodes и сравнивается с fixed/static controls.
+- Stage 35: clarification policy replay, где Stage 34 key policy применяется
+  к partial-context episodes и сравнивается с fixed/static controls.
 - Planned storage research gate: перед 10M+ conditional records JSON остается
   только форматом отчетов/fixtures; primary memory должна пройти benchmark
   append-only evidence log + deterministic compaction + indexed query store.
@@ -168,6 +168,7 @@ make neocortex-x-stage31-disambiguation-gate-smoke
 make neocortex-x-stage32-clarification-resolution-smoke
 make neocortex-x-stage33-clarification-feedback-smoke
 make neocortex-x-stage34-clarification-policy-smoke
+make neocortex-x-stage35-clarification-policy-replay-smoke
 ```
 
 Прямой запуск:
@@ -374,6 +375,11 @@ python3 research/neocortex_x/stage33_clarification_feedback_ledger.py \
 python3 research/neocortex_x/stage34_clarification_policy_update.py \
   --feedback-json artifacts/neocortex_x/stage33_clarification_feedback_ledger.json \
   --output-json artifacts/neocortex_x/stage34_clarification_policy_update.json
+
+python3 research/neocortex_x/stage35_clarification_policy_replay.py \
+  --partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
+  --policy-json artifacts/neocortex_x/stage34_clarification_policy_update.json \
+  --output-json artifacts/neocortex_x/stage35_clarification_policy_replay.json
 ```
 
 ## Артефакты
@@ -425,6 +431,7 @@ python3 research/neocortex_x/stage34_clarification_policy_update.py \
 - `artifacts/neocortex_x/stage32_clarification_resolution_loop.json`
 - `artifacts/neocortex_x/stage33_clarification_feedback_ledger.json`
 - `artifacts/neocortex_x/stage34_clarification_policy_update.json`
+- `artifacts/neocortex_x/stage35_clarification_policy_replay.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 

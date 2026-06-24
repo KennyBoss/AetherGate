@@ -35,6 +35,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage32-clarification-resolution-smoke
 .PHONY: neocortex-x-stage33-clarification-feedback-smoke
 .PHONY: neocortex-x-stage34-clarification-policy-smoke
+.PHONY: neocortex-x-stage35-clarification-policy-replay-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -93,6 +94,7 @@ help:
 	@echo "  make neocortex-x-stage32-clarification-resolution-smoke resolve clarified context"
 	@echo "  make neocortex-x-stage33-clarification-feedback-smoke score clarification feedback"
 	@echo "  make neocortex-x-stage34-clarification-policy-smoke update clarification key policy"
+	@echo "  make neocortex-x-stage35-clarification-policy-replay-smoke replay clarification key policy"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -151,6 +153,7 @@ compile:
 		research/neocortex_x/stage32_clarification_resolution_loop.py \
 		research/neocortex_x/stage33_clarification_feedback_ledger.py \
 		research/neocortex_x/stage34_clarification_policy_update.py \
+		research/neocortex_x/stage35_clarification_policy_replay.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -1185,6 +1188,12 @@ neocortex-x-stage34-clarification-policy-smoke: neocortex-x-stage33-clarificatio
 	$(PYTHON) research/neocortex_x/stage34_clarification_policy_update.py \
 		--feedback-json artifacts/neocortex_x/stage33_clarification_feedback_ledger.json \
 		--output-json artifacts/neocortex_x/stage34_clarification_policy_update.json
+
+neocortex-x-stage35-clarification-policy-replay-smoke: neocortex-x-stage34-clarification-policy-smoke
+	$(PYTHON) research/neocortex_x/stage35_clarification_policy_replay.py \
+		--partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
+		--policy-json artifacts/neocortex_x/stage34_clarification_policy_update.json \
+		--output-json artifacts/neocortex_x/stage35_clarification_policy_replay.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories
