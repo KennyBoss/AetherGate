@@ -34,6 +34,10 @@ sky.expected_color = blue
 - exact lookup по `subject/property/context`;
 - partial-context lookup по известным context keys;
 - ambiguity detection и выбор уточняющего key;
+- context lattice: какие keys обязательны, какие уточняющие, какие можно
+  наследовать из более общего context scope;
+- conflict triage: same-context conflict против different-context slot,
+  specialization, missing-context clarification и temporal drift;
 - provenance lookup без раздувания горячих индексов;
 - deterministic replay после rebuild;
 - storage footprint на больших synthetic datasets.
@@ -61,6 +65,18 @@ sky.expected_color = blue
 - replay rebuild time;
 - correctness against deterministic oracle;
 - JSON scan only as slow baseline, not as primary design.
+
+## Не Делаем Сейчас
+
+Этот research gate нужен перед масштабированием, но не блокирует текущие
+small-scale stages. Сейчас достаточно фиксировать контракт:
+
+- JSON используется только как smoke/report/fixture output;
+- primary memory не должна требовать загрузки всех записей в один JSON object;
+- будущий backend обязан поддерживать context-aware lookup, partial-context
+  ambiguity и deterministic replay;
+- 10M+ benchmark запускается только когда базовая conditional memory уже
+  стабильно проходит small-scale smoke.
 
 ## Pass/Fail
 

@@ -87,6 +87,33 @@ Conflict logic:
 - если наблюдения повторяются в том же контексте, растёт confidence;
 - если частота меняется, обновляется распределение, а не стирается старый факт.
 
+Брейншторм: вместо плоского fact graph нужен Context Lattice. Контекстные
+ключи не равны по важности: для `небо` главный ключ часто `time_of_day`, затем
+`weather`, затем `location/planet`, затем `season/aerosols/observer`. Система
+должна учиться выбирать следующий уточняющий ключ по уменьшению ambiguity:
+
+```text
+partial query -> candidate slots -> missing key entropy -> ask best key
+```
+
+Тогда вопрос `какого цвета небо?` не обязан сразу превращаться в ответ. Если
+контекста мало, правильное действие:
+
+```text
+Нужно уточнить: день/ночь, погода, место наблюдения.
+```
+
+Conflict triage:
+
+```text
+same context + same value       -> reinforce confidence
+same context + different value  -> evidence conflict
+different context               -> new conditional slot
+more specific context           -> specialization, not conflict
+missing context                 -> clarification question
+temporal drift                  -> update validity window
+```
+
 Это уже не “база фактов”, а маленькая модель мира: память знает, при каких
 условиях утверждение истинно, вероятно, устарело или требует уточнения.
 
@@ -98,12 +125,22 @@ fixtures и воспроизводимых summary, но на 10M+ записе�
 Перед масштабированием нужен отдельный storage/index research:
 
 - conditional slot schema: subject/property/value/context/confidence/provenance;
+- context lattice schema: какие ключи обязательны, какие уточняющие, какие
+  наследуются от более общего контекста;
 - append-only evidence log как источник истины;
 - compacted indexed stores для быстрых lookup;
+- inverted context indexes для partial-context retrieval и ambiguity detection;
 - candidates: SQLite, DuckDB, Postgres, Parquet/Arrow, RocksDB/LSM,
   hybrid symbolic+vector index;
 - benchmark: 10M+ conditional records, ingest throughput, lookup latency,
   storage size, deterministic replay.
+
+Важно: большой benchmark не нужен прямо сейчас. Но до любого claims про
+production-scale memory должен стоять gate:
+
+```text
+prototype JSON smoke -> indexed preflight -> 10M+ benchmark -> backend choice
+```
 
 Scale research gate перед 10M+:
 
