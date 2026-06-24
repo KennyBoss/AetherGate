@@ -80,6 +80,8 @@
   dataset измеряет ingest, compaction, indexed lookup и JSON scan baseline.
 - Stage 30: partial-context scale retrieval, где неполный context vector
   возвращает indexed candidate set и exact-context rerank выбирает нужный slot.
+- Stage 31: partial-context disambiguation gate, где candidate ambiguity
+  превращается в answer-or-clarify action с выбором недостающего context key.
 
 Важно: Stage 1/2 пока используют hand-coded agents. Это проверка harness,
 артефактов, метрик и pass/fail контракта, а не claim про обученный SSM или AGI.
@@ -126,6 +128,7 @@ make neocortex-x-stage27-store-backed-contextual-action-gate-smoke
 make neocortex-x-stage28-evidence-log-compaction-smoke
 make neocortex-x-stage29-scale-probe-smoke
 make neocortex-x-stage30-partial-context-smoke
+make neocortex-x-stage31-disambiguation-gate-smoke
 ```
 
 Прямой запуск:
@@ -315,6 +318,10 @@ python3 research/neocortex_x/stage30_partial_context_scale_retrieval.py \
   --candidate-limit 64 \
   --output-db artifacts/neocortex_x/stage30_partial_context.sqlite \
   --output-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json
+
+python3 research/neocortex_x/stage31_partial_context_disambiguation_gate.py \
+  --partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
+  --output-json artifacts/neocortex_x/stage31_partial_context_disambiguation_gate.json
 ```
 
 ## Артефакты
@@ -362,6 +369,7 @@ python3 research/neocortex_x/stage30_partial_context_scale_retrieval.py \
 - `artifacts/neocortex_x/stage29_contextual_memory_scale_probe.json`
 - `artifacts/neocortex_x/stage30_partial_context.sqlite`
 - `artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json`
+- `artifacts/neocortex_x/stage31_partial_context_disambiguation_gate.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 
@@ -412,6 +420,9 @@ Scale research is part of the roadmap before larger memory benchmarks:
   indexed lookup latency, and JSON scan baseline speedup before the 10M+ run;
 - Stage 30 adds partial-context retrieval over that scale shape, because real
   observations often include only some context dimensions;
+- Stage 31 maps partial-context ambiguity to bounded actions: answer when the
+  candidate set is unique, otherwise ask for the most informative missing
+  context dimension;
 - storage candidates: SQLite for preflight, DuckDB/Postgres for analytical and
   relational scale, Parquet/Arrow for columnar snapshots, RocksDB/LSM for
   high-write local stores, and hybrid symbolic+vector indexes for semantic

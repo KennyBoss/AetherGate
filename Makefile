@@ -31,6 +31,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage28-evidence-log-compaction-smoke
 .PHONY: neocortex-x-stage29-scale-probe-smoke
 .PHONY: neocortex-x-stage30-partial-context-smoke
+.PHONY: neocortex-x-stage31-disambiguation-gate-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -85,6 +86,7 @@ help:
 	@echo "  make neocortex-x-stage28-evidence-log-compaction-smoke compact append-only evidence log"
 	@echo "  make neocortex-x-stage29-scale-probe-smoke       probe contextual memory scale"
 	@echo "  make neocortex-x-stage30-partial-context-smoke   probe partial-context retrieval"
+	@echo "  make neocortex-x-stage31-disambiguation-gate-smoke answer-or-clarify partial context"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -139,6 +141,7 @@ compile:
 		research/neocortex_x/stage28_append_only_evidence_log_compaction.py \
 		research/neocortex_x/stage29_contextual_memory_scale_probe.py \
 		research/neocortex_x/stage30_partial_context_scale_retrieval.py \
+		research/neocortex_x/stage31_partial_context_disambiguation_gate.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -1152,6 +1155,11 @@ neocortex-x-stage30-partial-context-smoke:
 		--candidate-limit 64 \
 		--output-db artifacts/neocortex_x/stage30_partial_context.sqlite \
 		--output-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json
+
+neocortex-x-stage31-disambiguation-gate-smoke: neocortex-x-stage30-partial-context-smoke
+	$(PYTHON) research/neocortex_x/stage31_partial_context_disambiguation_gate.py \
+		--partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
+		--output-json artifacts/neocortex_x/stage31_partial_context_disambiguation_gate.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories

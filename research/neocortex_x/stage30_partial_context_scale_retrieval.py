@@ -230,6 +230,7 @@ def time_partial_indexed(
     target_hits = []
     rerank_hits = []
     candidate_counts = []
+    evaluated_queries = []
     for query in queries:
         start = time.perf_counter()
         candidates = partial_lookup(conn, query, limit=limit)
@@ -239,6 +240,28 @@ def time_partial_indexed(
         reranked = exact_context_rerank(candidates, query)
         rerank_hits.append(bool(reranked and reranked["slot_id"] == query["target_slot_id"]))
         candidate_counts.append(len(candidates))
+        evaluated_queries.append(
+            {
+                "query_id": query["query_id"],
+                "target_slot_id": query["target_slot_id"],
+                "subject": query["subject"],
+                "property": query["property"],
+                "partial_context": query["partial_context"],
+                "full_context": query["full_context"],
+                "target_value": query["target_value"],
+                "candidate_count": len(candidates),
+                "candidate_ids": [candidate["slot_id"] for candidate in candidates],
+                "candidate_context_signatures": [
+                    candidate["context_signature"] for candidate in candidates
+                ],
+                "candidate_contexts": [
+                    dict(part.split("=", 1) for part in candidate["context_signature"].split("|"))
+                    for candidate in candidates
+                ],
+                "target_in_candidates": query["target_slot_id"] in candidate_ids,
+                "reranked_slot_id": reranked["slot_id"] if reranked else None,
+            }
+        )
     return {
         "target_recall": mean([1.0 if hit else 0.0 for hit in target_hits]),
         "exact_rerank_accuracy": mean([1.0 if hit else 0.0 for hit in rerank_hits]),
@@ -248,6 +271,7 @@ def time_partial_indexed(
         "latency_ms_p50": percentile(durations, 50),
         "latency_ms_p95": percentile(durations, 95),
         "latency_ms_max": max(durations) if durations else 0.0,
+        "evaluated_queries": evaluated_queries,
     }
 
 
@@ -370,6 +394,7 @@ def build_probe(args: argparse.Namespace) -> dict[str, Any]:
         "query_count": len(queries),
         "candidate_limit": args.candidate_limit,
         "partial_indexed_lookup": indexed,
+        "evaluated_queries": indexed["evaluated_queries"],
         "json_scan_baseline": json_scan,
         "index_usage": {
             "partial_lookup_uses_index": partial_index_used,
