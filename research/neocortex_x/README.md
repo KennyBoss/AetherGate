@@ -103,6 +103,9 @@
 - Stage 40: clarification monitor feedback, где Stage 39 monitor records
   становятся deterministic feedback events, key rewards и alert summary для
   будущего runtime policy review.
+- Stage 41A: adversarial risk audit, где Stage 40 feedback проверяется на
+  missing/noisy/correlated/rare/contradictory/drift context cases и блокирует
+  policy promotion до guarded replay.
 - Planned risk-first gates: перед Stage 41+ нужно добавить adversarial
   context tests, provenance poisoning checks, policy rollback audit и scale
   cliff checks, чтобы feedback loop не закреплял красивую, но хрупкую policy.
@@ -172,6 +175,8 @@ episodes. Это сильный harness, но не доказательство 
   source, low-trust source;
 - policy rollback audit: плохой Stage 40 feedback не должен промотиться в
   runtime policy без replay evidence;
+- Stage 41A реализует первый risk gate: promotion должен быть blocked, пока
+  adversarial audit не пройдет guarded replay/review;
 - scale cliff benchmark: p95/p99 lookup, compaction time, disk/index overhead,
   deterministic rebuild;
 - live-source trust gate: internet integration только через cached,
@@ -226,6 +231,7 @@ make neocortex-x-stage37-clarification-runtime-loader-smoke
 make neocortex-x-stage38-clarification-runtime-execution-smoke
 make neocortex-x-stage39-clarification-runtime-self-monitor-smoke
 make neocortex-x-stage40-clarification-monitor-feedback-smoke
+make neocortex-x-stage41a-adversarial-risk-audit-smoke
 ```
 
 Прямой запуск:
@@ -459,6 +465,12 @@ python3 research/neocortex_x/stage39_clarification_runtime_self_monitor.py \
 python3 research/neocortex_x/stage40_clarification_monitor_feedback.py \
   --monitor-json artifacts/neocortex_x/stage39_clarification_runtime_self_monitor.json \
   --output-json artifacts/neocortex_x/stage40_clarification_monitor_feedback.json
+
+python3 research/neocortex_x/stage41a_adversarial_risk_audit.py \
+  --partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
+  --runtime-json artifacts/neocortex_x/stage37_clarification_runtime_loader.json \
+  --feedback-json artifacts/neocortex_x/stage40_clarification_monitor_feedback.json \
+  --output-json artifacts/neocortex_x/stage41a_adversarial_risk_audit.json
 ```
 
 ## Артефакты
@@ -516,6 +528,7 @@ python3 research/neocortex_x/stage40_clarification_monitor_feedback.py \
 - `artifacts/neocortex_x/stage38_clarification_runtime_execution.json`
 - `artifacts/neocortex_x/stage39_clarification_runtime_self_monitor.json`
 - `artifacts/neocortex_x/stage40_clarification_monitor_feedback.json`
+- `artifacts/neocortex_x/stage41a_adversarial_risk_audit.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 
@@ -584,6 +597,8 @@ Scale research is part of the roadmap before larger memory benchmarks:
 - Stage 40 turns Stage 39 monitor records into deterministic feedback and
   alert events with key rewards, runtime path rewards, and critical/info alert
   accounting;
+- Stage 41A adds the first risk-first gate by replaying adversarial context
+  variants and blocking policy promotion until guarded review/replay exists;
 - risk-first gates should test adversarial context, provenance poisoning,
   policy rollback, scale cliffs, and claim drift before adding stronger
   runtime-policy or live-world claims;

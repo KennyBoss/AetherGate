@@ -41,6 +41,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage38-clarification-runtime-execution-smoke
 .PHONY: neocortex-x-stage39-clarification-runtime-self-monitor-smoke
 .PHONY: neocortex-x-stage40-clarification-monitor-feedback-smoke
+.PHONY: neocortex-x-stage41a-adversarial-risk-audit-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -105,6 +106,7 @@ help:
 	@echo "  make neocortex-x-stage38-clarification-runtime-execution-smoke execute clarification runtime traces"
 	@echo "  make neocortex-x-stage39-clarification-runtime-self-monitor-smoke monitor clarification runtime traces"
 	@echo "  make neocortex-x-stage40-clarification-monitor-feedback-smoke feedback from clarification monitor"
+	@echo "  make neocortex-x-stage41a-adversarial-risk-audit-smoke audit adversarial risk gates"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -169,6 +171,7 @@ compile:
 		research/neocortex_x/stage38_clarification_runtime_execution.py \
 		research/neocortex_x/stage39_clarification_runtime_self_monitor.py \
 		research/neocortex_x/stage40_clarification_monitor_feedback.py \
+		research/neocortex_x/stage41a_adversarial_risk_audit.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -1236,6 +1239,13 @@ neocortex-x-stage40-clarification-monitor-feedback-smoke: neocortex-x-stage39-cl
 	$(PYTHON) research/neocortex_x/stage40_clarification_monitor_feedback.py \
 		--monitor-json artifacts/neocortex_x/stage39_clarification_runtime_self_monitor.json \
 		--output-json artifacts/neocortex_x/stage40_clarification_monitor_feedback.json
+
+neocortex-x-stage41a-adversarial-risk-audit-smoke: neocortex-x-stage40-clarification-monitor-feedback-smoke
+	$(PYTHON) research/neocortex_x/stage41a_adversarial_risk_audit.py \
+		--partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
+		--runtime-json artifacts/neocortex_x/stage37_clarification_runtime_loader.json \
+		--feedback-json artifacts/neocortex_x/stage40_clarification_monitor_feedback.json \
+		--output-json artifacts/neocortex_x/stage41a_adversarial_risk_audit.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories
