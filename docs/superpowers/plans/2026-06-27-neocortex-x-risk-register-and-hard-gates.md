@@ -184,3 +184,12 @@ Stage 42C реализует защитный вариант этого шага
 - temporal drift -> `request_validity_window_check`;
 - clean unique answer -> сохранить answer route;
 - runtime promotion -> всё еще blocked до Stage 43 rollback review.
+
+Stage 43 может промотить только guarded cached-replay runtime candidate:
+
+- требуется Stage 41B candidate, Stage 42 replay и Stage 42C guard;
+- critical unsafe answers after guard должны быть `0`;
+- rollback metadata обязательно;
+- scope promotion ограничен cached replay runtime candidate;
+- live-source trust, production-scale memory, AGI/consciousness и energy claims
+  явно запрещены до отдельных gates.

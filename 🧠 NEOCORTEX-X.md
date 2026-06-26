@@ -239,7 +239,8 @@ Stage 40 feedback
   -> Stage 41B quarantined candidate policy
   -> Stage 42 clean + adversarial replay
   -> Stage 42C provenance/conflict guard, если critical risks остаются
-  -> Stage 43 promotion только с rollback metadata
+  -> Stage 43 guarded promotion только с rollback metadata
+  -> Stage 44 guarded runtime loader
 ```
 
 Важно: Stage 42 pass не равен “включить policy”. Он означает, что candidate
@@ -257,6 +258,17 @@ clean unique target        -> allow_contextual_answer
 
 Даже если Stage 42C убрал critical unsafe answers, это всё еще не runtime
 promotion. Это guard manifest для Stage 43 review.
+
+Stage 43 разрешает только ограниченный promotion:
+
+```text
+guarded cached-replay runtime candidate
+  + rollback metadata
+  + explicit claim guardrails
+  != production memory
+  != live internet trust
+  != AGI/consciousness evidence
+```
 
 ⚡ Преимущества над LLM/Трансформерами
 Проблема GPT/Claude	Решение NeoCortex-X
@@ -324,6 +336,8 @@ Neuromorphic Computing — Intel Loihi, IBM NorthPole (энергоэффект�
 без runtime promotion
 Добавить Stage 42C evidence/conflict guard — блокировать unsafe answers и
 маршрутизировать их в evidence/context/validity checks
+Добавить Stage 43 guarded promotion — manifest с rollback metadata и claim
+guardrails, без production/live/AGI claims
 Перед 10M+ памяти провести storage/index research — JSON только для отчетов
 Масштабировать нейроны — начать с 1M → 100M → 1B
 Интегрировать интернет — real-time search для фактчекинга
