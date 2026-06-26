@@ -161,6 +161,45 @@ append-only evidence log  ->  deterministic compaction  ->  indexed query stores
 - возможность хранить provenance без раздувания горячих индексов;
 - совместимость с будущим symbolic + vector retrieval.
 
+⚠️ Брейншторм: Главные Риски
+План нельзя вести только как список новых stages. Нужен risk register, иначе
+можно получить красивые smoke tests, но слабую архитектуру.
+
+Основные проблемы, которые надо проверять до масштабирования:
+
+- Synthetic overfit: stages 30-40 могут идеально проходить на сгенерированных
+  задачах, но ломаться на шумном, неполном и противоречивом мире.
+- Context explosion: число context keys может расти быстрее, чем индексы,
+  policy и UX уточняющих вопросов.
+- Wrong-key reinforcement: feedback может усиливать ключи, которые полезны в
+  текущем synthetic distribution, но вредны при другом распределении.
+- Provenance poisoning: live internet может занести ложные evidence packets,
+  и память начнет уверенно усиливать неправильные conditional slots.
+- Replay/live gap: deterministic replay доказывает воспроизводимость, но не
+  доказывает устойчивость к меняющемуся миру.
+- Self-confirmation loop: self-monitor и feedback могут закрепить поведение,
+  если нет внешнего adversarial/evidence audit.
+- Storage cliff: SQLite/JSON smoke может скрыть резкий провал latency,
+  compaction и disk usage на 10M+ записей.
+- Claim drift: Phi, AGI, 86B neurons, energy и quantum claims нельзя смешивать
+  с тем, что реально доказали текущие harness stages.
+
+Hard gates перед Stage 41+ и масштабированием:
+
+```text
+synthetic smoke
+  -> adversarial context suite
+  -> provenance corruption tests
+  -> policy rollback/promotion audit
+  -> storage/index scale benchmark
+  -> live-source trust gate
+```
+
+Следующая идея для плана: перед добавлением новых "умных" capabilities сделать
+risk-first ветку. Она должна искать не где система уже права, а где она
+уверенно ошибается, задает лишние вопросы, теряет target slot, усиливает
+неправильные context keys или путает конфликт с другим контекстом.
+
 ⚡ Преимущества над LLM/Трансформерами
 Проблема GPT/Claude	Решение NeoCortex-X
 ❌ Нет долговременной памяти	✅ Синаптическая пластичность + CodePy
@@ -221,6 +260,8 @@ Neuromorphic Computing — Intel Loihi, IBM NorthPole (энергоэффект�
 Начать с CodePy — самый простой компонент, даст немедленную пользу
 Добавить World Model — интеграция с JEPA/V-JEPA из Meta AI
 Добавить Context-aware Memory — заменить `X = Y` на conditional slots
+Добавить Risk-first gates — adversarial context, provenance poisoning, rollback
+и scale cliffs до новых claims
 Перед 10M+ памяти провести storage/index research — JSON только для отчетов
 Масштабировать нейроны — начать с 1M → 100M → 1B
 Интегрировать интернет — real-time search для фактчекинга

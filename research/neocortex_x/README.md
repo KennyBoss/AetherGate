@@ -103,6 +103,9 @@
 - Stage 40: clarification monitor feedback, где Stage 39 monitor records
   становятся deterministic feedback events, key rewards и alert summary для
   будущего runtime policy review.
+- Planned risk-first gates: перед Stage 41+ нужно добавить adversarial
+  context tests, provenance poisoning checks, policy rollback audit и scale
+  cliff checks, чтобы feedback loop не закреплял красивую, но хрупкую policy.
 - Planned storage research gate: перед 10M+ conditional records JSON остается
   только форматом отчетов/fixtures; primary memory должна пройти benchmark
   append-only evidence log + deterministic compaction + indexed query store.
@@ -137,6 +140,42 @@ subject + property + value + context_vector + confidence + provenance
 Следующий шаг - заменить `kv_memory` на trained SSM/KV core без изменения
 формата задач и evidence artifact, затем подключать live-search backend только
 после deterministic provenance gate.
+
+## Risk Register And Hard Gates
+
+Текущая цепочка Stage 30-40 проверяет context-aware retrieval, clarification
+policy, runtime execution, self-monitor и feedback на controlled synthetic
+episodes. Это сильный harness, но не доказательство robust open-world memory.
+
+Главные риски перед продолжением:
+
+- synthetic overfit: policy может выучить distribution генератора, а не общий
+  принцип выбора context key;
+- context explosion: новые dimensions могут дать слишком широкий candidate set
+  и слишком много уточняющих вопросов;
+- wrong-key reinforcement: Stage 40 rewards могут усиливать ключи, которые
+  полезны только на текущем наборе задач;
+- provenance poisoning: live sources могут занести ложные или устаревшие
+  evidence packets;
+- replay/live gap: deterministic replay не равен устойчивости к изменяющимся
+  источникам и temporal drift;
+- storage cliff: thousands-of-records SQLite smoke не доказывает 10M+ latency,
+  compaction и concurrency;
+- claim drift: Phi, AGI, energy, 86B neurons и quantum claims остаются roadmap
+  language, пока нет отдельного evidence gate.
+
+Следующие gates должны идти перед новыми крупными claims:
+
+- adversarial context suite: missing/noisy/conflicting context, aliasing,
+  correlated keys, rare contexts;
+- provenance corruption suite: stale source, malicious source, contradictory
+  source, low-trust source;
+- policy rollback audit: плохой Stage 40 feedback не должен промотиться в
+  runtime policy без replay evidence;
+- scale cliff benchmark: p95/p99 lookup, compaction time, disk/index overhead,
+  deterministic rebuild;
+- live-source trust gate: internet integration только через cached,
+  replayable, source-scored evidence packets.
 
 ## Команды
 
@@ -545,6 +584,9 @@ Scale research is part of the roadmap before larger memory benchmarks:
 - Stage 40 turns Stage 39 monitor records into deterministic feedback and
   alert events with key rewards, runtime path rewards, and critical/info alert
   accounting;
+- risk-first gates should test adversarial context, provenance poisoning,
+  policy rollback, scale cliffs, and claim drift before adding stronger
+  runtime-policy or live-world claims;
 - storage candidates: SQLite for preflight, DuckDB/Postgres for analytical and
   relational scale, Parquet/Arrow for columnar snapshots, RocksDB/LSM for
   high-write local stores, and hybrid symbolic+vector indexes for semantic
