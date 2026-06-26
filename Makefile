@@ -46,6 +46,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage42-clean-adversarial-replay-smoke
 .PHONY: neocortex-x-stage42c-evidence-conflict-guard-smoke
 .PHONY: neocortex-x-stage43-guarded-policy-promotion-smoke
+.PHONY: neocortex-x-stage44-guarded-runtime-loader-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -115,6 +116,7 @@ help:
 	@echo "  make neocortex-x-stage42-clean-adversarial-replay-smoke replay candidate on clean + adversarial suites"
 	@echo "  make neocortex-x-stage42c-evidence-conflict-guard-smoke guard critical conflict answers"
 	@echo "  make neocortex-x-stage43-guarded-policy-promotion-smoke promote guarded candidate with rollback"
+	@echo "  make neocortex-x-stage44-guarded-runtime-loader-smoke load guarded runtime snapshot"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -184,6 +186,7 @@ compile:
 		research/neocortex_x/stage42_clean_adversarial_replay.py \
 		research/neocortex_x/stage42c_evidence_conflict_guard.py \
 		research/neocortex_x/stage43_guarded_policy_promotion.py \
+		research/neocortex_x/stage44_guarded_runtime_loader.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -1284,6 +1287,11 @@ neocortex-x-stage43-guarded-policy-promotion-smoke: neocortex-x-stage42c-evidenc
 		--stage42c-json artifacts/neocortex_x/stage42c_evidence_conflict_guard.json \
 		--guarded-review-json artifacts/neocortex_x/stage41b_guarded_policy_review.json \
 		--output-json artifacts/neocortex_x/stage43_guarded_policy_promotion.json
+
+neocortex-x-stage44-guarded-runtime-loader-smoke: neocortex-x-stage43-guarded-policy-promotion-smoke
+	$(PYTHON) research/neocortex_x/stage44_guarded_runtime_loader.py \
+		--promotion-json artifacts/neocortex_x/stage43_guarded_policy_promotion.json \
+		--output-json artifacts/neocortex_x/stage44_guarded_runtime_loader.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories

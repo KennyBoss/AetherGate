@@ -270,6 +270,19 @@ guarded cached-replay runtime candidate
   != AGI/consciousness evidence
 ```
 
+Stage 44 делает этот manifest исполнимым snapshot:
+
+```text
+guarded promotion manifest
+  -> validate guard rules + rollback + claim scope
+  -> guarded runtime snapshot
+  -> smoke: clean answer / conflict block / noisy check / drift check
+```
+
+Если guard записан в manifest, но не активен в runtime snapshot, это считается
+провалом. Следующий шаг после Stage 44 — guarded runtime execution/monitor, а
+не production или live internet memory.
+
 ⚡ Преимущества над LLM/Трансформерами
 Проблема GPT/Claude	Решение NeoCortex-X
 ❌ Нет долговременной памяти	✅ Синаптическая пластичность + CodePy
@@ -338,6 +351,8 @@ Neuromorphic Computing — Intel Loihi, IBM NorthPole (энергоэффект�
 маршрутизировать их в evidence/context/validity checks
 Добавить Stage 43 guarded promotion — manifest с rollback metadata и claim
 guardrails, без production/live/AGI claims
+Добавить Stage 44 guarded runtime loader — проверить, что guard реально активен
+в runtime snapshot
 Перед 10M+ памяти провести storage/index research — JSON только для отчетов
 Масштабировать нейроны — начать с 1M → 100M → 1B
 Интегрировать интернет — real-time search для фактчекинга

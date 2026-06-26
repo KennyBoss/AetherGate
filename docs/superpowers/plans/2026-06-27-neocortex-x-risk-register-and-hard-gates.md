@@ -193,3 +193,16 @@ Stage 43 может промотить только guarded cached-replay runtim
 - scope promotion ограничен cached replay runtime candidate;
 - live-source trust, production-scale memory, AGI/consciousness и energy claims
   явно запрещены до отдельных gates.
+
+Stage 44 должен загрузить guarded manifest в runtime snapshot и проверить, что
+guard rules реально активны:
+
+- clean unique target -> answer allowed;
+- missing context -> disambiguating context question;
+- same-context contradiction -> evidence route;
+- noisy context -> context integrity route;
+- temporal drift -> validity-window route;
+- unknown context shape -> fallback.
+
+Только после этого можно планировать guarded runtime execution/monitor. Это всё
+еще не live-source trust и не production memory.
