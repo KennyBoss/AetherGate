@@ -206,3 +206,15 @@ guard rules реально активны:
 
 Только после этого можно планировать guarded runtime execution/monitor. Это всё
 еще не live-source trust и не production memory.
+
+Stage 45 должен выполнить guarded runtime snapshot на полном Stage 42 replay
+наборе:
+
+- clean records -> answers preserved;
+- same-context/noisy/drift records -> answers blocked and guard-routed;
+- safe-context adversarial records -> target preserved;
+- unsafe answers -> `0`;
+- active compute and guard routes recorded.
+
+Следующий gate после Stage 45 — guarded runtime monitor/self-audit, а не live
+internet integration.

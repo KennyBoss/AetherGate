@@ -122,6 +122,9 @@
 - Stage 44: guarded runtime loader, где Stage 43 manifest загружается в runtime
   snapshot только после проверки guard rules, rollback, claim scope и smoke
   decisions для clean/conflict/noisy/drift/unknown context cases.
+- Stage 45: guarded runtime execution, где Stage 44 runtime snapshot выполняет
+  все Stage 42 clean/adversarial records, сохраняет clean answers и блокирует
+  unsafe answers через evidence/context-integrity/validity routes.
 - Planned risk-first gates: перед Stage 41+ нужно добавить adversarial
   context tests, provenance poisoning checks, policy rollback audit и scale
   cliff checks, чтобы feedback loop не закреплял красивую, но хрупкую policy.
@@ -212,6 +215,8 @@ episodes. Это сильный harness, но не доказательство 
   gates;
 - Stage 44 должен доказать, что guard активен в runtime snapshot, а не только
   записан в manifest;
+- Stage 45 должен доказать, что guard работает на полном clean + adversarial
+  replay наборе, а не только на hand-written smoke cases;
 - scale cliff benchmark: p95/p99 lookup, compaction time, disk/index overhead,
   deterministic rebuild;
 - live-source trust gate: internet integration только через cached,
@@ -272,6 +277,7 @@ make neocortex-x-stage42-clean-adversarial-replay-smoke
 make neocortex-x-stage42c-evidence-conflict-guard-smoke
 make neocortex-x-stage43-guarded-policy-promotion-smoke
 make neocortex-x-stage44-guarded-runtime-loader-smoke
+make neocortex-x-stage45-guarded-runtime-execution-smoke
 ```
 
 Прямой запуск:
@@ -537,6 +543,11 @@ python3 research/neocortex_x/stage43_guarded_policy_promotion.py \
 python3 research/neocortex_x/stage44_guarded_runtime_loader.py \
   --promotion-json artifacts/neocortex_x/stage43_guarded_policy_promotion.json \
   --output-json artifacts/neocortex_x/stage44_guarded_runtime_loader.json
+
+python3 research/neocortex_x/stage45_guarded_runtime_execution.py \
+  --runtime-json artifacts/neocortex_x/stage44_guarded_runtime_loader.json \
+  --stage42-json artifacts/neocortex_x/stage42_clean_adversarial_replay.json \
+  --output-json artifacts/neocortex_x/stage45_guarded_runtime_execution.json
 ```
 
 ## Артефакты
@@ -600,6 +611,7 @@ python3 research/neocortex_x/stage44_guarded_runtime_loader.py \
 - `artifacts/neocortex_x/stage42c_evidence_conflict_guard.json`
 - `artifacts/neocortex_x/stage43_guarded_policy_promotion.json`
 - `artifacts/neocortex_x/stage44_guarded_runtime_loader.json`
+- `artifacts/neocortex_x/stage45_guarded_runtime_execution.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 
@@ -694,6 +706,9 @@ Scale research is part of the roadmap before larger memory benchmarks:
 - Stage 44 loads that manifest into a guarded runtime snapshot and smoke-tests
   clean answer, missing context, contradiction, noisy context, temporal drift
   and unknown context routing before any later execution stage;
+- Stage 45 executes that guarded runtime snapshot over Stage 42 clean +
+  adversarial records, proving clean answers are preserved and conflict/noisy/
+  drift answers are routed through guard actions before monitor feedback;
 - risk-first gates should test adversarial context, provenance poisoning,
   policy rollback, scale cliffs, and claim drift before adding stronger
   runtime-policy or live-world claims;

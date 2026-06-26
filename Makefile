@@ -47,6 +47,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage42c-evidence-conflict-guard-smoke
 .PHONY: neocortex-x-stage43-guarded-policy-promotion-smoke
 .PHONY: neocortex-x-stage44-guarded-runtime-loader-smoke
+.PHONY: neocortex-x-stage45-guarded-runtime-execution-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -117,6 +118,7 @@ help:
 	@echo "  make neocortex-x-stage42c-evidence-conflict-guard-smoke guard critical conflict answers"
 	@echo "  make neocortex-x-stage43-guarded-policy-promotion-smoke promote guarded candidate with rollback"
 	@echo "  make neocortex-x-stage44-guarded-runtime-loader-smoke load guarded runtime snapshot"
+	@echo "  make neocortex-x-stage45-guarded-runtime-execution-smoke execute guarded runtime traces"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -187,6 +189,7 @@ compile:
 		research/neocortex_x/stage42c_evidence_conflict_guard.py \
 		research/neocortex_x/stage43_guarded_policy_promotion.py \
 		research/neocortex_x/stage44_guarded_runtime_loader.py \
+		research/neocortex_x/stage45_guarded_runtime_execution.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -1292,6 +1295,12 @@ neocortex-x-stage44-guarded-runtime-loader-smoke: neocortex-x-stage43-guarded-po
 	$(PYTHON) research/neocortex_x/stage44_guarded_runtime_loader.py \
 		--promotion-json artifacts/neocortex_x/stage43_guarded_policy_promotion.json \
 		--output-json artifacts/neocortex_x/stage44_guarded_runtime_loader.json
+
+neocortex-x-stage45-guarded-runtime-execution-smoke: neocortex-x-stage44-guarded-runtime-loader-smoke
+	$(PYTHON) research/neocortex_x/stage45_guarded_runtime_execution.py \
+		--runtime-json artifacts/neocortex_x/stage44_guarded_runtime_loader.json \
+		--stage42-json artifacts/neocortex_x/stage42_clean_adversarial_replay.json \
+		--output-json artifacts/neocortex_x/stage45_guarded_runtime_execution.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories
