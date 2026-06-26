@@ -42,6 +42,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage39-clarification-runtime-self-monitor-smoke
 .PHONY: neocortex-x-stage40-clarification-monitor-feedback-smoke
 .PHONY: neocortex-x-stage41a-adversarial-risk-audit-smoke
+.PHONY: neocortex-x-stage41b-guarded-policy-review-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -107,6 +108,7 @@ help:
 	@echo "  make neocortex-x-stage39-clarification-runtime-self-monitor-smoke monitor clarification runtime traces"
 	@echo "  make neocortex-x-stage40-clarification-monitor-feedback-smoke feedback from clarification monitor"
 	@echo "  make neocortex-x-stage41a-adversarial-risk-audit-smoke audit adversarial risk gates"
+	@echo "  make neocortex-x-stage41b-guarded-policy-review-smoke review guarded candidate policy"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -172,6 +174,7 @@ compile:
 		research/neocortex_x/stage39_clarification_runtime_self_monitor.py \
 		research/neocortex_x/stage40_clarification_monitor_feedback.py \
 		research/neocortex_x/stage41a_adversarial_risk_audit.py \
+		research/neocortex_x/stage41b_guarded_policy_review.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -1246,6 +1249,12 @@ neocortex-x-stage41a-adversarial-risk-audit-smoke: neocortex-x-stage40-clarifica
 		--runtime-json artifacts/neocortex_x/stage37_clarification_runtime_loader.json \
 		--feedback-json artifacts/neocortex_x/stage40_clarification_monitor_feedback.json \
 		--output-json artifacts/neocortex_x/stage41a_adversarial_risk_audit.json
+
+neocortex-x-stage41b-guarded-policy-review-smoke: neocortex-x-stage41a-adversarial-risk-audit-smoke
+	$(PYTHON) research/neocortex_x/stage41b_guarded_policy_review.py \
+		--feedback-json artifacts/neocortex_x/stage40_clarification_monitor_feedback.json \
+		--risk-audit-json artifacts/neocortex_x/stage41a_adversarial_risk_audit.json \
+		--output-json artifacts/neocortex_x/stage41b_guarded_policy_review.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories

@@ -106,6 +106,9 @@
 - Stage 41A: adversarial risk audit, где Stage 40 feedback проверяется на
   missing/noisy/correlated/rare/contradictory/drift context cases и блокирует
   policy promotion до guarded replay.
+- Stage 41B: guarded policy review, где Stage 40 rewards превращаются только
+  в quarantined candidate policy для Stage 42 replay, а runtime promotion
+  остается blocked из-за Stage 41A risks.
 - Planned risk-first gates: перед Stage 41+ нужно добавить adversarial
   context tests, provenance poisoning checks, policy rollback audit и scale
   cliff checks, чтобы feedback loop не закреплял красивую, но хрупкую policy.
@@ -177,6 +180,8 @@ episodes. Это сильный harness, но не доказательство 
   runtime policy без replay evidence;
 - Stage 41A реализует первый risk gate: promotion должен быть blocked, пока
   adversarial audit не пройдет guarded replay/review;
+- Stage 41B разрешает только quarantined candidate policy для Stage 42 replay,
+  но не runtime promotion;
 - scale cliff benchmark: p95/p99 lookup, compaction time, disk/index overhead,
   deterministic rebuild;
 - live-source trust gate: internet integration только через cached,
@@ -232,6 +237,7 @@ make neocortex-x-stage38-clarification-runtime-execution-smoke
 make neocortex-x-stage39-clarification-runtime-self-monitor-smoke
 make neocortex-x-stage40-clarification-monitor-feedback-smoke
 make neocortex-x-stage41a-adversarial-risk-audit-smoke
+make neocortex-x-stage41b-guarded-policy-review-smoke
 ```
 
 Прямой запуск:
@@ -471,6 +477,11 @@ python3 research/neocortex_x/stage41a_adversarial_risk_audit.py \
   --runtime-json artifacts/neocortex_x/stage37_clarification_runtime_loader.json \
   --feedback-json artifacts/neocortex_x/stage40_clarification_monitor_feedback.json \
   --output-json artifacts/neocortex_x/stage41a_adversarial_risk_audit.json
+
+python3 research/neocortex_x/stage41b_guarded_policy_review.py \
+  --feedback-json artifacts/neocortex_x/stage40_clarification_monitor_feedback.json \
+  --risk-audit-json artifacts/neocortex_x/stage41a_adversarial_risk_audit.json \
+  --output-json artifacts/neocortex_x/stage41b_guarded_policy_review.json
 ```
 
 ## Артефакты
@@ -529,6 +540,7 @@ python3 research/neocortex_x/stage41a_adversarial_risk_audit.py \
 - `artifacts/neocortex_x/stage39_clarification_runtime_self_monitor.json`
 - `artifacts/neocortex_x/stage40_clarification_monitor_feedback.json`
 - `artifacts/neocortex_x/stage41a_adversarial_risk_audit.json`
+- `artifacts/neocortex_x/stage41b_guarded_policy_review.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 
@@ -599,6 +611,8 @@ Scale research is part of the roadmap before larger memory benchmarks:
   accounting;
 - Stage 41A adds the first risk-first gate by replaying adversarial context
   variants and blocking policy promotion until guarded review/replay exists;
+- Stage 41B creates a quarantined candidate policy from Stage 40 rewards while
+  keeping runtime promotion blocked until Stage 42 clean+adversarial replay;
 - risk-first gates should test adversarial context, provenance poisoning,
   policy rollback, scale cliffs, and claim drift before adding stronger
   runtime-policy or live-world claims;
