@@ -117,6 +117,30 @@ temporal drift                  -> update validity window
 Это уже не “база фактов”, а маленькая модель мира: память знает, при каких
 условиях утверждение истинно, вероятно, устарело или требует уточнения.
 
+Но context-aware memory сама по себе ещё не гарантирует понимание. Возможные
+слабые места:
+
+- correlation trap: `location/season` могут совпадать с ответом, но не быть
+  настоящей причиной;
+- over-clarification: система может задавать слишком много уточняющих вопросов
+  и терять практическую полезность;
+- schema drift: для новой области может не хватить старых context keys;
+- provenance duplication: 100 копий одной ошибки не должны считаться 100
+  независимыми доказательствами;
+- same-context contradiction: если context совпадает, это уже не “другой
+  случай”, а настоящий evidence conflict.
+
+Поэтому conditional memory нужно вести через gates:
+
+```text
+conditional slots
+  -> partial-context retrieval
+  -> clarification policy
+  -> adversarial replay
+  -> provenance/conflict guard
+  -> только потом runtime promotion
+```
+
 💾 Масштабирование памяти
 JSON не является долговременной базой памяти. Он подходит для smoke reports,
 fixtures и воспроизводимых summary, но на 10M+ записей начнутся проблемы с
@@ -181,6 +205,12 @@ append-only evidence log  ->  deterministic compaction  ->  indexed query stores
   если нет внешнего adversarial/evidence audit.
 - Storage cliff: SQLite/JSON smoke может скрыть резкий провал latency,
   compaction и disk usage на 10M+ записей.
+- Context/causality confusion: система может выбрать удобный context key,
+  который коррелирует с ответом, но не объясняет его.
+- Over-clarification: context-aware память может стать слишком осторожной и
+  превращать простые вопросы в длинный диалог.
+- Schema drift: fixed `CONTEXT_KEYS` может быть достаточен для smoke, но слаб
+  для новых областей, где нужны source, observer, validity window, unit и alias.
 - Claim drift: Phi, AGI, 86B neurons, energy и quantum claims нельзя смешивать
   с тем, что реально доказали текущие harness stages.
 
@@ -189,6 +219,7 @@ Hard gates перед Stage 41+ и масштабированием:
 ```text
 synthetic smoke
   -> adversarial context suite
+  -> clean + adversarial replay of candidate policy
   -> provenance corruption tests
   -> policy rollback/promotion audit
   -> storage/index scale benchmark
@@ -199,6 +230,21 @@ synthetic smoke
 risk-first ветку. Она должна искать не где система уже права, а где она
 уверенно ошибается, задает лишние вопросы, теряет target slot, усиливает
 неправильные context keys или путает конфликт с другим контекстом.
+
+Текущая risk-first ветка:
+
+```text
+Stage 40 feedback
+  -> Stage 41A adversarial/risk audit
+  -> Stage 41B quarantined candidate policy
+  -> Stage 42 clean + adversarial replay
+  -> Stage 42C provenance/conflict guard, если critical risks остаются
+  -> Stage 43 promotion только с rollback metadata
+```
+
+Важно: Stage 42 pass не равен “включить policy”. Он означает, что candidate
+проверен на clean + adversarial suites, controls сравнены, а promotion остается
+blocked, если critical same-context/noisy-context risks не закрыты.
 
 ⚡ Преимущества над LLM/Трансформерами
 Проблема GPT/Claude	Решение NeoCortex-X
@@ -262,6 +308,8 @@ Neuromorphic Computing — Intel Loihi, IBM NorthPole (энергоэффект�
 Добавить Context-aware Memory — заменить `X = Y` на conditional slots
 Добавить Risk-first gates — adversarial context, provenance poisoning, rollback
 и scale cliffs до новых claims
+Добавить Stage 42 replay gate — clean + adversarial проверка candidate policy
+без runtime promotion
 Перед 10M+ памяти провести storage/index research — JSON только для отчетов
 Масштабировать нейроны — начать с 1M → 100M → 1B
 Интегрировать интернет — real-time search для фактчекинга

@@ -109,6 +109,10 @@
 - Stage 41B: guarded policy review, где Stage 40 rewards превращаются только
   в quarantined candidate policy для Stage 42 replay, а runtime promotion
   остается blocked из-за Stage 41A risks.
+- Stage 42: clean + adversarial replay, где quarantined Stage 41B candidate
+  сравнивается с current runtime policy, fixed-order и entropy controls на
+  чистых Stage 30 episodes и Stage 41A risk cases; runtime promotion остается
+  blocked, если critical risks остаются.
 - Planned risk-first gates: перед Stage 41+ нужно добавить adversarial
   context tests, provenance poisoning checks, policy rollback audit и scale
   cliff checks, чтобы feedback loop не закреплял красивую, но хрупкую policy.
@@ -165,6 +169,12 @@ episodes. Это сильный harness, но не доказательство 
   evidence packets;
 - replay/live gap: deterministic replay не равен устойчивости к изменяющимся
   источникам и temporal drift;
+- context/causality confusion: conditional memory может хранить правильные
+  условия, но принять коррелирующий context key за причинный;
+- over-clarification: система может сохранять target slot, но задавать слишком
+  много уточняющих вопросов вместо полезного ответа;
+- context schema drift: старый набор keys может не выражать важные условия в
+  новой предметной области;
 - storage cliff: thousands-of-records SQLite smoke не доказывает 10M+ latency,
   compaction и concurrency;
 - claim drift: Phi, AGI, energy, 86B neurons и quantum claims остаются roadmap
@@ -182,6 +192,10 @@ episodes. Это сильный harness, но не доказательство 
   adversarial audit не пройдет guarded replay/review;
 - Stage 41B разрешает только quarantined candidate policy для Stage 42 replay,
   но не runtime promotion;
+- Stage 42 должен сравнить candidate с current runtime и controls на clean +
+  adversarial suites, но pass Stage 42 не означает automatic promotion;
+- Stage 42C/provenance-conflict guard нужен, если остаются critical
+  same-context/noisy-context риски;
 - scale cliff benchmark: p95/p99 lookup, compaction time, disk/index overhead,
   deterministic rebuild;
 - live-source trust gate: internet integration только через cached,
@@ -238,6 +252,7 @@ make neocortex-x-stage39-clarification-runtime-self-monitor-smoke
 make neocortex-x-stage40-clarification-monitor-feedback-smoke
 make neocortex-x-stage41a-adversarial-risk-audit-smoke
 make neocortex-x-stage41b-guarded-policy-review-smoke
+make neocortex-x-stage42-clean-adversarial-replay-smoke
 ```
 
 Прямой запуск:
@@ -482,6 +497,13 @@ python3 research/neocortex_x/stage41b_guarded_policy_review.py \
   --feedback-json artifacts/neocortex_x/stage40_clarification_monitor_feedback.json \
   --risk-audit-json artifacts/neocortex_x/stage41a_adversarial_risk_audit.json \
   --output-json artifacts/neocortex_x/stage41b_guarded_policy_review.json
+
+python3 research/neocortex_x/stage42_clean_adversarial_replay.py \
+  --partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
+  --runtime-json artifacts/neocortex_x/stage37_clarification_runtime_loader.json \
+  --risk-audit-json artifacts/neocortex_x/stage41a_adversarial_risk_audit.json \
+  --guarded-review-json artifacts/neocortex_x/stage41b_guarded_policy_review.json \
+  --output-json artifacts/neocortex_x/stage42_clean_adversarial_replay.json
 ```
 
 ## Артефакты
@@ -541,6 +563,7 @@ python3 research/neocortex_x/stage41b_guarded_policy_review.py \
 - `artifacts/neocortex_x/stage40_clarification_monitor_feedback.json`
 - `artifacts/neocortex_x/stage41a_adversarial_risk_audit.json`
 - `artifacts/neocortex_x/stage41b_guarded_policy_review.json`
+- `artifacts/neocortex_x/stage42_clean_adversarial_replay.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 
@@ -569,6 +592,16 @@ the correct action is to ask for context. With same-context incompatible value,
 the correct action is to request more evidence. This is the bridge from fact
 memory into world-model memory: reality is usually `if context C, then X`,
 not global `X = Y`.
+
+Brainstorm guardrail: conditional slots solve the bad graph edge
+`sky --color--> blue`, but they do not automatically solve causality,
+provenance, or scale. The memory layer must distinguish:
+
+- different context from real conflict;
+- missing context from false contradiction;
+- correlated key from causal key;
+- repeated evidence from duplicated source;
+- useful clarification from over-clarification.
 
 ## Scale Track
 
@@ -613,6 +646,9 @@ Scale research is part of the roadmap before larger memory benchmarks:
   variants and blocking policy promotion until guarded review/replay exists;
 - Stage 41B creates a quarantined candidate policy from Stage 40 rewards while
   keeping runtime promotion blocked until Stage 42 clean+adversarial replay;
+- Stage 42 replays that quarantined candidate on clean Stage 30 episodes plus
+  Stage 41A adversarial cases and compares it with current runtime, fixed-order
+  and entropy controls while keeping promotion blocked if critical risks remain;
 - risk-first gates should test adversarial context, provenance poisoning,
   policy rollback, scale cliffs, and claim drift before adding stronger
   runtime-policy or live-world claims;
@@ -622,3 +658,9 @@ Scale research is part of the roadmap before larger memory benchmarks:
   candidate retrieval;
 - benchmark target: 10M+ conditional records with measured ingest throughput,
   lookup latency, storage size, index usage, and replay determinism.
+
+Before 10M+ scale work, the plan should include a storage research stage that
+benchmarks exact lookup, partial-context retrieval, ambiguity-key selection,
+append-only replay rebuild, compaction cost, index size, alias migration and
+concurrent reads/writes. JSON scan must stay as a baseline to beat, not the
+memory substrate.

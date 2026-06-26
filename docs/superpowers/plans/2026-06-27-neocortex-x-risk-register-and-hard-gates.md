@@ -61,6 +61,22 @@ partial context -> clarification policy -> runtime execution
    могут звучать как доказанные, хотя текущие stages доказывают только bounded
    deterministic harness behavior.
 
+9. Context/causality confusion.
+   Conditional memory может правильно хранить `при C: X = Y`, но ошибочно
+   принять коррелирующий key за причинный. Симптом: система спрашивает
+   `season/location`, хотя реальная причина в `time_of_day`, source validity,
+   observer или физическом состоянии среды.
+
+10. Over-clarification.
+   Context-aware память может стать слишком осторожной и превращать каждый
+   вопрос в длинный диалог уточнений. Симптом: target slot сохраняется, но
+   mean clarification steps и user-friction растут быстрее пользы.
+
+11. Context schema drift.
+   Новые предметные области требуют новых context keys, alias groups и
+   validity windows. Симптом: старый `CONTEXT_KEYS` contract выглядит чисто в
+   replay, но не выражает важные условия реального мира.
+
 ## Hard Gates Before Stage 41+
 
 Stage 41+ не должен просто промотить feedback из Stage 40. Перед policy update
@@ -112,6 +128,23 @@ Stage 41+ не должен просто промотить feedback из Stage 
 - concurrent read/write behavior;
 - JSON scan only as baseline, never as primary memory.
 
+JSON остается форматом отчетов, fixtures и deterministic summaries. Он не
+должен становиться primary memory store: на 10M+ conditional slots нужны
+append-only evidence log, deterministic compaction, индексированные query
+views и benchmark p50/p95/p99. Иначе система может пройти smoke tests, но
+сломаться на частичных обновлениях, index rebuild, latency tail и конкуренции
+чтения/записи.
+
+Минимальный storage research перед 10M+:
+
+- сравнить SQLite, DuckDB/Postgres, Parquet/Arrow snapshots, RocksDB/LSM и
+  hybrid symbolic+vector index;
+- измерить exact lookup, partial-context retrieval и ambiguity-key selection;
+- разделить hot indexes и cold provenance, чтобы refs не раздували быстрый
+  путь;
+- проверить deterministic rebuild из evidence log;
+- проверить alias/context-schema migration без потери replay.
+
 ## Claim Guardrails
 
 Разделить язык claims:
@@ -132,8 +165,14 @@ Stage 40 feedback
   -> Stage 41A adversarial/risk audit
   -> Stage 41B guarded policy review
   -> Stage 42 replay against clean + adversarial suites
-  -> Stage 43 promotion with rollback metadata
+  -> Stage 42C provenance/conflict guard if critical risks remain
+  -> Stage 43 promotion with rollback metadata only after risks clear
 ```
 
 Так мы не просто делаем систему умнее, а не даем ей уверенно закрепить
 неправильные привычки.
+
+Stage 42 pass не должен автоматически означать promotion. Если replay всё еще
+показывает critical same-context contradiction, noisy-context unsafe answer или
+target loss, следующий шаг должен быть защитным: evidence/conflict guard,
+policy revision или новый adversarial suite, а не runtime activation.
