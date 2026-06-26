@@ -137,7 +137,7 @@ conditional slots
   -> partial-context retrieval
   -> clarification policy
   -> adversarial replay
-  -> provenance/conflict guard
+  -> evidence/provenance/conflict guard
   -> только потом runtime promotion
 ```
 
@@ -246,6 +246,18 @@ Stage 40 feedback
 проверен на clean + adversarial suites, controls сравнены, а promotion остается
 blocked, если critical same-context/noisy-context risks не закрыты.
 
+Stage 42C должен переводить опасные ответы в безопасные действия:
+
+```text
+same-context contradiction -> request_evidence_on_value_conflict
+noisy context              -> request_context_integrity_check
+temporal drift             -> request_validity_window_check
+clean unique target        -> allow_contextual_answer
+```
+
+Даже если Stage 42C убрал critical unsafe answers, это всё еще не runtime
+promotion. Это guard manifest для Stage 43 review.
+
 ⚡ Преимущества над LLM/Трансформерами
 Проблема GPT/Claude	Решение NeoCortex-X
 ❌ Нет долговременной памяти	✅ Синаптическая пластичность + CodePy
@@ -310,6 +322,8 @@ Neuromorphic Computing — Intel Loihi, IBM NorthPole (энергоэффект�
 и scale cliffs до новых claims
 Добавить Stage 42 replay gate — clean + adversarial проверка candidate policy
 без runtime promotion
+Добавить Stage 42C evidence/conflict guard — блокировать unsafe answers и
+маршрутизировать их в evidence/context/validity checks
 Перед 10M+ памяти провести storage/index research — JSON только для отчетов
 Масштабировать нейроны — начать с 1M → 100M → 1B
 Интегрировать интернет — real-time search для фактчекинга

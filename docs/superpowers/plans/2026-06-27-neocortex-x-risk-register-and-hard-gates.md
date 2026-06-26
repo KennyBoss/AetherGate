@@ -176,3 +176,11 @@ Stage 42 pass не должен автоматически означать prom
 показывает critical same-context contradiction, noisy-context unsafe answer или
 target loss, следующий шаг должен быть защитным: evidence/conflict guard,
 policy revision или новый adversarial suite, а не runtime activation.
+
+Stage 42C реализует защитный вариант этого шага:
+
+- same-context contradiction -> `request_evidence_on_value_conflict`;
+- noisy context -> `request_context_integrity_check`;
+- temporal drift -> `request_validity_window_check`;
+- clean unique answer -> сохранить answer route;
+- runtime promotion -> всё еще blocked до Stage 43 rollback review.

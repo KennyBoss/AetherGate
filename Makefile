@@ -44,6 +44,7 @@ ARCH_SEEDS ?= 11,17,23
 .PHONY: neocortex-x-stage41a-adversarial-risk-audit-smoke
 .PHONY: neocortex-x-stage41b-guarded-policy-review-smoke
 .PHONY: neocortex-x-stage42-clean-adversarial-replay-smoke
+.PHONY: neocortex-x-stage42c-evidence-conflict-guard-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
@@ -111,6 +112,7 @@ help:
 	@echo "  make neocortex-x-stage41a-adversarial-risk-audit-smoke audit adversarial risk gates"
 	@echo "  make neocortex-x-stage41b-guarded-policy-review-smoke review guarded candidate policy"
 	@echo "  make neocortex-x-stage42-clean-adversarial-replay-smoke replay candidate on clean + adversarial suites"
+	@echo "  make neocortex-x-stage42c-evidence-conflict-guard-smoke guard critical conflict answers"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -178,6 +180,7 @@ compile:
 		research/neocortex_x/stage41a_adversarial_risk_audit.py \
 		research/neocortex_x/stage41b_guarded_policy_review.py \
 		research/neocortex_x/stage42_clean_adversarial_replay.py \
+		research/neocortex_x/stage42c_evidence_conflict_guard.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -1266,6 +1269,11 @@ neocortex-x-stage42-clean-adversarial-replay-smoke: neocortex-x-stage41b-guarded
 		--risk-audit-json artifacts/neocortex_x/stage41a_adversarial_risk_audit.json \
 		--guarded-review-json artifacts/neocortex_x/stage41b_guarded_policy_review.json \
 		--output-json artifacts/neocortex_x/stage42_clean_adversarial_replay.json
+
+neocortex-x-stage42c-evidence-conflict-guard-smoke: neocortex-x-stage42-clean-adversarial-replay-smoke
+	$(PYTHON) research/neocortex_x/stage42c_evidence_conflict_guard.py \
+		--stage42-json artifacts/neocortex_x/stage42_clean_adversarial_replay.json \
+		--output-json artifacts/neocortex_x/stage42c_evidence_conflict_guard.json
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories

@@ -113,6 +113,9 @@
   сравнивается с current runtime policy, fixed-order и entropy controls на
   чистых Stage 30 episodes и Stage 41A risk cases; runtime promotion остается
   blocked, если critical risks остаются.
+- Stage 42C: evidence/conflict guard, где critical unsafe answers из Stage 42
+  переводятся в evidence, context-integrity или validity-window checks; clean
+  ответы сохраняются, а runtime promotion остается blocked до Stage 43 review.
 - Planned risk-first gates: перед Stage 41+ нужно добавить adversarial
   context tests, provenance poisoning checks, policy rollback audit и scale
   cliff checks, чтобы feedback loop не закреплял красивую, но хрупкую policy.
@@ -196,6 +199,8 @@ episodes. Это сильный harness, но не доказательство 
   adversarial suites, но pass Stage 42 не означает automatic promotion;
 - Stage 42C/provenance-conflict guard нужен, если остаются critical
   same-context/noisy-context риски;
+- Stage 42C должен обнулять critical unsafe answers после guard, но всё равно
+  не является runtime promotion;
 - scale cliff benchmark: p95/p99 lookup, compaction time, disk/index overhead,
   deterministic rebuild;
 - live-source trust gate: internet integration только через cached,
@@ -253,6 +258,7 @@ make neocortex-x-stage40-clarification-monitor-feedback-smoke
 make neocortex-x-stage41a-adversarial-risk-audit-smoke
 make neocortex-x-stage41b-guarded-policy-review-smoke
 make neocortex-x-stage42-clean-adversarial-replay-smoke
+make neocortex-x-stage42c-evidence-conflict-guard-smoke
 ```
 
 Прямой запуск:
@@ -504,6 +510,10 @@ python3 research/neocortex_x/stage42_clean_adversarial_replay.py \
   --risk-audit-json artifacts/neocortex_x/stage41a_adversarial_risk_audit.json \
   --guarded-review-json artifacts/neocortex_x/stage41b_guarded_policy_review.json \
   --output-json artifacts/neocortex_x/stage42_clean_adversarial_replay.json
+
+python3 research/neocortex_x/stage42c_evidence_conflict_guard.py \
+  --stage42-json artifacts/neocortex_x/stage42_clean_adversarial_replay.json \
+  --output-json artifacts/neocortex_x/stage42c_evidence_conflict_guard.json
 ```
 
 ## Артефакты
@@ -564,6 +574,7 @@ python3 research/neocortex_x/stage42_clean_adversarial_replay.py \
 - `artifacts/neocortex_x/stage41a_adversarial_risk_audit.json`
 - `artifacts/neocortex_x/stage41b_guarded_policy_review.json`
 - `artifacts/neocortex_x/stage42_clean_adversarial_replay.json`
+- `artifacts/neocortex_x/stage42c_evidence_conflict_guard.json`
 
 `artifacts/` игнорируется git и регенерируется командами выше.
 
@@ -649,6 +660,9 @@ Scale research is part of the roadmap before larger memory benchmarks:
 - Stage 42 replays that quarantined candidate on clean Stage 30 episodes plus
   Stage 41A adversarial cases and compares it with current runtime, fixed-order
   and entropy controls while keeping promotion blocked if critical risks remain;
+- Stage 42C adds a deterministic evidence/conflict guard over Stage 42 records:
+  same-context contradictions require evidence review, noisy context requires
+  context integrity check, and temporal drift requires validity-window check;
 - risk-first gates should test adversarial context, provenance poisoning,
   policy rollback, scale cliffs, and claim drift before adding stronger
   runtime-policy or live-world claims;
