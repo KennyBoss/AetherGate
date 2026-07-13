@@ -143,16 +143,19 @@ eval records, and seeds `11,17,23`.
 |---|---:|---:|---:|---:|---:|---|
 | `task-0` | 67 | 0.9447 | 0.2992 | +0.6455 | 1.134× | NEGATIVE |
 | `task-1` | 101 | 0.9186 | 0.1980 | +0.7206 | 0.702× | POSITIVE |
+| `task-2` | 135 | 0.8949 | 0.1234 | +0.7716 | 0.493× | POSITIVE |
 
 Both protocols are valid and parameter matched (`0.8×..1.25×`). `task-0` is
 negative under the pre-registered Pareto rule because the KV model is slower and
 its constant state is still 13.4% larger than the short Transformer's estimated
 KV cache. At `task-1`, the same 17 KB recurrent state becomes about 30% smaller
 than the longer Transformer's cache while recall remains much higher, producing
-the first positive point. The context-capped Transformer recalls `0.0618` and
-`0.0292`, respectively, but those scores do not promote the gate.
+the first positive point. `task-2` increases vocabulary to 64 and sequence length
+to 135; recall remains 0.8949 while recurrent state falls to about half the
+Transformer's cache, producing a second adjacent positive point. Context-capped
+scores do not promote the gate.
 
-The overall result is **INCOMPLETE**, not PASS: two more task points, the capacity
+The overall result is **INCOMPLETE**, not PASS: one more task point, the capacity
 axis, ordinary-LM diagnostics, and a validated equivalent-budget Mamba baseline
 remain required. Reproduce or resume the completed work with:
 
