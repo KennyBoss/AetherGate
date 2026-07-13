@@ -1,4 +1,8 @@
+import os
 import unittest
+from unittest.mock import patch
+
+from jax_backend import configure_environment
 
 from run_kv_scale_law import (
     CAPACITY_POINTS,
@@ -14,6 +18,14 @@ from run_kv_scale_law import (
 
 
 class KVScaleLawTest(unittest.TestCase):
+    def test_metal_backend_uses_jax_auto_discovery(self) -> None:
+        with patch.dict("os.environ", {"JAX_PLATFORM_NAME": "cpu", "JAX_PLATFORMS": "cpu"}):
+            configure_environment("metal")
+            self.assertNotIn("JAX_PLATFORM_NAME", os.environ)
+            self.assertNotIn("JAX_PLATFORMS", os.environ)
+            configure_environment("cpu")
+            self.assertEqual(os.environ["JAX_PLATFORM_NAME"], "cpu")
+
     def test_registered_counts_and_order(self) -> None:
         self.assertEqual([point.name for point in TASK_POINTS], ["task-0", "task-1", "task-2", "task-3"])
         self.assertEqual(kv_parameter_count(TASK_POINTS[0]), 9661)
