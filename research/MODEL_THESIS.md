@@ -564,6 +564,41 @@ than state porting and the fast-weight substrate needs a different composition m
 (e.g., recurrent state updates that chain, rather than additive local edits that don't).
 Artifacts: `ecs_stage2a_composition.json`.
 
+## 6i. Stage 3 — observable recurrent state porting fails (pre-registered negative)
+
+`ecs_stage3_state_porting.py` executed the §6h prediction without giving the policy
+the true plan, composition depth, hidden subroutine identity, or skill boundaries.
+Every best-first node carried its own observable recurrent context
+`c' = tanh(Wc[c,h,action])`; the skill edit became `Delta_k + U_k c`. Training used
+depth-1/2 trajectories and evaluation used disjoint start states at depths 1/2/3.
+The `ported`, context-reset ablation, and dense-context control had the same **1,109
+parameters** and estimated **2,360 multiply-adds per expanded node**. Six fixed seeds,
+deterministic rerun, `protocol_valid=True`.
+
+| depth | ported | reset | dense-context | prior local |
+|---|---:|---:|---:|---:|
+| 1 | 17.65 / .992 | 11.25 / 1.00 | 6.75 / 1.00 | 4.88 / 1.00 |
+| 2 | 83.46 / .850 | 41.44 / 1.00 | 25.23 / 1.00 | 35.41 / 1.00 |
+| 3 | 151.92 / .658 | 115.13 / .904 | 102.87 / .808 | 99.48 / .913 |
+
+Cells are mean forward-passes / solve-rate. At depth 3, `ported` beat neither
+`reset` nor `dense-context` on **any seed (0/6, 0/6)**. The pre-registered bar
+(>=10% lower compute, matched solve, 5/6 seeds) is decisively missed: **PASS=False**.
+
+**Diagnosis.** Carrying context is causally harmful in this instantiation: `reset`
+uses the same trained weights but is both cheaper and more accurate. The new tax is not
+action branching—the action set is still five primitives—but **search-state
+multiplicity**. Two paths reaching the same integer with different recurrent contexts
+must remain different search nodes; exact path state expands the effective state space
+and overwhelms any local logit benefit. The damage is already present at depth 1, so
+this mechanism does not merely fail to compose; it weakens the local search policy.
+
+**Verdict, scoped.** The additive recurrent form `Delta_k(s,c)` inside best-first search
+is rejected at this scale. This does not rule out state carried amortized inside a
+pure recurrent sequence model with no external search-state duplication, but that is a
+different substrate and requires a new pre-registration. Per the Stage-3 contract, no
+later stage is opened from this result. Artifact: `artifacts/ecs_stage3_state_porting.json`.
+
 ## 7. Honest scope
 
 We are not out-training frontier LLMs and not claiming AGI. We are testing whether one

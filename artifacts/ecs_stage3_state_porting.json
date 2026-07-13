@@ -1,0 +1,1370 @@
+{
+  "config": {
+    "seeds": "11,17,23,41,73,101",
+    "train_tasks": 120,
+    "eval_tasks": 40,
+    "hidden": 32,
+    "context": 8,
+    "epochs": 160,
+    "batch": 32,
+    "lr": 0.02,
+    "node_budget": 256,
+    "bf_depth": 16,
+    "output_json": "artifacts/ecs_stage3_state_porting.json",
+    "self_check": false
+  },
+  "protocol_evidence": {
+    "training_depths": [
+      1,
+      2
+    ],
+    "evaluation_depths": [
+      1,
+      2,
+      3
+    ],
+    "training_start_range": [
+      0,
+      9
+    ],
+    "evaluation_start_range": [
+      10,
+      19
+    ],
+    "observable_policy_inputs": [
+      "state",
+      "target",
+      "own_recurrent_context",
+      "chosen_primitive_after_decision"
+    ],
+    "forbidden_policy_inputs": [
+      "true_plan",
+      "composition_depth",
+      "true_subroutine_id",
+      "true_skill_boundary"
+    ],
+    "action_set": "5 primitives for every matched arm",
+    "compute_metric": "best-first forward passes",
+    "valid": true
+  },
+  "parameter_accounting": {
+    "ported": {
+      "parameters": 1109,
+      "estimated_macs_per_forward": 2360
+    },
+    "reset": {
+      "parameters": 1109,
+      "estimated_macs_per_forward": 2360
+    },
+    "dense_context": {
+      "parameters": 1109,
+      "estimated_macs_per_forward": 2360
+    }
+  },
+  "aggregate_by_depth": {
+    "1": {
+      "ported": {
+        "mean_forwards": 17.65,
+        "solve_rate": 0.9917
+      },
+      "reset": {
+        "mean_forwards": 11.2458,
+        "solve_rate": 1.0
+      },
+      "dense_context": {
+        "mean_forwards": 6.7542,
+        "solve_rate": 1.0
+      },
+      "local": {
+        "mean_forwards": 4.8833,
+        "solve_rate": 1.0
+      },
+      "ported_beats_reset_seeds": 4,
+      "ported_beats_dense_seeds": 1
+    },
+    "2": {
+      "ported": {
+        "mean_forwards": 83.4583,
+        "solve_rate": 0.85
+      },
+      "reset": {
+        "mean_forwards": 41.4417,
+        "solve_rate": 1.0
+      },
+      "dense_context": {
+        "mean_forwards": 25.225,
+        "solve_rate": 1.0
+      },
+      "local": {
+        "mean_forwards": 35.4125,
+        "solve_rate": 1.0
+      },
+      "ported_beats_reset_seeds": 1,
+      "ported_beats_dense_seeds": 0
+    },
+    "3": {
+      "ported": {
+        "mean_forwards": 151.9167,
+        "solve_rate": 0.6583
+      },
+      "reset": {
+        "mean_forwards": 115.125,
+        "solve_rate": 0.9042
+      },
+      "dense_context": {
+        "mean_forwards": 102.8708,
+        "solve_rate": 0.8083
+      },
+      "local": {
+        "mean_forwards": 99.4792,
+        "solve_rate": 0.9125
+      },
+      "ported_beats_reset_seeds": 0,
+      "ported_beats_dense_seeds": 0
+    }
+  },
+  "seed_runs": [
+    {
+      "seed": 11,
+      "ladder": {
+        "1": {
+          "task_ids": [
+            "s1101-d1-n0",
+            "s1101-d1-n1",
+            "s1101-d1-n2",
+            "s1101-d1-n3",
+            "s1101-d1-n4",
+            "s1101-d1-n5",
+            "s1101-d1-n6",
+            "s1101-d1-n7",
+            "s1101-d1-n8",
+            "s1101-d1-n9",
+            "s1101-d1-n10",
+            "s1101-d1-n11",
+            "s1101-d1-n12",
+            "s1101-d1-n13",
+            "s1101-d1-n14",
+            "s1101-d1-n15",
+            "s1101-d1-n16",
+            "s1101-d1-n17",
+            "s1101-d1-n18",
+            "s1101-d1-n19",
+            "s1101-d1-n20",
+            "s1101-d1-n21",
+            "s1101-d1-n22",
+            "s1101-d1-n23",
+            "s1101-d1-n24",
+            "s1101-d1-n25",
+            "s1101-d1-n26",
+            "s1101-d1-n27",
+            "s1101-d1-n28",
+            "s1101-d1-n29",
+            "s1101-d1-n30",
+            "s1101-d1-n31",
+            "s1101-d1-n32",
+            "s1101-d1-n33",
+            "s1101-d1-n34",
+            "s1101-d1-n35",
+            "s1101-d1-n36",
+            "s1101-d1-n37",
+            "s1101-d1-n38",
+            "s1101-d1-n39"
+          ],
+          "ported": {
+            "mean_forwards": 57,
+            "solve_rate": 0.95,
+            "context_changed": true
+          },
+          "reset": {
+            "mean_forwards": 13.475,
+            "solve_rate": 1.0,
+            "context_changed": false
+          },
+          "dense_context": {
+            "mean_forwards": 6.7,
+            "solve_rate": 1.0,
+            "context_changed": true
+          },
+          "local": {
+            "mean_forwards": 4.6,
+            "solve_rate": 1.0,
+            "context_changed": false
+          }
+        },
+        "2": {
+          "task_ids": [
+            "s1102-d2-n0",
+            "s1102-d2-n1",
+            "s1102-d2-n2",
+            "s1102-d2-n3",
+            "s1102-d2-n4",
+            "s1102-d2-n5",
+            "s1102-d2-n6",
+            "s1102-d2-n7",
+            "s1102-d2-n8",
+            "s1102-d2-n9",
+            "s1102-d2-n10",
+            "s1102-d2-n11",
+            "s1102-d2-n12",
+            "s1102-d2-n13",
+            "s1102-d2-n14",
+            "s1102-d2-n15",
+            "s1102-d2-n16",
+            "s1102-d2-n17",
+            "s1102-d2-n18",
+            "s1102-d2-n19",
+            "s1102-d2-n20",
+            "s1102-d2-n21",
+            "s1102-d2-n22",
+            "s1102-d2-n23",
+            "s1102-d2-n24",
+            "s1102-d2-n25",
+            "s1102-d2-n26",
+            "s1102-d2-n27",
+            "s1102-d2-n28",
+            "s1102-d2-n29",
+            "s1102-d2-n30",
+            "s1102-d2-n31",
+            "s1102-d2-n32",
+            "s1102-d2-n33",
+            "s1102-d2-n34",
+            "s1102-d2-n35",
+            "s1102-d2-n36",
+            "s1102-d2-n37",
+            "s1102-d2-n38",
+            "s1102-d2-n39"
+          ],
+          "ported": {
+            "mean_forwards": 155.975,
+            "solve_rate": 0.5,
+            "context_changed": true
+          },
+          "reset": {
+            "mean_forwards": 54,
+            "solve_rate": 1.0,
+            "context_changed": false
+          },
+          "dense_context": {
+            "mean_forwards": 41.675,
+            "solve_rate": 1.0,
+            "context_changed": true
+          },
+          "local": {
+            "mean_forwards": 41.675,
+            "solve_rate": 1.0,
+            "context_changed": false
+          }
+        },
+        "3": {
+          "task_ids": [
+            "s1103-d3-n0",
+            "s1103-d3-n1",
+            "s1103-d3-n2",
+            "s1103-d3-n3",
+            "s1103-d3-n4",
+            "s1103-d3-n5",
+            "s1103-d3-n6",
+            "s1103-d3-n7",
+            "s1103-d3-n8",
+            "s1103-d3-n9",
+            "s1103-d3-n10",
+            "s1103-d3-n11",
+            "s1103-d3-n12",
+            "s1103-d3-n13",
+            "s1103-d3-n14",
+            "s1103-d3-n15",
+            "s1103-d3-n16",
+            "s1103-d3-n17",
+            "s1103-d3-n18",
+            "s1103-d3-n19",
+            "s1103-d3-n20",
+            "s1103-d3-n21",
+            "s1103-d3-n22",
+            "s1103-d3-n23",
+            "s1103-d3-n24",
+            "s1103-d3-n25",
+            "s1103-d3-n26",
+            "s1103-d3-n27",
+            "s1103-d3-n28",
+            "s1103-d3-n29",
+            "s1103-d3-n30",
+            "s1103-d3-n31",
+            "s1103-d3-n32",
+            "s1103-d3-n33",
+            "s1103-d3-n34",
+            "s1103-d3-n35",
+            "s1103-d3-n36",
+            "s1103-d3-n37",
+            "s1103-d3-n38",
+            "s1103-d3-n39"
+          ],
+          "ported": {
+            "mean_forwards": 154.85,
+            "solve_rate": 0.55,
+            "context_changed": true
+          },
+          "reset": {
+            "mean_forwards": 100.025,
+            "solve_rate": 0.9,
+            "context_changed": false
+          },
+          "dense_context": {
+            "mean_forwards": 98.075,
+            "solve_rate": 0.875,
+            "context_changed": true
+          },
+          "local": {
+            "mean_forwards": 87.8,
+            "solve_rate": 0.925,
+            "context_changed": false
+          }
+        }
+      },
+      "checks": {
+        "train_eval_disjoint": true,
+        "identical_task_ids": true,
+        "ported_context_changed": true,
+        "reset_context_changed": false,
+        "finite": true
+      },
+      "parameter_count": 1109,
+      "forward_macs": 2360
+    },
+    {
+      "seed": 17,
+      "ladder": {
+        "1": {
+          "task_ids": [
+            "s1701-d1-n0",
+            "s1701-d1-n1",
+            "s1701-d1-n2",
+            "s1701-d1-n3",
+            "s1701-d1-n4",
+            "s1701-d1-n5",
+            "s1701-d1-n6",
+            "s1701-d1-n7",
+            "s1701-d1-n8",
+            "s1701-d1-n9",
+            "s1701-d1-n10",
+            "s1701-d1-n11",
+            "s1701-d1-n12",
+            "s1701-d1-n13",
+            "s1701-d1-n14",
+            "s1701-d1-n15",
+            "s1701-d1-n16",
+            "s1701-d1-n17",
+            "s1701-d1-n18",
+            "s1701-d1-n19",
+            "s1701-d1-n20",
+            "s1701-d1-n21",
+            "s1701-d1-n22",
+            "s1701-d1-n23",
+            "s1701-d1-n24",
+            "s1701-d1-n25",
+            "s1701-d1-n26",
+            "s1701-d1-n27",
+            "s1701-d1-n28",
+            "s1701-d1-n29",
+            "s1701-d1-n30",
+            "s1701-d1-n31",
+            "s1701-d1-n32",
+            "s1701-d1-n33",
+            "s1701-d1-n34",
+            "s1701-d1-n35",
+            "s1701-d1-n36",
+            "s1701-d1-n37",
+            "s1701-d1-n38",
+            "s1701-d1-n39"
+          ],
+          "ported": {
+            "mean_forwards": 14.225,
+            "solve_rate": 1.0,
+            "context_changed": true
+          },
+          "reset": {
+            "mean_forwards": 6.275,
+            "solve_rate": 1.0,
+            "context_changed": false
+          },
+          "dense_context": {
+            "mean_forwards": 7.7,
+            "solve_rate": 1.0,
+            "context_changed": true
+          },
+          "local": {
+            "mean_forwards": 4.9,
+            "solve_rate": 1.0,
+            "context_changed": false
+          }
+        },
+        "2": {
+          "task_ids": [
+            "s1702-d2-n0",
+            "s1702-d2-n1",
+            "s1702-d2-n2",
+            "s1702-d2-n3",
+            "s1702-d2-n4",
+            "s1702-d2-n5",
+            "s1702-d2-n6",
+            "s1702-d2-n7",
+            "s1702-d2-n8",
+            "s1702-d2-n9",
+            "s1702-d2-n10",
+            "s1702-d2-n11",
+            "s1702-d2-n12",
+            "s1702-d2-n13",
+            "s1702-d2-n14",
+            "s1702-d2-n15",
+            "s1702-d2-n16",
+            "s1702-d2-n17",
+            "s1702-d2-n18",
+            "s1702-d2-n19",
+            "s1702-d2-n20",
+            "s1702-d2-n21",
+            "s1702-d2-n22",
+            "s1702-d2-n23",
+            "s1702-d2-n24",
+            "s1702-d2-n25",
+            "s1702-d2-n26",
+            "s1702-d2-n27",
+            "s1702-d2-n28",
+            "s1702-d2-n29",
+            "s1702-d2-n30",
+            "s1702-d2-n31",
+            "s1702-d2-n32",
+            "s1702-d2-n33",
+            "s1702-d2-n34",
+            "s1702-d2-n35",
+            "s1702-d2-n36",
+            "s1702-d2-n37",
+            "s1702-d2-n38",
+            "s1702-d2-n39"
+          ],
+          "ported": {
+            "mean_forwards": 87.525,
+            "solve_rate": 0.975,
+            "context_changed": true
+          },
+          "reset": {
+            "mean_forwards": 33.325,
+            "solve_rate": 1.0,
+            "context_changed": false
+          },
+          "dense_context": {
+            "mean_forwards": 29.7,
+            "solve_rate": 1.0,
+            "context_changed": true
+          },
+          "local": {
+            "mean_forwards": 33.2,
+            "solve_rate": 1.0,
+            "context_changed": false
+          }
+        },
+        "3": {
+          "task_ids": [
+            "s1703-d3-n0",
+            "s1703-d3-n1",
+            "s1703-d3-n2",
+            "s1703-d3-n3",
+            "s1703-d3-n4",
+            "s1703-d3-n5",
+            "s1703-d3-n6",
+            "s1703-d3-n7",
+            "s1703-d3-n8",
+            "s1703-d3-n9",
+            "s1703-d3-n10",
+            "s1703-d3-n11",
+            "s1703-d3-n12",
+            "s1703-d3-n13",
+            "s1703-d3-n14",
+            "s1703-d3-n15",
+            "s1703-d3-n16",
+            "s1703-d3-n17",
+            "s1703-d3-n18",
+            "s1703-d3-n19",
+            "s1703-d3-n20",
+            "s1703-d3-n21",
+            "s1703-d3-n22",
+            "s1703-d3-n23",
+            "s1703-d3-n24",
+            "s1703-d3-n25",
+            "s1703-d3-n26",
+            "s1703-d3-n27",
+            "s1703-d3-n28",
+            "s1703-d3-n29",
+            "s1703-d3-n30",
+            "s1703-d3-n31",
+            "s1703-d3-n32",
+            "s1703-d3-n33",
+            "s1703-d3-n34",
+            "s1703-d3-n35",
+            "s1703-d3-n36",
+            "s1703-d3-n37",
+            "s1703-d3-n38",
+            "s1703-d3-n39"
+          ],
+          "ported": {
+            "mean_forwards": 200.875,
+            "solve_rate": 0.6,
+            "context_changed": true
+          },
+          "reset": {
+            "mean_forwards": 125.6,
+            "solve_rate": 0.85,
+            "context_changed": false
+          },
+          "dense_context": {
+            "mean_forwards": 150.475,
+            "solve_rate": 0.575,
+            "context_changed": true
+          },
+          "local": {
+            "mean_forwards": 117.5,
+            "solve_rate": 0.9,
+            "context_changed": false
+          }
+        }
+      },
+      "checks": {
+        "train_eval_disjoint": true,
+        "identical_task_ids": true,
+        "ported_context_changed": true,
+        "reset_context_changed": false,
+        "finite": true
+      },
+      "parameter_count": 1109,
+      "forward_macs": 2360
+    },
+    {
+      "seed": 23,
+      "ladder": {
+        "1": {
+          "task_ids": [
+            "s2301-d1-n0",
+            "s2301-d1-n1",
+            "s2301-d1-n2",
+            "s2301-d1-n3",
+            "s2301-d1-n4",
+            "s2301-d1-n5",
+            "s2301-d1-n6",
+            "s2301-d1-n7",
+            "s2301-d1-n8",
+            "s2301-d1-n9",
+            "s2301-d1-n10",
+            "s2301-d1-n11",
+            "s2301-d1-n12",
+            "s2301-d1-n13",
+            "s2301-d1-n14",
+            "s2301-d1-n15",
+            "s2301-d1-n16",
+            "s2301-d1-n17",
+            "s2301-d1-n18",
+            "s2301-d1-n19",
+            "s2301-d1-n20",
+            "s2301-d1-n21",
+            "s2301-d1-n22",
+            "s2301-d1-n23",
+            "s2301-d1-n24",
+            "s2301-d1-n25",
+            "s2301-d1-n26",
+            "s2301-d1-n27",
+            "s2301-d1-n28",
+            "s2301-d1-n29",
+            "s2301-d1-n30",
+            "s2301-d1-n31",
+            "s2301-d1-n32",
+            "s2301-d1-n33",
+            "s2301-d1-n34",
+            "s2301-d1-n35",
+            "s2301-d1-n36",
+            "s2301-d1-n37",
+            "s2301-d1-n38",
+            "s2301-d1-n39"
+          ],
+          "ported": {
+            "mean_forwards": 4.275,
+            "solve_rate": 1.0,
+            "context_changed": true
+          },
+          "reset": {
+            "mean_forwards": 7.15,
+            "solve_rate": 1.0,
+            "context_changed": false
+          },
+          "dense_context": {
+            "mean_forwards": 3.8,
+            "solve_rate": 1.0,
+            "context_changed": true
+          },
+          "local": {
+            "mean_forwards": 4.575,
+            "solve_rate": 1.0,
+            "context_changed": false
+          }
+        },
+        "2": {
+          "task_ids": [
+            "s2302-d2-n0",
+            "s2302-d2-n1",
+            "s2302-d2-n2",
+            "s2302-d2-n3",
+            "s2302-d2-n4",
+            "s2302-d2-n5",
+            "s2302-d2-n6",
+            "s2302-d2-n7",
+            "s2302-d2-n8",
+            "s2302-d2-n9",
+            "s2302-d2-n10",
+            "s2302-d2-n11",
+            "s2302-d2-n12",
+            "s2302-d2-n13",
+            "s2302-d2-n14",
+            "s2302-d2-n15",
+            "s2302-d2-n16",
+            "s2302-d2-n17",
+            "s2302-d2-n18",
+            "s2302-d2-n19",
+            "s2302-d2-n20",
+            "s2302-d2-n21",
+            "s2302-d2-n22",
+            "s2302-d2-n23",
+            "s2302-d2-n24",
+            "s2302-d2-n25",
+            "s2302-d2-n26",
+            "s2302-d2-n27",
+            "s2302-d2-n28",
+            "s2302-d2-n29",
+            "s2302-d2-n30",
+            "s2302-d2-n31",
+            "s2302-d2-n32",
+            "s2302-d2-n33",
+            "s2302-d2-n34",
+            "s2302-d2-n35",
+            "s2302-d2-n36",
+            "s2302-d2-n37",
+            "s2302-d2-n38",
+            "s2302-d2-n39"
+          ],
+          "ported": {
+            "mean_forwards": 32.975,
+            "solve_rate": 0.975,
+            "context_changed": true
+          },
+          "reset": {
+            "mean_forwards": 33.45,
+            "solve_rate": 1.0,
+            "context_changed": false
+          },
+          "dense_context": {
+            "mean_forwards": 20.975,
+            "solve_rate": 1.0,
+            "context_changed": true
+          },
+          "local": {
+            "mean_forwards": 23.85,
+            "solve_rate": 1.0,
+            "context_changed": false
+          }
+        },
+        "3": {
+          "task_ids": [
+            "s2303-d3-n0",
+            "s2303-d3-n1",
+            "s2303-d3-n2",
+            "s2303-d3-n3",
+            "s2303-d3-n4",
+            "s2303-d3-n5",
+            "s2303-d3-n6",
+            "s2303-d3-n7",
+            "s2303-d3-n8",
+            "s2303-d3-n9",
+            "s2303-d3-n10",
+            "s2303-d3-n11",
+            "s2303-d3-n12",
+            "s2303-d3-n13",
+            "s2303-d3-n14",
+            "s2303-d3-n15",
+            "s2303-d3-n16",
+            "s2303-d3-n17",
+            "s2303-d3-n18",
+            "s2303-d3-n19",
+            "s2303-d3-n20",
+            "s2303-d3-n21",
+            "s2303-d3-n22",
+            "s2303-d3-n23",
+            "s2303-d3-n24",
+            "s2303-d3-n25",
+            "s2303-d3-n26",
+            "s2303-d3-n27",
+            "s2303-d3-n28",
+            "s2303-d3-n29",
+            "s2303-d3-n30",
+            "s2303-d3-n31",
+            "s2303-d3-n32",
+            "s2303-d3-n33",
+            "s2303-d3-n34",
+            "s2303-d3-n35",
+            "s2303-d3-n36",
+            "s2303-d3-n37",
+            "s2303-d3-n38",
+            "s2303-d3-n39"
+          ],
+          "ported": {
+            "mean_forwards": 113.75,
+            "solve_rate": 0.8,
+            "context_changed": true
+          },
+          "reset": {
+            "mean_forwards": 107.9,
+            "solve_rate": 0.95,
+            "context_changed": false
+          },
+          "dense_context": {
+            "mean_forwards": 92.025,
+            "solve_rate": 0.825,
+            "context_changed": true
+          },
+          "local": {
+            "mean_forwards": 94.475,
+            "solve_rate": 0.875,
+            "context_changed": false
+          }
+        }
+      },
+      "checks": {
+        "train_eval_disjoint": true,
+        "identical_task_ids": true,
+        "ported_context_changed": true,
+        "reset_context_changed": false,
+        "finite": true
+      },
+      "parameter_count": 1109,
+      "forward_macs": 2360
+    },
+    {
+      "seed": 41,
+      "ladder": {
+        "1": {
+          "task_ids": [
+            "s4101-d1-n0",
+            "s4101-d1-n1",
+            "s4101-d1-n2",
+            "s4101-d1-n3",
+            "s4101-d1-n4",
+            "s4101-d1-n5",
+            "s4101-d1-n6",
+            "s4101-d1-n7",
+            "s4101-d1-n8",
+            "s4101-d1-n9",
+            "s4101-d1-n10",
+            "s4101-d1-n11",
+            "s4101-d1-n12",
+            "s4101-d1-n13",
+            "s4101-d1-n14",
+            "s4101-d1-n15",
+            "s4101-d1-n16",
+            "s4101-d1-n17",
+            "s4101-d1-n18",
+            "s4101-d1-n19",
+            "s4101-d1-n20",
+            "s4101-d1-n21",
+            "s4101-d1-n22",
+            "s4101-d1-n23",
+            "s4101-d1-n24",
+            "s4101-d1-n25",
+            "s4101-d1-n26",
+            "s4101-d1-n27",
+            "s4101-d1-n28",
+            "s4101-d1-n29",
+            "s4101-d1-n30",
+            "s4101-d1-n31",
+            "s4101-d1-n32",
+            "s4101-d1-n33",
+            "s4101-d1-n34",
+            "s4101-d1-n35",
+            "s4101-d1-n36",
+            "s4101-d1-n37",
+            "s4101-d1-n38",
+            "s4101-d1-n39"
+          ],
+          "ported": {
+            "mean_forwards": 12.725,
+            "solve_rate": 1.0,
+            "context_changed": true
+          },
+          "reset": {
+            "mean_forwards": 17.15,
+            "solve_rate": 1.0,
+            "context_changed": false
+          },
+          "dense_context": {
+            "mean_forwards": 6.75,
+            "solve_rate": 1.0,
+            "context_changed": true
+          },
+          "local": {
+            "mean_forwards": 5.075,
+            "solve_rate": 1.0,
+            "context_changed": false
+          }
+        },
+        "2": {
+          "task_ids": [
+            "s4102-d2-n0",
+            "s4102-d2-n1",
+            "s4102-d2-n2",
+            "s4102-d2-n3",
+            "s4102-d2-n4",
+            "s4102-d2-n5",
+            "s4102-d2-n6",
+            "s4102-d2-n7",
+            "s4102-d2-n8",
+            "s4102-d2-n9",
+            "s4102-d2-n10",
+            "s4102-d2-n11",
+            "s4102-d2-n12",
+            "s4102-d2-n13",
+            "s4102-d2-n14",
+            "s4102-d2-n15",
+            "s4102-d2-n16",
+            "s4102-d2-n17",
+            "s4102-d2-n18",
+            "s4102-d2-n19",
+            "s4102-d2-n20",
+            "s4102-d2-n21",
+            "s4102-d2-n22",
+            "s4102-d2-n23",
+            "s4102-d2-n24",
+            "s4102-d2-n25",
+            "s4102-d2-n26",
+            "s4102-d2-n27",
+            "s4102-d2-n28",
+            "s4102-d2-n29",
+            "s4102-d2-n30",
+            "s4102-d2-n31",
+            "s4102-d2-n32",
+            "s4102-d2-n33",
+            "s4102-d2-n34",
+            "s4102-d2-n35",
+            "s4102-d2-n36",
+            "s4102-d2-n37",
+            "s4102-d2-n38",
+            "s4102-d2-n39"
+          ],
+          "ported": {
+            "mean_forwards": 75.8,
+            "solve_rate": 0.95,
+            "context_changed": true
+          },
+          "reset": {
+            "mean_forwards": 45.825,
+            "solve_rate": 1.0,
+            "context_changed": false
+          },
+          "dense_context": {
+            "mean_forwards": 16.375,
+            "solve_rate": 1.0,
+            "context_changed": true
+          },
+          "local": {
+            "mean_forwards": 42.275,
+            "solve_rate": 1.0,
+            "context_changed": false
+          }
+        },
+        "3": {
+          "task_ids": [
+            "s4103-d3-n0",
+            "s4103-d3-n1",
+            "s4103-d3-n2",
+            "s4103-d3-n3",
+            "s4103-d3-n4",
+            "s4103-d3-n5",
+            "s4103-d3-n6",
+            "s4103-d3-n7",
+            "s4103-d3-n8",
+            "s4103-d3-n9",
+            "s4103-d3-n10",
+            "s4103-d3-n11",
+            "s4103-d3-n12",
+            "s4103-d3-n13",
+            "s4103-d3-n14",
+            "s4103-d3-n15",
+            "s4103-d3-n16",
+            "s4103-d3-n17",
+            "s4103-d3-n18",
+            "s4103-d3-n19",
+            "s4103-d3-n20",
+            "s4103-d3-n21",
+            "s4103-d3-n22",
+            "s4103-d3-n23",
+            "s4103-d3-n24",
+            "s4103-d3-n25",
+            "s4103-d3-n26",
+            "s4103-d3-n27",
+            "s4103-d3-n28",
+            "s4103-d3-n29",
+            "s4103-d3-n30",
+            "s4103-d3-n31",
+            "s4103-d3-n32",
+            "s4103-d3-n33",
+            "s4103-d3-n34",
+            "s4103-d3-n35",
+            "s4103-d3-n36",
+            "s4103-d3-n37",
+            "s4103-d3-n38",
+            "s4103-d3-n39"
+          ],
+          "ported": {
+            "mean_forwards": 153.225,
+            "solve_rate": 0.6,
+            "context_changed": true
+          },
+          "reset": {
+            "mean_forwards": 115.325,
+            "solve_rate": 0.925,
+            "context_changed": false
+          },
+          "dense_context": {
+            "mean_forwards": 96.75,
+            "solve_rate": 0.875,
+            "context_changed": true
+          },
+          "local": {
+            "mean_forwards": 101.8,
+            "solve_rate": 0.975,
+            "context_changed": false
+          }
+        }
+      },
+      "checks": {
+        "train_eval_disjoint": true,
+        "identical_task_ids": true,
+        "ported_context_changed": true,
+        "reset_context_changed": false,
+        "finite": true
+      },
+      "parameter_count": 1109,
+      "forward_macs": 2360
+    },
+    {
+      "seed": 73,
+      "ladder": {
+        "1": {
+          "task_ids": [
+            "s7301-d1-n0",
+            "s7301-d1-n1",
+            "s7301-d1-n2",
+            "s7301-d1-n3",
+            "s7301-d1-n4",
+            "s7301-d1-n5",
+            "s7301-d1-n6",
+            "s7301-d1-n7",
+            "s7301-d1-n8",
+            "s7301-d1-n9",
+            "s7301-d1-n10",
+            "s7301-d1-n11",
+            "s7301-d1-n12",
+            "s7301-d1-n13",
+            "s7301-d1-n14",
+            "s7301-d1-n15",
+            "s7301-d1-n16",
+            "s7301-d1-n17",
+            "s7301-d1-n18",
+            "s7301-d1-n19",
+            "s7301-d1-n20",
+            "s7301-d1-n21",
+            "s7301-d1-n22",
+            "s7301-d1-n23",
+            "s7301-d1-n24",
+            "s7301-d1-n25",
+            "s7301-d1-n26",
+            "s7301-d1-n27",
+            "s7301-d1-n28",
+            "s7301-d1-n29",
+            "s7301-d1-n30",
+            "s7301-d1-n31",
+            "s7301-d1-n32",
+            "s7301-d1-n33",
+            "s7301-d1-n34",
+            "s7301-d1-n35",
+            "s7301-d1-n36",
+            "s7301-d1-n37",
+            "s7301-d1-n38",
+            "s7301-d1-n39"
+          ],
+          "ported": {
+            "mean_forwards": 4.55,
+            "solve_rate": 1.0,
+            "context_changed": true
+          },
+          "reset": {
+            "mean_forwards": 9.275,
+            "solve_rate": 1.0,
+            "context_changed": false
+          },
+          "dense_context": {
+            "mean_forwards": 7.975,
+            "solve_rate": 1.0,
+            "context_changed": true
+          },
+          "local": {
+            "mean_forwards": 4.775,
+            "solve_rate": 1.0,
+            "context_changed": false
+          }
+        },
+        "2": {
+          "task_ids": [
+            "s7302-d2-n0",
+            "s7302-d2-n1",
+            "s7302-d2-n2",
+            "s7302-d2-n3",
+            "s7302-d2-n4",
+            "s7302-d2-n5",
+            "s7302-d2-n6",
+            "s7302-d2-n7",
+            "s7302-d2-n8",
+            "s7302-d2-n9",
+            "s7302-d2-n10",
+            "s7302-d2-n11",
+            "s7302-d2-n12",
+            "s7302-d2-n13",
+            "s7302-d2-n14",
+            "s7302-d2-n15",
+            "s7302-d2-n16",
+            "s7302-d2-n17",
+            "s7302-d2-n18",
+            "s7302-d2-n19",
+            "s7302-d2-n20",
+            "s7302-d2-n21",
+            "s7302-d2-n22",
+            "s7302-d2-n23",
+            "s7302-d2-n24",
+            "s7302-d2-n25",
+            "s7302-d2-n26",
+            "s7302-d2-n27",
+            "s7302-d2-n28",
+            "s7302-d2-n29",
+            "s7302-d2-n30",
+            "s7302-d2-n31",
+            "s7302-d2-n32",
+            "s7302-d2-n33",
+            "s7302-d2-n34",
+            "s7302-d2-n35",
+            "s7302-d2-n36",
+            "s7302-d2-n37",
+            "s7302-d2-n38",
+            "s7302-d2-n39"
+          ],
+          "ported": {
+            "mean_forwards": 65.8,
+            "solve_rate": 0.85,
+            "context_changed": true
+          },
+          "reset": {
+            "mean_forwards": 31.575,
+            "solve_rate": 1.0,
+            "context_changed": false
+          },
+          "dense_context": {
+            "mean_forwards": 23.6,
+            "solve_rate": 1.0,
+            "context_changed": true
+          },
+          "local": {
+            "mean_forwards": 45.275,
+            "solve_rate": 1.0,
+            "context_changed": false
+          }
+        },
+        "3": {
+          "task_ids": [
+            "s7303-d3-n0",
+            "s7303-d3-n1",
+            "s7303-d3-n2",
+            "s7303-d3-n3",
+            "s7303-d3-n4",
+            "s7303-d3-n5",
+            "s7303-d3-n6",
+            "s7303-d3-n7",
+            "s7303-d3-n8",
+            "s7303-d3-n9",
+            "s7303-d3-n10",
+            "s7303-d3-n11",
+            "s7303-d3-n12",
+            "s7303-d3-n13",
+            "s7303-d3-n14",
+            "s7303-d3-n15",
+            "s7303-d3-n16",
+            "s7303-d3-n17",
+            "s7303-d3-n18",
+            "s7303-d3-n19",
+            "s7303-d3-n20",
+            "s7303-d3-n21",
+            "s7303-d3-n22",
+            "s7303-d3-n23",
+            "s7303-d3-n24",
+            "s7303-d3-n25",
+            "s7303-d3-n26",
+            "s7303-d3-n27",
+            "s7303-d3-n28",
+            "s7303-d3-n29",
+            "s7303-d3-n30",
+            "s7303-d3-n31",
+            "s7303-d3-n32",
+            "s7303-d3-n33",
+            "s7303-d3-n34",
+            "s7303-d3-n35",
+            "s7303-d3-n36",
+            "s7303-d3-n37",
+            "s7303-d3-n38",
+            "s7303-d3-n39"
+          ],
+          "ported": {
+            "mean_forwards": 114.375,
+            "solve_rate": 0.75,
+            "context_changed": true
+          },
+          "reset": {
+            "mean_forwards": 95.675,
+            "solve_rate": 0.9,
+            "context_changed": false
+          },
+          "dense_context": {
+            "mean_forwards": 100.525,
+            "solve_rate": 0.85,
+            "context_changed": true
+          },
+          "local": {
+            "mean_forwards": 100.675,
+            "solve_rate": 0.95,
+            "context_changed": false
+          }
+        }
+      },
+      "checks": {
+        "train_eval_disjoint": true,
+        "identical_task_ids": true,
+        "ported_context_changed": true,
+        "reset_context_changed": false,
+        "finite": true
+      },
+      "parameter_count": 1109,
+      "forward_macs": 2360
+    },
+    {
+      "seed": 101,
+      "ladder": {
+        "1": {
+          "task_ids": [
+            "s10101-d1-n0",
+            "s10101-d1-n1",
+            "s10101-d1-n2",
+            "s10101-d1-n3",
+            "s10101-d1-n4",
+            "s10101-d1-n5",
+            "s10101-d1-n6",
+            "s10101-d1-n7",
+            "s10101-d1-n8",
+            "s10101-d1-n9",
+            "s10101-d1-n10",
+            "s10101-d1-n11",
+            "s10101-d1-n12",
+            "s10101-d1-n13",
+            "s10101-d1-n14",
+            "s10101-d1-n15",
+            "s10101-d1-n16",
+            "s10101-d1-n17",
+            "s10101-d1-n18",
+            "s10101-d1-n19",
+            "s10101-d1-n20",
+            "s10101-d1-n21",
+            "s10101-d1-n22",
+            "s10101-d1-n23",
+            "s10101-d1-n24",
+            "s10101-d1-n25",
+            "s10101-d1-n26",
+            "s10101-d1-n27",
+            "s10101-d1-n28",
+            "s10101-d1-n29",
+            "s10101-d1-n30",
+            "s10101-d1-n31",
+            "s10101-d1-n32",
+            "s10101-d1-n33",
+            "s10101-d1-n34",
+            "s10101-d1-n35",
+            "s10101-d1-n36",
+            "s10101-d1-n37",
+            "s10101-d1-n38",
+            "s10101-d1-n39"
+          ],
+          "ported": {
+            "mean_forwards": 13.125,
+            "solve_rate": 1.0,
+            "context_changed": true
+          },
+          "reset": {
+            "mean_forwards": 14.15,
+            "solve_rate": 1.0,
+            "context_changed": false
+          },
+          "dense_context": {
+            "mean_forwards": 7.6,
+            "solve_rate": 1.0,
+            "context_changed": true
+          },
+          "local": {
+            "mean_forwards": 5.375,
+            "solve_rate": 1.0,
+            "context_changed": false
+          }
+        },
+        "2": {
+          "task_ids": [
+            "s10102-d2-n0",
+            "s10102-d2-n1",
+            "s10102-d2-n2",
+            "s10102-d2-n3",
+            "s10102-d2-n4",
+            "s10102-d2-n5",
+            "s10102-d2-n6",
+            "s10102-d2-n7",
+            "s10102-d2-n8",
+            "s10102-d2-n9",
+            "s10102-d2-n10",
+            "s10102-d2-n11",
+            "s10102-d2-n12",
+            "s10102-d2-n13",
+            "s10102-d2-n14",
+            "s10102-d2-n15",
+            "s10102-d2-n16",
+            "s10102-d2-n17",
+            "s10102-d2-n18",
+            "s10102-d2-n19",
+            "s10102-d2-n20",
+            "s10102-d2-n21",
+            "s10102-d2-n22",
+            "s10102-d2-n23",
+            "s10102-d2-n24",
+            "s10102-d2-n25",
+            "s10102-d2-n26",
+            "s10102-d2-n27",
+            "s10102-d2-n28",
+            "s10102-d2-n29",
+            "s10102-d2-n30",
+            "s10102-d2-n31",
+            "s10102-d2-n32",
+            "s10102-d2-n33",
+            "s10102-d2-n34",
+            "s10102-d2-n35",
+            "s10102-d2-n36",
+            "s10102-d2-n37",
+            "s10102-d2-n38",
+            "s10102-d2-n39"
+          ],
+          "ported": {
+            "mean_forwards": 82.675,
+            "solve_rate": 0.85,
+            "context_changed": true
+          },
+          "reset": {
+            "mean_forwards": 50.475,
+            "solve_rate": 1.0,
+            "context_changed": false
+          },
+          "dense_context": {
+            "mean_forwards": 19.025,
+            "solve_rate": 1.0,
+            "context_changed": true
+          },
+          "local": {
+            "mean_forwards": 26.2,
+            "solve_rate": 1.0,
+            "context_changed": false
+          }
+        },
+        "3": {
+          "task_ids": [
+            "s10103-d3-n0",
+            "s10103-d3-n1",
+            "s10103-d3-n2",
+            "s10103-d3-n3",
+            "s10103-d3-n4",
+            "s10103-d3-n5",
+            "s10103-d3-n6",
+            "s10103-d3-n7",
+            "s10103-d3-n8",
+            "s10103-d3-n9",
+            "s10103-d3-n10",
+            "s10103-d3-n11",
+            "s10103-d3-n12",
+            "s10103-d3-n13",
+            "s10103-d3-n14",
+            "s10103-d3-n15",
+            "s10103-d3-n16",
+            "s10103-d3-n17",
+            "s10103-d3-n18",
+            "s10103-d3-n19",
+            "s10103-d3-n20",
+            "s10103-d3-n21",
+            "s10103-d3-n22",
+            "s10103-d3-n23",
+            "s10103-d3-n24",
+            "s10103-d3-n25",
+            "s10103-d3-n26",
+            "s10103-d3-n27",
+            "s10103-d3-n28",
+            "s10103-d3-n29",
+            "s10103-d3-n30",
+            "s10103-d3-n31",
+            "s10103-d3-n32",
+            "s10103-d3-n33",
+            "s10103-d3-n34",
+            "s10103-d3-n35",
+            "s10103-d3-n36",
+            "s10103-d3-n37",
+            "s10103-d3-n38",
+            "s10103-d3-n39"
+          ],
+          "ported": {
+            "mean_forwards": 174.425,
+            "solve_rate": 0.65,
+            "context_changed": true
+          },
+          "reset": {
+            "mean_forwards": 146.225,
+            "solve_rate": 0.9,
+            "context_changed": false
+          },
+          "dense_context": {
+            "mean_forwards": 79.375,
+            "solve_rate": 0.85,
+            "context_changed": true
+          },
+          "local": {
+            "mean_forwards": 94.625,
+            "solve_rate": 0.85,
+            "context_changed": false
+          }
+        }
+      },
+      "checks": {
+        "train_eval_disjoint": true,
+        "identical_task_ids": true,
+        "ported_context_changed": true,
+        "reset_context_changed": false,
+        "finite": true
+      },
+      "parameter_count": 1109,
+      "forward_macs": 2360
+    }
+  ],
+  "verdict": {
+    "decision": "FAIL",
+    "reasons": [
+      "pre_registered_pass_bar_not_met"
+    ]
+  }
+}
