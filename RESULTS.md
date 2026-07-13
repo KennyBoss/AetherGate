@@ -144,6 +144,7 @@ eval records, and seeds `11,17,23`.
 | `task-0` | 67 | 0.9447 | 0.2992 | +0.6455 | 1.134× | NEGATIVE |
 | `task-1` | 101 | 0.9186 | 0.1980 | +0.7206 | 0.702× | POSITIVE |
 | `task-2` | 135 | 0.8949 | 0.1234 | +0.7716 | 0.493× | POSITIVE |
+| `task-3` | 203 | 0.8332 | 0.0556 | +0.7776 | 0.291× | POSITIVE |
 
 Both protocols are valid and parameter matched (`0.8×..1.25×`). `task-0` is
 negative under the pre-registered Pareto rule because the KV model is slower and
@@ -155,13 +156,19 @@ to 135; recall remains 0.8949 while recurrent state falls to about half the
 Transformer's cache, producing a second adjacent positive point. Context-capped
 scores do not promote the gate.
 
-The overall result is **INCOMPLETE**, not PASS: one more task point, the capacity
-axis, ordinary-LM diagnostics, and a validated equivalent-budget Mamba baseline
-remain required. Reproduce or resume the completed work with:
+`task-3` increases vocabulary to 128 and sequence length to 203. KV recall is
+0.8332 versus 0.0556 for the full-context Transformer and state/cache falls to
+0.291×. It is the third adjacent positive point, so the **task-difficulty phase
+passes**. The cost boundary is explicit: mean training time is about 382 seconds
+for KV versus 38.6 seconds for the Transformer on this CPU.
+
+The overall result is **INCOMPLETE**, not PASS: the capacity axis, ordinary-LM
+diagnostics, and a validated equivalent-budget Mamba baseline remain required.
+Reproduce or resume the completed work with:
 
 ```bash
 /opt/homebrew/bin/python3 run_kv_scale_law.py \
-  --points task-0,task-1 \
+  --phase task \
   --output-dir artifacts/kv_scale_law_1/registered \
   --resume
 ```

@@ -283,6 +283,7 @@ def point_evidence(
                 "multiseed_protocol": bool(full["protocol_evidence"]["valid"]),
                 "seed_count": seeds_valid,
                 "full_context": full_context_valid,
+                "capped_control": smoke or capped is not None,
                 "parameter_match_0p8_1p25": 0.8 <= ratio <= 1.25,
                 "target_match_0p8_1p25": target_valid,
             },
@@ -305,22 +306,26 @@ def consecutive(values: list[bool], length: int) -> bool:
     return any(all(values[start : start + length]) for start in range(len(values) - length + 1))
 
 
-def gate_status(results: list[dict[str, Any]], *, lm_complete: bool, mamba_complete: bool) -> dict[str, Any]:
+def phase_status(results: list[dict[str, Any]], phase_points: tuple[Point, ...]) -> dict[str, str]:
     ordered = {result["point"]["name"]: result for result in results}
-    invalid = [name for name, result in ordered.items() if result["status"] == "INVALID"]
-    if invalid:
-        return {"status": "INVALID", "reason": f"invalid points: {', '.join(invalid)}"}
-    for phase_points in (TASK_POINTS, CAPACITY_POINTS):
-        negatives = [
-            ordered[point.name]["status"] == "NEGATIVE"
-            for point in phase_points
-            if point.name in ordered
-        ]
-        if consecutive(negatives, 2):
-            return {"status": "FAIL", "reason": "two successive valid promoted points are negative"}
-    task_positive = [ordered.get(point.name, {}).get("pareto_positive", False) for point in TASK_POINTS]
-    cap_positive = [ordered.get(point.name, {}).get("pareto_positive", False) for point in CAPACITY_POINTS]
-    if consecutive(task_positive, 3) and consecutive(cap_positive, 3) and lm_complete and mamba_complete:
+    statuses = [ordered.get(point.name, {}).get("status") for point in phase_points]
+    if any(status == "INVALID" for status in statuses):
+        return {"status": "INVALID", "reason": "a registered point is invalid"}
+    if consecutive([status == "NEGATIVE" for status in statuses], 2):
+        return {"status": "FAIL", "reason": "two adjacent valid points are negative"}
+    if consecutive([status == "POSITIVE" for status in statuses], 3):
+        return {"status": "PASS", "reason": "three adjacent valid points are Pareto-positive"}
+    return {"status": "INCOMPLETE", "reason": "three adjacent positive points are required"}
+
+
+def gate_status(results: list[dict[str, Any]], *, lm_complete: bool, mamba_complete: bool) -> dict[str, Any]:
+    task_gate = phase_status(results, TASK_POINTS)
+    capacity_gate = phase_status(results, CAPACITY_POINTS)
+    if "INVALID" in {task_gate["status"], capacity_gate["status"]}:
+        return {"status": "INVALID", "reason": "a phase contains an invalid point"}
+    if "FAIL" in {task_gate["status"], capacity_gate["status"]}:
+        return {"status": "FAIL", "reason": "a phase reached its stop condition"}
+    if task_gate["status"] == capacity_gate["status"] == "PASS" and lm_complete and mamba_complete:
         return {"status": "PASS", "reason": "all registered promotion requirements passed"}
     return {"status": "INCOMPLETE", "reason": "more valid points, LM reports, or Mamba evidence are required"}
 
@@ -439,6 +444,10 @@ def run(args: argparse.Namespace) -> None:
         "points": results,
         "ordinary_lm": lm_reports,
         "mamba": mamba,
+        "phase_gates": {
+            "task": phase_status(results, TASK_POINTS),
+            "capacity": phase_status(results, CAPACITY_POINTS),
+        },
         "gate": gate,
         "claim_guardrail": CLAIM_GUARDRAIL,
     }

@@ -6,6 +6,7 @@ from run_kv_scale_law import (
     consecutive,
     gate_status,
     kv_parameter_count,
+    phase_status,
     runtime_state_bytes,
     transformer_cache_bytes,
 )
@@ -39,6 +40,8 @@ class KVScaleLawTest(unittest.TestCase):
             for point in CAPACITY_POINTS[:3]
         ]
         self.assertEqual(gate_status(all_results, lm_complete=True, mamba_complete=True)["status"], "PASS")
+        self.assertEqual(phase_status(all_results, TASK_POINTS)["status"], "PASS")
+        self.assertEqual(phase_status(all_results, CAPACITY_POINTS)["status"], "PASS")
 
     def test_two_adjacent_negatives_fail(self) -> None:
         results = [
