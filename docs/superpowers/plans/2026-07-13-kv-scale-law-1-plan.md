@@ -6,7 +6,7 @@
 
 ## Goal
 
-Build one reproducible runner that tests whether the existing KV-memory SSM keeps recall plus resource advantages against a full-context, parameter-matched Transformer as task difficulty and capacity increase.
+Build one reproducible runner that tests whether the existing context-routed `dynamic-kv-memory` SSM keeps recall plus resource advantages against a full-context, parameter-matched Transformer as task difficulty and capacity increase.
 
 This gate does not claim ordinary language-model superiority. Additive recurrent state-porting remains closed.
 
@@ -23,7 +23,7 @@ Do not add another trainer or model implementation.
 
 ### Phase 1: task difficulty first
 
-Hold `ssm_input_dim=64`, `ssm_state_dim=96`, optimizer, records, and seeds fixed. Run canonical marker-free MQAR at:
+Hold `ssm_variant=dynamic-kv-memory`, `ssm_input_dim=64`, `ssm_state_dim=96`, optimizer, records, and seeds fixed. Run canonical marker-free MQAR at:
 
 | Point | Vocabulary | Bindings | Queries | Delay |
 |---|---:|---:|---:|---:|
@@ -47,7 +47,7 @@ Freeze MQAR at `vocabulary=128`, `bindings=12`, `queries=6`, `delay=192`. Use th
 | `cap-1m` | 1M | 256 | 3,000 | 4 |
 | `cap-10m` | 10M | 512 | 15,400 | 1 |
 
-The runner calculates the exact initialized parameter count from produced artifacts and rejects a point outside `0.8x..1.25x` of its target. Large tiers are registered but are not run locally until the preceding point passes and the explicit resource preflight fits the selected machine.
+The runner calculates the exact initialized parameter count, including the context-routed read/write gates required by marker-free MQAR, and rejects a point outside `0.8x..1.25x` of its target. Large tiers are registered but are not run locally until the preceding point passes and the explicit resource preflight fits the selected machine.
 
 ## Controls
 

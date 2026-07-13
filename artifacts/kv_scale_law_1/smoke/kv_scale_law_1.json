@@ -1,0 +1,411 @@
+{
+  "created_at": "20260713T165424Z",
+  "kind": "kv_scale_law_1",
+  "smoke": true,
+  "registry": [
+    {
+      "name": "task-0",
+      "phase": "task",
+      "vocabulary": 16,
+      "bindings": 4,
+      "queries": 2,
+      "delay": 64,
+      "input_dim": 64,
+      "state_dim": 96,
+      "batch_size": 128,
+      "target_params": null
+    }
+  ],
+  "executions": [
+    {
+      "point": "task-0",
+      "control": "full",
+      "command": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "run_long_context_recall_multiseed.py",
+        "--output-dir",
+        "/Users/makbuk/000cor/artifacts/kv_scale_law_1/smoke/task-0/full",
+        "--seeds",
+        "11",
+        "--task",
+        "mqar",
+        "--train-records",
+        "32",
+        "--eval-records",
+        "32",
+        "--key-count",
+        "16",
+        "--value-count",
+        "16",
+        "--binding-count",
+        "4",
+        "--query-count",
+        "2",
+        "--delay",
+        "64",
+        "--transformer-context",
+        "67",
+        "--epochs",
+        "1",
+        "--batch-size",
+        "16",
+        "--learning-rate",
+        "0.006",
+        "--ssm-input-dim",
+        "64",
+        "--ssm-state-dim",
+        "96",
+        "--ssm-variant",
+        "dynamic-kv-memory",
+        "--transformer-max-d-model",
+        "4096",
+        "--min-seeds",
+        "1",
+        "--min-query-positions",
+        "1",
+        "--require-valid-protocol",
+        "--timeout",
+        "900",
+        "--backend",
+        "cpu",
+        "--allow-visible-key"
+      ],
+      "elapsed_s": 4.202569333006977,
+      "stdout_tail": [
+        "TextPy/SoA multi-seed long-context recall comparison",
+        "output_dir: /Users/makbuk/000cor/artifacts/kv_scale_law_1/smoke/task-0/full",
+        "task: mqar",
+        "seeds: 11",
+        "",
+        "seed 1/1: 11",
+        "  /opt/homebrew/opt/python@3.14/bin/python3.14 compare_long_context_recall.py --task mqar --output-json /Users/makbuk/000cor/artifacts/kv_scale_law_1/smoke/task-0/full/seed_11.json --train-records 32 --eval-records 32 --key-count 16 --value-count 16 --binding-count 4 --query-count 2 --delay 64 --transformer-context 67 --epochs 1 --batch-size 16 --learning-rate 0.006 --grad-clip 1.0 --kv-read-gate-l1 0.0 --kv-read-gate-l1-ramp-epochs 0 --kv-read-gate-target 0.0 --kv-read-gate-target-weight 0.0 --kv-read-gate-entropy-weight 0.0 --kv-read-gate-query-margin 0.0 --kv-read-gate-query-margin-weight 0.0 --ssm-input-dim 64 --ssm-state-dim 96 --ssm-variant dynamic-kv-memory --ssm-skip-rank 32 --ssm-decay-init 8.0 --kv-logit-scale 64.0 --transformer-max-d-model 4096 --transformer-layers 1 --transformer-heads 2 --transformer-ff-mult 2 --seed 11 --backend cpu --allow-visible-key",
+        "  winner=ssm ssm_acc=0.0781 transformer_acc=0.0000",
+        "",
+        "Summary",
+        "  protocol_valid: True",
+        "  winner_counts: {'ssm': 1, 'transformer': 0, 'tie': 0}",
+        "  ssm_recall_mean: 0.0781",
+        "  transformer_recall_mean: 0.0000",
+        "  ssm_minus_transformer_recall_mean: 0.0781",
+        "Saved JSON: /Users/makbuk/000cor/artifacts/kv_scale_law_1/smoke/task-0/full/summary.json"
+      ]
+    }
+  ],
+  "points": [
+    {
+      "point": {
+        "name": "task-0",
+        "phase": "task",
+        "vocabulary": 16,
+        "bindings": 4,
+        "queries": 2,
+        "delay": 64,
+        "input_dim": 64,
+        "state_dim": 96,
+        "batch_size": 128,
+        "target_params": null
+      },
+      "estimated_kv_parameter_count": 9661,
+      "estimated_kv_runtime_state_bytes_per_sequence": 17024,
+      "full_context": {
+        "created_at": "20260713T165424Z",
+        "kind": "long_context_recall_multiseed",
+        "task": "mqar",
+        "ssm_variant": "dynamic-kv-memory",
+        "runs": [
+          {
+            "seed": 11,
+            "output_json": "/Users/makbuk/000cor/artifacts/kv_scale_law_1/smoke/task-0/full/seed_11.json",
+            "elapsed_s": 4.160447999995085,
+            "command": [
+              "/opt/homebrew/opt/python@3.14/bin/python3.14",
+              "compare_long_context_recall.py",
+              "--task",
+              "mqar",
+              "--output-json",
+              "/Users/makbuk/000cor/artifacts/kv_scale_law_1/smoke/task-0/full/seed_11.json",
+              "--train-records",
+              "32",
+              "--eval-records",
+              "32",
+              "--key-count",
+              "16",
+              "--value-count",
+              "16",
+              "--binding-count",
+              "4",
+              "--query-count",
+              "2",
+              "--delay",
+              "64",
+              "--transformer-context",
+              "67",
+              "--epochs",
+              "1",
+              "--batch-size",
+              "16",
+              "--learning-rate",
+              "0.006",
+              "--grad-clip",
+              "1.0",
+              "--kv-read-gate-l1",
+              "0.0",
+              "--kv-read-gate-l1-ramp-epochs",
+              "0",
+              "--kv-read-gate-target",
+              "0.0",
+              "--kv-read-gate-target-weight",
+              "0.0",
+              "--kv-read-gate-entropy-weight",
+              "0.0",
+              "--kv-read-gate-query-margin",
+              "0.0",
+              "--kv-read-gate-query-margin-weight",
+              "0.0",
+              "--ssm-input-dim",
+              "64",
+              "--ssm-state-dim",
+              "96",
+              "--ssm-variant",
+              "dynamic-kv-memory",
+              "--ssm-skip-rank",
+              "32",
+              "--ssm-decay-init",
+              "8.0",
+              "--kv-logit-scale",
+              "64.0",
+              "--transformer-max-d-model",
+              "4096",
+              "--transformer-layers",
+              "1",
+              "--transformer-heads",
+              "2",
+              "--transformer-ff-mult",
+              "2",
+              "--seed",
+              "11",
+              "--backend",
+              "cpu",
+              "--allow-visible-key"
+            ],
+            "stdout_tail": [
+              "",
+              "Training SSM",
+              "  recall_loss=2.9650 recall_acc=0.0312 train_s=0.76",
+              "Training Transformer",
+              "  recall_loss=2.9736 recall_acc=0.0312 train_s=0.60",
+              "",
+              "Held-out delayed recall",
+              "  ssm: loss=2.8966 acc=0.0781 records/s=5,387",
+              "  ssm_kv_read_gate: mean=0.1591 query=0.1602 non_query=0.1590",
+              "  ssm_kv_read_gate_hardness: query>0.5=0.0000 query>0.9=0.0000 non_query<0.01=0.0000",
+              "  transformer: loss=3.1118 acc=0.0000 records/s=29,932",
+              "",
+              "Memory/context",
+              "  ssm_parameter_bytes: 37.74 KiB",
+              "  transformer_parameter_bytes: 37.04 KiB",
+              "  ssm_effective_context_tokens: 67",
+              "  transformer_effective_context_tokens: 67",
+              "  recall_distance_over_transformer_context: 0.96x",
+              "",
+              "Comparison",
+              "  winner_by_recall_accuracy: ssm",
+              "  ssm_minus_transformer_recall_accuracy: 0.078125",
+              "",
+              "Saved JSON: /Users/makbuk/000cor/artifacts/kv_scale_law_1/smoke/task-0/full/seed_11.json"
+            ],
+            "winner_by_recall_accuracy": "ssm",
+            "ssm_recall_accuracy": 0.078125,
+            "ssm_hard_recall_accuracy": null,
+            "transformer_recall_accuracy": 0.0
+          }
+        ],
+        "seed_count": 1,
+        "seeds": [
+          11
+        ],
+        "protocol_evidence": {
+          "repeated_seed_count": 1,
+          "seed_requirement_met": true,
+          "delay": 64,
+          "transformer_context": 67,
+          "bypass_mode": false,
+          "min_query_positions": 64,
+          "query_position_requirement_met": true,
+          "delay_beyond_context": false,
+          "valid": true
+        },
+        "summary": {
+          "ssm": {
+            "recall_accuracy": {
+              "mean": 0.078125,
+              "stdev": 0.0,
+              "min": 0.078125,
+              "max": 0.078125
+            },
+            "recall_loss": {
+              "mean": 2.8966002464294434,
+              "stdev": 0.0,
+              "min": 2.8966002464294434,
+              "max": 2.8966002464294434
+            },
+            "records_per_s": {
+              "mean": 5387.0,
+              "stdev": 0.0,
+              "min": 5387.0,
+              "max": 5387.0
+            },
+            "train_s": {
+              "mean": 0.7571705000009388,
+              "stdev": 0.0,
+              "min": 0.7571705000009388,
+              "max": 0.7571705000009388
+            },
+            "parameter_count": {
+              "mean": 9661.0,
+              "stdev": 0.0,
+              "min": 9661.0,
+              "max": 9661.0
+            },
+            "parameter_bytes": {
+              "mean": 38644.0,
+              "stdev": 0.0,
+              "min": 38644.0,
+              "max": 38644.0
+            },
+            "kv_read_gate_mean": {
+              "mean": 0.1590757817029953,
+              "stdev": 0.0,
+              "min": 0.1590757817029953,
+              "max": 0.1590757817029953
+            },
+            "kv_read_gate_query_mean": {
+              "mean": 0.1602247804403305,
+              "stdev": 0.0,
+              "min": 0.1602247804403305,
+              "max": 0.1602247804403305
+            },
+            "kv_read_gate_non_query_mean": {
+              "mean": 0.15904052555561066,
+              "stdev": 0.0,
+              "min": 0.15904052555561066,
+              "max": 0.15904052555561066
+            },
+            "kv_read_gate_query_gt_0p5_frac": {
+              "mean": 0.0,
+              "stdev": 0.0,
+              "min": 0.0,
+              "max": 0.0
+            },
+            "kv_read_gate_query_gt_0p9_frac": {
+              "mean": 0.0,
+              "stdev": 0.0,
+              "min": 0.0,
+              "max": 0.0
+            },
+            "kv_read_gate_non_query_lt_0p01_frac": {
+              "mean": 0.0,
+              "stdev": 0.0,
+              "min": 0.0,
+              "max": 0.0
+            }
+          },
+          "ssm_hard_eval": null,
+          "transformer": {
+            "recall_accuracy": {
+              "mean": 0.0,
+              "stdev": 0.0,
+              "min": 0.0,
+              "max": 0.0
+            },
+            "recall_loss": {
+              "mean": 3.1118483543395996,
+              "stdev": 0.0,
+              "min": 3.1118483543395996,
+              "max": 3.1118483543395996
+            },
+            "records_per_s": {
+              "mean": 29932.0,
+              "stdev": 0.0,
+              "min": 29932.0,
+              "max": 29932.0
+            },
+            "train_s": {
+              "mean": 0.5995702080108458,
+              "stdev": 0.0,
+              "min": 0.5995702080108458,
+              "max": 0.5995702080108458
+            },
+            "parameter_count": {
+              "mean": 9481.0,
+              "stdev": 0.0,
+              "min": 9481.0,
+              "max": 9481.0
+            },
+            "parameter_bytes": {
+              "mean": 37924.0,
+              "stdev": 0.0,
+              "min": 37924.0,
+              "max": 37924.0
+            }
+          },
+          "comparison": {
+            "winner_counts": {
+              "ssm": 1,
+              "transformer": 0,
+              "tie": 0
+            },
+            "ssm_minus_transformer_recall_accuracy": {
+              "mean": 0.078125,
+              "stdev": 0.0,
+              "min": 0.078125,
+              "max": 0.078125
+            },
+            "ssm_minus_transformer_recall_loss": {
+              "mean": -0.21524810791015625,
+              "stdev": 0.0,
+              "min": -0.21524810791015625,
+              "max": -0.21524810791015625
+            },
+            "transformer_to_ssm_param_ratio": {
+              "mean": 0.9813683883655936,
+              "stdev": 0.0,
+              "min": 0.9813683883655936,
+              "max": 0.9813683883655936
+            }
+          }
+        },
+        "claim_guardrail": "This is repeated-seed evidence for a bounded synthetic long-context/code-like task. It is stronger than a single demo but not a general natural-language Transformer superiority claim."
+      },
+      "capped_context": null,
+      "valid": true,
+      "pareto_positive": false,
+      "status": "INCOMPLETE",
+      "measured_kv_parameter_count": 9661,
+      "transformer_parameter_count": 9481,
+      "transformer_to_kv_param_ratio": 0.9813683883655936,
+      "recall_margin": 0.078125,
+      "throughput_ratio": 0.1799746091139917,
+      "estimated_transformer_kv_cache_bytes_per_sequence": 15008,
+      "runtime_state_ratio": 1.1343283582089552,
+      "checks": {
+        "multiseed_protocol": true,
+        "seed_count": true,
+        "full_context": true,
+        "parameter_match_0p8_1p25": true,
+        "target_match_0p8_1p25": true
+      },
+      "reason": "smoke runs cannot promote the gate"
+    }
+  ],
+  "ordinary_lm": {},
+  "mamba": {
+    "status": "MISSING",
+    "reason": "No validated equivalent-budget Mamba implementation is installed in the JAX/CPU harness."
+  },
+  "gate": {
+    "status": "INCOMPLETE",
+    "reason": "more valid points, LM reports, or Mamba evidence are required"
+  },
+  "claim_guardrail": "KV Scale Law 1 measures bounded MQAR recall and resource trade-offs. It is not evidence of AGI or general language-model superiority."
+}
