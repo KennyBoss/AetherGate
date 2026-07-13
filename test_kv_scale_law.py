@@ -8,6 +8,7 @@ from run_kv_scale_law import (
     kv_parameter_count,
     phase_status,
     runtime_state_bytes,
+    training_compute_units,
     transformer_cache_bytes,
 )
 
@@ -25,6 +26,7 @@ class KVScaleLawTest(unittest.TestCase):
         point = TASK_POINTS[0]
         self.assertEqual(runtime_state_bytes(point), 4 * (96 + 64 + 64**2))
         self.assertEqual(transformer_cache_bytes(layers=1, context=67, d_model=32), 17_152)
+        self.assertGreater(training_compute_units(CAPACITY_POINTS[1]), 10 * training_compute_units(CAPACITY_POINTS[0]))
 
     def test_gate_needs_both_phases_and_baselines(self) -> None:
         task_results = [

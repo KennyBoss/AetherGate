@@ -78,6 +78,15 @@ def runtime_state_bytes(point: Point) -> int:
     return 4 * (point.state_dim + point.input_dim + point.input_dim**2)
 
 
+def training_compute_units(point: Point) -> int:
+    """Architecture-relative work proxy per token; used only for CPU preflight."""
+    return (
+        point.input_dim * point.state_dim
+        + point.state_dim * point.vocab_size
+        + point.input_dim**2
+    )
+
+
 def transformer_cache_bytes(*, layers: int, context: int, d_model: int) -> int:
     return 4 * 2 * layers * context * d_model
 
@@ -358,9 +367,12 @@ def run_lm(args: argparse.Namespace, point: Point, output_dir: Path) -> dict[str
                 "transformer_loss": float(payload["transformer"]["eval"]["loss"]),
             }
         )
+    protocol_complete = len(runs) >= 3 and all(run["budget_match"] for run in runs)
+    registered_corpus = bool(args.lm_text_file)
     return {
-        "status": "COMPLETE" if len(runs) >= 3 and all(run["budget_match"] for run in runs) else "INCOMPLETE",
+        "status": "COMPLETE" if protocol_complete and registered_corpus else "DIAGNOSTIC",
         "source": args.lm_text_file or "builtin diagnostic corpus",
+        "registered_corpus": registered_corpus,
         "runs": runs,
         "ssm_loss_mean": mean([run["ssm_loss"] for run in runs]),
         "transformer_loss_mean": mean([run["transformer_loss"] for run in runs]),
@@ -381,12 +393,29 @@ def run(args: argparse.Namespace) -> None:
         points, controls = [TASK_POINTS[0]], ["full"]
         args.seeds, args.train_records, args.eval_records, args.epochs = "11", 32, 32, 1
 
+    cap_10k_units = training_compute_units(CAPACITY_POINTS[0])
+    expensive = [
+        point
+        for point in points
+        if point.phase == "capacity"
+        and training_compute_units(point) / cap_10k_units > args.max_cpu_compute_ratio
+    ]
+    if args.backend == "cpu" and expensive and not args.allow_expensive and not args.dry_run:
+        details = ", ".join(
+            f"{point.name}={training_compute_units(point) / cap_10k_units:.1f}x"
+            for point in expensive
+        )
+        raise SystemExit(
+            f"CPU preflight refused expensive capacity points ({details}); use GPU/cloud or --allow-expensive."
+        )
+
     print("KV Scale Law 1")
     for point in points:
         target = "task-fixed" if point.target_params is None else f"target={point.target_params:,}"
         print(
             f"  {point.name}: params≈{kv_parameter_count(point):,} {target} "
-            f"state={runtime_state_bytes(point):,}B seq={point.seq_len}"
+            f"state={runtime_state_bytes(point):,}B seq={point.seq_len} "
+            f"compute≈{training_compute_units(point) / cap_10k_units:.1f}x-cap-10k"
         )
         for control in controls:
             command = recall_command(args, point, control, Path(args.output_dir) / point.name / control)
@@ -477,6 +506,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--lm-seq-len", type=int, default=16)
     parser.add_argument("--lm-epochs", type=int, default=2)
     parser.add_argument("--skip-lm", action="store_true")
+    parser.add_argument("--max-cpu-compute-ratio", type=float, default=4.0)
+    parser.add_argument("--allow-expensive", action="store_true")
     parser.add_argument("--inner-timeout", type=int, default=900)
     parser.add_argument("--outer-timeout", type=int, default=3600)
     parser.add_argument("--backend", choices=("cpu", "metal", "gpu", "tpu", "auto"), default="cpu")

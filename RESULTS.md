@@ -173,6 +173,19 @@ Reproduce or resume the completed work with:
   --resume
 ```
 
+The first capacity point, `cap-10k`, freezes the `task-3` MQAR protocol and uses
+an `11,109`-parameter `dynamic-kv-memory` model. It is valid and **POSITIVE**:
+mean recall is `0.7440` versus `0.0553` for the full-context Transformer,
+throughput ratio is `0.769`, and recurrent-state/cache ratio is `0.149`. The
+capacity phase remains incomplete until two more adjacent sizes are positive.
+
+Its three-seed LM wiring check used the built-in tiny diagnostic corpus and is
+therefore labeled `DIAGNOSTIC`, not ordinary-LM evidence. It produced SSM loss
+`4.3334` versus Transformer `4.8329`, but the stronger Gutenberg/BPE negative
+control in §3 remains authoritative. The next capacity point is estimated at
+about `14.5×` the cap-10k KV compute per token, so the runner refuses it on CPU
+without an explicit override; it should move to GPU/cloud rather than time out.
+
 ## 3. Limitations & Negative Controls
 
 We state the boundaries of the claim directly; the win does **not** generalize to
