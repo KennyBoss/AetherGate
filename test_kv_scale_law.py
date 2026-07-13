@@ -1,5 +1,6 @@
 import os
 import unittest
+from argparse import Namespace
 from unittest.mock import patch
 
 from jax_backend import configure_environment
@@ -10,6 +11,7 @@ from run_kv_scale_law import (
     consecutive,
     gate_status,
     kv_parameter_count,
+    lm_protocol_complete,
     phase_status,
     runtime_state_bytes,
     training_compute_units,
@@ -39,6 +41,13 @@ class KVScaleLawTest(unittest.TestCase):
         self.assertEqual(runtime_state_bytes(point), 4 * (96 + 64 + 64**2))
         self.assertEqual(transformer_cache_bytes(layers=1, context=67, d_model=32), 17_152)
         self.assertGreater(training_compute_units(CAPACITY_POINTS[1]), 10 * training_compute_units(CAPACITY_POINTS[0]))
+
+    def test_lm_protocol_rejects_smoke_scale(self) -> None:
+        run = {"budget_match": True, "train_tokens": 2_000_000, "eval_tokens": 2_000_000}
+        smoke = Namespace(lm_streams=4, lm_seq_len=16, lm_tokens_per_stream=96)
+        million = Namespace(lm_streams=128, lm_seq_len=128, lm_tokens_per_stream=8192)
+        self.assertFalse(lm_protocol_complete(smoke, [run, run, run]))
+        self.assertTrue(lm_protocol_complete(million, [run, run, run]))
 
     def test_gate_needs_both_phases_and_baselines(self) -> None:
         task_results = [

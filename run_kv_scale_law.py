@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import statistics
@@ -22,6 +23,10 @@ CLAIM_GUARDRAIL = (
     "KV Scale Law 1 measures bounded MQAR recall and resource trade-offs. "
     "It is not evidence of AGI or general language-model superiority."
 )
+GUTENBERG_50MB_SHA256 = "d0b8e0028c974f8dfd52bd9056704d21530d7107a009b1155537b0793764e31b"
+GUTENBERG_BPE_SHA256 = "c2e1dc1c8ce2866f9b5e4a5c23024f7c6829f5099d8b16a5fb0e59eadd5c50ff"
+MIN_LM_POSITIONS = 1_000_000
+MIN_LM_CORPUS_TOKENS = 1_000_000
 
 
 @dataclass(frozen=True)
@@ -220,7 +225,7 @@ def lm_command(args: argparse.Namespace, point: Point, seed: int, output_json: P
         "--epochs",
         str(args.lm_epochs),
         "--repeat",
-        "1",
+        "2",
         "--sample-steps",
         "1",
         "--seed",
@@ -230,6 +235,8 @@ def lm_command(args: argparse.Namespace, point: Point, seed: int, output_json: P
     ]
     if args.lm_text_file:
         command.extend(["--text-file", args.lm_text_file])
+    if args.lm_tokenizer_config:
+        command.extend(["--tokenizer", "bpe", "--tokenizer-config", args.lm_tokenizer_config])
     return command
 
 
@@ -343,6 +350,40 @@ def mean(values: list[float]) -> float:
     return statistics.fmean(values) if values else 0.0
 
 
+def lm_protocol_complete(args: argparse.Namespace, runs: list[dict[str, Any]]) -> bool:
+    positions = args.lm_streams * args.lm_seq_len * (
+        (args.lm_tokens_per_stream - 1) // args.lm_seq_len
+    )
+    return (
+        len(runs) >= 3
+        and positions >= MIN_LM_POSITIONS
+        and all(
+            run["budget_match"]
+            and run["train_tokens"] >= MIN_LM_CORPUS_TOKENS
+            and run["eval_tokens"] >= MIN_LM_CORPUS_TOKENS
+            for run in runs
+        )
+    )
+
+
+def registered_lm_inputs(args: argparse.Namespace) -> dict[str, Any]:
+    if not args.lm_text_file or not args.lm_tokenizer_config:
+        return {"valid": False, "corpus_sha256": None, "tokenizer_sha256": None}
+    corpus_path = Path(args.lm_text_file)
+    tokenizer_path = Path(args.lm_tokenizer_config)
+    if not corpus_path.is_file() or not tokenizer_path.is_file():
+        return {"valid": False, "corpus_sha256": None, "tokenizer_sha256": None}
+    corpus_sha = hashlib.sha256(corpus_path.read_bytes()).hexdigest()
+    tokenizer = json.loads(tokenizer_path.read_text(encoding="utf-8"))
+    canonical = json.dumps(tokenizer, sort_keys=True, separators=(",", ":"))
+    tokenizer_sha = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    return {
+        "valid": corpus_sha == GUTENBERG_50MB_SHA256 and tokenizer_sha == GUTENBERG_BPE_SHA256,
+        "corpus_sha256": corpus_sha,
+        "tokenizer_sha256": tokenizer_sha,
+    }
+
+
 def run_lm(args: argparse.Namespace, point: Point, output_dir: Path) -> dict[str, Any]:
     seeds = [int(value) for value in parse_names(args.seeds)]
     runs = []
@@ -363,16 +404,19 @@ def run_lm(args: argparse.Namespace, point: Point, output_dir: Path) -> dict[str
                 "reused": reused,
                 "stdout_tail": stdout.splitlines()[-16:],
                 "budget_match": bool(payload["protocol"]["budget_match_80_125pct"]),
+                "train_tokens": int(payload["protocol"]["train_tokens"]),
+                "eval_tokens": int(payload["protocol"]["eval_tokens"]),
                 "ssm_loss": float(payload["ssm"]["eval"]["loss"]),
                 "transformer_loss": float(payload["transformer"]["eval"]["loss"]),
             }
         )
-    protocol_complete = len(runs) >= 3 and all(run["budget_match"] for run in runs)
-    registered_corpus = bool(args.lm_text_file)
+    protocol_complete = lm_protocol_complete(args, runs)
+    registered = registered_lm_inputs(args)
     return {
-        "status": "COMPLETE" if protocol_complete and registered_corpus else "DIAGNOSTIC",
+        "status": "COMPLETE" if protocol_complete and registered["valid"] else "DIAGNOSTIC",
         "source": args.lm_text_file or "builtin diagnostic corpus",
-        "registered_corpus": registered_corpus,
+        "registered_corpus": registered,
+        "million_position_protocol": protocol_complete,
         "runs": runs,
         "ssm_loss_mean": mean([run["ssm_loss"] for run in runs]),
         "transformer_loss_mean": mean([run["transformer_loss"] for run in runs]),
@@ -501,10 +545,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-query-positions", type=int, default=1024)
     parser.add_argument("--transformer-max-d-model", type=int, default=4096)
     parser.add_argument("--lm-text-file", default=None)
-    parser.add_argument("--lm-streams", type=int, default=4)
-    parser.add_argument("--lm-tokens-per-stream", type=int, default=96)
-    parser.add_argument("--lm-seq-len", type=int, default=16)
-    parser.add_argument("--lm-epochs", type=int, default=2)
+    parser.add_argument("--lm-tokenizer-config", default=None)
+    parser.add_argument("--lm-streams", type=int, default=128)
+    parser.add_argument("--lm-tokens-per-stream", type=int, default=8192)
+    parser.add_argument("--lm-seq-len", type=int, default=128)
+    parser.add_argument("--lm-epochs", type=int, default=1)
     parser.add_argument("--skip-lm", action="store_true")
     parser.add_argument("--max-cpu-compute-ratio", type=float, default=4.0)
     parser.add_argument("--allow-expensive", action="store_true")
