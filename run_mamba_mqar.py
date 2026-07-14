@@ -137,7 +137,8 @@ def train_seed(args: argparse.Namespace, seed: int) -> dict[str, Any]:
     except ImportError as error:
         raise SystemExit(
             "Official Mamba dependencies are missing. Install CUDA PyTorch, then "
-            "`pip install mamba-ssm[causal-conv1d] --no-build-isolation`."
+            "`MAMBA_KEEP_CUDA_BUILD=TRUE pip install "
+            "mamba-ssm[causal-conv1d] --no-build-isolation`."
         ) from error
     if not torch.cuda.is_available():
         raise SystemExit("Official Mamba evidence requires a CUDA-visible NVIDIA GPU.")

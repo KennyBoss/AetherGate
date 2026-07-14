@@ -11,8 +11,13 @@ CUDA-enabled PyTorch installation. Install PyTorch for the machine's CUDA
 version first, then follow the official package command:
 
 ```bash
-python -m pip install 'mamba-ssm[causal-conv1d]' --no-build-isolation
+MAMBA_KEEP_CUDA_BUILD=TRUE python -m pip install \
+  'mamba-ssm[causal-conv1d]' --no-build-isolation
 ```
+
+`MAMBA_KEEP_CUDA_BUILD=TRUE` is required by current releases to install the
+`selective_scan_cuda` kernel; the default wheel no longer includes it. The
+official Mamba-1 forward path refuses to run when that extension is absent.
 
 Official source and installation contract:
 <https://github.com/state-spaces/mamba/blob/main/README.md>
