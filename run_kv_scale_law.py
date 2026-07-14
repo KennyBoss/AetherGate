@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import statistics
 import subprocess
@@ -384,6 +385,128 @@ def registered_lm_inputs(args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
+def validate_mamba_reports(args: argparse.Namespace, points: list[Point]) -> dict[str, Any]:
+    required = [point for point in points if point.phase == "capacity"]
+    if not args.mamba_report:
+        return {
+            "status": "MISSING",
+            "reason": "No official CUDA Mamba reports were supplied.",
+            "reports": [],
+        }
+    from run_mamba_mqar import OFFICIAL_REPOSITORY, IMPLEMENTATION_CLASS, array_sha256, make_mqar_recall
+
+    errors = []
+    by_point: dict[str, tuple[Path, dict[str, Any]]] = {}
+    for value in args.mamba_report:
+        path = Path(value)
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            errors.append(f"{path}: {error}")
+            continue
+        point_name = str(payload.get("protocol", {}).get("point", ""))
+        if point_name in by_point:
+            errors.append(f"duplicate Mamba report for {point_name}")
+        by_point[point_name] = (path, payload)
+    if errors:
+        return {"status": "INVALID", "reason": "; ".join(errors), "reports": []}
+
+    expected_seeds = [int(value) for value in parse_names(args.seeds)]
+    accepted = []
+    for point in required:
+        item = by_point.get(point.name)
+        if item is None:
+            return {
+                "status": "INVALID",
+                "reason": f"missing Mamba report for {point.name}",
+                "reports": accepted,
+            }
+        path, payload = item
+        protocol = payload.get("protocol", {})
+        implementation = payload.get("implementation", {})
+        runs = payload.get("runs", [])
+        expected_protocol = {
+            "point": point.name,
+            "seeds": expected_seeds,
+            "train_records": args.train_records,
+            "eval_records": args.eval_records,
+            "key_count": point.vocabulary,
+            "binding_count": point.bindings,
+            "query_count": point.queries,
+            "delay": point.delay,
+            "seq_len": point.seq_len,
+            "epochs": args.epochs,
+            "batch_size": point.batch_size,
+            "learning_rate": args.learning_rate,
+            "grad_clip": 1.0,
+            "query_only_loss": True,
+        }
+        if payload.get("kind") != "kv_scale_law_mamba_mqar" or payload.get("status") != "COMPLETE":
+            errors.append(f"{point.name}: report kind/status mismatch")
+        if implementation.get("official_repository") != OFFICIAL_REPOSITORY:
+            errors.append(f"{point.name}: unofficial Mamba repository")
+        if implementation.get("class") != IMPLEMENTATION_CLASS or implementation.get("layers") != 1:
+            errors.append(f"{point.name}: unsupported Mamba implementation")
+        checks = {
+            f"protocol_{name}": protocol.get(name) == expected
+            for name, expected in expected_protocol.items()
+        }
+        checks["three_seeds"] = len(runs) == 3 and sorted(run.get("seed") for run in runs) == expected_seeds
+        runs_by_seed = {run.get("seed"): run for run in runs}
+        for seed in expected_seeds:
+            run = runs_by_seed.get(seed, {})
+            train_arrays = make_mqar_recall(
+                records=args.train_records,
+                delay=point.delay,
+                key_count=point.vocabulary,
+                binding_count=point.bindings,
+                query_count=point.queries,
+                seed=seed,
+            )
+            eval_arrays = make_mqar_recall(
+                records=args.eval_records,
+                delay=point.delay,
+                key_count=point.vocabulary,
+                binding_count=point.bindings,
+                query_count=point.queries,
+                seed=seed + 1,
+            )
+            values = [run.get(name) for name in ("recall_accuracy", "recall_loss", "train_s", "eval_s")]
+            checks[f"seed_{seed}_metrics"] = all(
+                isinstance(value, (int, float)) and math.isfinite(value) for value in values
+            )
+            checks[f"seed_{seed}_budget"] = 0.8 <= float(run.get("parameter_ratio", 0.0)) <= 1.25
+            checks[f"seed_{seed}_queries"] = int(run.get("query_count", 0)) == args.eval_records * point.queries
+            checks[f"seed_{seed}_data"] = (
+                run.get("train_data_sha256") == array_sha256(*train_arrays)
+                and run.get("eval_data_sha256") == array_sha256(*eval_arrays)
+            )
+            checks[f"seed_{seed}_environment"] = bool(
+                run.get("torch_version")
+                and run.get("mamba_ssm_version")
+                and run.get("cuda_version")
+                and run.get("gpu")
+            )
+        if errors:
+            return {"status": "INVALID", "reason": "; ".join(errors), "reports": accepted}
+        if not all(checks.values()):
+            failed = sorted(name for name, passed in checks.items() if not passed)
+            return {
+                "status": "INVALID",
+                "reason": f"Mamba report failed checks for {point.name}: {', '.join(failed)}",
+                "source": str(path),
+                "checks": checks,
+            }
+        accepted.append({
+            "point": point.name,
+            "source": str(path),
+            "checks": checks,
+            "runs": runs,
+            "recall_accuracy_mean": mean([float(run["recall_accuracy"]) for run in runs]),
+        })
+    return {"status": "COMPLETE", "reports": accepted}
+
+
 def run_lm(args: argparse.Namespace, point: Point, output_dir: Path) -> dict[str, Any]:
     seeds = [int(value) for value in parse_names(args.seeds)]
     runs = []
@@ -503,11 +626,8 @@ def run(args: argparse.Namespace) -> None:
     lm_complete = bool(lm_required) and all(
         lm_reports.get(name, {}).get("status") == "COMPLETE" for name in lm_required
     )
-    mamba = {
-        "status": "MISSING",
-        "reason": "No validated equivalent-budget Mamba implementation is installed in the JAX/CPU harness.",
-    }
-    gate = gate_status(results, lm_complete=lm_complete, mamba_complete=False)
+    mamba = validate_mamba_reports(args, points)
+    gate = gate_status(results, lm_complete=lm_complete, mamba_complete=mamba["status"] == "COMPLETE")
     payload = {
         "created_at": timestamp(),
         "kind": "kv_scale_law_1",
@@ -550,6 +670,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--lm-tokens-per-stream", type=int, default=8192)
     parser.add_argument("--lm-seq-len", type=int, default=128)
     parser.add_argument("--lm-epochs", type=int, default=1)
+    parser.add_argument("--mamba-report", action="append", default=[])
     parser.add_argument("--skip-lm", action="store_true")
     parser.add_argument("--max-cpu-compute-ratio", type=float, default=4.0)
     parser.add_argument("--allow-expensive", action="store_true")

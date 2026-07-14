@@ -1,4 +1,6 @@
 import os
+import json
+import tempfile
 import unittest
 from argparse import Namespace
 from unittest.mock import patch
@@ -16,7 +18,9 @@ from run_kv_scale_law import (
     runtime_state_bytes,
     training_compute_units,
     transformer_cache_bytes,
+    validate_mamba_reports,
 )
+from run_mamba_mqar import array_sha256, make_mqar_recall
 
 
 class KVScaleLawTest(unittest.TestCase):
@@ -65,6 +69,83 @@ class KVScaleLawTest(unittest.TestCase):
         self.assertEqual(gate_status(all_results, lm_complete=True, mamba_complete=True)["status"], "PASS")
         self.assertEqual(phase_status(all_results, TASK_POINTS)["status"], "PASS")
         self.assertEqual(phase_status(all_results, CAPACITY_POINTS)["status"], "PASS")
+
+    def test_mamba_report_validation_is_fail_closed(self) -> None:
+        point = CAPACITY_POINTS[1]
+        seeds = [11, 17, 23]
+        runs = []
+        for seed in seeds:
+            train = make_mqar_recall(
+                records=8,
+                delay=point.delay,
+                key_count=point.vocabulary,
+                binding_count=point.bindings,
+                query_count=point.queries,
+                seed=seed,
+            )
+            evaluate = make_mqar_recall(
+                records=4,
+                delay=point.delay,
+                key_count=point.vocabulary,
+                binding_count=point.bindings,
+                query_count=point.queries,
+                seed=seed + 1,
+            )
+            runs.append({
+                "seed": seed,
+                "parameter_ratio": 1.0,
+                "query_count": 4 * point.queries,
+                "recall_accuracy": 0.5,
+                "recall_loss": 1.0,
+                "train_s": 1.0,
+                "eval_s": 1.0,
+                "train_data_sha256": array_sha256(*train),
+                "eval_data_sha256": array_sha256(*evaluate),
+                "torch_version": "test",
+                "mamba_ssm_version": "test",
+                "cuda_version": "test",
+                "gpu": "test",
+            })
+        payload = {
+            "kind": "kv_scale_law_mamba_mqar",
+            "status": "COMPLETE",
+            "implementation": {
+                "official_repository": "https://github.com/state-spaces/mamba",
+                "class": "mamba_ssm.Mamba",
+                "block": "Mamba-1",
+                "layers": 1,
+            },
+            "protocol": {
+                "point": point.name,
+                "seeds": seeds,
+                "train_records": 8,
+                "eval_records": 4,
+                "key_count": point.vocabulary,
+                "binding_count": point.bindings,
+                "query_count": point.queries,
+                "delay": point.delay,
+                "seq_len": point.seq_len,
+                "epochs": 2,
+                "batch_size": point.batch_size,
+                "learning_rate": 0.006,
+                "grad_clip": 1.0,
+                "query_only_loss": True,
+            },
+            "runs": runs,
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = os.path.join(directory, "mamba.json")
+            with open(path, "w", encoding="utf-8") as handle:
+                json.dump(payload, handle)
+            args = Namespace(
+                mamba_report=[path], seeds="11,17,23", train_records=8, eval_records=4,
+                epochs=2, learning_rate=0.006,
+            )
+            self.assertEqual(validate_mamba_reports(args, [point])["status"], "COMPLETE")
+            payload["runs"][0]["train_data_sha256"] = "bad"
+            with open(path, "w", encoding="utf-8") as handle:
+                json.dump(payload, handle)
+            self.assertEqual(validate_mamba_reports(args, [point])["status"], "INVALID")
 
     def test_two_adjacent_negatives_fail(self) -> None:
         results = [
