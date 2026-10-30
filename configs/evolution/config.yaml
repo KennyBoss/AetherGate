@@ -1,0 +1,9 @@
+defaults:
+  - experiment: hypothesis
+  - _self_
+
+hydra:
+  run:
+    dir: artifacts/evolution/${now:%Y%m%d_%H%M%S_%f}
+  job:
+    chdir: false
