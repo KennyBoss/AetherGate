@@ -42,6 +42,7 @@ import jax.numpy as jnp
 import numpy as np
 
 from agent_ssm_core import ACTION_DIM, GOAL_POS, INPUT_DIM, STATE_DIM, Genome, decay_from_raw, norm2
+from research.evolution.reproducibility import genome_sha256
 
 
 SELFPLAY_INPUT_DIM = 10
@@ -404,6 +405,8 @@ def run(args: argparse.Namespace) -> None:
 
         record = {
             "generation": generation,
+            "runner_best_genome_sha256": genome_sha256(take_tree(runners, runner_best_idx)),
+            "blocker_best_genome_sha256": genome_sha256(take_tree(blockers, blocker_best_idx)),
             "runner_best_reward": runner_best_reward,
             "runner_mean_reward": mean_runner_reward,
             "blocker_best_reward": blocker_best_reward,
@@ -460,6 +463,10 @@ def run(args: argparse.Namespace) -> None:
             "blocker": "adapt positions and policy to reduce runner success",
         },
         "history": history,
+        "final_population_sha256": {
+            "runners": genome_sha256(runners),
+            "blockers": genome_sha256(blockers),
+        },
         "summary": {
             "best_runner_reward": best_runner_reward,
             "best_runner_generation": best_runner_generation,

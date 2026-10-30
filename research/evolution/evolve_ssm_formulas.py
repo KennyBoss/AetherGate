@@ -64,6 +64,7 @@ from agent_ssm_core import (
 
 
 from research.evolution.hypothesis_contract import MEMORY_OPS, INPUT_OPS, COMBINE_OPS, FINAL_OPS
+from research.evolution.reproducibility import genome_sha256
 
 BASELINE_FORMULA = ("identity", "identity", "add", "tanh")
 
@@ -403,6 +404,7 @@ def evaluate_formula_architecture(
             "policy_entropy": scalar(metrics.policy_entropy[best_idx]),
         }
         if best is None or float(candidate["reward"]) > float(best["reward"]):
+            candidate["genome_sha256"] = genome_sha256(take_tree(population, best_idx))
             best = candidate
         if weight_generation < args.weight_generations:
             elites = take_tree(population, elite_indices)
@@ -421,6 +423,7 @@ def evaluate_formula_architecture(
         "architecture_index": architecture_index,
         "formula": formula_payload(formula),
         "best": best,
+        "final_population_sha256": genome_sha256(population),
         "compile_s": compile_s,
         "weight_evolution_s": elapsed,
         "evaluated_agent_steps": evaluated_agent_steps,

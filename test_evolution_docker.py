@@ -1,5 +1,6 @@
 """Launcher regressions plus real Docker checks enabled explicitly by CI."""
 
+from collections import namedtuple
 import contextlib
 import io
 import json
@@ -11,7 +12,10 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+import numpy as np
+
 import run_evolution_docker as launcher
+from research.evolution.reproducibility import canonical_result, genome_sha256
 
 
 ROOT = Path(__file__).resolve().parent
@@ -73,9 +77,35 @@ class DockerCommandTests(unittest.TestCase):
             self.assertEqual((output / "keep.txt").read_text(), "existing result")
 
 
+class ReproducibilityTests(unittest.TestCase):
+    def test_comparison_keeps_computational_changes_and_rejects_nonfinite(self):
+        original = {"best": {"reward": 1.0, "genome_sha256": "abc", "compile_s": 1},
+                    "history": [{"reward": 2.0}], "elapsed_s": 2}
+        repeated = {**original, "elapsed_s": 99,
+                    "best": {**original["best"], "compile_s": 99}}
+        self.assertEqual(canonical_result(original), canonical_result(repeated))
+        for changed in ({**original, "history": [{"reward": 2.01}]},
+                        {**original, "best": {**original["best"], "genome_sha256": "def"}},
+                        {**original, "future_metric": 1}):
+            self.assertNotEqual(canonical_result(original), canonical_result(changed))
+        for value in (float("nan"), float("inf"), -float("inf")):
+            with self.assertRaises(ValueError):
+                canonical_result({"reward": value})
+
+    def test_weight_fingerprint_detects_values_shapes_and_types(self):
+        Genome = namedtuple("Genome", "weights")
+        weights = np.arange(6, dtype=np.float32).reshape(2, 3)
+        expected = genome_sha256(Genome(weights))
+        self.assertEqual(expected, genome_sha256(Genome(np.asfortranarray(weights))))
+        changed = weights.copy()
+        changed[0, 0] = 1
+        for variant in (changed, weights.reshape(3, 2), weights.astype(np.float64)):
+            self.assertNotEqual(expected, genome_sha256(Genome(variant)))
+
+
 @unittest.skipUnless(os.environ.get("RUN_DOCKER_TESTS") == "1", "Run make docker-test with Docker Engine")
 class DockerIntegrationTests(unittest.TestCase):
-    def test_real_experiment_modes(self):
+    def test_same_seed_reproducibility(self):
         image = os.environ.get("EVOLUTION_DOCKER_IMAGE", launcher.DEFAULT_IMAGE)
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -86,31 +116,50 @@ class DockerIntegrationTests(unittest.TestCase):
                 {"id": "invalid", "formula": {**formula, "memory_op": "exec"}},
             ]))
             for kind in ("hypothesis", "formulas", "selfplay"):
-                output = root / kind
-                command = [sys.executable, str(ROOT / "run_evolution_docker.py"), "--experiment", kind,
-                           "--image", image, "--output-dir", str(output), "--timeout", "120"]
+                payloads, fingerprints, feedbacks, prompts = [], [], [], []
+                for attempt, seed in enumerate((53, 53, 54)):
+                    output = root / kind / str(attempt)
+                    command = [sys.executable, str(ROOT / "run_evolution_docker.py"), "--experiment", kind,
+                               "--image", image, "--output-dir", str(output), "--timeout", "120"]
+                    if kind == "hypothesis":
+                        command += ["--proposals", str(proposals)]
+                    command += ["experiment.parameters.agents=8", "experiment.parameters.steps=4",
+                                f"experiment.parameters.seed={seed}"]
+                    if kind == "selfplay":
+                        command += ["experiment.parameters.runners=2", "experiment.parameters.blockers=2",
+                                    "experiment.parameters.runner_elites=1", "experiment.parameters.blocker_elites=1",
+                                    "experiment.parameters.generations=1"]
+                    else:
+                        command += ["experiment.parameters.weight_population=2",
+                                    "experiment.parameters.weight_elites=1",
+                                    "experiment.parameters.weight_generations=1"]
+                        if kind == "formulas":
+                            command += ["experiment.parameters.architecture_population=2",
+                                        "experiment.parameters.architecture_elites=1"]
+                    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=160)
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                    payload = json.loads((output / "result.json").read_text())
+                    self.assertEqual(payload["backend"], "cpu")
+                    self.assertTrue((output / ".hydra/config.yaml").exists())
+                    payloads.append(canonical_result(payload))
+                    if kind == "hypothesis":
+                        self.assertEqual(payload["protocol"]["accepted"], 1)
+                        self.assertEqual(payload["protocol"]["rejected"], 1)
+                        fingerprints.append(payload["best_accepted"]["final_population_sha256"])
+                        feedbacks.append(canonical_result([
+                            json.loads(line) for line in (output / "feedback.jsonl").read_text().splitlines()]))
+                        prompts.append(canonical_result(json.loads((output / "prompt.json").read_text())))
+                    elif kind == "formulas":
+                        fingerprints.append(payload["best_record"]["final_population_sha256"])
+                    else:
+                        fingerprints.append(payload["final_population_sha256"])
+                self.assertEqual(payloads[0], payloads[1], f"{kind}: same-seed results diverged")
+                self.assertNotEqual(fingerprints[0], fingerprints[2], f"{kind}: changed seed did not change weights")
                 if kind == "hypothesis":
-                    command += ["--proposals", str(proposals)]
-                command += ["experiment.parameters.agents=4", "experiment.parameters.steps=2"]
-                if kind == "selfplay":
-                    command += ["experiment.parameters.runners=2", "experiment.parameters.blockers=2",
-                                "experiment.parameters.generations=1"]
-                else:
-                    command += ["experiment.parameters.weight_population=2",
-                                "experiment.parameters.weight_elites=1",
-                                "experiment.parameters.weight_generations=1"]
-                    if kind == "formulas":
-                        command += ["experiment.parameters.architecture_population=2",
-                                    "experiment.parameters.architecture_elites=1"]
-                result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=160)
-                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-                payload = json.loads((output / "result.json").read_text())
-                self.assertEqual(payload["backend"], "cpu")
-                self.assertTrue((output / ".hydra/config.yaml").exists())
-                if kind == "hypothesis":
-                    self.assertEqual(payload["protocol"]["accepted"], 1)
-                    self.assertEqual(payload["protocol"]["rejected"], 1)
-                print(f"PASS Docker {kind}: CPU result and saved Hydra config", flush=True)
+                    self.assertEqual(feedbacks[0], feedbacks[1])
+                    self.assertEqual(prompts[0], prompts[1])
+                print(f"PASS Docker reproducibility {kind}: identical same-seed results and weights; changed seed changes weights",
+                      flush=True)
 
     def test_runtime_isolation(self):
         image = os.environ.get("EVOLUTION_DOCKER_IMAGE", launcher.DEFAULT_IMAGE)

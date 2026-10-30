@@ -33,7 +33,7 @@ budget, explicit recurrent KV memory generalizes the binding rule better. See
 ## Quick start
 
 ```bash
-python3 -m pip install -r requirements.txt   # jax, jaxlib, numpy
+python3.12 -m pip install --require-hashes -r requirements.lock
 make verify        # end-to-end smoke verifier for the product surface
 make help          # list operator commands
 ```
