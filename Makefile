@@ -59,9 +59,16 @@ compile:
 verify:
 	$(PYTHON) verify_system.py --timeout 600
 
-.PHONY: test-production ci docker-build docker-test
+.PHONY: test-production ci docker-build docker-test lock install
+lock:
+	uv pip compile requirements.txt --universal --python-version 3.12 --generate-hashes --output-file requirements.lock --format requirements.txt --custom-compile-command 'make lock'
+
+install:
+	$(PYTHON) -m pip install --require-hashes -r requirements.lock
+	$(PYTHON) -m pip check
+
 test-production:
-	$(PYTHON) -m unittest test_evolution_infrastructure test_evolution_docker.DockerCommandTests
+	$(PYTHON) -m unittest test_evolution_infrastructure test_evolution_docker.DockerCommandTests test_evolution_docker.ReproducibilityTests
 
 docker-build:
 	docker build --tag $(EVOLUTION_IMAGE) .

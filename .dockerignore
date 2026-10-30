@@ -1,6 +1,6 @@
 **
 !Dockerfile
-!requirements.txt
+!requirements.lock
 !agent_ssm_core.py
 !run_evolution.py
 !research/

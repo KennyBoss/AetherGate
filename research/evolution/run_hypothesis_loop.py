@@ -284,6 +284,7 @@ def run(args: argparse.Namespace) -> None:
             "rationale": rationale,
             "formula": record["formula"],
             "best": record["best"],
+            "final_population_sha256": record["final_population_sha256"],
             "compile_s": record["compile_s"],
             "weight_evolution_s": record["weight_evolution_s"],
             "throughput_agent_steps_s": record["throughput_agent_steps_s"],
