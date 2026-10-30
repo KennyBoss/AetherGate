@@ -1,0 +1,18 @@
+kind: hypothesis
+parameters:
+  proposals: null
+  generator_command: null
+  generator_timeout: 20
+  max_proposals: 5
+  weight_population: 8
+  weight_elites: 2
+  weight_generations: 1
+  weight_mutation_sigma: 0.08
+  agents: 256
+  steps: 16
+  speed: 0.028
+  seed: 53
+  backend: cpu
+  output_json: ${hydra:runtime.output_dir}/result.json
+  feedback_jsonl: ${hydra:runtime.output_dir}/feedback.jsonl
+  prompt_json: ${hydra:runtime.output_dir}/prompt.json

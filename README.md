@@ -93,6 +93,10 @@ Root is the product surface (23 scripts). Run `make help` for commands.
   autonomous stateful synthesis) and `research/evolution/` (agent/formula
   evolution, self-play). See `research/README.md`.
 
+Evolution runs now have strict hypothesis contracts and composed YAML settings;
+see [setup and commands](research/evolution/README.md). `make ci` runs contract
+and integration tests plus the system verifier; GitHub Actions runs it on pull requests.
+
 ## Honest scope limits
 
 - The recall wins are on **synthetic and code-extracted binding tasks**, not on

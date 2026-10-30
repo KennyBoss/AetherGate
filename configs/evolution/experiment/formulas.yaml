@@ -1,0 +1,15 @@
+kind: formulas
+parameters:
+  architecture_population: 5
+  architecture_elites: 2
+  architecture_generations: 1
+  weight_population: 16
+  weight_elites: 4
+  weight_generations: 2
+  weight_mutation_sigma: 0.08
+  agents: 512
+  steps: 24
+  speed: 0.028
+  seed: 37
+  backend: cpu
+  output_json: ${hydra:runtime.output_dir}/result.json

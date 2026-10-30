@@ -63,10 +63,7 @@ from agent_ssm_core import (
 )
 
 
-MEMORY_OPS = ("identity", "tanh", "softsign", "sin", "relu")
-INPUT_OPS = ("identity", "tanh", "softsign", "sin", "relu")
-COMBINE_OPS = ("add", "add_mul", "gated_input", "gated_mix", "max")
-FINAL_OPS = ("tanh", "softsign", "clip", "tanh_plus_sin")
+from research.evolution.hypothesis_contract import MEMORY_OPS, INPUT_OPS, COMBINE_OPS, FINAL_OPS
 
 BASELINE_FORMULA = ("identity", "identity", "add", "tanh")
 

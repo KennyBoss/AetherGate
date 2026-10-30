@@ -19,6 +19,9 @@ import time
 from pathlib import Path
 from typing import Any
 
+from pydantic import ValidationError
+from research.evolution.hypothesis_contract import HypothesisModel
+
 
 def requested_backend(argv: list[str]) -> str:
     backend = os.environ.get("JAX_PLATFORM_NAME", "cpu")
@@ -92,27 +95,7 @@ FALLBACK_HYPOTHESES = (
 
 
 def load_json_or_jsonl(path: str) -> list[dict[str, Any]]:
-    text = Path(path).read_text(encoding="utf-8").strip()
-    if not text:
-        return []
-    if text.startswith("["):
-        payload = json.loads(text)
-        if not isinstance(payload, list):
-            raise ValueError("JSON proposal file must contain a list of proposals.")
-        return payload
-    proposals: list[dict[str, Any]] = []
-    for lineno, line in enumerate(text.splitlines(), start=1):
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        try:
-            proposal = json.loads(line)
-        except json.JSONDecodeError as exc:
-            raise ValueError(f"Invalid JSONL at line {lineno}: {exc}") from exc
-        if not isinstance(proposal, dict):
-            raise ValueError(f"Proposal at line {lineno} is not an object.")
-        proposals.append(proposal)
-    return proposals
+    return parse_proposals_text(Path(path).read_text(encoding="utf-8"))
 
 
 def parse_proposals_text(text: str) -> list[dict[str, Any]]:
@@ -123,6 +106,8 @@ def parse_proposals_text(text: str) -> list[dict[str, Any]]:
         payload = json.loads(text)
         if not isinstance(payload, list):
             raise ValueError("Generator JSON must contain a list of proposals.")
+        if any(not isinstance(proposal, dict) for proposal in payload):
+            raise ValueError("Every proposal must be an object.")
         return payload
     proposals: list[dict[str, Any]] = []
     for lineno, line in enumerate(text.splitlines(), start=1):
@@ -171,35 +156,13 @@ def write_jsonl(path: str, records: list[dict[str, object]]) -> None:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
-def proposal_formula_payload(proposal: dict[str, Any]) -> dict[str, Any]:
-    if "formula" in proposal and isinstance(proposal["formula"], dict):
-        return proposal["formula"]
-    return proposal
-
-
 def validate_proposal(proposal: dict[str, Any], index: int) -> tuple[FormulaSpec | None, list[str]]:
-    formula_payload_obj = proposal_formula_payload(proposal)
-    errors: list[str] = []
-    memory_op = formula_payload_obj.get("memory_op")
-    input_op = formula_payload_obj.get("input_op")
-    combine_op = formula_payload_obj.get("combine_op")
-    final_op = formula_payload_obj.get("final_op")
-
-    if memory_op not in MEMORY_OPS:
-        errors.append(f"memory_op must be one of {MEMORY_OPS}, got {memory_op!r}")
-    if input_op not in INPUT_OPS:
-        errors.append(f"input_op must be one of {INPUT_OPS}, got {input_op!r}")
-    if combine_op not in COMBINE_OPS:
-        errors.append(f"combine_op must be one of {COMBINE_OPS}, got {combine_op!r}")
-    if final_op not in FINAL_OPS:
-        errors.append(f"final_op must be one of {FINAL_OPS}, got {final_op!r}")
-    if errors:
-        return None, errors
-    assert isinstance(memory_op, str)
-    assert isinstance(input_op, str)
-    assert isinstance(combine_op, str)
-    assert isinstance(final_op, str)
-    return FormulaSpec(memory_op, input_op, combine_op, final_op), []
+    try:
+        model = HypothesisModel.model_validate(proposal)
+    except ValidationError as exc:
+        return None, [f"{'.'.join(map(str, error['loc']))}: {error['msg']}"
+                      for error in exc.errors(include_input=False, include_url=False)]
+    return FormulaSpec(**model.formula.model_dump()), []
 
 
 def proposal_id(proposal: dict[str, Any], index: int, formula: FormulaSpec | None = None) -> str:
@@ -214,16 +177,7 @@ def proposal_id(proposal: dict[str, Any], index: int, formula: FormulaSpec | Non
 def make_prompt_context() -> dict[str, object]:
     return {
         "task": "Propose SSM hidden-state update formulas that may improve agent reward.",
-        "schema": {
-            "id": "short_hypothesis_id",
-            "rationale": "why this may work",
-            "formula": {
-                "memory_op": list(MEMORY_OPS),
-                "input_op": list(INPUT_OPS),
-                "combine_op": list(COMBINE_OPS),
-                "final_op": list(FINAL_OPS),
-            },
-        },
+        "schema": HypothesisModel.model_json_schema(),
         "baseline_formula": formula_payload(FormulaSpec(*BASELINE_FORMULA)),
         "guardrail": "Return JSON objects only. No arbitrary Python will be executed.",
     }

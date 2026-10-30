@@ -1,0 +1,15 @@
+kind: selfplay
+parameters:
+  runners: 8
+  blockers: 8
+  runner_elites: 2
+  blocker_elites: 2
+  agents: 256
+  steps: 24
+  generations: 4
+  mutation_sigma: 0.08
+  speed: 0.028
+  log_every: 1
+  seed: 41
+  backend: cpu
+  output_json: ${hydra:runtime.output_dir}/result.json

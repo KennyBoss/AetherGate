@@ -1,4 +1,5 @@
 PYTHON ?= python3
+VERIFY_TIMEOUT ?= 600
 BENCHMARK_BASELINE ?= artifacts/benchmarks/quick_20260620T171809Z.json
 BENCHMARK_CANDIDATE ?= artifacts/benchmarks/quick_compare_candidate.json
 MAX_REGRESSION ?= 0.25
@@ -12,6 +13,7 @@ help:
 	@echo "Core:"
 	@echo "  make compile   Syntax-check all product scripts"
 	@echo "  make verify    Run end-to-end smoke verifier"
+	@echo "  make ci        Run contract tests and system verifier"
 	@echo "  make benchmark Run quick benchmark, save JSON report"
 	@echo "  make compare   Compare benchmark JSON reports"
 	@echo ""
@@ -55,6 +57,13 @@ compile:
 
 verify:
 	$(PYTHON) verify_system.py --timeout 600
+
+.PHONY: test-production ci
+test-production:
+	$(PYTHON) -m unittest test_evolution_infrastructure
+
+ci: test-production
+	$(PYTHON) verify_system.py --timeout $(VERIFY_TIMEOUT)
 
 benchmark:
 	$(PYTHON) benchmark_system.py --profile quick
