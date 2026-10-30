@@ -1,0 +1,11 @@
+**
+!Dockerfile
+!requirements.txt
+!agent_ssm_core.py
+!run_evolution.py
+!research/
+!research/evolution/
+!research/evolution/*.py
+!configs/
+!configs/evolution/
+!configs/evolution/**

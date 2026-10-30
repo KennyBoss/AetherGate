@@ -1,4 +1,5 @@
 PYTHON ?= python3
+EVOLUTION_IMAGE ?= aethergate-evolution:local
 VERIFY_TIMEOUT ?= 600
 BENCHMARK_BASELINE ?= artifacts/benchmarks/quick_20260620T171809Z.json
 BENCHMARK_CANDIDATE ?= artifacts/benchmarks/quick_compare_candidate.json
@@ -58,9 +59,15 @@ compile:
 verify:
 	$(PYTHON) verify_system.py --timeout 600
 
-.PHONY: test-production ci
+.PHONY: test-production ci docker-build docker-test
 test-production:
-	$(PYTHON) -m unittest test_evolution_infrastructure
+	$(PYTHON) -m unittest test_evolution_infrastructure test_evolution_docker.DockerCommandTests
+
+docker-build:
+	docker build --tag $(EVOLUTION_IMAGE) .
+
+docker-test: docker-build
+	RUN_DOCKER_TESTS=1 EVOLUTION_DOCKER_IMAGE=$(EVOLUTION_IMAGE) $(PYTHON) -m unittest test_evolution_docker
 
 ci: test-production
 	$(PYTHON) verify_system.py --timeout $(VERIFY_TIMEOUT)
