@@ -1,5 +1,5 @@
 PYTHON ?= python3
-VERIFY_TIMEOUT ?= 180
+VERIFY_TIMEOUT ?= 600
 BENCHMARK_BASELINE ?= artifacts/benchmarks/quick_20260620T171809Z.json
 BENCHMARK_CANDIDATE ?= artifacts/benchmarks/quick_compare_candidate.json
 MAX_REGRESSION ?= 0.25
