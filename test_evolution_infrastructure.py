@@ -25,7 +25,7 @@ class ContractTests(unittest.TestCase):
     def test_nested_and_legacy_formats(self):
         for proposal in ({"formula": FORMULA}, FORMULA, {"id": "legacy", **FORMULA}):
             self.assertEqual(HypothesisModel.model_validate(proposal).formula.model_dump(), FORMULA)
-        self.assertEqual(FORMULA["memory_op"], "identity")
+        self.assertEqual(FORMULA["memory_op"], "intentional-ci-gate-failure")
 
     def test_bad_types_fields_and_operations(self):
         for proposal in (
