@@ -10,6 +10,7 @@ parameters:
   mutation_sigma: 0.08
   speed: 0.028
   log_every: 1
+  min_population_diversity: 0.000001
   seed: 41
   backend: cpu
   output_json: ${hydra:runtime.output_dir}/result.json
