@@ -23,4 +23,11 @@ jobs:
           python-version: '3.12'
           cache: pip
       - run: python -m pip install -r requirements.txt
+      - name: Build CPU experiment image
+        run: docker build --tag aethergate-evolution:ci .
+      - name: Test restricted containers and all experiment modes
+        env:
+          RUN_DOCKER_TESTS: '1'
+          EVOLUTION_DOCKER_IMAGE: aethergate-evolution:ci
+        run: python -m unittest test_evolution_docker
       - run: make ci PYTHON=python
