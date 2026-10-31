@@ -9,3 +9,6 @@
 !configs/
 !configs/evolution/
 !configs/evolution/**
+!experiment_metrics.py
+!monitoring/
+!monitoring/Dockerfile

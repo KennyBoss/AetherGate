@@ -156,6 +156,11 @@ class DockerIntegrationTests(unittest.TestCase):
                     payload = json.loads((output / "result.json").read_text())
                     self.assertEqual(payload["backend"], "cpu")
                     self.assertEqual(payload["status"], "completed")
+                    if kind in ("formulas", "selfplay"):
+                        monitoring = json.loads((output / "metrics.json").read_text())
+                        self.assertEqual(monitoring["status"], "completed")
+                        self.assertTrue(monitoring["roles"])
+                        self.assertTrue(all("entropy" in role for role in monitoring["roles"].values()))
                     self.assertTrue((output / ".hydra/config.yaml").exists())
                     payloads.append(canonical_result(payload))
                     if kind == "hypothesis":
@@ -248,7 +253,7 @@ runpy.run_path('/app/run_evolution.py', run_name='__main__')
                 if use_s3:
                     full_manifest = read_manifest(output_manifest(result))
                     self.assertEqual(full_manifest["status"], "completed")
-                    for filename in ("result.json", "console.log", "checkpoint.npz"):
+                    for filename in ("result.json", "console.log", "checkpoint.npz", "metrics.json", "run_exit.json"):
                         artifact = full_manifest["artifacts"][filename]
                         response = client.get_object(Bucket=bucket, Key=artifact["key"])
                         remote_bytes = response["Body"].read()
@@ -265,7 +270,7 @@ runpy.run_path('/app/run_evolution.py', run_name='__main__')
                     if use_s3:
                         interrupted_archive = ArtifactStore(client, remote_root, commit, kind, image_id)
                         with contextlib.redirect_stdout(io.StringIO()):
-                            code = launcher.run_archived(command, name, partial, 120, interrupted_archive)
+                            code = launcher.run_archived(command, name, partial, 120, interrupted_archive, record_exit=True)
                         result = subprocess.CompletedProcess(command, code, (partial / "console.log").read_text(), "")
                     else:
                         result = subprocess.run(command, capture_output=True, text=True, timeout=160)
@@ -337,6 +342,9 @@ runpy.run_path('/app/run_evolution.py', run_name='__main__')
                         self.assertEqual(payload["status"], "stopped")
                         self.assertEqual(payload["experiment"], kind)
                         self.assertEqual(payload["stop_reason"]["code"], expected)
+                        monitoring = json.loads((output / "metrics.json").read_text())
+                        self.assertEqual(monitoring["status"], "stopped")
+                        self.assertEqual(monitoring["stop"]["code"], expected)
                         self.assertEqual(payload["stop_reason"]["stage"], "after_mutation")
                         self.assertEqual(payload["stop_reason"]["generation"], 1)
                         self.assertTrue((output / ".hydra/config.yaml").exists())

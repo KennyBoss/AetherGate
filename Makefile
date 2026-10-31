@@ -68,7 +68,7 @@ install:
 	$(PYTHON) -m pip check
 
 test-production:
-	$(PYTHON) -m unittest test_experiment_artifacts test_evolution_checkpoints test_evolution_guardrails test_evolution_infrastructure test_evolution_docker.DockerCommandTests test_evolution_docker.ReproducibilityTests
+	$(PYTHON) -m unittest test_experiment_monitoring test_experiment_artifacts test_evolution_checkpoints test_evolution_guardrails test_evolution_infrastructure test_evolution_docker.DockerCommandTests test_evolution_docker.ReproducibilityTests
 
 docker-build:
 	docker build --build-arg GIT_COMMIT=$(shell git rev-parse HEAD) --tag $(EVOLUTION_IMAGE) .
@@ -811,3 +811,11 @@ text-run-demo:
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories
 
+
+.PHONY: monitoring-up monitoring-down
+monitoring-up:
+	mkdir -p artifacts
+	MONITORING_UID=$$(id -u) MONITORING_GID=$$(id -g) docker compose -f monitoring/compose.yaml up --build -d
+
+monitoring-down:
+	GRAFANA_ADMIN_PASSWORD=$${GRAFANA_ADMIN_PASSWORD:-unused-for-stop} docker compose -f monitoring/compose.yaml down

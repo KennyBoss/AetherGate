@@ -1,0 +1,387 @@
+{
+  "uid": "aethergate-evolution",
+  "title": "AetherGate \u2014 Evolution and Self-play",
+  "schemaVersion": 39,
+  "version": 1,
+  "tags": [
+    "aethergate",
+    "evolution",
+    "selfplay"
+  ],
+  "timezone": "browser",
+  "refresh": "5s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "editable": false,
+  "panels": [
+    {
+      "id": 1,
+      "title": "Population rewards",
+      "type": "timeseries",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "aethergate-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "aethergate_population_reward{experiment=~\"$experiment\",run=~\"$run\"}",
+          "legendFormat": "{{experiment}} / {{run}} / {{role}} {{stat}}",
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 2,
+      "title": "Mean action entropy",
+      "type": "timeseries",
+      "description": "Normalized action entropy, averaged over each population and opponents.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "aethergate-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "aethergate_policy_entropy_ratio{experiment=~\"$experiment\",run=~\"$run\"}",
+          "legendFormat": "{{experiment}} / {{run}} / {{role}}",
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 3,
+      "title": "Weight diversity",
+      "type": "timeseries",
+      "description": "RMS standard deviation across all genome weights; singleton populations have no diversity sample.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "aethergate-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "aethergate_population_diversity{experiment=~\"$experiment\",run=~\"$run\"}",
+          "legendFormat": "{{experiment}} / {{run}} / {{role}}",
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 4,
+      "title": "Diversity stop threshold",
+      "type": "timeseries",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "aethergate-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "aethergate_diversity_threshold{experiment=~\"$experiment\",run=~\"$run\"}",
+          "legendFormat": "{{experiment}} / {{run}}",
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 5,
+      "title": "Generation",
+      "type": "timeseries",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "aethergate-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "aethergate_generation{experiment=~\"$experiment\",run=~\"$run\"}",
+          "legendFormat": "{{experiment}} / {{run}}",
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 6,
+      "title": "Architecture generation / index",
+      "type": "timeseries",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "aethergate-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "aethergate_architecture_generation{experiment=~\"$experiment\",run=~\"$run\"}",
+          "legendFormat": "Generation / {{run}}",
+          "instant": false,
+          "format": "time_series"
+        },
+        {
+          "refId": "B",
+          "expr": "aethergate_architecture_index{experiment=~\"$experiment\",run=~\"$run\"}",
+          "legendFormat": "Index / {{run}}",
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 7,
+      "title": "Run status",
+      "type": "table",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "aethergate-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "aethergate_run_status{experiment=~\"$experiment\",run=~\"$run\"} == 1",
+          "legendFormat": "{{experiment}} / {{run}}",
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 8,
+      "title": "Stop reasons",
+      "type": "table",
+      "description": "Latest stop reason for each visible run; this is not an event counter.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "aethergate-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "aethergate_run_stop_info{experiment=~\"$experiment\",run=~\"$run\"}",
+          "legendFormat": "{{experiment}} / {{run}}",
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 9,
+      "title": "Snapshot age",
+      "type": "timeseries",
+      "description": "Last published generation/status update. Long generations or abrupt termination increase this age.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "aethergate-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "time() - aethergate_run_updated_timestamp_seconds{experiment=~\"$experiment\",run=~\"$run\"}",
+          "legendFormat": "{{experiment}} / {{run}}",
+          "instant": false,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {}
+    },
+    {
+      "id": 10,
+      "title": "Invalid / omitted snapshots",
+      "type": "stat",
+      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "aethergate-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "aethergate_metrics_files_invalid + aethergate_metrics_runs_omitted",
+          "legendFormat": "{{experiment}} / {{run}}",
+          "instant": true,
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {}
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "experiment",
+        "label": "Experiment",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "aethergate-prometheus"
+        },
+        "query": "label_values(aethergate_run_status, experiment)",
+        "refresh": 1,
+        "includeAll": true,
+        "allValue": ".*",
+        "multi": true,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        }
+      },
+      {
+        "name": "run",
+        "label": "Run",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "aethergate-prometheus"
+        },
+        "query": "label_values(aethergate_run_status{experiment=~\"$experiment\"}, run)",
+        "refresh": 1,
+        "includeAll": true,
+        "allValue": ".*",
+        "multi": true,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        }
+      }
+    ]
+  }
+}

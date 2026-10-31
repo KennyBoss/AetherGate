@@ -43,4 +43,8 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
           AWS_EC2_METADATA_DISABLED: 'true'
         run: python -m unittest test_evolution_docker
+      - name: Verify Prometheus scrape and Grafana provisioning
+        env:
+          RUN_MONITORING_DOCKER: '1'
+        run: python -m unittest test_experiment_monitoring.MonitoringStackTests
       - run: make ci PYTHON=python

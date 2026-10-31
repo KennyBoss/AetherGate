@@ -48,7 +48,7 @@ def parse_args(argv=None):
     if args.s3_endpoint and not (args.s3_uri or args.resume_s3):
         parser.error("--s3-endpoint requires --s3-uri or --resume-s3")
     if args.s3_uri:
-        paths = {"output_json", "checkpoint_path", "feedback_jsonl", "prompt_json"}
+        paths = {"output_json", "checkpoint_path", "feedback_jsonl", "prompt_json", "metrics_path"}
         if any(override.split("=", 1)[0].removeprefix("experiment.parameters.") in paths for override in args.overrides):
             parser.error("S3 publication uses the default artifact filenames inside --output-dir")
     return args
@@ -109,7 +109,7 @@ def image_provenance(image):
     return commit, info["Id"]
 
 
-def run_archived(command, name, output, timeout, archive):
+def run_archived(command, name, output, timeout, archive, record_exit=False):
     process, reader, error = None, None, None
     code = 1
     reader_errors = []
@@ -169,6 +169,9 @@ def run_archived(command, name, output, timeout, archive):
             if error is None and (reader.is_alive() or reader_errors):
                 error = reader_errors[0] if reader_errors else RuntimeError("Console log capture did not finish")
                 code = 1
+        if record_exit:
+            from research.evolution.telemetry import write_exit_marker
+            write_exit_marker(output, code)
         status = {0: "completed", 2: "stopped", 124: "timed_out", 130: "interrupted", 143: "interrupted"}.get(code, "failed")
         try:
             archive.publish(output, status, code)
@@ -203,16 +206,26 @@ def run(args):
         command = docker_command(args, output, name)
         output.mkdir(parents=True, exist_ok=False)
         print(f"Results: {output}", flush=True)
+        code = 1
         try:
             if archive is not None:
                 print(f"S3 manifest: {archive.uri}", flush=True)
-                return run_archived(command, name, output, args.timeout, archive)
-            return subprocess.run(command, timeout=args.timeout, check=False).returncode
+                code = run_archived(command, name, output, args.timeout, archive, record_exit=True)
+            else:
+                code = subprocess.run(command, timeout=args.timeout, check=False).returncode
+            return code
         except subprocess.TimeoutExpired:
             print(f"Experiment exceeded {args.timeout} seconds; removing container", file=sys.stderr)
-            return 124
+            code = 124
+            return code
+        except BaseException as error:
+            code = error.code if isinstance(error, SystemExit) and isinstance(error.code, int) else 130 if isinstance(error, KeyboardInterrupt) else 1
+            raise
         finally:
             remove_container(name)
+            if archive is None:
+                from research.evolution.telemetry import write_exit_marker
+                write_exit_marker(output, code)
 
 
 if __name__ == "__main__":

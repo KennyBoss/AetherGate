@@ -7,6 +7,8 @@ import sys
 
 import numpy as np
 
+from research.evolution.telemetry import Telemetry
+
 
 DEFAULT_MIN_DIVERSITY = 1e-6
 
@@ -56,14 +58,20 @@ def guarded_run(experiment):
     def decorate(run):
         @wraps(run)
         def checked(args):
+            telemetry = Telemetry(experiment, args) if experiment in ("formulas", "selfplay") else None
             try:
                 check_finite({key: value for key, value in vars(args).items() if isinstance(value, float)},
                              stage="configuration")
                 if args.min_population_diversity <= 0:
                     raise GuardrailStop("invalid_configuration", "min_population_diversity must be positive",
                                         stage="configuration")
-                return run(args)
+                result = run(args, telemetry=telemetry) if telemetry is not None else run(args)
+                if telemetry is not None:
+                    telemetry.finish("completed")
+                return result
             except GuardrailStop as error:
+                if telemetry is not None:
+                    telemetry.finish("stopped", error.reason)
                 payload = {"status": "stopped", "experiment": experiment, "seed": args.seed,
                            "stop_reason": error.reason}
                 path = Path(args.output_json or "guardrail_stop.json")
@@ -71,5 +79,11 @@ def guarded_run(experiment):
                 path.write_text(json.dumps(payload, indent=2, ensure_ascii=False, allow_nan=False) + "\n")
                 print(f"GUARDRAIL STOP: {error}; saved reason to {path}", file=sys.stderr, flush=True)
                 raise SystemExit(2) from error
+            except BaseException as error:
+                if telemetry is not None:
+                    interrupted = isinstance(error, KeyboardInterrupt) or isinstance(error, SystemExit) and error.code in (130, 143)
+                    telemetry.finish("interrupted" if interrupted else "failed",
+                                     {"code": "interrupted" if interrupted else "error", "stage": "runtime"})
+                raise
         return checked
     return decorate
