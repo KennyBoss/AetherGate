@@ -68,10 +68,10 @@ install:
 	$(PYTHON) -m pip check
 
 test-production:
-	$(PYTHON) -m unittest test_evolution_checkpoints test_evolution_guardrails test_evolution_infrastructure test_evolution_docker.DockerCommandTests test_evolution_docker.ReproducibilityTests
+	$(PYTHON) -m unittest test_experiment_artifacts test_evolution_checkpoints test_evolution_guardrails test_evolution_infrastructure test_evolution_docker.DockerCommandTests test_evolution_docker.ReproducibilityTests
 
 docker-build:
-	docker build --tag $(EVOLUTION_IMAGE) .
+	docker build --build-arg GIT_COMMIT=$(shell git rev-parse HEAD) --tag $(EVOLUTION_IMAGE) .
 
 docker-test: docker-build
 	RUN_DOCKER_TESTS=1 EVOLUTION_DOCKER_IMAGE=$(EVOLUTION_IMAGE) $(PYTHON) -m unittest test_evolution_docker

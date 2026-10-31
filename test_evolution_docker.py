@@ -178,7 +178,36 @@ class DockerIntegrationTests(unittest.TestCase):
                       flush=True)
 
     def test_checkpoint_resume_matches_uninterrupted_after_sigkill(self):
+        self.checkpoint_resume(False)
+
+    @unittest.skipUnless(os.environ.get("RUN_S3_TESTS") == "1", "Requires S3 test service")
+    def test_s3_checkpoint_resume_matches_uninterrupted_after_sigkill(self):
+        self.checkpoint_resume(True)
+
+    def checkpoint_resume(self, use_s3):
         image = os.environ.get("EVOLUTION_DOCKER_IMAGE", launcher.DEFAULT_IMAGE)
+        if use_s3:
+            from experiment_artifacts import ArtifactStore, parse_uri, s3_client
+            endpoint = os.environ["S3_TEST_ENDPOINT"]
+            client = s3_client(endpoint)
+            bucket = f"aethergate-s3-{os.getpid()}"
+            client.create_bucket(Bucket=bucket)
+            remote_root = f"s3://{bucket}/experiments"
+            commit, image_id = launcher.image_provenance(image)
+            def read_manifest(uri):
+                bucket_name, key = parse_uri(uri)
+                body = client.get_object(Bucket=bucket_name, Key=key)["Body"]
+                try:
+                    manifest = json.loads(body.read())
+                finally:
+                    body.close()
+                self.assertEqual(manifest["git_commit"], commit)
+                self.assertIn(f"/{commit}/", uri)
+                self.assertEqual(manifest["image_id"], image_id)
+                return manifest
+            def output_manifest(result):
+                return next(line.removeprefix("S3 manifest: ") for line in result.stdout.splitlines()
+                            if line.startswith("S3 manifest: "))
         # Kill immediately after a committed generation; no production test/pause flags.
         interrupt = """
 import os, runpy, signal
@@ -211,9 +240,21 @@ runpy.run_path('/app/run_evolution.py', run_name='__main__')
                 full, partial, resumed = (root / kind / name for name in ("full", "partial", "resumed"))
                 base = [sys.executable, str(ROOT / "run_evolution_docker.py"), "--experiment", kind, "--image", image,
                         "--timeout", "120"]
+                if use_s3:
+                    base += ["--s3-uri", remote_root, "--s3-endpoint", endpoint]
                 result = subprocess.run([*base, "--output-dir", str(full), *overrides],
                                         capture_output=True, text=True, timeout=160)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                if use_s3:
+                    full_manifest = read_manifest(output_manifest(result))
+                    self.assertEqual(full_manifest["status"], "completed")
+                    for filename in ("result.json", "console.log", "checkpoint.npz"):
+                        artifact = full_manifest["artifacts"][filename]
+                        response = client.get_object(Bucket=bucket, Key=artifact["key"])
+                        remote_bytes = response["Body"].read()
+                        response["Body"].close()
+                        self.assertEqual(remote_bytes, (full / filename).read_bytes())
+                    self.assertTrue((full / "console.log").read_text().strip())
                 partial.mkdir(parents=True)
                 name = f"aethergate-checkpoint-{kind}-{os.getpid()}"
                 args = launcher.parse_args(["--experiment", kind, "--image", image, *overrides])
@@ -221,7 +262,13 @@ runpy.run_path('/app/run_evolution.py', run_name='__main__')
                 index = command.index(image)
                 command = [*command[:index], "--entrypoint=python", image, "-c", interrupt, *command[index + 1:]]
                 try:
-                    result = subprocess.run(command, capture_output=True, text=True, timeout=160)
+                    if use_s3:
+                        interrupted_archive = ArtifactStore(client, remote_root, commit, kind, image_id)
+                        with contextlib.redirect_stdout(io.StringIO()):
+                            code = launcher.run_archived(command, name, partial, 120, interrupted_archive)
+                        result = subprocess.CompletedProcess(command, code, (partial / "console.log").read_text(), "")
+                    else:
+                        result = subprocess.run(command, capture_output=True, text=True, timeout=160)
                 finally:
                     subprocess.run(["docker", "rm", "--force", name], check=False, timeout=30,
                                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -230,15 +277,35 @@ runpy.run_path('/app/run_evolution.py', run_name='__main__')
                 source = partial / "checkpoint.npz"
                 self.assertTrue(source.is_file())
                 before = source.read_bytes()
-                result = subprocess.run([*base, "--output-dir", str(resumed), "--resume-from", str(source), *overrides],
+                if use_s3:
+                    source_manifest = read_manifest(interrupted_archive.uri)
+                    self.assertEqual(source_manifest["status"], "failed")
+                    self.assertEqual(source_manifest["exit_code"], 137)
+                    # Remove the local source so a successful resume must use S3 bytes.
+                    source.unlink()
+                    resume_flags = ["--resume-s3", interrupted_archive.uri]
+                else:
+                    resume_flags = ["--resume-from", str(source)]
+                result = subprocess.run([*base, "--output-dir", str(resumed), *resume_flags, *overrides],
                                         capture_output=True, text=True, timeout=160)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-                self.assertEqual(before, source.read_bytes())
+                if use_s3:
+                    self.assertFalse(source.exists())
+                    resumed_manifest = read_manifest(output_manifest(result))
+                    self.assertEqual(resumed_manifest["status"], "completed")
+                    self.assertEqual(resumed_manifest["resumed_from"], interrupted_archive.uri)
+                    artifact = source_manifest["artifacts"]["checkpoint.npz"]
+                    response = client.get_object(Bucket=bucket, Key=artifact["key"])
+                    self.assertEqual(before, response["Body"].read())
+                    response["Body"].close()
+                else:
+                    self.assertEqual(before, source.read_bytes())
                 expected = json.loads((full / "result.json").read_text())
                 actual = json.loads((resumed / "result.json").read_text())
                 self.assertEqual(canonical_result(expected), canonical_result(actual))
                 self.assertTrue((resumed / "checkpoint.npz").exists())
-                print(f"PASS Docker checkpoint {kind}: SIGKILL after committed generation; fresh-container resume matches continuous results and weights",
+                label = "S3 checkpoint" if use_s3 else "checkpoint"
+                print(f"PASS Docker {label} {kind}: SIGKILL after committed generation; fresh-container resume matches continuous results and weights",
                       flush=True)
 
     def test_guardrail_stops_in_real_containers(self):
@@ -281,6 +348,7 @@ runpy.run_path('/app/run_evolution.py', run_name='__main__')
 import json, os
 from pathlib import Path
 assert os.getuid() != 0
+assert not any(name in os.environ for name in ('AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_SESSION_TOKEN'))
 status = dict(line.split(':', 1) for line in Path('/proc/self/status').read_text().splitlines())
 assert int(status['CapEff'].strip(), 16) == 0
 assert status['NoNewPrivs'].strip() == '1'

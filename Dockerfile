@@ -1,5 +1,8 @@
 FROM python:3.12-slim
 
+ARG GIT_COMMIT=unknown
+LABEL org.opencontainers.image.revision=$GIT_COMMIT
+
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     JAX_PLATFORM_NAME=cpu \
