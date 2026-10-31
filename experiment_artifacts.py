@@ -20,7 +20,7 @@ from botocore.exceptions import BotoCoreError, ClientError
 from pydantic import BaseModel, ConfigDict, Field
 
 
-FILES = ("checkpoint.npz", "result.json", "console.log", "run_evolution.log", "feedback.jsonl", "prompt.json", "metrics.json", "run_exit.json")
+FILES = ("checkpoint.npz", "result.json", "console.log", "run_evolution.log", "feedback.jsonl", "prompt.json", "metrics.json", "run_exit.json", "run_heartbeat.json")
 SHA = r"^[0-9a-f]{40}$"
 DIGEST = r"^[0-9a-f]{64}$"
 TRANSFER = TransferConfig(use_threads=False)

@@ -8,8 +8,12 @@ from pathlib import Path
 import re
 import subprocess
 import tempfile
+import threading
+import sys
 import time
 
+
+HEARTBEAT_INTERVAL_SECONDS = 2
 
 STATUSES = ("running", "completed", "stopped", "failed", "interrupted", "timed_out")
 ROLES = ("weights", "runner", "blocker")
@@ -60,11 +64,26 @@ class Telemetry:
             Path(args.output_json).with_name("metrics.json") if args.output_json else f"{experiment}.metrics.json"))
         self.data = {"version": 1, "experiment": experiment, "git_commit": git_revision(), "status": "running",
                      "generation": 0, "architecture_generation": 0, "architecture_index": 0,
-                     "threshold": None, "roles": {}, "stop": None, "updated_at": time.time()}
+                     "threshold": None, "roles": {}, "stop": None, "updated_at": time.time(), "heartbeat_enabled": True}
         threshold = args.min_population_diversity
         if math.isfinite(threshold) and threshold > 0:
             self.data["threshold"] = threshold
+        self._heartbeat_stop = threading.Event()
+        self._write_heartbeat()
         self.write()
+        self._heartbeat_thread = threading.Thread(target=self._heartbeat_loop, daemon=True)
+        self._heartbeat_thread.start()
+
+    def _write_heartbeat(self):
+        atomic_json(self.path.with_name("run_heartbeat.json"), {"version": 1, "updated_at": time.time()})
+
+    def _heartbeat_loop(self):
+        while not self._heartbeat_stop.wait(HEARTBEAT_INTERVAL_SECONDS):
+            try:
+                self._write_heartbeat()
+            except OSError as error:
+                print(f"Experiment heartbeat could not be written: {error}", file=sys.stderr, flush=True)
+                return
 
     def write(self):
         self.data["updated_at"] = time.time()
@@ -89,6 +108,8 @@ class Telemetry:
             self.write()
 
     def finish(self, status, reason=None):
+        self._heartbeat_stop.set()
+        self._heartbeat_thread.join(timeout=5)
         self.data["status"] = status
         if reason is not None:
             population = {"runners": "runner", "blockers": "blocker"}.get(reason.get("population"), reason.get("population", "unknown"))

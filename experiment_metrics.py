@@ -37,6 +37,7 @@ class Snapshot(NumericModel):
     experiment: Literal["formulas", "selfplay"]
     git_commit: str = Field(pattern=r"^(?:[0-9a-f]{40}|unknown)$")
     status: Literal[*STATUSES]
+    heartbeat_enabled: bool = False
     generation: int = Field(ge=0)
     architecture_generation: int = Field(ge=0)
     architecture_index: int = Field(ge=0)
@@ -55,6 +56,11 @@ def read_json(path):
         if len(content) > 128 * 1024:
             raise ValueError("Metrics snapshot is too large")
     return content
+
+
+class Heartbeat(NumericModel):
+    version: Literal[1]
+    updated_at: float = Field(gt=0)
 
 
 class ExitMarker(NumericModel):
@@ -100,6 +106,7 @@ class ExperimentCollector:
             "architecture_index": GaugeMetricFamily("aethergate_architecture_index", "Current architecture index", labels=labels),
             "status": GaugeMetricFamily("aethergate_run_status", "Current run status (one-hot)", labels=labels + ["status"]),
             "stop": GaugeMetricFamily("aethergate_run_stop_info", "Latest stop reason per visible run (not an event counter)", labels=labels + ["reason", "stage", "population"]),
+            "heartbeat": GaugeMetricFamily("aethergate_run_heartbeat_timestamp_seconds", "Last process heartbeat; zero means enabled but missing/invalid", labels=labels),
             "updated": GaugeMetricFamily("aethergate_run_updated_timestamp_seconds", "Last successful snapshot timestamp", labels=labels),
         }
         candidates, invalid = [], 0
@@ -108,7 +115,13 @@ class ExperimentCollector:
             if "metrics.json" in files:
                 path = Path(directory) / "metrics.json"
                 try:
-                    candidates.append((path.stat(follow_symlinks=False).st_mtime_ns, path))
+                    modified = path.stat(follow_symlinks=False).st_mtime_ns
+                    if "run_heartbeat.json" in files:
+                        try:
+                            modified = max(modified, path.with_name("run_heartbeat.json").stat(follow_symlinks=False).st_mtime_ns)
+                        except FileNotFoundError:
+                            pass
+                    candidates.append((modified, path))
                 except OSError:
                     invalid += 1
         exported = 0
@@ -134,6 +147,14 @@ class ExperimentCollector:
             for status in STATUSES:
                 metrics["status"].add_metric(common + [status], int(snapshot.status == status))
             metrics["updated"].add_metric(common, snapshot.updated_at)
+            if snapshot.heartbeat_enabled:
+                try:
+                    heartbeat = Heartbeat.model_validate_json(read_json(path.with_name("run_heartbeat.json")))
+                    timestamp = heartbeat.updated_at
+                except (OSError, ValueError):
+                    timestamp = 0
+                    invalid += 1
+                metrics["heartbeat"].add_metric(common, timestamp)
             if snapshot.stop is not None:
                 reason = snapshot.stop
                 metrics["stop"].add_metric(common + [reason.code, reason.stage, reason.population], 1)
