@@ -16,3 +16,4 @@ parameters:
   output_json: ${hydra:runtime.output_dir}/result.json
   checkpoint_path: ${hydra:runtime.output_dir}/checkpoint.npz
   resume_from: null
+  metrics_path: ${hydra:runtime.output_dir}/metrics.json

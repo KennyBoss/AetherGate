@@ -169,6 +169,18 @@ class ArchivedLauncherTests(unittest.TestCase):
             remove.assert_called_once_with("container")
             self.assertEqual(archive.publish.call_args_list[-1].args[1:], ("failed", 1))
 
+    def test_final_upload_failure_marks_the_local_run_as_failed(self):
+        archive = Mock()
+        archive.publish.side_effect = [None, RuntimeError("final upload failed")]
+        process = Mock()
+        process.stdout = io.StringIO("done\n")
+        process.wait.return_value = 0
+        with tempfile.TemporaryDirectory() as directory, patch.object(launcher, "remove_container"),              patch.object(launcher.subprocess, "Popen", return_value=process),              patch.object(launcher.sys, "stdout", io.StringIO()):
+            output = Path(directory)
+            with self.assertRaisesRegex(RuntimeError, "final upload failed"):
+                launcher.run_archived(["docker"], "container", output, 120, archive, record_exit=True)
+            self.assertEqual(json.loads((output / "run_exit.json").read_text())["exit_code"], 1)
+
     def test_missing_image_commit_and_incompatible_flags_are_rejected(self):
         result = subprocess.CompletedProcess([], 0, json.dumps({"Id": "image", "Config": {"Labels": {}}}))
         with patch.object(launcher.subprocess, "run", return_value=result), self.assertRaisesRegex(ValueError, "Git commit"):

@@ -72,6 +72,7 @@ class ConfigurationTests(unittest.TestCase):
                     config.experiment.parameters.prompt_json = None
                 if kind != "hypothesis":
                     config.experiment.parameters.checkpoint_path = None
+                    config.experiment.parameters.metrics_path = None
                 script, argv = experiment_argv(config)
                 self.assertTrue(script.exists())
                 self.assertIn("--seed=17", argv)

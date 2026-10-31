@@ -43,14 +43,14 @@ class Checkpoint:
         self.source = args.resume_from
         code = hashlib.sha256()
         for name in ("agent_ssm_core.py", "requirements.lock", "research/evolution/checkpoints.py",
-                     "research/evolution/guardrails.py", "research/evolution/reproducibility.py",
+                     "research/evolution/guardrails.py", "research/evolution/reproducibility.py", "research/evolution/telemetry.py",
                      "research/evolution/evolve_ssm_formulas.py", "research/evolution/coevolve_ssm_selfplay.py"):
             code.update(name.encode())
             code.update((ROOT / name).read_bytes())
         self.header = {
             "version": 1, "kind": kind,
             "parameters": {key: value for key, value in vars(args).items()
-                           if key not in {"output_json", "checkpoint_path", "resume_from"}},
+                           if key not in {"output_json", "checkpoint_path", "resume_from", "metrics_path"}},
             "environment": {"python": platform.python_version(), "jax": jax.__version__,
                             "jaxlib": jaxlib.__version__, "numpy": np.__version__,
                             "backend": jax.default_backend(), "code_sha256": code.hexdigest()},

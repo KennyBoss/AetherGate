@@ -63,6 +63,7 @@ from agent_ssm_core import (
 )
 
 
+from research.evolution.telemetry import add_metrics_arguments
 from research.evolution.checkpoints import Checkpoint, add_checkpoint_arguments, restore_array, restore_genome
 from research.evolution.guardrails import add_guardrail_arguments, check_finite, check_population, guarded_run
 from research.evolution.hypothesis_contract import MEMORY_OPS, INPUT_OPS, COMBINE_OPS, FINAL_OPS
@@ -362,6 +363,7 @@ def evaluate_formula_architecture(
     args: argparse.Namespace,
     resume_state=None,
     save_progress=None,
+    telemetry=None,
 ) -> dict[str, object]:
     base_seed = args.seed + 10_000 * architecture_generation + 97 * architecture_index
     key = jax.random.PRNGKey(base_seed)
@@ -433,6 +435,10 @@ def evaluate_formula_architecture(
             "energy": scalar(metrics.mean_energy[best_idx]),
             "policy_entropy": scalar(metrics.policy_entropy[best_idx]),
         }
+        if telemetry is not None:
+            telemetry.observe("weights", weight_generation, reward_best=candidate["reward"],
+                reward_mean=candidate["mean_reward"], entropy=scalar(jnp.mean(metrics.policy_entropy)), diversity=diversity,
+                architecture_generation=architecture_generation, architecture_index=architecture_index)
         if best is None or float(candidate["reward"]) > float(best["reward"]):
             candidate["genome_sha256"] = genome_sha256(take_tree(population, best_idx))
             best = candidate
@@ -474,7 +480,7 @@ def save_json(path: str, payload: dict[str, object]) -> None:
 
 
 @guarded_run("formulas")
-def run(args: argparse.Namespace) -> None:
+def run(args: argparse.Namespace, telemetry=None) -> None:
     if args.architecture_elites < 1 or args.architecture_elites > args.architecture_population:
         raise SystemExit("--architecture-elites must be between 1 and --architecture-population.")
     if args.weight_elites < 1 or args.weight_elites > args.weight_population:
@@ -482,6 +488,8 @@ def run(args: argparse.Namespace) -> None:
 
     checkpoint = Checkpoint("formulas", args)
     state = checkpoint.load()
+    if telemetry is not None and state is not None:
+        telemetry.restore(state.get("monitoring"))
     if state is not None and state["completed"]:
         checkpoint.save(state)
         if args.output_json:
@@ -522,6 +530,8 @@ def run(args: argparse.Namespace) -> None:
 
     def save_progress(weight_state):
         state["weight_state"] = weight_state
+        if telemetry is not None:
+            state["monitoring"] = telemetry.checkpoint_state()
         state["elapsed_s"] = elapsed_before + time.perf_counter() - total_start
         checkpoint.save(state)
 
@@ -542,6 +552,7 @@ def run(args: argparse.Namespace) -> None:
                 args=args,
                 resume_state=state["weight_state"],
                 save_progress=save_progress,
+                telemetry=telemetry,
             )
             generation_records.append(record)
             all_records.append(record)
@@ -662,6 +673,7 @@ def parse_args() -> argparse.Namespace:
         default=REQUESTED_BACKEND,
         help="JAX backend. Default is cpu because Apple Metal JAX is experimental.",
     )
+    add_metrics_arguments(parser)
     add_checkpoint_arguments(parser)
     add_guardrail_arguments(parser)
     return parser.parse_args()

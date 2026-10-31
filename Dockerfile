@@ -9,7 +9,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     JAX_PLATFORMS=cpu \
     HOME=/tmp \
     XDG_CACHE_HOME=/tmp/.cache \
-    PYTHONPATH=/app
+    PYTHONPATH=/app \
+    AETHERGATE_GIT_COMMIT=$GIT_COMMIT
 
 WORKDIR /app
 COPY requirements.lock .

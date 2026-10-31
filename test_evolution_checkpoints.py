@@ -62,12 +62,18 @@ class CheckpointTests(unittest.TestCase):
                     resumed = self.args(module, Path(directory) / f"resumed-{late}")
                     resumed.resume_from = partial.checkpoint_path
                     self.assertEqual(expected, self.run_result(module, resumed))
+                    original_metrics = json.loads(Path(full.output_json).with_name("metrics.json").read_text())
+                    resumed_metrics = json.loads(Path(resumed.output_json).with_name("metrics.json").read_text())
+                    self.assertEqual(original_metrics["roles"], resumed_metrics["roles"])
+                    self.assertEqual(resumed_metrics["status"], "completed")
                     # Completion can also be recovered without evaluating again.
                     complete = self.args(module, Path(directory) / f"complete-{late}")
                     complete.resume_from = resumed.checkpoint_path
                     evaluation = "evaluate_population" if module is formulas else "evaluate_populations"
                     with patch.object(module, evaluation, side_effect=AssertionError("Completed run was recomputed")):
                         self.assertEqual(expected, self.run_result(module, complete))
+                    completed_metrics = json.loads(Path(complete.output_json).with_name("metrics.json").read_text())
+                    self.assertEqual(original_metrics["roles"], completed_metrics["roles"])
 
     def test_failed_atomic_write_preserves_previous_checkpoint(self):
         with tempfile.TemporaryDirectory() as directory:
