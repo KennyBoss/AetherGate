@@ -180,6 +180,9 @@ def run_archived(command, name, output, timeout, archive, record_exit=False):
                 error = exc
             else:
                 print(f"Final S3 publication failed; local artifacts remain in {output}: {exc}", file=sys.stderr)
+            if code == 0 and record_exit:
+                from research.evolution.telemetry import write_exit_marker
+                write_exit_marker(output, 1)
     if error is not None:
         raise error
     return code
