@@ -42,6 +42,7 @@ import jax.numpy as jnp
 import numpy as np
 
 from agent_ssm_core import ACTION_DIM, GOAL_POS, INPUT_DIM, STATE_DIM, Genome, decay_from_raw, norm2
+from research.evolution.checkpoints import Checkpoint, add_checkpoint_arguments, restore_array, restore_genome
 from research.evolution.guardrails import add_guardrail_arguments, check_finite, check_population, guarded_run
 from research.evolution.reproducibility import genome_sha256
 
@@ -345,14 +346,25 @@ def run(args: argparse.Namespace) -> None:
     if args.blocker_elites < 1 or args.blocker_elites > args.blockers:
         raise SystemExit("--blocker-elites must be between 1 and --blockers.")
 
+    checkpoint = Checkpoint("selfplay", args)
+    state = checkpoint.load()
+    if state is not None and state["completed"]:
+        checkpoint.save(state)
+        if args.output_json:
+            save_json(args.output_json, state["result"])
+        return
     key = jax.random.PRNGKey(args.seed)
     runner_key, blocker_key = jax.random.split(key)
     runners = init_population(runner_key, args.runners)
     blockers = init_population(blocker_key, args.blockers)
 
+    if state is not None:
+        key = restore_array(state["key"], key)
+        runners = restore_genome(state["runners"], runners)
+        blockers = restore_genome(state["blockers"], blockers)
     for role, population in (("runners", runners), ("blockers", blockers)):
         check_population(population, args.min_population_diversity,
-                         population=role, generation=0, stage="initialization")
+                         population=role, generation=state["next_generation"] if state else 0, stage="initialization")
 
     print("TextPy/SoA SSM self-play coevolution prototype")
     print(f"backend: {jax.default_backend()}")
@@ -370,14 +382,30 @@ def run(args: argparse.Namespace) -> None:
     print(f"  generations: {args.generations}")
     print("")
 
-    history: list[dict[str, object]] = []
+    if state is None:
+        state = {"completed": False, "next_generation": 0, "history": [], "elapsed_s": 0.0,
+                 "best_runner_reward": -1.0e9, "best_blocker_reward": -1.0e9,
+                 "best_runner_generation": 0, "best_blocker_generation": 0}
+    history = state["history"]
+    next_generation = state["next_generation"]
+    if not 0 <= next_generation <= args.generations + 1 or len(history) != next_generation:
+        raise ValueError("Invalid checkpoint self-play generation/history")
     start = time.perf_counter()
-    best_runner_reward = -1.0e9
-    best_blocker_reward = -1.0e9
-    best_runner_generation = 0
-    best_blocker_generation = 0
+    elapsed_before = state["elapsed_s"]
+    best_runner_reward = state["best_runner_reward"]
+    best_blocker_reward = state["best_blocker_reward"]
+    best_runner_generation = state["best_runner_generation"]
+    best_blocker_generation = state["best_blocker_generation"]
 
-    for generation in range(args.generations + 1):
+    def save_progress(next_generation):
+        state.update(next_generation=next_generation, key=key, runners=runners._asdict(), blockers=blockers._asdict(),
+                     best_runner_reward=best_runner_reward, best_blocker_reward=best_blocker_reward,
+                     best_runner_generation=best_runner_generation, best_blocker_generation=best_blocker_generation,
+                     elapsed_s=elapsed_before + time.perf_counter() - start)
+        checkpoint.save(state)
+
+    save_progress(next_generation)
+    for generation in range(next_generation, args.generations + 1):
         key, eval_key, runner_mutate_key, blocker_mutate_key = jax.random.split(key, 4)
         match_keys = jax.random.split(eval_key, args.runners * args.blockers).reshape(args.runners, args.blockers, 2)
         metrics = evaluate_populations(
@@ -452,7 +480,9 @@ def run(args: argparse.Namespace) -> None:
             check_population(blockers, args.min_population_diversity,
                              population="blockers", generation=generation + 1, stage="after_mutation")
 
-    elapsed = time.perf_counter() - start
+        save_progress(generation + 1)
+
+    elapsed = elapsed_before + time.perf_counter() - start
     evaluated_pair_agent_steps = (args.generations + 1) * args.runners * args.blockers * args.agents * args.steps
     throughput = evaluated_pair_agent_steps / max(elapsed, 1.0e-9)
     first = history[0]
@@ -504,6 +534,9 @@ def run(args: argparse.Namespace) -> None:
     }
 
     print("")
+    state.update(completed=True, result=payload)
+    checkpoint.save(state)
+
     print("Self-play result")
     print(f"  best_runner_reward: {best_runner_reward:.4f} at gen {best_runner_generation}")
     print(f"  best_blocker_reward: {best_blocker_reward:.4f} at gen {best_blocker_generation}")
@@ -538,6 +571,7 @@ def parse_args() -> argparse.Namespace:
         default=REQUESTED_BACKEND,
         help="JAX backend. Default is cpu because Apple Metal JAX is experimental.",
     )
+    add_checkpoint_arguments(parser)
     add_guardrail_arguments(parser)
     return parser.parse_args()
 

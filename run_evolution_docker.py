@@ -20,6 +20,7 @@ def parse_args(argv=None):
     parser.add_argument("--image", default=DEFAULT_IMAGE)
     parser.add_argument("--proposals", type=Path)
     parser.add_argument("--output-dir", type=Path)
+    parser.add_argument("--resume-from", type=Path)
     parser.add_argument("--timeout", type=int, default=600, help="Maximum run time in seconds.")
     parser.add_argument("overrides", nargs="*", help="Hydra experiment.parameters.KEY=VALUE overrides.")
     args = parser.parse_args(argv)
@@ -32,6 +33,8 @@ def parse_args(argv=None):
             parser.error("Only experiment.parameters.KEY=VALUE overrides are accepted")
     if args.proposals and args.experiment != "hypothesis":
         parser.error("--proposals is only supported for the hypothesis experiment")
+    if args.resume_from and args.experiment == "hypothesis":
+        parser.error("--resume-from is supported for formulas and selfplay")
     return args
 
 
@@ -62,6 +65,12 @@ def docker_command(args, output, name):
             raise ValueError(f"Proposal file does not exist: {source}")
         command.append(f"--mount=type=bind,src={source},dst=/input/proposals.json,readonly")
         overrides.append("experiment.parameters.proposals=/input/proposals.json")
+    if args.resume_from:
+        source = mount_path(args.resume_from)
+        if not source.is_file():
+            raise ValueError(f"Checkpoint file does not exist: {source}")
+        command.append(f"--mount=type=bind,src={source},dst=/input/checkpoint.npz,readonly")
+        overrides.append("experiment.parameters.resume_from=/input/checkpoint.npz")
     return [*command, args.image, f"experiment={args.experiment}", *overrides, "hydra.run.dir=/output"]
 
 
