@@ -16,10 +16,19 @@ services:
     command: [--config.file=/etc/prometheus/prometheus.yml, --storage.tsdb.retention.time=15d]
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alerts.yml:/etc/prometheus/alerts.yml:ro
       - prometheus-data:/prometheus
     ports:
       - 127.0.0.1:${PROMETHEUS_PORT:-9090}:9090
-    depends_on: [exporter]
+    depends_on: [exporter, alertmanager]
+  alertmanager:
+    image: prom/alertmanager:v0.34.2@sha256:39d8bb3966c694a124428a3a88fbcffd40bd069129ecd47c059f8a3f17c55f3b
+    command: [--config.file=/etc/alertmanager/alertmanager.yml, --storage.path=/alertmanager, --cluster.listen-address=]
+    volumes:
+      - ${ALERTMANAGER_CONFIG:-./alertmanager.yml}:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
+    ports:
+      - 127.0.0.1:${ALERTMANAGER_PORT:-9093}:9093
   grafana:
     image: grafana/grafana:13.3.0@sha256:488984b716c0862639f91a698adbe2862677a5a07bad42da5f03f3030883b205
     environment:
@@ -38,3 +47,4 @@ services:
 volumes:
   prometheus-data:
   grafana-data:
+  alertmanager-data:
