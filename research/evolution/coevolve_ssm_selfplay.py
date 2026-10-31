@@ -42,6 +42,7 @@ import jax.numpy as jnp
 import numpy as np
 
 from agent_ssm_core import ACTION_DIM, GOAL_POS, INPUT_DIM, STATE_DIM, Genome, decay_from_raw, norm2
+from research.evolution.guardrails import add_guardrail_arguments, check_finite, check_population, guarded_run
 from research.evolution.reproducibility import genome_sha256
 
 
@@ -337,6 +338,7 @@ def save_json(path: str, payload: dict[str, object]) -> None:
         json.dump(payload, f, indent=2, ensure_ascii=False)
 
 
+@guarded_run("selfplay")
 def run(args: argparse.Namespace) -> None:
     if args.runner_elites < 1 or args.runner_elites > args.runners:
         raise SystemExit("--runner-elites must be between 1 and --runners.")
@@ -347,6 +349,10 @@ def run(args: argparse.Namespace) -> None:
     runner_key, blocker_key = jax.random.split(key)
     runners = init_population(runner_key, args.runners)
     blockers = init_population(blocker_key, args.blockers)
+
+    for role, population in (("runners", runners), ("blockers", blockers)):
+        check_population(population, args.min_population_diversity,
+                         population=role, generation=0, stage="initialization")
 
     print("TextPy/SoA SSM self-play coevolution prototype")
     print(f"backend: {jax.default_backend()}")
@@ -383,6 +389,7 @@ def run(args: argparse.Namespace) -> None:
             speed=args.speed,
         )
         jax.block_until_ready(metrics.runner_reward)
+        check_finite(metrics._asdict(), generation=generation, stage="evaluation", population="match")
         runner_elite_idx = jnp.argsort(metrics.runner_reward)[-args.runner_elites :][::-1]
         blocker_elite_idx = jnp.argsort(metrics.blocker_reward)[-args.blocker_elites :][::-1]
         runner_best_idx = int(runner_elite_idx[0])
@@ -403,7 +410,13 @@ def run(args: argparse.Namespace) -> None:
             best_blocker_reward = blocker_best_reward
             best_blocker_generation = generation
 
+        runner_weight_diversity = check_population(runners, args.min_population_diversity,
+            population="runners", generation=generation, stage="evaluation")
+        blocker_weight_diversity = check_population(blockers, args.min_population_diversity,
+            population="blockers", generation=generation, stage="evaluation")
         record = {
+            "runner_weight_diversity": runner_weight_diversity,
+            "blocker_weight_diversity": blocker_weight_diversity,
             "generation": generation,
             "runner_best_genome_sha256": genome_sha256(take_tree(runners, runner_best_idx)),
             "blocker_best_genome_sha256": genome_sha256(take_tree(blockers, blocker_best_idx)),
@@ -433,7 +446,11 @@ def run(args: argparse.Namespace) -> None:
             runner_elites = take_tree(runners, runner_elite_idx)
             blocker_elites = take_tree(blockers, blocker_elite_idx)
             runners = mutate_elites(runner_mutate_key, runner_elites, args.runners, args.mutation_sigma)
+            check_population(runners, args.min_population_diversity,
+                             population="runners", generation=generation + 1, stage="after_mutation")
             blockers = mutate_elites(blocker_mutate_key, blocker_elites, args.blockers, args.mutation_sigma)
+            check_population(blockers, args.min_population_diversity,
+                             population="blockers", generation=generation + 1, stage="after_mutation")
 
     elapsed = time.perf_counter() - start
     evaluated_pair_agent_steps = (args.generations + 1) * args.runners * args.blockers * args.agents * args.steps
@@ -444,6 +461,7 @@ def run(args: argparse.Namespace) -> None:
     blocker_pressure_delta = last["blocker_mean_reward"] - first["blocker_mean_reward"]
 
     payload = {
+        "status": "completed",
         "backend": jax.default_backend(),
         "devices": [str(device) for device in jax.devices()],
         "protocol": {
@@ -457,6 +475,7 @@ def run(args: argparse.Namespace) -> None:
             "speed": args.speed,
             "mutation_sigma": args.mutation_sigma,
             "seed": args.seed,
+            "min_population_diversity": args.min_population_diversity,
         },
         "roles": {
             "runner": "reach the fixed goal while avoiding blockers",
@@ -519,6 +538,7 @@ def parse_args() -> argparse.Namespace:
         default=REQUESTED_BACKEND,
         help="JAX backend. Default is cpu because Apple Metal JAX is experimental.",
     )
+    add_guardrail_arguments(parser)
     return parser.parse_args()
 
 

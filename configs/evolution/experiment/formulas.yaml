@@ -10,6 +10,7 @@ parameters:
   agents: 512
   steps: 24
   speed: 0.028
+  min_population_diversity: 0.000001
   seed: 37
   backend: cpu
   output_json: ${hydra:runtime.output_dir}/result.json

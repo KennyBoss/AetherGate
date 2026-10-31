@@ -63,6 +63,7 @@ from agent_ssm_core import (
 )
 
 
+from research.evolution.guardrails import add_guardrail_arguments, check_finite, check_population, guarded_run
 from research.evolution.hypothesis_contract import MEMORY_OPS, INPUT_OPS, COMBINE_OPS, FINAL_OPS
 from research.evolution.reproducibility import genome_sha256
 
@@ -363,6 +364,10 @@ def evaluate_formula_architecture(
     key = jax.random.PRNGKey(base_seed)
     population = init_weight_population(key, args.weight_population)
 
+    context = {"architecture_generation": architecture_generation, "architecture_index": architecture_index,
+               "formula": formula_id(formula), "population": "weights"}
+    check_population(population, args.min_population_diversity,
+                     generation=0, stage="initialization", **context)
     compile_keys = jax.random.split(jax.random.PRNGKey(args.seed + 777), args.weight_population)
     compile_start = time.perf_counter()
     warmup = evaluate_population(
@@ -375,6 +380,7 @@ def evaluate_formula_architecture(
         speed=args.speed,
     )
     jax.block_until_ready(warmup.reward)
+    check_finite(warmup._asdict(), generation=0, stage="warmup", **context)
     compile_s = time.perf_counter() - compile_start
 
     best: dict[str, object] | None = None
@@ -392,10 +398,14 @@ def evaluate_formula_architecture(
             speed=args.speed,
         )
         jax.block_until_ready(metrics.reward)
+        check_finite(metrics._asdict(), generation=weight_generation, stage="evaluation", **context)
+        diversity = check_population(population, args.min_population_diversity,
+                                     generation=weight_generation, stage="evaluation", **context)
         elite_indices = jnp.argsort(metrics.reward)[-args.weight_elites :][::-1]
         best_idx = int(elite_indices[0])
         candidate = {
             "weight_generation": weight_generation,
+            "population_diversity": diversity,
             "reward": scalar(metrics.reward[best_idx]),
             "mean_reward": scalar(jnp.mean(metrics.reward)),
             "goal_distance": scalar(metrics.mean_goal_distance[best_idx]),
@@ -414,6 +424,8 @@ def evaluate_formula_architecture(
                 args.weight_population,
                 args.weight_mutation_sigma,
             )
+            check_population(population, args.min_population_diversity,
+                             generation=weight_generation + 1, stage="after_mutation", **context)
 
     elapsed = time.perf_counter() - start
     evaluated_agent_steps = (args.weight_generations + 1) * args.weight_population * args.agents * args.steps
@@ -439,6 +451,7 @@ def save_json(path: str, payload: dict[str, object]) -> None:
         json.dump(payload, f, indent=2, ensure_ascii=False)
 
 
+@guarded_run("formulas")
 def run(args: argparse.Namespace) -> None:
     if args.architecture_elites < 1 or args.architecture_elites > args.architecture_population:
         raise SystemExit("--architecture-elites must be between 1 and --architecture-population.")
@@ -526,6 +539,7 @@ def run(args: argparse.Namespace) -> None:
         best_minus_baseline = float(best["best"]["reward"]) - float(baseline["best"]["reward"])
 
     payload = {
+        "status": "completed",
         "backend": jax.default_backend(),
         "devices": [str(device) for device in jax.devices()],
         "protocol": {
@@ -540,6 +554,7 @@ def run(args: argparse.Namespace) -> None:
             "steps": args.steps,
             "speed": args.speed,
             "seed": args.seed,
+            "min_population_diversity": args.min_population_diversity,
             "search_space_size": len(MEMORY_OPS) * len(INPUT_OPS) * len(COMBINE_OPS) * len(FINAL_OPS),
         },
         "baseline_formula": formula_payload(FormulaSpec(*BASELINE_FORMULA)),
@@ -592,6 +607,7 @@ def parse_args() -> argparse.Namespace:
         default=REQUESTED_BACKEND,
         help="JAX backend. Default is cpu because Apple Metal JAX is experimental.",
     )
+    add_guardrail_arguments(parser)
     return parser.parse_args()
 
 

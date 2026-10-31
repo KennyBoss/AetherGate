@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 from pydantic import ValidationError
+from research.evolution.guardrails import add_guardrail_arguments, guarded_run
 from research.evolution.hypothesis_contract import HypothesisModel
 
 
@@ -183,6 +184,7 @@ def make_prompt_context() -> dict[str, object]:
     }
 
 
+@guarded_run("hypothesis")
 def run(args: argparse.Namespace) -> None:
     prompt_context = make_prompt_context()
     generator_stderr = ""
@@ -301,6 +303,7 @@ def run(args: argparse.Namespace) -> None:
     best = max(accepted, key=lambda item: float(item["best"]["reward"])) if accepted else None
     elapsed = time.perf_counter() - start
     payload = {
+        "status": "completed",
         "backend": jax.default_backend(),
         "devices": [str(device) for device in jax.devices()],
         "proposal_source": proposal_source,
@@ -318,6 +321,7 @@ def run(args: argparse.Namespace) -> None:
             "weight_mutation_sigma": args.weight_mutation_sigma,
             "speed": args.speed,
             "seed": args.seed,
+            "min_population_diversity": args.min_population_diversity,
         },
         "baseline_record": baseline_record,
         "best_accepted": best,
@@ -381,6 +385,7 @@ def parse_args() -> argparse.Namespace:
         default=REQUESTED_BACKEND,
         help="JAX backend. Default is cpu because Apple Metal JAX is experimental.",
     )
+    add_guardrail_arguments(parser)
     return parser.parse_args()
 
 

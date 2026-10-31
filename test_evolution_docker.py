@@ -140,6 +140,7 @@ class DockerIntegrationTests(unittest.TestCase):
                     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                     payload = json.loads((output / "result.json").read_text())
                     self.assertEqual(payload["backend"], "cpu")
+                    self.assertEqual(payload["status"], "completed")
                     self.assertTrue((output / ".hydra/config.yaml").exists())
                     payloads.append(canonical_result(payload))
                     if kind == "hypothesis":
@@ -160,6 +161,40 @@ class DockerIntegrationTests(unittest.TestCase):
                     self.assertEqual(prompts[0], prompts[1])
                 print(f"PASS Docker reproducibility {kind}: identical same-seed results and weights; changed seed changes weights",
                       flush=True)
+
+    def test_guardrail_stops_in_real_containers(self):
+        image = os.environ.get("EVOLUTION_DOCKER_IMAGE", launcher.DEFAULT_IMAGE)
+        with tempfile.TemporaryDirectory() as directory:
+            for kind in ("formulas", "selfplay"):
+                for sigma, expected in (("0", "diversity_collapse"), ("3e38", "nonfinite")):
+                    with self.subTest(kind=kind, failure=expected):
+                        output = Path(directory) / kind / expected
+                        command = [sys.executable, str(ROOT / "run_evolution_docker.py"),
+                                   "--experiment", kind, "--image", image, "--output-dir", str(output),
+                                   "--timeout", "120", "experiment.parameters.agents=4", "experiment.parameters.steps=2"]
+                        if kind == "formulas":
+                            command += ["experiment.parameters.architecture_population=2",
+                                        "experiment.parameters.architecture_elites=1",
+                                        "experiment.parameters.weight_population=2",
+                                        "experiment.parameters.weight_elites=1",
+                                        "experiment.parameters.weight_generations=3",
+                                        f"experiment.parameters.weight_mutation_sigma={sigma}"]
+                        else:
+                            command += ["experiment.parameters.runners=2", "experiment.parameters.blockers=2",
+                                        "experiment.parameters.runner_elites=1", "experiment.parameters.blocker_elites=1",
+                                        "experiment.parameters.generations=3",
+                                        f"experiment.parameters.mutation_sigma={sigma}"]
+                        result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=160)
+                        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                        payload = json.loads((output / "result.json").read_text(),
+                            parse_constant=lambda value: self.fail(f"Invalid JSON number: {value}"))
+                        self.assertEqual(payload["status"], "stopped")
+                        self.assertEqual(payload["experiment"], kind)
+                        self.assertEqual(payload["stop_reason"]["code"], expected)
+                        self.assertEqual(payload["stop_reason"]["stage"], "after_mutation")
+                        self.assertEqual(payload["stop_reason"]["generation"], 1)
+                        self.assertTrue((output / ".hydra/config.yaml").exists())
+                        print(f"PASS Docker guardrail {kind}: {expected}, stopped at generation 1, reason persisted", flush=True)
 
     def test_runtime_isolation(self):
         image = os.environ.get("EVOLUTION_DOCKER_IMAGE", launcher.DEFAULT_IMAGE)
