@@ -207,3 +207,84 @@ CI в настоящем контейнере завершает процесс 
 запрет pickle и сохранность предыдущего снимка при ошибке записи.
 Гарантия совпадения относится к одинаковому CPU-окружению и оборудованию, а не к
 переносу между разными CPU/GPU или версиями кода.
+
+
+## S3-совместимое хранение артефактов
+
+Установите зависимости из обновлённого `requirements.lock` и пересоберите образ
+через `make docker-build`: он записывает Git HEAD в метку образа. Для точной
+привязки к коммиту собирайте из чистого checkout. CI ставит метку из `GITHUB_SHA`.
+Существующий bucket создаётся администратором отдельно; лаунчер его не создаёт.
+Для доступа используется стандартная цепочка credentials boto3: AWS profile,
+переменные `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_SESSION_TOKEN` или
+роль окружения. Регион задаётся `AWS_DEFAULT_REGION`/профилем. Не помещайте ключи
+в параметры эксперимента, Docker-образ или файлы результатов.
+
+```sh
+make docker-build
+python3 run_evolution_docker.py --experiment formulas --output-dir artifacts/formulas-s3 --s3-uri s3://my-bucket/aethergate --s3-endpoint https://s3.example.com
+```
+
+Для AWS S3 флаг `--s3-endpoint` можно опустить. SDK использует SigV4, path-style
+адресацию и проверку TLS по умолчанию. Сетевой клиент работает только на хосте;
+контейнер сохраняет `--network=none`, не получает credentials и не обращается к S3.
+Образ должен иметь корректную метку `org.opencontainers.image.revision` с полным
+Git SHA, иначе публикация/удалённое возобновление отклоняются. Docker image ID
+также сохраняется в метаданных.
+
+Лаунчер печатает URI `s3://bucket/prefix/<git_commit>/<run_id>/manifest.json`.
+Он периодически отправляет последний атомарно записанный checkpoint и текущие
+логи, а после завершения — результаты и окончательные логи. Быстрые промежуточные
+поколения могут не попасть в S3: загружается последняя доступная копия, а не очередь
+всех поколений. Завершение, защитная остановка, тайм-аут и прерывание различаются
+через `status`/`exit_code` в manifest.
+
+Публикуются стандартные файлы `checkpoint.npz`, `result.json`, `console.log`
+(объединённые stdout/stderr), `run_evolution.log`, а для гипотез также
+`feedback.jsonl`/`prompt.json`. S3-режим использует стандартные имена файлов в
+`--output-dir`; переопределять соответствующие пути параметрами Hydra нельзя.
+Чужие файлы хоста и символьные ссылки не читаются. Credentials хоста не передаются
+в контейнер. Пользовательские данные из разрешённых файлов результата/логов
+попадают в выбранный bucket вместе с экспериментом.
+
+Каждый объект имеет размер, SHA-256 и метаданные Git-коммита. Объекты размещаются
+по содержимому, а manifest заменяется только после успешной отправки всех файлов.
+При сбое загрузки предыдущий manifest остаётся пригодным для восстановления,
+локальные файлы сохраняются, лаунчер возвращает ошибку. Промежуточные объекты не
+удаляются автоматически; срок хранения задаётся политикой bucket.
+Нужны права GetObject/PutObject на свой prefix, а для прерывания multipart-upload —
+AbortMultipartUpload. Лаунчер не требует удаления объектов или списка bucket.
+
+Возобновление в новом контейнере:
+
+```sh
+python3 run_evolution_docker.py --experiment formulas --resume-s3 s3://my-bucket/aethergate/COMMIT/RUN_ID/manifest.json --output-dir artifacts/formulas-from-s3 --s3-uri s3://my-bucket/aethergate --s3-endpoint https://s3.example.com
+```
+
+Замените `COMMIT/RUN_ID` точным URI из предыдущего запуска и повторите прежние
+настройки эксперимента. Проверяются Git-коммит образа, схема manifest, принадлежность
+объекта запуску, размер и SHA-256 скачанного checkpoint. Затем применяются обычные
+проверки совместимости checkpoint с настройками/кодом/окружением. Входной файл
+подключается к контейнеру только для чтения; новые файлы пишутся в новую папку и
+новый S3 prefix запуска с указанием исходного manifest. `--resume-s3` работает для
+`formulas` и `selfplay`; режим гипотез поддерживает публикацию результатов/логов.
+Если нужен только импорт без публикации продолжения, не задавайте `--s3-uri`.
+
+Для повторной отправки локально сохранённых файлов и отдельного скачивания есть
+команды хоста (Git SHA берите из метки исходного образа):
+
+```sh
+python3 experiment_artifacts.py --endpoint https://s3.example.com upload --output-dir artifacts/formulas-s3 --s3-uri s3://my-bucket/aethergate --git-commit FULL_GIT_SHA --experiment formulas --status completed
+python3 experiment_artifacts.py --endpoint https://s3.example.com download --manifest s3://my-bucket/aethergate/COMMIT/RUN_ID/manifest.json --git-commit FULL_GIT_SHA --output-file artifacts/downloaded-checkpoint.npz
+```
+
+CI использует отдельный сетевой S3-эмулятор Moto 5.2.4 (образ закреплён digest),
+тестовые credentials и временный bucket. Для обоих режимов проверяются загрузка
+checkpoint/результатов/логов, Git-привязка, SIGKILL, удаление локальной исходной копии,
+скачивание из S3 и совпадение продолжения с непрерывным запуском. Отдельные тесты
+покрывают отказ загрузки, повреждение объекта, чужой Git-коммит, подмену пути,
+символьные ссылки и ошибку записи лога. Реальные credentials и конкретный внешний
+провайдер этим CI не проверяются. Совместимость API опирается на стандартный SDK
+[boto3](https://docs.aws.amazon.com/boto3/latest/guide/configuration.html);
+[Moto](https://docs.getmoto.org/en/latest/docs/server_mode.html) используется только
+как тестовый сервис, а не как производственное хранилище.

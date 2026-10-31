@@ -12,6 +12,11 @@ jobs:
   cpu:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    services:
+      s3:
+        image: motoserver/moto:5.2.4@sha256:66672d842bf19618966890c574d85198abe92800f4b3b2b5f791015fa1b58831
+        ports:
+          - 5000:5000
     env:
       PYTHONUNBUFFERED: '1'
       JAX_PLATFORM_NAME: cpu
@@ -26,10 +31,16 @@ jobs:
       - run: python -m pip install --require-hashes -r requirements.lock
       - run: python -m pip check
       - name: Build CPU experiment image
-        run: docker build --tag aethergate-evolution:ci .
-      - name: Test Docker isolation, reproducibility, checkpoint resume and guardrail stops
+        run: docker build --build-arg GIT_COMMIT="$GITHUB_SHA" --tag aethergate-evolution:ci .
+      - name: Test Docker isolation, reproducibility, checkpoint/S3 resume and guardrail stops
         env:
           RUN_DOCKER_TESTS: '1'
           EVOLUTION_DOCKER_IMAGE: aethergate-evolution:ci
+          RUN_S3_TESTS: '1'
+          S3_TEST_ENDPOINT: http://127.0.0.1:5000
+          AWS_ACCESS_KEY_ID: ci-test-access
+          AWS_SECRET_ACCESS_KEY: ci-test-secret
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_EC2_METADATA_DISABLED: 'true'
         run: python -m unittest test_evolution_docker
       - run: make ci PYTHON=python
