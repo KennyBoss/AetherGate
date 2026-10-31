@@ -27,7 +27,7 @@ jobs:
       - run: python -m pip check
       - name: Build CPU experiment image
         run: docker build --tag aethergate-evolution:ci .
-      - name: Test Docker isolation, reproducibility and guardrail stops
+      - name: Test Docker isolation, reproducibility, checkpoint resume and guardrail stops
         env:
           RUN_DOCKER_TESTS: '1'
           EVOLUTION_DOCKER_IMAGE: aethergate-evolution:ci

@@ -70,6 +70,8 @@ class ConfigurationTests(unittest.TestCase):
                 if kind == "hypothesis":
                     config.experiment.parameters.feedback_jsonl = None
                     config.experiment.parameters.prompt_json = None
+                if kind != "hypothesis":
+                    config.experiment.parameters.checkpoint_path = None
                 script, argv = experiment_argv(config)
                 self.assertTrue(script.exists())
                 self.assertIn("--seed=17", argv)

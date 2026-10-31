@@ -40,6 +40,21 @@ class DockerCommandTests(unittest.TestCase):
             self.assertEqual(command[-1], "hydra.run.dir=/output")
             self.assertNotIn("--privileged", command)
 
+    def test_checkpoint_input_is_readonly_and_missing_inputs_are_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "checkpoint.npz"
+            source.write_bytes(b"checkpoint")
+            args = launcher.parse_args(["--experiment", "selfplay", "--resume-from", str(source)])
+            with patch.object(os, "getuid", return_value=1001):
+                command = launcher.docker_command(args, Path(directory) / "output", "test-checkpoint")
+                self.assertIn(f"--mount=type=bind,src={source.resolve()},dst=/input/checkpoint.npz,readonly", command)
+                self.assertIn("experiment.parameters.resume_from=/input/checkpoint.npz", command)
+                source.unlink()
+                with self.assertRaises(ValueError):
+                    launcher.docker_command(args, Path(directory) / "output", "test-checkpoint")
+            with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+                launcher.parse_args(["--experiment", "hypothesis", "--resume-from", str(source)])
+
     def test_rejects_root_missing_input_and_invalid_overrides(self):
         args = launcher.parse_args([])
         with patch.object(os, "getuid", return_value=0), self.assertRaises(ValueError):
@@ -160,6 +175,70 @@ class DockerIntegrationTests(unittest.TestCase):
                     self.assertEqual(feedbacks[0], feedbacks[1])
                     self.assertEqual(prompts[0], prompts[1])
                 print(f"PASS Docker reproducibility {kind}: identical same-seed results and weights; changed seed changes weights",
+                      flush=True)
+
+    def test_checkpoint_resume_matches_uninterrupted_after_sigkill(self):
+        image = os.environ.get("EVOLUTION_DOCKER_IMAGE", launcher.DEFAULT_IMAGE)
+        # Kill immediately after a committed generation; no production test/pause flags.
+        interrupt = """
+import os, runpy, signal
+from research.evolution.checkpoints import Checkpoint
+original = Checkpoint.save
+def save_and_interrupt(self, state):
+    original(self, state)
+    progress = state.get('weight_state') if self.kind == 'formulas' else state
+    if not state['completed'] and progress and progress['next_generation'] == 1:
+        os.kill(os.getpid(), signal.SIGKILL)
+Checkpoint.save = save_and_interrupt
+runpy.run_path('/app/run_evolution.py', run_name='__main__')
+"""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for kind in ("formulas", "selfplay"):
+                overrides = ["experiment.parameters.agents=4", "experiment.parameters.steps=2",
+                             "experiment.parameters.seed=53"]
+                if kind == "formulas":
+                    overrides += ["experiment.parameters.architecture_population=2",
+                                  "experiment.parameters.architecture_elites=1",
+                                  "experiment.parameters.architecture_generations=1",
+                                  "experiment.parameters.weight_population=2",
+                                  "experiment.parameters.weight_elites=1",
+                                  "experiment.parameters.weight_generations=2"]
+                else:
+                    overrides += ["experiment.parameters.runners=2", "experiment.parameters.blockers=2",
+                                  "experiment.parameters.runner_elites=1", "experiment.parameters.blocker_elites=1",
+                                  "experiment.parameters.generations=3"]
+                full, partial, resumed = (root / kind / name for name in ("full", "partial", "resumed"))
+                base = [sys.executable, str(ROOT / "run_evolution_docker.py"), "--experiment", kind, "--image", image,
+                        "--timeout", "120"]
+                result = subprocess.run([*base, "--output-dir", str(full), *overrides],
+                                        capture_output=True, text=True, timeout=160)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                partial.mkdir(parents=True)
+                name = f"aethergate-checkpoint-{kind}-{os.getpid()}"
+                args = launcher.parse_args(["--experiment", kind, "--image", image, *overrides])
+                command = launcher.docker_command(args, partial, name)
+                index = command.index(image)
+                command = [*command[:index], "--entrypoint=python", image, "-c", interrupt, *command[index + 1:]]
+                try:
+                    result = subprocess.run(command, capture_output=True, text=True, timeout=160)
+                finally:
+                    subprocess.run(["docker", "rm", "--force", name], check=False, timeout=30,
+                                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                self.assertEqual(result.returncode, 137, result.stdout + result.stderr)
+                self.assertFalse((partial / "result.json").exists())
+                source = partial / "checkpoint.npz"
+                self.assertTrue(source.is_file())
+                before = source.read_bytes()
+                result = subprocess.run([*base, "--output-dir", str(resumed), "--resume-from", str(source), *overrides],
+                                        capture_output=True, text=True, timeout=160)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(before, source.read_bytes())
+                expected = json.loads((full / "result.json").read_text())
+                actual = json.loads((resumed / "result.json").read_text())
+                self.assertEqual(canonical_result(expected), canonical_result(actual))
+                self.assertTrue((resumed / "checkpoint.npz").exists())
+                print(f"PASS Docker checkpoint {kind}: SIGKILL after committed generation; fresh-container resume matches continuous results and weights",
                       flush=True)
 
     def test_guardrail_stops_in_real_containers(self):
