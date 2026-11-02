@@ -48,7 +48,14 @@ def numpy_state(program, state, n):
             elif op == 33: r1[m] = old0[m]
             elif op == 34: r1[m] = np.where(oldp[m], old0[m], old1[m])
             elif op == 35:
-                r0[m], r1[m] = np.minimum(old0[m], old1[m]), np.maximum(old0[m], old1[m])
+                a, b = old0[m], old1[m]
+                lo, hi = np.minimum(a, b), np.maximum(a, b)
+                # NumPy SIMD tie selection differs across CPUs. The ABI fixes
+                # min(-0,+0)=-0 and max(-0,+0)=+0 in either operand order.
+                zeros = (a == 0) & (b == 0)
+                lo_zero = np.copysign(np.zeros_like(a), np.where(np.signbit(a) | np.signbit(b), np.float32(-1), np.float32(1)))
+                hi_zero = np.copysign(np.zeros_like(a), np.where(np.signbit(a) & np.signbit(b), np.float32(-1), np.float32(1)))
+                r0[m], r1[m] = np.where(zeros, lo_zero, lo), np.where(zeros, hi_zero, hi)
         ptr = np.clip(ptr, 0, 7)
         pc = newpc
     return r0,r1,ptr,pred,tape

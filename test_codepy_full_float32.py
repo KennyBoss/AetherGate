@@ -75,6 +75,29 @@ class FullRangeTests(unittest.TestCase):
             bank=np.concatenate((st[4][:,:3],st[0][:,None],st[1][:,None]),axis=1)
             np.testing.assert_array_equal(native[i],bank.view(np.uint32),err_msg=str(code))
 
+    def test_signed_zero_minmax_does_not_depend_on_numpy_backend(self):
+        # x86 SIMD may choose the second operand on equal zeros; ARM may
+        # choose the sign by min/max. Exercise the observed x86 path on either.
+        words=np.asarray([[0,0x80000000],[0x80000000,0],
+                          [0x80000000,0x80000000],[0,0]],np.uint32)
+        x=words.view(np.float32)
+        expected_min=np.asarray([0x80000000,0x80000000,0x80000000,0],np.uint32)
+        expected_max=np.asarray([0,0,0x80000000,0],np.uint32)
+        low,high=np.minimum,np.maximum
+        def second_on_tie(op):
+            return lambda a,b: np.where(np.equal(a,b),b,op(a,b))
+        with patch.object(np,'minimum',side_effect=second_on_tie(low)), \
+             patch.object(np,'maximum',side_effect=second_on_tie(high)):
+            state=oracle.numpy_state([35],[x[:,0],x[:,1],np.zeros(len(x),np.int32),
+                                          np.zeros(len(x),bool),np.zeros((len(x),8),np.float32)],3)
+        np.testing.assert_array_equal(state[0].view(np.uint32),expected_min)
+        np.testing.assert_array_equal(state[1].view(np.uint32),expected_max)
+        native=vm.step((jnp.asarray(words[:,0][None]),jnp.asarray(words[:,1][None]),
+                        jnp.zeros((1,len(x)),jnp.int32),jnp.zeros((1,len(x)),bool),
+                        jnp.zeros((1,len(x),8),jnp.uint32)),jnp.asarray([[35]]),3,bounded=False)
+        np.testing.assert_array_equal(np.asarray(native[0])[0],expected_min)
+        np.testing.assert_array_equal(np.asarray(native[1])[0],expected_max)
+
     def test_proven_safe_addition_fast_path(self):
         # Every exponent on the proven-safe grid, both signs; tiny/negative-zero
         # inputs must never select hardware addition. Constants/pointer values
