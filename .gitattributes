@@ -1,0 +1,3 @@
+# Preserve byte-for-byte historical interpreter sources used by certificates.
+research/codepy/autonomous_blocks/independent_executor.py whitespace=-blank-at-eof
+research/codepy/block_contracts/reference.py whitespace=-blank-at-eof

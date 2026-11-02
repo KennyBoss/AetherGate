@@ -1,0 +1,125 @@
+{
+  "version": "neural-context-copy-863-v1",
+  "jobs": [
+    {
+      "model": "transformer",
+      "seed": 11
+    },
+    {
+      "model": "transformer",
+      "seed": 23
+    },
+    {
+      "model": "transformer",
+      "seed": 17
+    },
+    {
+      "model": "ssm",
+      "seed": 23
+    },
+    {
+      "model": "ssm",
+      "seed": 17
+    },
+    {
+      "model": "ssm",
+      "seed": 11
+    }
+  ],
+  "seeds": [
+    11,
+    17,
+    23
+  ],
+  "config": {
+    "text_file": "/Users/makbuk/000cor/artifacts/audit_rerun_20261030/inputs/corpus.txt",
+    "output_json": null,
+    "tokenizer": "bpe",
+    "tokenizer_config": "/Users/makbuk/000cor/artifacts/audit_rerun_20261030/inputs/tokenizer_bpe_768.json",
+    "bpe_vocab_size": 512,
+    "bpe_min_frequency": 2,
+    "bpe_train_chars": 250000,
+    "eval_fraction": 0.2,
+    "min_train_tokens": 64,
+    "min_eval_tokens": 16,
+    "streams": 128,
+    "tokens_per_stream": 8192,
+    "seq_len": 128,
+    "ssm_input_dim": 64,
+    "ssm_state_dim": 96,
+    "ssm_variant": "conv-rms-lexical-skip",
+    "ssm_skip_rank": 32,
+    "ssm_attention_window": 128,
+    "ssm_attention_dim": 32,
+    "transformer_d_model": null,
+    "transformer_max_d_model": 256,
+    "transformer_layers": 1,
+    "transformer_heads": 2,
+    "transformer_ff_mult": 2,
+    "epochs": 1,
+    "learning_rate": 0.003,
+    "grad_clip": 1.0,
+    "memory_gate_l1": 0.0,
+    "ssm_aux_recall_every": 0,
+    "ssm_aux_recall_task": "delayed-key",
+    "ssm_aux_recall_delay": 32,
+    "ssm_aux_recall_key_count": 64,
+    "ssm_aux_recall_lr_scale": 0.25,
+    "ssm_aux_recall_init_gates": false,
+    "ssm_aux_recall_write_logit": 8.0,
+    "ssm_aux_recall_read_logit": 8.0,
+    "ssm_aux_recall_closed_logit": -8.0,
+    "ssm_aux_recall_logit_scale": 32.0,
+    "ssm_aux_recall_query_id": 1,
+    "ssm_aux_recall_filler_id": 0,
+    "ssm_aux_recall_assign_id": 2,
+    "ssm_aux_recall_separator_id": 3,
+    "repeat": 1,
+    "sample_steps": 8,
+    "temperature": 0.0,
+    "prompt": "memory is",
+    "seed": 11,
+    "backend": "cpu",
+    "label_smoothing": 0.05,
+    "output_bias_init": "train-unigram"
+  },
+  "base_ssm_variant": "conv-rms-lexical-skip",
+  "vocab_size": 863,
+  "source_sha256": {
+    "train_ssm_text.py": "3a47d97c1c347615c6410bd5d72a70a2a30e220c1a3b702c38be7129ecbad42f",
+    "compare_text_architectures.py": "878069b7060ad0fb27f53abb5bec754622fd61ce80abfc252999653f89646382",
+    "text_tokenization.py": "99c95d18a0a334a6f675719373bf13d444f4e617536864921e35f1b49874a8ba",
+    "jax_backend.py": "4d91587132d5fd1b4bd7925ce657bb8a23d7a05e5d70bd0bc4824e2129b0999a",
+    "local_attention_ssm.py": "c014c28a0f25d4f8224613a6d61b82ff540d3d9f05773d596a646a4c51c55291",
+    "causal_frequency.py": "300d9fcddf086081098d8c8a13102dc6e1e9182eafe23e2b14600d1a4e451df1",
+    "rare_transition.py": "2876cff5c84b90d887b2beee2751053c0aef95590c91437993bece478bdd3166",
+    "rare_occurrence.py": "330552c6259797509301e66995b45e2cb3019624f303e9abcc40b57d42842d70",
+    "unseen_occurrence.py": "40e8373184babfef0ca6321acaef3fbc230ab59fd4545b4db1c399cf0cbda56e"
+  },
+  "pointer_sha256": "ba9759c49f8a2c24d78e652188c3c23d2517323725ede826d6c0c3bf520a54d9",
+  "driver_sha256": "d1f83da5fd1f018cb84c3daa5dedb52e87a53d354367356f78e98594099e430f",
+  "data_sha256": "1ef4ca5a33816d61a3437b73a016d4d5d894c63d19c6bac5cb0334653b278d4e",
+  "tokenizer_sha256": "9b96da92853ded5c539686d89058918d9e795669fa26654084ea405f91cccdb9",
+  "vocab_sha256": "b73b7d7f23e891d1a748091770315a3b7de83ab4ce90b8bf00ab382edef96c78",
+  "baseline_summary_sha256": "b38177c2690d7d37b37f2e347e8725e68694ea0cbe11136252783dadb29e426e",
+  "pointer": {
+    "capacity": 64,
+    "dimension": 12,
+    "initial_temperature": 12,
+    "initial_null_bias": "log(capacity)+10",
+    "key": "learned normalized projection of current+previous input embeddings",
+    "causality": "At observed input t, pair previous context key with input t, then predict t+1. Never observe target t+1 before prediction.",
+    "learning": "All pointer weights and base network jointly trained in same63Adamsteps. No fitted posthoc counts, external vectors, calibration or eval hyperparameter choice.",
+    "both_architectures": true
+  },
+  "candidate_selection": "One fixed candidate only; no hidden pilot learning, grid or checkpoint selection. Initial parameters differ only by appended learned pointer projection/temperature/null parameters; base initializer identical to accepted baseline.",
+  "training": "Each of6fresh runs:63appliedAdamupdates,1epoch,1032192targets,LR.003,clip1,smoothing.05,original TRAINunigram biasinit. No upweighting, augmentation, auxiliary updates or external embeddings. Compilation warmup discarded.",
+  "inference": "A joint neural pointer-generator model. Pure baseline probabilities also measured as same-weight head-off ablation. Pointer is an internal trained output component, not an external calibrator.",
+  "acceptance": "Ultra1..9 top1>0 in each3seeds, and each othercohort0/10..99/100..999/>=1000 has nonworseNLL andtop1 against accepted SSM in eachseed. No rounding away failedguards. Reportfirstin-stream/repeat-in-stream/available-in64inputcache separately.",
+  "fairness": "Both architectures receive same64slot,12dim neural pointer and fullstream carry for it. SSMbase state carries across128chunks; Transformerbase attention128resets as before. Parameters approximately matched, but FLOPs/time and memory are not equal to pure baseline. Additional cache bytes and timing reported.",
+  "scientific_limit": "Previously inspected corpus. Local repeated context support is different from first occurrence of a novel token/context; report separately. Knowing a word meaning is not next-token top1. New protocol does not claim untouched test set.",
+  "references": [
+    "https://aclanthology.org/P17-1099/",
+    "https://ojs.aaai.org/index.php/AAAI/article/view/10362"
+  ]
+}

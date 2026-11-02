@@ -1,0 +1,12 @@
+{
+  "seed": 0,
+  "missing_before": [],
+  "blocks": [],
+  "status": "complete",
+  "preparation_case_step_budget": 18874368,
+  "preparation_case_steps_used": 0,
+  "budget_charges": [],
+  "trace": [],
+  "elapsed_s": 8.500006515532732e-06,
+  "source_only_no_target_inputs": true
+}

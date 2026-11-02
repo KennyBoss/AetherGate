@@ -1,0 +1,318 @@
+{
+  "passed": true,
+  "programs": [
+    {
+      "seed": 0,
+      "task": "sort4",
+      "new_passed": true,
+      "baseline_passed": true,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 0,
+      "task": "reverse4",
+      "new_passed": true,
+      "baseline_passed": true,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 0,
+      "task": "rotate4",
+      "new_passed": true,
+      "baseline_passed": true,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 0,
+      "task": "descending4",
+      "new_passed": true,
+      "baseline_passed": true,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 1,
+      "task": "sort4",
+      "new_passed": true,
+      "baseline_passed": true,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 1,
+      "task": "reverse4",
+      "new_passed": true,
+      "baseline_passed": true,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 1,
+      "task": "rotate4",
+      "new_passed": true,
+      "baseline_passed": false,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 1,
+      "task": "descending4",
+      "new_passed": true,
+      "baseline_passed": true,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 2,
+      "task": "sort4",
+      "new_passed": true,
+      "baseline_passed": true,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 2,
+      "task": "reverse4",
+      "new_passed": true,
+      "baseline_passed": true,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 2,
+      "task": "rotate4",
+      "new_passed": true,
+      "baseline_passed": true,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 2,
+      "task": "descending4",
+      "new_passed": true,
+      "baseline_passed": true,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 3,
+      "task": "sort4",
+      "new_passed": true,
+      "baseline_passed": true,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 3,
+      "task": "reverse4",
+      "new_passed": true,
+      "baseline_passed": true,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 3,
+      "task": "rotate4",
+      "new_passed": true,
+      "baseline_passed": true,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 3,
+      "task": "descending4",
+      "new_passed": true,
+      "baseline_passed": true,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 4,
+      "task": "sort4",
+      "new_passed": true,
+      "baseline_passed": false,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 4,
+      "task": "reverse4",
+      "new_passed": true,
+      "baseline_passed": true,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 4,
+      "task": "rotate4",
+      "new_passed": true,
+      "baseline_passed": true,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    },
+    {
+      "seed": 4,
+      "task": "descending4",
+      "new_passed": true,
+      "baseline_passed": false,
+      "cases_each": 7041,
+      "native_numpy_exact": true
+    }
+  ],
+  "block_lineage": [
+    {
+      "seed": 1,
+      "family": "swap",
+      "block": [
+        4,
+        7,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "first_round_edit_parents": [
+        {
+          "parent": {
+            "code": [
+              4,
+              3
+            ],
+            "layout": [
+              0,
+              1
+            ],
+            "outputs": [
+              3,
+              4
+            ],
+            "provenance": {
+              "method": "unfiltered_source_window",
+              "source": 0,
+              "program": 91,
+              "indices": [
+                2,
+                3
+              ]
+            }
+          },
+          "parent_score": 1.1999999284744263,
+          "changed_positions": [
+            [
+              1,
+              3,
+              7
+            ],
+            [
+              2,
+              0,
+              3
+            ]
+          ],
+          "parent_layout": [
+            0,
+            1
+          ],
+          "block_layout": [
+            0,
+            1
+          ]
+        }
+      ],
+      "generic_edits_reproduced": true
+    },
+    {
+      "seed": 4,
+      "family": "order",
+      "block": [
+        4,
+        1,
+        32,
+        7,
+        7,
+        24,
+        4,
+        20,
+        34,
+        25,
+        0,
+        0
+      ],
+      "first_round_edit_parents": [
+        {
+          "parent": {
+            "code": [
+              4,
+              1,
+              32,
+              7,
+              7,
+              24,
+              4,
+              13,
+              34,
+              25,
+              0,
+              0
+            ],
+            "layout": [
+              0,
+              2
+            ],
+            "outputs": [
+              3,
+              4
+            ],
+            "provenance": {
+              "method": "prior_source_repair_partial",
+              "generation": 4
+            }
+          },
+          "parent_score": 0.3500000238418579,
+          "changed_positions": [
+            [
+              7,
+              13,
+              20
+            ]
+          ],
+          "parent_layout": [
+            0,
+            2
+          ],
+          "block_layout": [
+            0,
+            2
+          ]
+        }
+      ],
+      "generic_edits_reproduced": true
+    }
+  ],
+  "new_and_old_programs_replayed": 40,
+  "target_inputs_each": 7041,
+  "all17_previous_successes_preserved": true,
+  "all_vm_case_steps_within_baseline": true,
+  "old_files_checked": 1390,
+  "old_files_changed": [],
+  "source_hashes_verified": true,
+  "finite_float32_tests_not_universal_proof": true,
+  "old_hashes_rechecked_after_ci": true,
+  "final_source_manifest_verified": true,
+  "make_ci": {
+    "passed": true,
+    "unit_tests": 67,
+    "system_scenarios": 22,
+    "system_ok": true
+  },
+  "targeted_unit_tests": 4
+}

@@ -1,4 +1,4 @@
-PYTHON ?= python3
+PYTHON ?= ./scripts/python-ci
 BENCHMARK_BASELINE ?= artifacts/benchmarks/quick_20260620T171809Z.json
 BENCHMARK_CANDIDATE ?= artifacts/benchmarks/quick_compare_candidate.json
 MAX_REGRESSION ?= 0.25
@@ -54,7 +54,7 @@ help:
 	@echo ""
 	@echo "Core:"
 	@echo "  make compile   Syntax-check all product scripts"
-	@echo "  make verify    Run end-to-end smoke verifier"
+	@echo "  make verify    Verify frozen memory/CodePy (no neural training)"
 	@echo "  make benchmark Run quick benchmark, save JSON report"
 	@echo "  make compare   Compare benchmark JSON reports"
 	@echo ""
@@ -199,7 +199,7 @@ compile:
 		benchmark_system.py \
 		compare_benchmarks.py
 
-verify:
+verify-research:
 	$(PYTHON) verify_system.py --timeout 600
 
 benchmark:
@@ -1304,3 +1304,9 @@ neocortex-x-stage45-guarded-runtime-execution-smoke: neocortex-x-stage44-guarded
 
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories
+
+# Frozen memory/CodePy release: no optimizer updates or model training.
+.PHONY: ci verify
+ci: verify
+verify:
+	$(PYTHON) scripts/verify_release.py

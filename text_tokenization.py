@@ -9,6 +9,7 @@ can be learned from a real corpus and stored inside checkpoints.
 from __future__ import annotations
 
 import re
+from copy import deepcopy
 from collections import Counter
 from typing import Any
 
@@ -73,6 +74,8 @@ def merge_pair_once(pieces: tuple[str, ...], pair: tuple[str, str]) -> tuple[str
 
 
 def bpe_merge_ranks(tokenizer_config: dict[str, Any]) -> dict[tuple[str, str], int]:
+    if any(not str(left) or not str(right) for left, right in tokenizer_config.get("merges", [])):
+        raise ValueError("BPE merge operands must be nonempty")
     return {
         (str(left), str(right)): rank
         for rank, (left, right) in enumerate(tokenizer_config.get("merges", []))
@@ -158,9 +161,10 @@ def encode_bpe_raw_token(
     token: str,
     tokenizer_config: dict[str, Any],
     merge_ranks: dict[tuple[str, str], int] | None = None,
+    *,
+    allowed_units: frozenset[str] | None = None,
+    reverse_merges: dict[str, tuple[str, str]] | None = None,
 ) -> list[str]:
-    if not WORD_ONLY_PATTERN.fullmatch(token):
-        return [token]
     pieces = initial_bpe_pieces(token)
     ranks = merge_ranks if merge_ranks is not None else bpe_merge_ranks(tokenizer_config)
     while len(pieces) > 1:
@@ -168,7 +172,23 @@ def encode_bpe_raw_token(
         if next_pieces is None:
             break
         pieces = next_pieces
-    return list(pieces)
+    if allowed_units is None and "training_vocab" in tokenizer_config:
+        allowed_units = frozenset(tokenizer_config["training_vocab"])
+    if allowed_units is None:
+        return list(pieces)
+    reverse_merges = reverse_merges if reverse_merges is not None else {
+        str(a) + str(b): (str(a), str(b)) for a, b in tokenizer_config.get("merges", [])
+    }
+    return [unit for piece in pieces for unit in _fallback_piece(piece, allowed_units, reverse_merges)]
+
+
+def _fallback_piece(piece, allowed, reverse):
+    if piece in allowed:
+        return [piece]
+    if piece in reverse:
+        left, right = reverse[piece]
+        return _fallback_piece(left, allowed, reverse) + _fallback_piece(right, allowed, reverse)
+    return [UNK]
 
 
 def tokenize_with_config(text: str, tokenizer_config: dict[str, Any] | None) -> list[str]:
@@ -180,11 +200,15 @@ def tokenize_with_config(text: str, tokenizer_config: dict[str, Any] | None) -> 
     if tokenizer_type == "bpe":
         tokens: list[str] = []
         merge_ranks = bpe_merge_ranks(tokenizer_config)
+        allowed = (frozenset(tokenizer_config["training_vocab"])
+                   if "training_vocab" in tokenizer_config else None)
+        reverse = {a + b: (a, b) for a, b in merge_ranks}
         cache: dict[str, tuple[str, ...]] = {}
         for raw_token in raw_tokens:
             encoded = cache.get(raw_token)
             if encoded is None:
-                encoded = tuple(encode_bpe_raw_token(raw_token, tokenizer_config, merge_ranks))
+                encoded = tuple(encode_bpe_raw_token(raw_token, tokenizer_config, merge_ranks,
+                                                    allowed_units=allowed, reverse_merges=reverse))
                 cache[raw_token] = encoded
             tokens.extend(encoded)
         return tokens
@@ -196,6 +220,12 @@ def detokenize_subwords(tokens: list[str], tokenizer_config: dict[str, Any] | No
     word_tokens: list[str] = []
     buffer: list[str] = []
     for token in tokens:
+        if token == UNK and "training_vocab" in (tokenizer_config or {}):
+            if buffer:
+                word_tokens.append("".join(buffer))
+                buffer = []
+            word_tokens.append("\ufffd")
+            continue
         if token in {UNK, BOS}:
             continue
         if token.endswith(end_word):
@@ -247,7 +277,8 @@ def build_vocab(tokens: list[str]) -> tuple[dict[str, int], list[str]]:
         counts[token] = counts.get(token, 0) + 1
 
     vocab = [UNK, BOS]
-    vocab.extend(sorted(counts, key=lambda item: (-counts[item], item)))
+    vocab.extend(sorted((token for token in counts if token not in {UNK, BOS}),
+                        key=lambda item: (-counts[item], item)))
     token_to_id = {token: i for i, token in enumerate(vocab)}
     return token_to_id, vocab
 
@@ -269,12 +300,104 @@ def build_vocab_for_tokenizer(
     tokens: list[str],
     tokenizer_config: dict[str, Any],
 ) -> tuple[dict[str, int], list[str]]:
-    token_to_id, vocab = build_vocab(tokens)
-    for token in tokenizer_vocab_units(tokenizer_config):
-        if token not in token_to_id:
-            token_to_id[token] = len(vocab)
-            vocab.append(token)
-    return token_to_id, vocab
+    # Merge operands are tokenizer instructions, not necessarily emitted targets.
+    return build_vocab(tokens)
+
+
+def make_token_streams(token_ids, streams, tokens_per_stream):
+    if streams < 1 or tokens_per_stream < 1 or len(token_ids) < 1:
+        raise ValueError("Need nonempty token IDs and positive stream dimensions")
+    needed = streams * tokens_per_stream + 1
+    repeats = int(np.ceil(needed / len(token_ids)))
+    return np.tile(token_ids, repeats)[:streams * tokens_per_stream].reshape(streams, tokens_per_stream)
+
+
+def sample_training_streams(token_ids, streams, tokens_per_stream, seq_len):
+    """Rarest-first TRAIN coverage, then evenly spaced windows; fixed budget.
+
+    Covering a class means putting it in a consumed TARGET, not merely in the
+    first input or the unused tail. Evaluation never enters this selection.
+    """
+    if streams < 1 or not 0 < seq_len < tokens_per_stream or len(token_ids) < 1:
+        raise ValueError("Need nonempty training IDs and complete target windows")
+    ids = np.asarray(token_ids)
+    used = ((tokens_per_stream - 1) // seq_len) * seq_len
+    counts = np.bincount(ids)
+    first = np.full(len(counts), len(ids), dtype=np.int64)
+    np.minimum.at(first, ids, np.arange(len(ids), dtype=np.int64))
+    required = sorted((i for i in range(2, len(counts)) if counts[i]), key=lambda i: (counts[i], i))
+    covered = set()
+    starts = []
+    for token in required:
+        if token in covered:
+            continue
+        if len(starts) == streams:
+            break
+        start = max(0, min(int(first[token]) - used // 2, max(0, len(ids) - used - 1)))
+        starts.append(start)
+        target_positions = (start + np.arange(1, used + 1)) % len(ids)
+        covered.update(np.asarray(ids[target_positions]).tolist())
+    coverage_windows = len(starts)
+    remaining = streams - len(starts)
+    for start in np.linspace(0, max(0, len(ids) - tokens_per_stream), remaining, dtype=np.int64):
+        starts.append(int(start))
+    positions = (np.asarray(starts)[:, None] + np.arange(tokens_per_stream)) % len(ids)
+    return ids[positions], {"method": "train_coverage_then_uniform_v1", "stream_starts": starts,
+                            "coverage_windows": coverage_windows, "source_units": len(required),
+                            "covered_source_units": len(set(required) & covered)}
+
+
+def fit_bpe_training_data(text, tokenizer_config, *, streams, tokens_per_stream, seq_len):
+    """Fit output units to actual TRAIN targets; expose fallback atoms naturally.
+
+    No evaluation data or synthetic alphabet examples are used. A merge that
+    swallows an otherwise untrained fallback atom is disabled. Unsupported
+    combinations decompose through the merge tree; unseen characters use UNK.
+    """
+    if tokenizer_config.get("type") != "bpe" or not 0 < seq_len < tokens_per_stream:
+        raise ValueError("Need BPE and at least one complete training chunk")
+    config = deepcopy(tokenizer_config)
+    config.pop("training_vocab", None)
+    passes = []
+    used = ((tokens_per_stream - 1) // seq_len) * seq_len
+    for _ in range(64):
+        tokens = tokenize_with_config(text, config)
+        if not tokens:
+            raise ValueError("Cannot fit a training vocabulary to empty text")
+        mapping, vocab = build_vocab(tokens)
+        packed, selection = sample_training_streams(encode_tokens(tokens, mapping), streams,
+                                                   tokens_per_stream, seq_len)
+        counts = np.bincount(packed[:, 1:used + 1].reshape(-1), minlength=len(vocab))
+        active = {vocab[i] for i in range(2, len(vocab)) if counts[i] > 0}
+        reverse = {str(a) + str(b): (str(a), str(b)) for a, b in config.get("merges", [])}
+
+        def atoms(piece):
+            if piece not in reverse:
+                return {piece}
+            a, b = reverse[piece]
+            return atoms(a) | atoms(b)
+
+        missing = set().union(*(atoms(t) for t in active)) - active if active else set()
+        passes.append({"vocab_size": len(vocab), "ordinary_zero_targets": int(np.sum(counts[2:] == 0)),
+                       "missing_fallback_atoms": sorted(missing), "merges": len(config.get("merges", []))})
+        if missing:
+            merges = [pair for pair in config.get("merges", [])
+                      if pair[0] not in missing and pair[1] not in missing]
+            if len(merges) == len(config.get("merges", [])):
+                raise ValueError("Cannot expose the required BPE fallback atoms")
+            config["merges"] = merges
+            config.pop("training_vocab", None)
+            continue
+        if "training_vocab" in config and set(config["training_vocab"]) == active:
+            config["vocab_policy"] = "actual_train_targets_v1"
+            return {"tokenizer_config": config, "token_to_id": mapping, "vocab": vocab,
+                    "train_tokens": tokens, "train_streams": packed,
+                    "coverage": {"ordinary_zero_targets": 0, "ordinary_units": len(active),
+                                 "reserved_target_counts": {UNK: int(counts[0]), BOS: int(counts[1])},
+                                 "trained_targets": int(counts.sum()), "passes": passes,
+                                 "sampling": selection}}
+        config["training_vocab"] = sorted(active)
+    raise ValueError("BPE training vocabulary did not converge within 64 fitting passes")
 
 
 def encode_tokens(tokens: list[str], token_to_id: dict[str, int]) -> np.ndarray:

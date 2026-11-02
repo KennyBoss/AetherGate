@@ -1,0 +1,4 @@
+[
+  {"operation":"remember","entity":"клары","property":"основная книга","handle":"морской атлас","command":0,"arguments":[[3,-1,2,0]]},
+  {"operation":"execute","question":"Что именно относится к Кларе: главное издание? Ответ:"}
+]

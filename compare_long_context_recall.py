@@ -22,6 +22,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, NamedTuple
 
+from run_mamba_mqar import array_sha256
 from jax_backend import configure_environment
 
 
@@ -648,6 +649,7 @@ def extract_real_python_records(
     root = source_root if source_root is not None else Path(__file__).resolve().parent
     records: list[tuple[list[int], list[int], list[int]]] = []
     value_offset = ASSIGN_NAME_OFFSET + key_count
+    seen_prefixes: set[tuple[int, ...]] = set()
 
     for path in sorted(root.rglob("*.py")):
         rel_path = path.relative_to(root)
@@ -659,9 +661,6 @@ def extract_real_python_records(
             continue
         for node in ast.walk(tree):
             if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                continue
-            fold = stable_index(f"{rel_path}:{node.name}:{getattr(node, 'lineno', 0)}", 2)
-            if fold != seed % 2:
                 continue
             name_to_index: dict[str, int] = {}
             env: dict[int, int] = {}
@@ -708,7 +707,15 @@ def extract_real_python_records(
             queryable = sorted(env)
             if len(queryable) < query_count:
                 continue
-            rng = np.random.default_rng(seed + stable_index(f"{rel_path}:{node.name}", 1_000_003))
+            # Split the actual model-visible task, before selecting queries.
+            # Prefix grouping also prevents leakage through different queries.
+            canonical_prefix = tuple(prefix[: 4 * binding_count])
+            if canonical_prefix in seen_prefixes:
+                continue
+            seen_prefixes.add(canonical_prefix)
+            if stable_index(json.dumps(canonical_prefix), 2) != seed % 2:
+                continue
+            rng = np.random.default_rng(seed + stable_index(json.dumps(canonical_prefix), 1_000_003))
             query_slots = rng.choice(len(queryable), size=query_count, replace=False)
             query_names = [queryable[int(slot)] for slot in query_slots]
             targets = [env[name] for name in query_names]
@@ -1791,9 +1798,9 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
 
 
 def run(args: argparse.Namespace) -> None:
-    bypass_mode = args.delay > args.transformer_context
-    if not bypass_mode and not args.allow_visible_key:
-        raise SystemExit("--delay must be larger than --transformer-context for this bypass probe.")
+    if args.transformer_context < 1 or args.transformer_layers < 1:
+        raise SystemExit("Transformer context and layer count must be positive.")
+    transformer_receptive_field = 1 + args.transformer_layers * (args.transformer_context - 1)
     if args.batch_size < 1:
         raise SystemExit("--batch-size must be positive.")
     if args.task == "assignment" and args.delay < 8:
@@ -1857,6 +1864,21 @@ def run(args: argparse.Namespace) -> None:
         query_count=args.query_count,
         seed=args.seed + 1,
     )
+    # No prefix token may reach the first query through any attention layer.
+    # Exclude the query instruction (name, or print/name syntax) from the prefix.
+    query_instruction = 0 if args.task in {"delayed-key", "mqar"} else (3 if args.task == "generated-python-code" else 1)
+    prefix_width = args.delay - query_instruction
+    prefix_positions = np.where(eval_inputs_np[:, :prefix_width] != PAD_TOKEN,
+                                np.arange(prefix_width)[None, :], -1)
+    minimum_prefix_distance = int(args.delay - np.max(prefix_positions))
+    bypass_mode = minimum_prefix_distance >= transformer_receptive_field
+    if not bypass_mode and not args.allow_visible_key:
+        raise SystemExit(
+            "Prefix is reachable through the Transformer layers; increase --delay "
+            "or use --allow-visible-key for a control run."
+        )
+    train_data_sha256 = array_sha256(train_inputs_np, train_targets_np, train_aux_np)
+    eval_data_sha256 = array_sha256(eval_inputs_np, eval_targets_np, eval_aux_np)
     train_inputs = jnp.asarray(train_inputs_np)
     train_targets = jnp.asarray(train_targets_np)
     eval_inputs = jnp.asarray(eval_inputs_np)
@@ -2077,7 +2099,7 @@ def run(args: argparse.Namespace) -> None:
     print(f"  ssm_parameter_bytes: {format_bytes(count_bytes(ssm_params))}")
     print(f"  transformer_parameter_bytes: {format_bytes(count_bytes(transformer_params))}")
     print(f"  ssm_effective_context_tokens: {seq_len}")
-    print(f"  transformer_effective_context_tokens: {args.transformer_context}")
+    print(f"  transformer_effective_context_tokens: {transformer_receptive_field}")
     print(f"  recall_distance_over_transformer_context: {args.delay / args.transformer_context:.2f}x")
     print("")
     print("Comparison")
@@ -2103,12 +2125,18 @@ def run(args: argparse.Namespace) -> None:
             query_count=args.query_count,
             seed=args.seed + 1,
         )
+        if {tuple(record[0]) for record in train_extracted} & {tuple(record[0]) for record in eval_extracted}:
+            raise ValueError("Training and evaluation canonical prefixes overlap")
         task_extra = {
             "data_source": "static AST extraction from Python files in this repository",
             "execution": "source files are parsed but never executed",
             "train_extracted_records": len(train_extracted),
             "eval_extracted_records": len(eval_extracted),
-            "fold_split": "stable hash parity; train seed and eval seed use opposite folds",
+            "fold_split": "canonical prefix hash parity, deduplicated before splitting",
+            "train_pool_sha256": hashlib.sha256(json.dumps(train_extracted, separators=(",", ":")).encode()).hexdigest(),
+            "eval_pool_sha256": hashlib.sha256(json.dumps(eval_extracted, separators=(",", ":")).encode()).hexdigest(),
+            "shared_canonical_prefixes": len({tuple(record[0]) for record in train_extracted}
+                                             & {tuple(record[0]) for record in eval_extracted}),
             "target_derivation": (
                 "Assignments are statically simulated in a compact variable environment; "
                 "non-name RHS expressions are canonicalized into value buckets."
@@ -2121,6 +2149,11 @@ def run(args: argparse.Namespace) -> None:
         "backend": jax.default_backend(),
         "devices": [str(device) for device in jax.devices()],
         "protocol": {
+            "version": 2,
+            "train_data_sha256": train_data_sha256,
+            "eval_data_sha256": eval_data_sha256,
+            "transformer_receptive_field_tokens": transformer_receptive_field,
+            "minimum_prefix_distance": minimum_prefix_distance,
             "train_records": args.train_records,
             "eval_records": args.eval_records,
             "task": args.task,
@@ -2149,7 +2182,7 @@ def run(args: argparse.Namespace) -> None:
             "seed": args.seed,
             "claim_guardrail": (
                 "This task is a bounded long-context/code-memory probe when bypass_mode=true: "
-                "the key is outside the Transformer attention cap but inside the SSM "
+                "all prefix tokens are outside the multi-layer Transformer receptive field but inside the SSM "
                 "recurrent training window. With --allow-visible-key it becomes a "
                 "control run, not bypass evidence. It is not a general natural-language "
                 "superiority claim."

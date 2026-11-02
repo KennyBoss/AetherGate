@@ -10,3 +10,7 @@ __pycache__/
 .DS_Store
 .playwright-cli/
 .claude/
+
+# Release verification output; frozen inputs are explicitly committed.
+.ci-output/
+*.session.npz

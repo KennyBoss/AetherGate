@@ -1,0 +1,9 @@
+{
+  "kind": "outcome",
+  "metric": "guarded_total_successes",
+  "protocol": "codepy-missing-family-local-completion-v1",
+  "value": 17,
+  "method": "Сохранённая принятая серия seeds0–4, четыре задачи,7041проверочных входов; все20программ проверены native и NumPy",
+  "limitations": "Пять seeds; конечный проверочный набор",
+  "source": "/Users/makbuk/000cor/artifacts/codepy_branch_guided_20261101/results.json"
+}

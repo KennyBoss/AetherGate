@@ -1,0 +1,207 @@
+{
+  "seed": 1,
+  "missing_before": [
+    "swap"
+  ],
+  "blocks": [
+    {
+      "code": [
+        4,
+        7,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "layout": [
+        0,
+        1
+      ],
+      "outputs": [
+        3,
+        4
+      ],
+      "provenance": {
+        "method": "bounded_edit_beam"
+      },
+      "behavior": "swap",
+      "qualification": [
+        {
+          "group": "challenge64",
+          "cases": 64,
+          "behavior": "swap",
+          "native_numpy_exact": true,
+          "inputs_sha256": "5437c608e64ec34fb0c2200638b9e934a9bfad995671d40557606349472964df"
+        },
+        {
+          "group": "promotion6429",
+          "cases": 6429,
+          "behavior": "swap",
+          "native_numpy_exact": true,
+          "inputs_sha256": "e7eb354999a53eeb2adb3feaebe720852f2109eb43ed56f4856d87dbd308951b"
+        }
+      ]
+    }
+  ],
+  "status": "complete",
+  "preparation_case_step_budget": 18874368,
+  "preparation_case_steps_used": 2075832,
+  "budget_charges": [
+    {
+      "kind": "missing_family_source_probes",
+      "units": 38400
+    },
+    {
+      "kind": "missing_family_source_probes",
+      "units": 38400
+    },
+    {
+      "kind": "missing_family_source_probes",
+      "units": 38400
+    },
+    {
+      "kind": "missing_family_source_probes",
+      "units": 38400
+    },
+    {
+      "kind": "missing_family_source_probes",
+      "units": 38400
+    },
+    {
+      "kind": "missing_family_source_probes",
+      "units": 38400
+    },
+    {
+      "kind": "missing_family_source_probes",
+      "units": 38400
+    },
+    {
+      "kind": "missing_family_source_probes",
+      "units": 38400
+    },
+    {
+      "kind": "missing_family_source_probes",
+      "units": 38400
+    },
+    {
+      "kind": "missing_family_source_probes",
+      "units": 38400
+    },
+    {
+      "kind": "missing_family_source_probes",
+      "units": 38400
+    },
+    {
+      "kind": "missing_family_source_probes",
+      "units": 38400
+    },
+    {
+      "kind": "missing_family_source_probes",
+      "units": 38400
+    },
+    {
+      "kind": "missing_family_source_probes",
+      "units": 38400
+    },
+    {
+      "kind": "missing_family_source_probes",
+      "units": 38400
+    },
+    {
+      "kind": "missing_family_source_probes",
+      "units": 38400
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "challenge64",
+      "units": 1536
+    },
+    {
+      "kind": "promotion6429",
+      "units": 154296
+    }
+  ],
+  "trace": [
+    {
+      "family": "swap",
+      "round": 0,
+      "promoted": true,
+      "budget_used": 2075832
+    }
+  ],
+  "elapsed_s": 0.9650483750156127,
+  "source_only_no_target_inputs": true
+}

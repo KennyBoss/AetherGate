@@ -1,0 +1,23 @@
+{
+  "name": "codepy_local_completion",
+  "status": "accepted_reference",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "strict_successes": 20,
+  "total_cases": 20,
+  "cases_per_task": 7041,
+  "results": "/Users/makbuk/000cor/artifacts/codepy_local_completion_20261101/results.json",
+  "results_sha256": "6b6500cd4ae2e2ec7073a1255f1cc922773121685ae8d27d731efdd8bdf3f9b7",
+  "verification": "/Users/makbuk/000cor/artifacts/codepy_local_completion_20261101/verification.json",
+  "verification_sha256": "159656c8314a21accecc28def6802d0eccfc294f8660a6f4a29771bea8f6d8e1",
+  "source_manifest": "/Users/makbuk/000cor/artifacts/codepy_local_completion_20261101/final_source_manifest.json",
+  "source_manifest_sha256": "fcadef8341f6109ef604c507674650053b67d9b4123e44b223953fb3204597b5",
+  "artifact_hash_manifest": "/Users/makbuk/000cor/artifacts/codepy_transfer_20261101/reference_artifact_hashes.json",
+  "artifact_hash_manifest_sha256": "24a31850884744ec7015e636567982b160ae52078d2ee38be084bc9496c0bf7d",
+  "historical_complete_pipeline_case_steps": 3482598872
+}

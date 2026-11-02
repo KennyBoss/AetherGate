@@ -1,0 +1,12 @@
+{
+  "goal_key": "codepy-local-completion-20261101",
+  "outcome": "Максимум строгих успехов CodePy без потери прежних17 и без увеличения общего бюджета",
+  "metric": "guarded_total_successes",
+  "protocol": "codepy-missing-family-local-completion-v1",
+  "baseline_name": "accepted branch_guided17of20",
+  "direction": "max",
+  "target": 20,
+  "min_delta": 1,
+  "done_when": "20из20 либо честно зафиксирован оставшийся предел зарегистрированной попытки; все17сохранены, бюджет и makeci проверены",
+  "stall_limit": 3
+}
