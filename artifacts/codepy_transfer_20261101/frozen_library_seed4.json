@@ -1,0 +1,107 @@
+{
+  "seed": 4,
+  "blocks": [
+    {
+      "code": [
+        4,
+        15,
+        32,
+        7,
+        7,
+        25,
+        6,
+        9,
+        5
+      ],
+      "layout": [
+        0,
+        2
+      ],
+      "provenance": {
+        "method": "backward_slice",
+        "source": 1,
+        "program": 17,
+        "prefix": 33,
+        "source_indices_or_pointer_relocation": [
+          18,
+          22,
+          23,
+          -1,
+          -1,
+          27,
+          28,
+          -1,
+          32
+        ]
+      },
+      "frequency": 6,
+      "behavior": "swap",
+      "qualification": [
+        {
+          "group": "challenge64",
+          "cases": 64,
+          "native_numpy_exact": true,
+          "behavior": "swap",
+          "inputs_sha256": "b85589b57d047d0ec1dc375d80667856876de5ab86eda335e5dfd5966f50dc3d"
+        },
+        {
+          "group": "promotion6429",
+          "cases": 6429,
+          "native_numpy_exact": true,
+          "behavior": "swap",
+          "inputs_sha256": "2e2fcd77080715fb10ecb221ff4d3e4d59df83319134867c05507208439a2c22"
+        }
+      ]
+    },
+    {
+      "code": [
+        4,
+        1,
+        32,
+        7,
+        7,
+        24,
+        4,
+        20,
+        34,
+        25,
+        0,
+        0
+      ],
+      "layout": [
+        0,
+        2
+      ],
+      "outputs": [
+        3,
+        4
+      ],
+      "provenance": {
+        "method": "bounded_edit_beam"
+      },
+      "behavior": "order_descending",
+      "qualification": [
+        {
+          "group": "challenge64",
+          "cases": 64,
+          "behavior": "order_descending",
+          "native_numpy_exact": true,
+          "inputs_sha256": "b85589b57d047d0ec1dc375d80667856876de5ab86eda335e5dfd5966f50dc3d"
+        },
+        {
+          "group": "promotion6429",
+          "cases": 6429,
+          "behavior": "order_descending",
+          "native_numpy_exact": true,
+          "inputs_sha256": "2e2fcd77080715fb10ecb221ff4d3e4d59df83319134867c05507208439a2c22"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "/Users/makbuk/000cor/artifacts/codepy_branch_guided_20261101/library_seed4.json": "91e9c29e4b61b9fd839e1c35b82cd1ba53753182cd1ecadad35f1b887b4d85c6",
+    "/Users/makbuk/000cor/artifacts/codepy_local_completion_20261101/library_seed4.json": "c1618f24a52c4f861ff1c2a180d51a02f2aa36677a76e5fe05a03e98e8b1fc91"
+  },
+  "learning_evaluations": 0,
+  "cross_seed_body_transfer": false
+}

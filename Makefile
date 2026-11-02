@@ -1,4 +1,4 @@
-PYTHON ?= python3
+PYTHON ?= ./scripts/python-ci
 EVOLUTION_IMAGE ?= aethergate-evolution:local
 VERIFY_TIMEOUT ?= 600
 BENCHMARK_BASELINE ?= artifacts/benchmarks/quick_20260620T171809Z.json
@@ -6,15 +6,59 @@ BENCHMARK_CANDIDATE ?= artifacts/benchmarks/quick_compare_candidate.json
 MAX_REGRESSION ?= 0.25
 ARCH_SEEDS ?= 11,17,23
 
-.PHONY: help compile verify benchmark benchmark-standard compare ingest-gutenberg-demo ingest-gutenberg-bulk profile-text-demo profile-text-bpe-demo profile-text-bulk-bpe compare-text-demo compare-text-architectures-demo compare-text-architectures-million compare-long-context-recall-demo compare-assignment-recall-demo compare-multi-assignment-recall-demo compare-sparse-kv-routing-smoke compare-sparse-kv-routing-margin-smoke compare-sparse-kv-routing-hard-smoke compare-sparse-kv-routing-margin-multiseed compare-multi-query-assignment-recall-demo compare-assignment-distractor-recall-demo compare-assignment-alias-recall-demo compare-mixed-code-recall-demo compare-mixed-code-recall-multiseed compare-mixed-code-full-context-control compare-generated-python-code-recall-demo compare-generated-python-code-recall-multiseed compare-generated-python-code-full-context-control compare-real-python-code-recall-demo compare-real-python-code-recall-multiseed compare-real-python-code-full-context-control compare-real-python-code-full-context-multiseed compare-assignment-update-recall-demo text-experiment-demo text-experiment-bpe-demo text-leaderboard text-sweep-demo text-sweep-bpe-demo text-sweep-bulk-bpe plan-text-sweep-bulk run-text-sweep-plan-bulk promote-text-demo inspect-text-demo run-promoted-text-demo text-run-demo clean-artifacts
+.PHONY: help compile verify benchmark benchmark-standard compare ingest-gutenberg-demo ingest-gutenberg-bulk profile-text-demo profile-text-bpe-demo profile-text-bulk-bpe compare-text-demo compare-text-architectures-demo compare-text-architectures-million compare-long-context-recall-demo compare-assignment-recall-demo compare-multi-assignment-recall-demo compare-sparse-kv-routing-smoke compare-sparse-kv-routing-margin-smoke compare-sparse-kv-routing-hard-smoke compare-sparse-kv-routing-margin-multiseed compare-multi-query-assignment-recall-demo compare-assignment-distractor-recall-demo compare-assignment-alias-recall-demo compare-mixed-code-recall-demo compare-mixed-code-recall-multiseed compare-mixed-code-full-context-control compare-generated-python-code-recall-demo compare-generated-python-code-recall-multiseed compare-generated-python-code-full-context-control compare-real-python-code-recall-demo compare-real-python-code-recall-multiseed compare-real-python-code-full-context-control compare-real-python-code-full-context-multiseed compare-assignment-update-recall-demo text-experiment-demo text-experiment-bpe-demo text-leaderboard text-sweep-demo text-sweep-bpe-demo text-sweep-bulk-bpe plan-text-sweep-bulk run-text-sweep-plan-bulk promote-text-demo inspect-text-demo run-promoted-text-demo text-run-demo neocortex-x-stage0-smoke neocortex-x-stage1-smoke neocortex-x-stage1b-trained-smoke neocortex-x-stage2-smoke neocortex-x-stage2b-learned-smoke neocortex-x-stage3-smoke neocortex-x-stage3b-promotion-smoke neocortex-x-stage4-smoke neocortex-x-stage4b-world-model-smoke neocortex-x-stage5-smoke clean-artifacts
+.PHONY: neocortex-x-stage5b-cached-smoke
+.PHONY: neocortex-x-stage6-packets-smoke
+.PHONY: neocortex-x-stage7-memory-smoke
+.PHONY: neocortex-x-stage8-freshness-smoke
+.PHONY: neocortex-x-stage9-action-gate-smoke
+.PHONY: neocortex-x-stage10-feedback-smoke
+.PHONY: neocortex-x-stage11-policy-smoke
+.PHONY: neocortex-x-stage12-policy-replay-smoke
+.PHONY: neocortex-x-stage13-promote-policy-smoke
+.PHONY: neocortex-x-stage14-runtime-loader-smoke
+.PHONY: neocortex-x-stage15-runtime-execution-smoke
+.PHONY: neocortex-x-stage16-contextual-memory-smoke
+.PHONY: neocortex-x-stage17-contextual-action-gate-smoke
+.PHONY: neocortex-x-stage18-contextual-feedback-smoke
+.PHONY: neocortex-x-stage19-contextual-policy-smoke
+.PHONY: neocortex-x-stage20-contextual-policy-replay-smoke
+.PHONY: neocortex-x-stage21-contextual-policy-promotion-smoke
+.PHONY: neocortex-x-stage22-contextual-runtime-loader-smoke
+.PHONY: neocortex-x-stage23-contextual-runtime-execution-smoke
+.PHONY: neocortex-x-stage24-contextual-self-monitor-smoke
+.PHONY: neocortex-x-stage25-indexed-contextual-store-smoke
+.PHONY: neocortex-x-stage26-store-backed-contextual-retrieval-smoke
+.PHONY: neocortex-x-stage27-store-backed-contextual-action-gate-smoke
+.PHONY: neocortex-x-stage28-evidence-log-compaction-smoke
+.PHONY: neocortex-x-stage29-scale-probe-smoke
+.PHONY: neocortex-x-stage30-partial-context-smoke
+.PHONY: neocortex-x-stage31-disambiguation-gate-smoke
+.PHONY: neocortex-x-stage32-clarification-resolution-smoke
+.PHONY: neocortex-x-stage33-clarification-feedback-smoke
+.PHONY: neocortex-x-stage34-clarification-policy-smoke
+.PHONY: neocortex-x-stage35-clarification-policy-replay-smoke
+.PHONY: neocortex-x-stage36-clarification-policy-promotion-smoke
+.PHONY: neocortex-x-stage37-clarification-runtime-loader-smoke
+.PHONY: neocortex-x-stage38-clarification-runtime-execution-smoke
+.PHONY: neocortex-x-stage39-clarification-runtime-self-monitor-smoke
+.PHONY: neocortex-x-stage40-clarification-monitor-feedback-smoke
+.PHONY: neocortex-x-stage41a-adversarial-risk-audit-smoke
+.PHONY: neocortex-x-stage41b-guarded-policy-review-smoke
+.PHONY: neocortex-x-stage42-clean-adversarial-replay-smoke
+.PHONY: neocortex-x-stage42c-evidence-conflict-guard-smoke
+.PHONY: neocortex-x-stage43-guarded-policy-promotion-smoke
+.PHONY: neocortex-x-stage44-guarded-runtime-loader-smoke
+.PHONY: neocortex-x-stage45-guarded-runtime-execution-smoke
 
 help:
 	@echo "KV-Memory SSM benchmark — operator commands"
 	@echo ""
 	@echo "Core:"
 	@echo "  make compile   Syntax-check all product scripts"
-	@echo "  make verify    Run end-to-end smoke verifier"
-	@echo "  make ci        Run contract tests and system verifier"
+	@echo "  make verify    Verify frozen memory/CodePy (no neural training)"
+	@echo "  make ci        Verify frozen release without neural training"
+	@echo "  make ci-research Run historical research checks (includes training)"
 	@echo "  make benchmark Run quick benchmark, save JSON report"
 	@echo "  make compare   Compare benchmark JSON reports"
 	@echo ""
@@ -24,6 +68,61 @@ help:
 	@echo "  make compare-sparse-kv-routing-margin-multiseed  near-binary read gate, multi-seed"
 	@echo "  make compare-real-python-code-recall-multiseed   real-repo AST binding recall"
 	@echo "  make compare-text-architectures-million          SSM vs Transformer, million-token"
+	@echo ""
+	@echo "NeoCortex-X:"
+	@echo "  make neocortex-x-stage0-smoke                    trace/replay instrumentation"
+	@echo "  make neocortex-x-stage1-smoke                    recall-to-action smoke"
+	@echo "  make neocortex-x-stage1b-trained-smoke           trained SSM/KV action mapping"
+	@echo "  make neocortex-x-stage2-smoke                    stateful tape world smoke"
+	@echo "  make neocortex-x-stage2b-learned-smoke           learned tape policy smoke"
+	@echo "  make neocortex-x-stage3-smoke                    procedure reuse smoke"
+	@echo "  make neocortex-x-stage3b-promotion-smoke         learned procedure promotion smoke"
+	@echo "  make neocortex-x-stage4-smoke                    short lookahead planning smoke"
+	@echo "  make neocortex-x-stage4b-world-model-smoke       learned world-model planning smoke"
+	@echo "  make neocortex-x-stage5-smoke                    open-world provenance smoke"
+	@echo "  make neocortex-x-stage5b-cached-smoke            cached live-shaped provenance adapter"
+	@echo "  make neocortex-x-stage6-packets-smoke            provenance memory evidence packets"
+	@echo "  make neocortex-x-stage7-memory-smoke             long-term packet memory retrieval"
+	@echo "  make neocortex-x-stage8-freshness-smoke          temporal memory freshness policy"
+	@echo "  make neocortex-x-stage9-action-gate-smoke        memory freshness to action gate"
+	@echo "  make neocortex-x-stage10-feedback-smoke          action outcome feedback ledger"
+	@echo "  make neocortex-x-stage11-policy-smoke            feedback-driven policy update"
+	@echo "  make neocortex-x-stage12-policy-replay-smoke     apply policy snapshot in replay"
+	@echo "  make neocortex-x-stage13-promote-policy-smoke    promote replay-validated policy"
+	@echo "  make neocortex-x-stage14-runtime-loader-smoke    load promoted policy runtime"
+	@echo "  make neocortex-x-stage15-runtime-execution-smoke execute runtime policy traces"
+	@echo "  make neocortex-x-stage16-contextual-memory-smoke conditional context-aware memory"
+	@echo "  make neocortex-x-stage17-contextual-action-gate-smoke contextual decision to action gate"
+	@echo "  make neocortex-x-stage18-contextual-feedback-smoke contextual action feedback ledger"
+	@echo "  make neocortex-x-stage19-contextual-policy-smoke contextual feedback to policy snapshot"
+	@echo "  make neocortex-x-stage20-contextual-policy-replay-smoke replay contextual policy snapshot"
+	@echo "  make neocortex-x-stage21-contextual-policy-promotion-smoke promote contextual runtime policy"
+	@echo "  make neocortex-x-stage22-contextual-runtime-loader-smoke load contextual runtime policy"
+	@echo "  make neocortex-x-stage23-contextual-runtime-execution-smoke execute contextual runtime traces"
+	@echo "  make neocortex-x-stage24-contextual-self-monitor-smoke monitor contextual runtime traces"
+	@echo "  make neocortex-x-stage25-indexed-contextual-store-smoke build indexed contextual memory store"
+	@echo "  make neocortex-x-stage26-store-backed-contextual-retrieval-smoke retrieve contextual memory from store"
+	@echo "  make neocortex-x-stage27-store-backed-contextual-action-gate-smoke act on store-backed contextual retrieval"
+	@echo "  make neocortex-x-stage28-evidence-log-compaction-smoke compact append-only evidence log"
+	@echo "  make neocortex-x-stage29-scale-probe-smoke       probe contextual memory scale"
+	@echo "  make neocortex-x-stage30-partial-context-smoke   probe partial-context retrieval"
+	@echo "  make neocortex-x-stage31-disambiguation-gate-smoke answer-or-clarify partial context"
+	@echo "  make neocortex-x-stage32-clarification-resolution-smoke resolve clarified context"
+	@echo "  make neocortex-x-stage33-clarification-feedback-smoke score clarification feedback"
+	@echo "  make neocortex-x-stage34-clarification-policy-smoke update clarification key policy"
+	@echo "  make neocortex-x-stage35-clarification-policy-replay-smoke replay clarification key policy"
+	@echo "  make neocortex-x-stage36-clarification-policy-promotion-smoke promote clarification key policy"
+	@echo "  make neocortex-x-stage37-clarification-runtime-loader-smoke load clarification runtime policy"
+	@echo "  make neocortex-x-stage38-clarification-runtime-execution-smoke execute clarification runtime traces"
+	@echo "  make neocortex-x-stage39-clarification-runtime-self-monitor-smoke monitor clarification runtime traces"
+	@echo "  make neocortex-x-stage40-clarification-monitor-feedback-smoke feedback from clarification monitor"
+	@echo "  make neocortex-x-stage41a-adversarial-risk-audit-smoke audit adversarial risk gates"
+	@echo "  make neocortex-x-stage41b-guarded-policy-review-smoke review guarded candidate policy"
+	@echo "  make neocortex-x-stage42-clean-adversarial-replay-smoke replay candidate on clean + adversarial suites"
+	@echo "  make neocortex-x-stage42c-evidence-conflict-guard-smoke guard critical conflict answers"
+	@echo "  make neocortex-x-stage43-guarded-policy-promotion-smoke promote guarded candidate with rollback"
+	@echo "  make neocortex-x-stage44-guarded-runtime-loader-smoke load guarded runtime snapshot"
+	@echo "  make neocortex-x-stage45-guarded-runtime-execution-smoke execute guarded runtime traces"
 	@echo ""
 	@echo "Data + training:"
 	@echo "  make ingest-gutenberg-demo  profile-text-bpe-demo  text-experiment-demo  text-sweep-demo"
@@ -47,6 +146,54 @@ compile:
 		run_text_architecture_multiseed.py \
 		compare_long_context_recall.py \
 		run_long_context_recall_multiseed.py \
+		research/neocortex_x/core_experiment.py \
+		research/neocortex_x/stage1b_trained_recall_to_action.py \
+		research/neocortex_x/stage2b_learned_tape_policy.py \
+		research/neocortex_x/stage3b_learned_procedure_promotion.py \
+		research/neocortex_x/stage4b_learned_world_model.py \
+		research/neocortex_x/stage5b_live_cached_adapter.py \
+		research/neocortex_x/stage6_evidence_packets.py \
+		research/neocortex_x/stage7_memory_retrieval.py \
+		research/neocortex_x/stage8_temporal_freshness.py \
+		research/neocortex_x/stage9_action_gate.py \
+		research/neocortex_x/stage10_feedback_loop.py \
+		research/neocortex_x/stage11_policy_update.py \
+		research/neocortex_x/stage12_policy_replay.py \
+		research/neocortex_x/stage13_policy_promotion.py \
+		research/neocortex_x/stage14_runtime_loader.py \
+		research/neocortex_x/stage15_runtime_execution.py \
+		research/neocortex_x/stage16_contextual_memory.py \
+		research/neocortex_x/stage17_contextual_action_gate.py \
+		research/neocortex_x/stage18_contextual_feedback.py \
+		research/neocortex_x/stage19_contextual_policy_update.py \
+		research/neocortex_x/stage20_contextual_policy_replay.py \
+		research/neocortex_x/stage21_contextual_policy_promotion.py \
+		research/neocortex_x/stage22_contextual_runtime_loader.py \
+		research/neocortex_x/stage23_contextual_runtime_execution.py \
+		research/neocortex_x/stage24_contextual_self_monitor.py \
+		research/neocortex_x/stage25_indexed_contextual_memory_store.py \
+		research/neocortex_x/stage26_store_backed_contextual_retrieval.py \
+		research/neocortex_x/stage27_store_backed_contextual_action_gate.py \
+		research/neocortex_x/stage28_append_only_evidence_log_compaction.py \
+		research/neocortex_x/stage29_contextual_memory_scale_probe.py \
+		research/neocortex_x/stage30_partial_context_scale_retrieval.py \
+		research/neocortex_x/stage31_partial_context_disambiguation_gate.py \
+		research/neocortex_x/stage32_clarification_resolution_loop.py \
+		research/neocortex_x/stage33_clarification_feedback_ledger.py \
+		research/neocortex_x/stage34_clarification_policy_update.py \
+		research/neocortex_x/stage35_clarification_policy_replay.py \
+		research/neocortex_x/stage36_clarification_policy_promotion.py \
+		research/neocortex_x/stage37_clarification_runtime_loader.py \
+		research/neocortex_x/stage38_clarification_runtime_execution.py \
+		research/neocortex_x/stage39_clarification_runtime_self_monitor.py \
+		research/neocortex_x/stage40_clarification_monitor_feedback.py \
+		research/neocortex_x/stage41a_adversarial_risk_audit.py \
+		research/neocortex_x/stage41b_guarded_policy_review.py \
+		research/neocortex_x/stage42_clean_adversarial_replay.py \
+		research/neocortex_x/stage42c_evidence_conflict_guard.py \
+		research/neocortex_x/stage43_guarded_policy_promotion.py \
+		research/neocortex_x/stage44_guarded_runtime_loader.py \
+		research/neocortex_x/stage45_guarded_runtime_execution.py \
 		run_text_experiment.py \
 		list_text_experiments.py \
 		sweep_text_experiments.py \
@@ -56,10 +203,10 @@ compile:
 		benchmark_system.py \
 		compare_benchmarks.py
 
-verify:
+verify-research:
 	$(PYTHON) verify_system.py --timeout 600
 
-.PHONY: test-production ci docker-build docker-test lock install
+.PHONY: test-production ci-research docker-build docker-test lock install
 lock:
 	uv pip compile requirements.txt --universal --python-version 3.12 --generate-hashes --output-file requirements.lock --format requirements.txt --custom-compile-command 'make lock'
 
@@ -76,7 +223,7 @@ docker-build:
 docker-test: docker-build
 	RUN_DOCKER_TESTS=1 EVOLUTION_DOCKER_IMAGE=$(EVOLUTION_IMAGE) $(PYTHON) -m unittest test_evolution_docker
 
-ci: test-production
+ci-research: test-production
 	$(PYTHON) verify_system.py --timeout $(VERIFY_TIMEOUT)
 
 benchmark:
@@ -808,9 +955,385 @@ text-run-demo:
 		--sample-steps 8 \
 		--output-json artifacts/text_run_demo.json
 
+neocortex-x-stage0-smoke:
+	$(PYTHON) research/neocortex_x/core_experiment.py \
+		--stage stage0 \
+		--seed 11 \
+		--key-count 16 \
+		--value-count 16 \
+		--binding-count 4 \
+		--delay 24 \
+		--baseline-window 8 \
+		--output-json artifacts/neocortex_x/stage0_smoke.json \
+		--output-trace artifacts/neocortex_x/stage0_trace.jsonl
+
+neocortex-x-stage1-smoke:
+	$(PYTHON) research/neocortex_x/core_experiment.py \
+		--stage stage1 \
+		--seeds 11,17,23,29,31,37 \
+		--episodes 128 \
+		--key-count 16 \
+		--value-count 16 \
+		--binding-count 4 \
+		--delay 24 \
+		--baseline-window 8 \
+		--output-json artifacts/neocortex_x/stage1_recall_to_action.json
+
+neocortex-x-stage1b-trained-smoke:
+	$(PYTHON) research/neocortex_x/stage1b_trained_recall_to_action.py \
+		--train-records 512 \
+		--eval-records 256 \
+		--key-count 16 \
+		--value-count 16 \
+		--binding-count 4 \
+		--delay 32 \
+		--transformer-context 8 \
+		--epochs 12 \
+		--batch-size 64 \
+		--learning-rate 0.003 \
+		--ssm-variant sparse-kv-memory \
+		--ssm-input-dim 48 \
+		--ssm-state-dim 64 \
+		--init-assignment-kv-memory \
+		--kv-read-gate-l1 0.5 \
+		--kv-read-gate-l1-start 0.0 \
+		--kv-read-gate-l1-ramp-epochs 6 \
+		--kv-read-gate-target 0.02 \
+		--kv-read-gate-target-weight 5.0 \
+		--kv-read-gate-entropy-weight 0.01 \
+		--kv-read-gate-query-margin 0.9 \
+		--kv-read-gate-query-margin-weight 2.0 \
+		--output-json artifacts/neocortex_x/stage1b_trained_recall_to_action.json \
+		--inner-json artifacts/neocortex_x/stage1b_inner_long_context_recall.json
+
+neocortex-x-stage2-smoke:
+	$(PYTHON) research/neocortex_x/core_experiment.py \
+		--stage stage2 \
+		--seeds 11,17,23,29,31,37 \
+		--episodes 128 \
+		--tape-len 8 \
+		--input-len-min 4 \
+		--input-len-max 8 \
+		--max-steps 64 \
+		--trace-episodes 2 \
+		--output-json artifacts/neocortex_x/stage2_stateful_tape_world.json \
+		--output-trace artifacts/neocortex_x/stage2_trace.jsonl
+
+neocortex-x-stage2b-learned-smoke:
+	$(PYTHON) research/neocortex_x/stage2b_learned_tape_policy.py \
+		--train-seeds 101,103,107 \
+		--eval-seeds 11,17,23,29,31,37 \
+		--train-episodes 64 \
+		--eval-episodes 64 \
+		--tape-len 8 \
+		--input-len-min 4 \
+		--input-len-max 8 \
+		--max-steps 64 \
+		--output-json artifacts/neocortex_x/stage2b_learned_tape_policy.json
+
+neocortex-x-stage3-smoke:
+	$(PYTHON) research/neocortex_x/core_experiment.py \
+		--stage stage3 \
+		--seeds 11,17,23,29,31,37 \
+		--episodes 128 \
+		--stage3-tape-len 12 \
+		--stage3-segment-len 3 \
+		--stage3-call-overhead 1 \
+		--output-json artifacts/neocortex_x/stage3_procedure_reuse.json
+
+neocortex-x-stage3b-promotion-smoke:
+	$(PYTHON) research/neocortex_x/stage3b_learned_procedure_promotion.py \
+		--train-seeds 101,103,107 \
+		--cert-seeds 109,113,127 \
+		--eval-seeds 11,17,23,29,31,37 \
+		--train-episodes 64 \
+		--cert-episodes 64 \
+		--eval-episodes 96 \
+		--tape-len 12 \
+		--segment-len 3 \
+		--call-overhead 1 \
+		--output-json artifacts/neocortex_x/stage3b_learned_procedure_promotion.json
+
+neocortex-x-stage4-smoke:
+	$(PYTHON) research/neocortex_x/core_experiment.py \
+		--stage stage4 \
+		--seeds 11,17,23,29,31,37 \
+		--episodes 96 \
+		--stage4-corridor-len 9 \
+		--stage4-horizon 4 \
+		--output-json artifacts/neocortex_x/stage4_planning.json
+
+neocortex-x-stage4b-world-model-smoke:
+	$(PYTHON) research/neocortex_x/stage4b_learned_world_model.py \
+		--train-seeds 101,103,107 \
+		--eval-seeds 11,17,23,29,31,37 \
+		--train-episodes 64 \
+		--eval-episodes 64 \
+		--corridor-len 9 \
+		--horizon 4 \
+		--output-json artifacts/neocortex_x/stage4b_learned_world_model.json
+
+neocortex-x-stage5-smoke:
+	$(PYTHON) research/neocortex_x/core_experiment.py \
+		--stage stage5 \
+		--seeds 11,17,23,29,31,37 \
+		--episodes 96 \
+		--stage5-contradiction-margin 0.20 \
+		--output-json artifacts/neocortex_x/stage5_open_world_adapter.json
+
+neocortex-x-stage5b-cached-smoke:
+	$(PYTHON) research/neocortex_x/stage5b_live_cached_adapter.py \
+		--mode cached \
+		--fixture-json research/neocortex_x/fixtures/stage5b_cached_observations.json \
+		--output-json artifacts/neocortex_x/stage5b_live_cached_adapter.json
+
+neocortex-x-stage6-packets-smoke:
+	$(PYTHON) research/neocortex_x/stage6_evidence_packets.py \
+		--fixture-json research/neocortex_x/fixtures/stage5b_cached_observations.json \
+		--output-json artifacts/neocortex_x/stage6_evidence_packets.json
+
+neocortex-x-stage7-memory-smoke: neocortex-x-stage6-packets-smoke
+	$(PYTHON) research/neocortex_x/stage7_memory_retrieval.py \
+		--packet-json artifacts/neocortex_x/stage6_evidence_packets.json \
+		--output-json artifacts/neocortex_x/stage7_memory_retrieval.json
+
+neocortex-x-stage8-freshness-smoke: neocortex-x-stage6-packets-smoke
+	$(PYTHON) research/neocortex_x/stage8_temporal_freshness.py \
+		--packet-json artifacts/neocortex_x/stage6_evidence_packets.json \
+		--output-json artifacts/neocortex_x/stage8_temporal_freshness.json
+
+neocortex-x-stage9-action-gate-smoke: neocortex-x-stage8-freshness-smoke
+	$(PYTHON) research/neocortex_x/stage9_action_gate.py \
+		--temporal-json artifacts/neocortex_x/stage8_temporal_freshness.json \
+		--output-json artifacts/neocortex_x/stage9_action_gate.json
+
+neocortex-x-stage10-feedback-smoke: neocortex-x-stage9-action-gate-smoke
+	$(PYTHON) research/neocortex_x/stage10_feedback_loop.py \
+		--action-gate-json artifacts/neocortex_x/stage9_action_gate.json \
+		--output-json artifacts/neocortex_x/stage10_feedback_loop.json
+
+neocortex-x-stage11-policy-smoke: neocortex-x-stage10-feedback-smoke
+	$(PYTHON) research/neocortex_x/stage11_policy_update.py \
+		--feedback-json artifacts/neocortex_x/stage10_feedback_loop.json \
+		--output-json artifacts/neocortex_x/stage11_policy_update.json
+
+neocortex-x-stage12-policy-replay-smoke: neocortex-x-stage11-policy-smoke
+	$(PYTHON) research/neocortex_x/stage12_policy_replay.py \
+		--temporal-json artifacts/neocortex_x/stage8_temporal_freshness.json \
+		--policy-json artifacts/neocortex_x/stage11_policy_update.json \
+		--output-json artifacts/neocortex_x/stage12_policy_replay.json
+
+neocortex-x-stage13-promote-policy-smoke: neocortex-x-stage12-policy-replay-smoke
+	$(PYTHON) research/neocortex_x/stage13_policy_promotion.py \
+		--replay-json artifacts/neocortex_x/stage12_policy_replay.json \
+		--policy-json artifacts/neocortex_x/stage11_policy_update.json \
+		--output-json artifacts/neocortex_x/stage13_policy_promotion.json
+
+neocortex-x-stage14-runtime-loader-smoke: neocortex-x-stage13-promote-policy-smoke
+	$(PYTHON) research/neocortex_x/stage14_runtime_loader.py \
+		--promotion-json artifacts/neocortex_x/stage13_policy_promotion.json \
+		--output-json artifacts/neocortex_x/stage14_runtime_loader.json
+
+neocortex-x-stage15-runtime-execution-smoke: neocortex-x-stage14-runtime-loader-smoke
+	$(PYTHON) research/neocortex_x/stage15_runtime_execution.py \
+		--runtime-json artifacts/neocortex_x/stage14_runtime_loader.json \
+		--temporal-json artifacts/neocortex_x/stage8_temporal_freshness.json \
+		--output-json artifacts/neocortex_x/stage15_runtime_execution.json
+
+neocortex-x-stage16-contextual-memory-smoke: neocortex-x-stage6-packets-smoke
+	$(PYTHON) research/neocortex_x/stage16_contextual_memory.py \
+		--packet-json artifacts/neocortex_x/stage6_evidence_packets.json \
+		--output-json artifacts/neocortex_x/stage16_contextual_memory.json
+
+neocortex-x-stage17-contextual-action-gate-smoke: neocortex-x-stage16-contextual-memory-smoke
+	$(PYTHON) research/neocortex_x/stage17_contextual_action_gate.py \
+		--contextual-json artifacts/neocortex_x/stage16_contextual_memory.json \
+		--output-json artifacts/neocortex_x/stage17_contextual_action_gate.json
+
+neocortex-x-stage18-contextual-feedback-smoke: neocortex-x-stage17-contextual-action-gate-smoke
+	$(PYTHON) research/neocortex_x/stage18_contextual_feedback.py \
+		--contextual-action-json artifacts/neocortex_x/stage17_contextual_action_gate.json \
+		--output-json artifacts/neocortex_x/stage18_contextual_feedback.json
+
+neocortex-x-stage19-contextual-policy-smoke: neocortex-x-stage18-contextual-feedback-smoke
+	$(PYTHON) research/neocortex_x/stage19_contextual_policy_update.py \
+		--feedback-json artifacts/neocortex_x/stage18_contextual_feedback.json \
+		--output-json artifacts/neocortex_x/stage19_contextual_policy_update.json
+
+neocortex-x-stage20-contextual-policy-replay-smoke: neocortex-x-stage19-contextual-policy-smoke
+	$(PYTHON) research/neocortex_x/stage20_contextual_policy_replay.py \
+		--contextual-action-json artifacts/neocortex_x/stage17_contextual_action_gate.json \
+		--policy-json artifacts/neocortex_x/stage19_contextual_policy_update.json \
+		--output-json artifacts/neocortex_x/stage20_contextual_policy_replay.json
+
+neocortex-x-stage21-contextual-policy-promotion-smoke: neocortex-x-stage20-contextual-policy-replay-smoke
+	$(PYTHON) research/neocortex_x/stage21_contextual_policy_promotion.py \
+		--replay-json artifacts/neocortex_x/stage20_contextual_policy_replay.json \
+		--policy-json artifacts/neocortex_x/stage19_contextual_policy_update.json \
+		--output-json artifacts/neocortex_x/stage21_contextual_policy_promotion.json
+
+neocortex-x-stage22-contextual-runtime-loader-smoke: neocortex-x-stage21-contextual-policy-promotion-smoke
+	$(PYTHON) research/neocortex_x/stage22_contextual_runtime_loader.py \
+		--promotion-json artifacts/neocortex_x/stage21_contextual_policy_promotion.json \
+		--output-json artifacts/neocortex_x/stage22_contextual_runtime_loader.json
+
+neocortex-x-stage23-contextual-runtime-execution-smoke: neocortex-x-stage22-contextual-runtime-loader-smoke
+	$(PYTHON) research/neocortex_x/stage23_contextual_runtime_execution.py \
+		--runtime-json artifacts/neocortex_x/stage22_contextual_runtime_loader.json \
+		--contextual-json artifacts/neocortex_x/stage16_contextual_memory.json \
+		--output-json artifacts/neocortex_x/stage23_contextual_runtime_execution.json
+
+neocortex-x-stage24-contextual-self-monitor-smoke: neocortex-x-stage23-contextual-runtime-execution-smoke
+	$(PYTHON) research/neocortex_x/stage24_contextual_self_monitor.py \
+		--execution-json artifacts/neocortex_x/stage23_contextual_runtime_execution.json \
+		--output-json artifacts/neocortex_x/stage24_contextual_self_monitor.json
+
+neocortex-x-stage25-indexed-contextual-store-smoke: neocortex-x-stage16-contextual-memory-smoke
+	$(PYTHON) research/neocortex_x/stage25_indexed_contextual_memory_store.py \
+		--contextual-json artifacts/neocortex_x/stage16_contextual_memory.json \
+		--output-db artifacts/neocortex_x/stage25_contextual_memory.sqlite \
+		--output-json artifacts/neocortex_x/stage25_indexed_contextual_memory_store.json
+
+neocortex-x-stage26-store-backed-contextual-retrieval-smoke: neocortex-x-stage25-indexed-contextual-store-smoke
+	$(PYTHON) research/neocortex_x/stage26_store_backed_contextual_retrieval.py \
+		--store-json artifacts/neocortex_x/stage25_indexed_contextual_memory_store.json \
+		--store-db artifacts/neocortex_x/stage25_contextual_memory.sqlite \
+		--output-json artifacts/neocortex_x/stage26_store_backed_contextual_retrieval.json
+
+neocortex-x-stage27-store-backed-contextual-action-gate-smoke: neocortex-x-stage26-store-backed-contextual-retrieval-smoke
+	$(PYTHON) research/neocortex_x/stage27_store_backed_contextual_action_gate.py \
+		--retrieval-json artifacts/neocortex_x/stage26_store_backed_contextual_retrieval.json \
+		--output-json artifacts/neocortex_x/stage27_store_backed_contextual_action_gate.json
+
+neocortex-x-stage28-evidence-log-compaction-smoke: neocortex-x-stage16-contextual-memory-smoke
+	$(PYTHON) research/neocortex_x/stage28_append_only_evidence_log_compaction.py \
+		--contextual-json artifacts/neocortex_x/stage16_contextual_memory.json \
+		--output-db artifacts/neocortex_x/stage28_evidence_log_compacted_store.sqlite \
+		--output-json artifacts/neocortex_x/stage28_append_only_evidence_log_compaction.json
+
+neocortex-x-stage29-scale-probe-smoke:
+	$(PYTHON) research/neocortex_x/stage29_contextual_memory_scale_probe.py \
+		--records 5000 \
+		--queries 256 \
+		--json-scan-queries 64 \
+		--output-db artifacts/neocortex_x/stage29_scale_probe.sqlite \
+		--output-json artifacts/neocortex_x/stage29_contextual_memory_scale_probe.json
+
+neocortex-x-stage30-partial-context-smoke:
+	$(PYTHON) research/neocortex_x/stage30_partial_context_scale_retrieval.py \
+		--records 5000 \
+		--queries 256 \
+		--json-scan-queries 64 \
+		--candidate-limit 64 \
+		--output-db artifacts/neocortex_x/stage30_partial_context.sqlite \
+		--output-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json
+
+neocortex-x-stage31-disambiguation-gate-smoke: neocortex-x-stage30-partial-context-smoke
+	$(PYTHON) research/neocortex_x/stage31_partial_context_disambiguation_gate.py \
+		--partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
+		--output-json artifacts/neocortex_x/stage31_partial_context_disambiguation_gate.json
+
+neocortex-x-stage32-clarification-resolution-smoke: neocortex-x-stage31-disambiguation-gate-smoke
+	$(PYTHON) research/neocortex_x/stage32_clarification_resolution_loop.py \
+		--partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
+		--disambiguation-json artifacts/neocortex_x/stage31_partial_context_disambiguation_gate.json \
+		--output-json artifacts/neocortex_x/stage32_clarification_resolution_loop.json
+
+neocortex-x-stage33-clarification-feedback-smoke: neocortex-x-stage32-clarification-resolution-smoke
+	$(PYTHON) research/neocortex_x/stage33_clarification_feedback_ledger.py \
+		--resolution-json artifacts/neocortex_x/stage32_clarification_resolution_loop.json \
+		--output-json artifacts/neocortex_x/stage33_clarification_feedback_ledger.json
+
+neocortex-x-stage34-clarification-policy-smoke: neocortex-x-stage33-clarification-feedback-smoke
+	$(PYTHON) research/neocortex_x/stage34_clarification_policy_update.py \
+		--feedback-json artifacts/neocortex_x/stage33_clarification_feedback_ledger.json \
+		--output-json artifacts/neocortex_x/stage34_clarification_policy_update.json
+
+neocortex-x-stage35-clarification-policy-replay-smoke: neocortex-x-stage34-clarification-policy-smoke
+	$(PYTHON) research/neocortex_x/stage35_clarification_policy_replay.py \
+		--partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
+		--policy-json artifacts/neocortex_x/stage34_clarification_policy_update.json \
+		--output-json artifacts/neocortex_x/stage35_clarification_policy_replay.json
+
+neocortex-x-stage36-clarification-policy-promotion-smoke: neocortex-x-stage35-clarification-policy-replay-smoke
+	$(PYTHON) research/neocortex_x/stage36_clarification_policy_promotion.py \
+		--replay-json artifacts/neocortex_x/stage35_clarification_policy_replay.json \
+		--policy-json artifacts/neocortex_x/stage34_clarification_policy_update.json \
+		--output-json artifacts/neocortex_x/stage36_clarification_policy_promotion.json
+
+neocortex-x-stage37-clarification-runtime-loader-smoke: neocortex-x-stage36-clarification-policy-promotion-smoke
+	$(PYTHON) research/neocortex_x/stage37_clarification_runtime_loader.py \
+		--promotion-json artifacts/neocortex_x/stage36_clarification_policy_promotion.json \
+		--output-json artifacts/neocortex_x/stage37_clarification_runtime_loader.json
+
+neocortex-x-stage38-clarification-runtime-execution-smoke: neocortex-x-stage37-clarification-runtime-loader-smoke
+	$(PYTHON) research/neocortex_x/stage38_clarification_runtime_execution.py \
+		--runtime-json artifacts/neocortex_x/stage37_clarification_runtime_loader.json \
+		--partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
+		--output-json artifacts/neocortex_x/stage38_clarification_runtime_execution.json
+
+neocortex-x-stage39-clarification-runtime-self-monitor-smoke: neocortex-x-stage38-clarification-runtime-execution-smoke
+	$(PYTHON) research/neocortex_x/stage39_clarification_runtime_self_monitor.py \
+		--execution-json artifacts/neocortex_x/stage38_clarification_runtime_execution.json \
+		--output-json artifacts/neocortex_x/stage39_clarification_runtime_self_monitor.json
+
+neocortex-x-stage40-clarification-monitor-feedback-smoke: neocortex-x-stage39-clarification-runtime-self-monitor-smoke
+	$(PYTHON) research/neocortex_x/stage40_clarification_monitor_feedback.py \
+		--monitor-json artifacts/neocortex_x/stage39_clarification_runtime_self_monitor.json \
+		--output-json artifacts/neocortex_x/stage40_clarification_monitor_feedback.json
+
+neocortex-x-stage41a-adversarial-risk-audit-smoke: neocortex-x-stage40-clarification-monitor-feedback-smoke
+	$(PYTHON) research/neocortex_x/stage41a_adversarial_risk_audit.py \
+		--partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
+		--runtime-json artifacts/neocortex_x/stage37_clarification_runtime_loader.json \
+		--feedback-json artifacts/neocortex_x/stage40_clarification_monitor_feedback.json \
+		--output-json artifacts/neocortex_x/stage41a_adversarial_risk_audit.json
+
+neocortex-x-stage41b-guarded-policy-review-smoke: neocortex-x-stage41a-adversarial-risk-audit-smoke
+	$(PYTHON) research/neocortex_x/stage41b_guarded_policy_review.py \
+		--feedback-json artifacts/neocortex_x/stage40_clarification_monitor_feedback.json \
+		--risk-audit-json artifacts/neocortex_x/stage41a_adversarial_risk_audit.json \
+		--output-json artifacts/neocortex_x/stage41b_guarded_policy_review.json
+
+neocortex-x-stage42-clean-adversarial-replay-smoke: neocortex-x-stage41b-guarded-policy-review-smoke
+	$(PYTHON) research/neocortex_x/stage42_clean_adversarial_replay.py \
+		--partial-context-json artifacts/neocortex_x/stage30_partial_context_scale_retrieval.json \
+		--runtime-json artifacts/neocortex_x/stage37_clarification_runtime_loader.json \
+		--risk-audit-json artifacts/neocortex_x/stage41a_adversarial_risk_audit.json \
+		--guarded-review-json artifacts/neocortex_x/stage41b_guarded_policy_review.json \
+		--output-json artifacts/neocortex_x/stage42_clean_adversarial_replay.json
+
+neocortex-x-stage42c-evidence-conflict-guard-smoke: neocortex-x-stage42-clean-adversarial-replay-smoke
+	$(PYTHON) research/neocortex_x/stage42c_evidence_conflict_guard.py \
+		--stage42-json artifacts/neocortex_x/stage42_clean_adversarial_replay.json \
+		--output-json artifacts/neocortex_x/stage42c_evidence_conflict_guard.json
+
+neocortex-x-stage43-guarded-policy-promotion-smoke: neocortex-x-stage42c-evidence-conflict-guard-smoke
+	$(PYTHON) research/neocortex_x/stage43_guarded_policy_promotion.py \
+		--stage42-json artifacts/neocortex_x/stage42_clean_adversarial_replay.json \
+		--stage42c-json artifacts/neocortex_x/stage42c_evidence_conflict_guard.json \
+		--guarded-review-json artifacts/neocortex_x/stage41b_guarded_policy_review.json \
+		--output-json artifacts/neocortex_x/stage43_guarded_policy_promotion.json
+
+neocortex-x-stage44-guarded-runtime-loader-smoke: neocortex-x-stage43-guarded-policy-promotion-smoke
+	$(PYTHON) research/neocortex_x/stage44_guarded_runtime_loader.py \
+		--promotion-json artifacts/neocortex_x/stage43_guarded_policy_promotion.json \
+		--output-json artifacts/neocortex_x/stage44_guarded_runtime_loader.json
+
+neocortex-x-stage45-guarded-runtime-execution-smoke: neocortex-x-stage44-guarded-runtime-loader-smoke
+	$(PYTHON) research/neocortex_x/stage45_guarded_runtime_execution.py \
+		--runtime-json artifacts/neocortex_x/stage44_guarded_runtime_loader.json \
+		--stage42-json artifacts/neocortex_x/stage42_clean_adversarial_replay.json \
+		--output-json artifacts/neocortex_x/stage45_guarded_runtime_execution.json
+
 clean-artifacts:
 	rm -rf artifacts/verify artifacts/benchmarks artifacts/trajectories
 
+# Frozen memory/CodePy release: no optimizer updates or model training.
+.PHONY: ci verify
+ci: verify
+verify:
+	$(PYTHON) scripts/verify_release.py
 
 .PHONY: monitoring-up monitoring-down
 monitoring-up:

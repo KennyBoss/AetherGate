@@ -1,0 +1,80 @@
+[
+  {
+    "model": "transformer",
+    "seed": 11,
+    "path": "/Users/makbuk/000cor/artifacts/ssm_neural_copy_20261031/exports/transformer_11.npz",
+    "source": "/Users/makbuk/000cor/artifacts/ssm_neural_copy_20261031/transformer_11.npz",
+    "sha256": "b76020854e1362911aac81bb823d909b605d7338116cbd27a9a91cc24c812a00",
+    "accepted_for_replacement": true,
+    "entrypoint": "research/ssm_neural_copy/run_checkpoint.py",
+    "joint_neural_pointer_required": true,
+    "training_updates": 63,
+    "trained_targets": 1032192,
+    "external_calibrators_enabled": false
+  },
+  {
+    "model": "transformer",
+    "seed": 23,
+    "path": "/Users/makbuk/000cor/artifacts/ssm_neural_copy_20261031/exports/transformer_23.npz",
+    "source": "/Users/makbuk/000cor/artifacts/ssm_neural_copy_20261031/transformer_23.npz",
+    "sha256": "7ad4bd08ccd55ef661efa9dad96a7923e6f049fc53e9fb173dda836786fce499",
+    "accepted_for_replacement": true,
+    "entrypoint": "research/ssm_neural_copy/run_checkpoint.py",
+    "joint_neural_pointer_required": true,
+    "training_updates": 63,
+    "trained_targets": 1032192,
+    "external_calibrators_enabled": false
+  },
+  {
+    "model": "transformer",
+    "seed": 17,
+    "path": "/Users/makbuk/000cor/artifacts/ssm_neural_copy_20261031/exports/transformer_17.npz",
+    "source": "/Users/makbuk/000cor/artifacts/ssm_neural_copy_20261031/transformer_17.npz",
+    "sha256": "27e3459ef88f6121d710e036be992d0d55c579b31bb649cfddcf7188bd109912",
+    "accepted_for_replacement": true,
+    "entrypoint": "research/ssm_neural_copy/run_checkpoint.py",
+    "joint_neural_pointer_required": true,
+    "training_updates": 63,
+    "trained_targets": 1032192,
+    "external_calibrators_enabled": false
+  },
+  {
+    "model": "ssm",
+    "seed": 23,
+    "path": "/Users/makbuk/000cor/artifacts/ssm_neural_copy_20261031/exports/ssm_23.npz",
+    "source": "/Users/makbuk/000cor/artifacts/ssm_neural_copy_20261031/ssm_23.npz",
+    "sha256": "c75f68ef65f9a2d6dba56aa88e25d93d573442e969a0a99ccf9657c41ff7ffa2",
+    "accepted_for_replacement": true,
+    "entrypoint": "research/ssm_neural_copy/run_checkpoint.py",
+    "joint_neural_pointer_required": true,
+    "training_updates": 63,
+    "trained_targets": 1032192,
+    "external_calibrators_enabled": false
+  },
+  {
+    "model": "ssm",
+    "seed": 17,
+    "path": "/Users/makbuk/000cor/artifacts/ssm_neural_copy_20261031/exports/ssm_17.npz",
+    "source": "/Users/makbuk/000cor/artifacts/ssm_neural_copy_20261031/ssm_17.npz",
+    "sha256": "3668519d3cddacade389a0e297777a8fc6429240c82c90aa8d0ea350e89e8ac5",
+    "accepted_for_replacement": true,
+    "entrypoint": "research/ssm_neural_copy/run_checkpoint.py",
+    "joint_neural_pointer_required": true,
+    "training_updates": 63,
+    "trained_targets": 1032192,
+    "external_calibrators_enabled": false
+  },
+  {
+    "model": "ssm",
+    "seed": 11,
+    "path": "/Users/makbuk/000cor/artifacts/ssm_neural_copy_20261031/exports/ssm_11.npz",
+    "source": "/Users/makbuk/000cor/artifacts/ssm_neural_copy_20261031/ssm_11.npz",
+    "sha256": "957ab8872c9d00ad4c6c7f6113a9bca1329b16f2b2754c17078565b312013939",
+    "accepted_for_replacement": true,
+    "entrypoint": "research/ssm_neural_copy/run_checkpoint.py",
+    "joint_neural_pointer_required": true,
+    "training_updates": 63,
+    "trained_targets": 1032192,
+    "external_calibrators_enabled": false
+  }
+]

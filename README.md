@@ -1,3 +1,14 @@
+# Memory + CodePy — frozen runtime release
+
+Штатный запуск: `./scripts/python-ci run_codepy.py --session .ci-output/demo.session.npz --request release/example-request.json`.
+Проверка без обучения нейронных весов: `make ci`.
+Состав, готовые веса, ограничения и команды: [паспорт релиза](RELEASE_PASSPORT.md).
+Полный интерфейс: [PIPELINE.md](research/codepy/ssm_dispatch/PIPELINE.md).
+
+Ниже сохранено историческое описание исследовательских бенчмарков. Их результаты не являются результатами проверки этого релиза; обучающие команды в рамках релиза не запускались.
+
+---
+
 # KV-Memory SSM — Long-Delay Recall Benchmark
 
 A compact, reproducible benchmark showing that a small **state-space model (SSM)

@@ -1,0 +1,413 @@
+{
+  "config": {
+    "seeds": "11,17,23,41,73,101",
+    "eval_tasks": 80,
+    "per_skill": 200,
+    "hidden": 32,
+    "epochs": 400,
+    "lr": 0.02,
+    "batch": 64,
+    "node_budget": 256,
+    "bf_depth": 16,
+    "output_json": "artifacts/ecs_stage2_fastweight.json"
+  },
+  "protocol_evidence": {
+    "held_out": true,
+    "identical_action_set": "5 primitives for param & dense (no expansion)",
+    "compute_metric": "policy forward-passes (best-first), identical per arm",
+    "controls": [
+      "dense (skills off, same policy)",
+      "discrete-macro (true subs in search)"
+    ],
+    "interference_measured": true,
+    "axis_C_present": true,
+    "n_seeds": 6,
+    "valid": true
+  },
+  "aggregate": {
+    "param_held": 6.51,
+    "param_held_solve": 1.0,
+    "dense_held": 6.881,
+    "dense_held_solve": 1.0,
+    "cdense_held": 8.317,
+    "cdense_held_solve": 1.0,
+    "cdense_axisC": 32.296,
+    "discrete_held": 7.49,
+    "param_axisC": 37.352,
+    "dense_axisC": 36.558,
+    "discrete_axisC": 50.806,
+    "mean_hurt": 0.044,
+    "max_hurt": 0.129,
+    "verdict": {
+      "param_beats_dense_held_samePolicy": true,
+      "held_seedfrac": "5/6",
+      "param_beats_CLEANdense_held": true,
+      "cleandense_seedfrac": "5/6",
+      "param_beats_CLEANdense_axisC": false,
+      "cleandense_axisC_seedfrac": "2/6",
+      "param_beats_dense_axisC_samePolicy": false,
+      "axisC_seedfrac": "2/6",
+      "param_beats_discrete": true,
+      "matched_solve_rate": true,
+      "low_interference": true,
+      "branching_tax_avoided": true,
+      "decision": "param beats clean dense in-distribution (low interference, no branching tax) but Axis-C does NOT transfer -> in-distribution gain only, transfer unproven"
+    }
+  },
+  "seed_runs": [
+    {
+      "seed": 11,
+      "param": {
+        "held": {
+          "mean_forwards": 6.5375,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 26.5,
+          "solve_rate": 1.0
+        }
+      },
+      "dense": {
+        "held": {
+          "mean_forwards": 6.8375,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 26.85,
+          "solve_rate": 0.975
+        }
+      },
+      "cdense": {
+        "held": {
+          "mean_forwards": 8.875,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 37.95,
+          "solve_rate": 1.0
+        }
+      },
+      "discrete": {
+        "held": {
+          "mean_forwards": 7.4625,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 35.1125,
+          "solve_rate": 1.0
+        }
+      },
+      "interference": {
+        "own_on": [
+          5.08,
+          3.62,
+          3.77,
+          4.8
+        ],
+        "own_off": [
+          5.75,
+          3.62,
+          3.55,
+          4.8
+        ],
+        "max_hurt": 0.225,
+        "mean_hurt": 0.056
+      }
+    },
+    {
+      "seed": 17,
+      "param": {
+        "held": {
+          "mean_forwards": 6.2125,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 36.15,
+          "solve_rate": 0.9875
+        }
+      },
+      "dense": {
+        "held": {
+          "mean_forwards": 7.1625,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 32.9125,
+          "solve_rate": 1.0
+        }
+      },
+      "cdense": {
+        "held": {
+          "mean_forwards": 8.4,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 31.675,
+          "solve_rate": 1.0
+        }
+      },
+      "discrete": {
+        "held": {
+          "mean_forwards": 8.1875,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 53.0125,
+          "solve_rate": 1.0
+        }
+      },
+      "interference": {
+        "own_on": [
+          5.17,
+          2.88,
+          3.27,
+          4.7
+        ],
+        "own_off": [
+          5.22,
+          2.88,
+          3.4,
+          4.67
+        ],
+        "max_hurt": 0.025,
+        "mean_hurt": 0.006
+      }
+    },
+    {
+      "seed": 23,
+      "param": {
+        "held": {
+          "mean_forwards": 6.7125,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 49.7,
+          "solve_rate": 1.0
+        }
+      },
+      "dense": {
+        "held": {
+          "mean_forwards": 7.4875,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 55.8125,
+          "solve_rate": 1.0
+        }
+      },
+      "cdense": {
+        "held": {
+          "mean_forwards": 6.5125,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 24.4,
+          "solve_rate": 1.0
+        }
+      },
+      "discrete": {
+        "held": {
+          "mean_forwards": 7.6125,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 69.9875,
+          "solve_rate": 1.0
+        }
+      },
+      "interference": {
+        "own_on": [
+          7.65,
+          3.6,
+          4.62,
+          5.85
+        ],
+        "own_off": [
+          8.07,
+          3.5,
+          4.53,
+          5.55
+        ],
+        "max_hurt": 0.3,
+        "mean_hurt": 0.125
+      }
+    },
+    {
+      "seed": 41,
+      "param": {
+        "held": {
+          "mean_forwards": 7.725,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 44.3125,
+          "solve_rate": 1.0
+        }
+      },
+      "dense": {
+        "held": {
+          "mean_forwards": 7.9125,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 44.05,
+          "solve_rate": 1.0
+        }
+      },
+      "cdense": {
+        "held": {
+          "mean_forwards": 8.6125,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 30.425,
+          "solve_rate": 1.0
+        }
+      },
+      "discrete": {
+        "held": {
+          "mean_forwards": 9.1625,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 67.5125,
+          "solve_rate": 1.0
+        }
+      },
+      "interference": {
+        "own_on": [
+          5,
+          3.35,
+          3.67,
+          4.92
+        ],
+        "own_off": [
+          5.85,
+          3.35,
+          3.95,
+          5.05
+        ],
+        "max_hurt": 0.0,
+        "mean_hurt": 0.0
+      }
+    },
+    {
+      "seed": 73,
+      "param": {
+        "held": {
+          "mean_forwards": 5.45,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 25.0875,
+          "solve_rate": 1.0
+        }
+      },
+      "dense": {
+        "held": {
+          "mean_forwards": 6.05,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 23.725,
+          "solve_rate": 1.0
+        }
+      },
+      "cdense": {
+        "held": {
+          "mean_forwards": 8.6875,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 29.7625,
+          "solve_rate": 1.0
+        }
+      },
+      "discrete": {
+        "held": {
+          "mean_forwards": 6.3625,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 28.95,
+          "solve_rate": 1.0
+        }
+      },
+      "interference": {
+        "own_on": [
+          4.7,
+          3.33,
+          3.48,
+          4.6
+        ],
+        "own_off": [
+          5.75,
+          3.35,
+          3.77,
+          4.72
+        ],
+        "max_hurt": 0.0,
+        "mean_hurt": 0.0
+      }
+    },
+    {
+      "seed": 101,
+      "param": {
+        "held": {
+          "mean_forwards": 6.425,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 42.3625,
+          "solve_rate": 0.9875
+        }
+      },
+      "dense": {
+        "held": {
+          "mean_forwards": 5.8375,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 36,
+          "solve_rate": 1.0
+        }
+      },
+      "cdense": {
+        "held": {
+          "mean_forwards": 8.8125,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 39.5625,
+          "solve_rate": 1.0
+        }
+      },
+      "discrete": {
+        "held": {
+          "mean_forwards": 6.15,
+          "solve_rate": 1.0
+        },
+        "axisC": {
+          "mean_forwards": 50.2625,
+          "solve_rate": 1.0
+        }
+      },
+      "interference": {
+        "own_on": [
+          5.7,
+          3.27,
+          3.35,
+          4.65
+        ],
+        "own_off": [
+          5.47,
+          3.27,
+          3.27,
+          4.65
+        ],
+        "max_hurt": 0.225,
+        "mean_hurt": 0.075
+      }
+    }
+  ]
+}

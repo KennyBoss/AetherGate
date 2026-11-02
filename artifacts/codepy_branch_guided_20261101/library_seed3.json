@@ -1,0 +1,99 @@
+{
+  "seed": 3,
+  "status": "incumbent_order_retained",
+  "blocks": [],
+  "preparation_case_steps_used": 0,
+  "preparation_case_step_budget": 4631040,
+  "trace": [],
+  "source_probe_count": 0,
+  "incumbent_blocks": [
+    {
+      "code": [
+        4,
+        26,
+        12,
+        27,
+        15,
+        7,
+        3,
+        17,
+        26,
+        5,
+        8,
+        6
+      ],
+      "layout": [
+        0,
+        1
+      ],
+      "provenance": {
+        "method": "source_initialized_evolution",
+        "family": "swap",
+        "generation": 1,
+        "candidate_index": 18
+      },
+      "frequency": 0,
+      "behavior": "swap",
+      "qualification": [
+        {
+          "group": "challenge64",
+          "cases": 64,
+          "native_numpy_exact": true,
+          "behavior": "swap",
+          "inputs_sha256": "6b7f8d58790dcfb14e18e9e66cbae76f62e3bc3965b47ec3fc44c1fe0c7b9ae5"
+        },
+        {
+          "group": "promotion6429",
+          "cases": 6429,
+          "native_numpy_exact": true,
+          "behavior": "swap",
+          "inputs_sha256": "bbe2c39a84fa8b1480f73d1bb0ea6d4aec9f5d5811a5be9bef4bc86a61000baf"
+        }
+      ]
+    },
+    {
+      "code": [
+        4,
+        3,
+        7,
+        27,
+        20,
+        25,
+        3,
+        17,
+        26,
+        5,
+        8,
+        6
+      ],
+      "layout": [
+        0,
+        1
+      ],
+      "provenance": {
+        "method": "source_initialized_evolution",
+        "family": "order",
+        "generation": 6,
+        "candidate_index": 207
+      },
+      "frequency": 0,
+      "behavior": "order_descending",
+      "qualification": [
+        {
+          "group": "challenge64",
+          "cases": 64,
+          "native_numpy_exact": true,
+          "behavior": "order_descending",
+          "inputs_sha256": "6b7f8d58790dcfb14e18e9e66cbae76f62e3bc3965b47ec3fc44c1fe0c7b9ae5"
+        },
+        {
+          "group": "promotion6429",
+          "cases": 6429,
+          "native_numpy_exact": true,
+          "behavior": "order_descending",
+          "inputs_sha256": "bbe2c39a84fa8b1480f73d1bb0ea6d4aec9f5d5811a5be9bef4bc86a61000baf"
+        }
+      ]
+    }
+  ]
+}

@@ -12,6 +12,20 @@ noise at larger depths. General algorithmic scaling needs two additions:
 
 ## Path A: Macro Pruning
 
+**Now empirically load-bearing, not just hygiene.** The skill-compression line
+hit this exact wall from the other side. `skill_compression/ecs_stage1b_selection.py`
+(MODEL_THESIS §6d) fixed skill *selection* with best-first search, then found that
+an **unpruned library is net-negative**: at fixed everything-else, eval depth 3,
+a library cap of `kmax=8` *loses* to a no-skill baseline by +12 forward-passes,
+while `kmax=2` *wins* by −4.7 (4/5 seeds). The branching cost of macros grows
+~linearly with library size while path-saving saturates, so library-size control
+is the difference between compression and a net slowdown. Worse, the promoted
+macros there were solution-path n-grams (`cea`, `ceac`) straddling subroutine
+boundaries, not the generative subroutines (`cac`, `bbd`, …) — so pruning by size
+is necessary but not sufficient; promotion must also recover the *true* procedures.
+That is the same "macro-library noise at larger depths" this plan opened with,
+now measured as a cost regression. Path A is the shared fix for both lines.
+
 Immediate mechanism:
 
 ```text
@@ -149,5 +163,478 @@ r0 = tape[ptr]
 
 The extra conditional block is inert because the predicate stays false, and
 the trailing read is harmless after the accumulation loop. This is a first
-autonomous stateful discovery result, but `count_positive4` remains an injected
-state-geometry demo until it is found without reference injection.
+autonomous stateful discovery result.
+
+### Stage 5A ladder
+
+### Path C: Compression Verification (pre-registered Stage-3) — current frontier (autonomous, fresh-distribution certified)
+
+The built-in train/holdout is a thin 32-case stride pattern; a program can hit
+`holdout_mse=0` while still being wrong on the true input distribution. So
+discoveries are re-certified by `certify_tape_program.py` on **2,000 freshly
+sampled vectors × 5 sample seeds** — PASS only if max-abs-error is exactly 0
+everywhere. Status:
+
+| target | autonomous (no injection) | built-in holdout | fresh cert (2k×5) | verdict |
+|---|---|---|---|---|
+| `sum4` | yes | mse 0 | err 0, acc 1.0 | **CERTIFIED** |
+| `count_positive4` | yes, 8/8 seeds | mse 0 | err 0, acc 1.0 | **CERTIFIED** |
+| `argmax_index4` | yes, 5/5 seeds (rich data) | mse 0 | err 0, acc 1.0 | **CERTIFIED** |
+
+`count_positive4` is now an autonomous, fresh-certified discovery — it is no
+longer an injected state-geometry demo. The clean program (seed 41) is a real
+predicate-accumulate loop that generalizes to count∈{0..4} including all-negative
+(count 0) and all-positive (count 4) cases absent from the training stride:
+
+```text
+p = tape[ptr] > r1      # r1 stays 0, so this is tape[ptr] > 0
+ptr += 1
+r0 += where(p, 1, 0)
+pc = where(p, 0, pc + 1)
+pc = 0                  # unconditional loop back
+```
+
+`argmax_index4` — the first **two-variable** target (track the running max AND
+remember its index) — is now also autonomously discovered and fresh-certified,
+but only after a dataset fix. It first looked solved on seed 41 (`holdout_mse=0`)
+yet scored just **90% on the fresh distribution**: with only 32 fixed train rows,
+evolution overfit the holdout instead of learning argmax. The fix is the
+`--rich-data` flag, which trains on many freshly sampled vectors so that fitting
+train is ≈ generalizing; under it, 5/5 seeds reach fresh-distribution accuracy
+1.0. A representative certified program shows the genuine coupled update:
+
+```text
+r1 = tape[ptr]
+p  = tape[ptr] > r1          # current cell beats running max?
+r0 = where(p, ptr, r0)       # capture the INDEX when it does
+r1 = where(p, tape[ptr], r1) # advance the running MAX
+ptr += 1
+p  = ptr < input_len
+pc = where(p, 3, pc + 1)     # loop while in-bounds, else fall through
+```
+
+This is the cautionary lesson made concrete: the built-in 32-case holdout is a
+necessary-not-sufficient gate, and fresh-distribution certification
+(`certify_tape_program.py`) is what actually moves a rung from "looks solved" to
+"solved." With it, the Stage 5A ladder now stands certified through argmax:
+**operations → macros → small loops → sum4 → count_positive4 → argmax_index4**.
+
+### Stability Layer (Option A) — certification was over-claimed; the real axis is LENGTH
+
+`certify_tape_program.py` samples 2k×5 fresh vectors but always from ONE
+structure: `input_len = 4`, values in {-2..2}. That extends certification by
+*sample*, not by *structure*. `stability_stress.py` stresses three invariance
+axes (length ∈ {2..8}, value grids incl. {-50..50} and fractional, adversarial
+structure incl. ties / monotone / single-peak). Result on the three "certified"
+programs:
+
+| program | VALUES axis | STRUCTURE axis | LENGTH axis | length-invariant? |
+|---|---|---|---|---|
+| `sum4` | all PASS | all PASS | holds len 2–6, fails ≥7 | **No** |
+| `count_positive4` | all PASS | all PASS | holds len 2–6, fails ≥7 | **No** |
+| `argmax_index4` | all PASS | all PASS | holds len 2–4, fails ≥5 | **No** |
+
+So the table above is honest only at `input_len = 4`. Values and structure are
+robust everywhere (the algorithms are not grid- or tie-fragile); the single
+failing axis is **length** — exactly the "real bounded loop vs unrolled-for-4"
+discriminator. Two distinct failure modes, separated by re-running with larger
+tape geometry (`tape_len=16, max_steps=64`):
+
+- **`count_positive4` is a genuine bounded loop.** Its length ceiling *scales with
+  geometry*: at `tape_len=16, max_steps=64` it holds to **len 12** (was 6). The
+  bound is `max_steps`, not a baked constant — give it enough steps for the length
+  and it generalizes. This is the strongest stateful result so far.
+- **`argmax_index4` is the most fragile** (fails at len 5), consistent with the
+  selection pressure that produced it: it was evolved only on length-4 vectors,
+  so its loop mechanics never had to generalize past 4.
+- **`sum4`'s apparent failure under changed geometry is partly a harness artifact:**
+  running ONE fixed program (evolved under `tape_len=8/max_steps=32`) inside a
+  *different* geometry changes the very termination conditions it was selected for.
+  The honest length-invariance test is to *re-train with varying input length*,
+  not to replay an old program in new geometry.
+
+**Verdict.** "CERTIFIED ×3" was an over-claim scoped to `input_len=4`. The
+corrected status: **value- and structure-robust at length 4; not yet
+length-invariant.** Fixing this (the named next step, agreed: bring argmax — and
+ideally all three — to true length-invariance) requires training with **mixed
+input lengths** so evolution cannot lock onto a single length, then re-certifying
+across lengths with geometry sized to the length. Only after that does Option B
+(structured outputs: `swap_if_gt` → conditional 3-permutation) begin, on a base
+proven to be a loop rather than a length-4 pattern.
+
+### Length-invariance achieved (the Option-A fix, all three rungs)
+
+`evolve_length_invariant.py` trains each candidate against **several lengths at
+once** and scores it by its WORST-length reward, so only a genuine bounded loop
+maximizes fitness. `stability_stress.py` then certifies on **held-out lengths**
+(not in training) plus the value and structure axes. Result — every rung is now
+**FULLY STABLE** (max-abs-error 0 on every axis), 5/5 seeds reaching worst-length
+holdout MSE 0:
+
+| target | trained lengths | held-out lengths | values | structure | verdict |
+|---|---|---|---|---|---|
+| `sum4` | {2,4,6} | {3,5,7,8,9,10} | PASS | PASS | **LENGTH-INVARIANT** |
+| `count_positive4` | {2,4,6} | {3,5,7,8,9,10} | PASS | PASS | **LENGTH-INVARIANT** |
+| `argmax_index4` | {2,3,4,5,6} | {7,8} | PASS | PASS | **LENGTH-INVARIANT** |
+
+The discovered argmax loop is genuinely self-terminating — it uses
+`p = ptr < input_len` to drive a conditional `pc`, so it iterates exactly
+`input_len` times regardless of length:
+
+```text
+p  = ptr < input_len          # in-bounds?
+r1 = tape[ptr]
+r0 = where(p, ptr, r0)        # provisional index
+p  = tape[ptr] > r1
+ptr += 1
+p  = tape[ptr] > r1           # current beats running max?
+r1 = where(p, tape[ptr], r1)  # advance running max
+pc = where(p, 0, pc + 1)      # loop control
+pc = 3
+...
+```
+
+**One honest boundary caveat, surfaced by the stress layer.** The `sum`/`count`
+loops use an *unconditional* `pc = 0` and lean on `ptr` clipping at `tape_len-1`
+for termination, so they fail at exactly `input_len == tape_len` (the tape-edge
+clip over-runs by one). Every held-out length **strictly below** `tape_len`
+passes; the failure is a DSL-geometry artifact (no predicate-gated `halt`), not
+an algorithm error. argmax avoids it by self-terminating on `ptr < input_len`.
+This is logged, not hidden: it is the next concrete DSL gap (wire a
+predicate-conditional `halt`) and it does not affect the length-invariance result
+within `input_len < tape_len`.
+
+**Ladder status (corrected, honest).** `sum4`, `count_positive4`, `argmax_index4`
+are autonomous, fresh-distribution **and length-invariant** (value/structure
+stable, generalizing to held-out lengths < tape_len). The base is now proven to
+be *loops*, not length-4 patterns — Option B (structured outputs) can build on it:
+`swap_if_gt` (2 elements; first target whose result is a transformed *tape*, not
+a scalar `r0` — requires extending the executor's output from `r0` to the tape)
+→ conditional 3-permutation → only then `sort`.
+
+### Self-stabilizing, NOT self-halting — the computation-semantics gap before Option B
+
+A reviewer flagged that the loops might be "bounded loops with an external safety
+rail" rather than real computation. Checked empirically (sweep `max_steps` on the
+length-invariant programs, all else fixed):
+
+| max_steps | 16 | 32 | 64 | 128 | 256 |
+|---|---|---|---|---|---|
+| argmax LI length-invariant | ✗ | ✗ | ✓ | ✓ | ✓ |
+| count LI length-invariant | ✗ | ✗ | ✓ | ✓ | ✓ |
+
+The result is **invariant to surplus steps** (64→256 all pass): once enough steps
+exist to finish, extra steps do not corrupt the answer. So the programs are
+**self-stabilizing** (they *hold* the result after completing — argmax via
+`p = ptr < input_len` ceasing to move `r0/r1` past the bound), which is stronger
+than an "external rail." But the reviewer is right on the core point: there is
+**no notion of "computation finished."** `jax.lax.scan` always runs the full
+`max_steps`; the `halt` block (id 31) is implemented as `pc = old_pc` (freeze the
+counter in place), not a real exit. The model is **self-stabilizing, not
+self-halting.**
+
+Why this matters precisely where Option B goes:
+- A **single-pass** target (incl. `swap_if_gt` on 2 elements) only needs
+  self-stabilization, which we already have — surplus steps are harmless.
+- A **multi-pass** target (3-permutation, `sort`) needs a **phase boundary**:
+  "output of pass 1 becomes input of pass 2." Without a real `halt`/phase marker,
+  passes bleed into each other and the stress layer will (correctly) reject it.
+
+**Therefore the next step is an executor upgrade, but a smaller, ordered one than
+"build a self-terminating model":**
+
+1. **`output = tape` mode (hard blocker for Option B).** The executor returns the
+   tape, not `r0`; `target_values` returns vectors; reward is MSE over the tape.
+   Without this, `swap_if_gt` cannot even be *expressed* (nothing to score). Do
+   this first.
+2. **`swap_if_gt` (2 elements)** under the existing self-stabilizing semantics +
+   stress certification. Single pass, so no halt needed yet.
+3. **Real predicate-gated `halt` (deferred until perm3/sort demand it).** Add it
+   only when the stress test on 3-permutation *proves* passes are interfering —
+   i.e. earn the primitive from a measured failure, not from prediction. This is
+   the anti-DSL-bloat discipline: the `halt` block already exists as a no-op stub;
+   wiring it to a real `pc → length`/done-flag is a localized change, made when
+   the data demands it.
+
+### Step 1 done — tape-output works, and it EARNED the compare-exchange primitive
+
+`evolve_code_tape.py` now also returns `final_tape` (additive; the scalar path is
+untouched and `sum4` still solves). `evolve_tape_output.py` scores candidates on
+the final tape, and `swap_if_gt2` (sort 2 elements ascending) is the first target
+whose result is transformed *memory*, not a register scalar.
+
+The first run failed (holdout tape-MSE ≈ 0.5, not 0). Rather than throw compute at
+it, a **vectorized expressibility search** asked whether the DSL can represent the
+swap at all: **1.5M random programs up to length 10 → zero exact solutions, error
+floored at 2.0.** That is a representational gap, not a tuning problem. Diagnosed
+precisely: a 2-element conditional swap needs `(a,b) → (min,max)` written back to
+two cells, but min/max requires holding both values while swapping two registers —
+and with only `r0, r1` and no temp, the swap cannot be expressed across separate
+`pc` steps (`r0=where(p,r1,r0)` at one step and `r1=where(p,r0,r1)` at the next
+clobber each other).
+
+So the gap **earned one primitive** (the anti-bloat rule: add a block only when a
+measured failure demands it). Block 35 `sort2(r0,r1)` is the textbook
+compare-exchange — the atom of every sorting network — setting
+`(r0,r1) ← (min(r0,r1), max(r0,r1))` simultaneously from old values. With it,
+`swap_if_gt2` becomes discoverable: 2/4 seeds reach holdout-MSE 0, and both
+solutions are **fresh-distribution certified** (max-abs-err 0 across value grids
+incl. {-50..50} and fractional, 4 seeds × 1000 cases). The canonical certified
+program:
+
+```text
+r0 = tape[ptr]      # load a   (ptr=0)
+ptr += 1
+r1 = tape[ptr]      # load b   (ptr=1)
+sort2(r0, r1)       # r0=min, r1=max  ← the earned compare-exchange atom
+tape[ptr] = r1      # cell 1 = max
+ptr -= 1
+tape[ptr] = r0      # cell 0 = min
+```
+
+This is the **first memory-transforming procedure** in CodePy — it rearranges the
+data on the tape rather than reducing it to a scalar. Honest status: discovery is
+2/4 seeds (not yet the 5/5 robustness bar of the scalar rungs), and it has not yet
+been pushed through the length axis (swap generalizing to `swap_if_gt` over an
+adjacent pair anywhere in a longer tape). Next: (a) tune shaping for 5/5
+robustness, (b) the natural multi-pass target **bubble/3-permutation** built from
+chained compare-exchanges — which is exactly where the deferred `halt` / phase
+boundary is expected to be *earned* from a measured multi-pass failure.
+
+### sort3 correction — it is straight-line, and the failure is SEARCH, not halt (2026-06-23)
+
+The prediction above ("sort3 is multi-pass; needs a phase boundary / real halt")
+is **wrong, by measurement.** Two runs settle it:
+
+1. **Evolution run** (pop 32,768 × 400 gens × 30 steps, len 16, seed 41): plateaued
+   at holdout tape-MSE **0.576** (target ~0), stuck in a partial-sort local optimum
+   for 400 generations. The best program even grew a backward branch
+   (`pc = where(p, 3, pc+1)`) and two `sort2`s, but never escaped.
+2. **Hand-built expressibility check** (`verify_sort3.py`): the 3-comparator
+   sorting network `(0,1)(1,2)(0,1)` — three `sort2` compare-exchanges with
+   load/store around each, 24 straight-line ops, **no halt, no loop, no multi-pass**
+   — sorts **256/256 triples exactly, tape-MSE = 0.**
+
+So sort3 **IS expressible** with the existing block set (the `sort2` atom earned by
+`swap_if_gt2` already suffices), and the executor handles it. The plateau is a
+**discovery/search failure**: partial comparator networks give no fitness gradient
+toward the full network, so mutation+elitism can't climb the 24-op composition.
+
+**Two corrections to the framing above:**
+- **Fixed-length sortN is straight-line code** (a sorting network), NOT multi-pass.
+  It needs no `halt` and no phase boundary. The multi-pass / phase-boundary / `halt`
+  argument (lines ~339-341, ~352-357, ~400-402) applies to **length-invariant
+  (variable-N) sorting** — where the number of passes depends on the input length —
+  NOT to sort3. sort3 is the wrong target to "earn halt" from; it earns nothing.
+- The real barrier sort3 exposes is **search dynamics on deep straight-line
+  compositions**, a different problem from the executor/semantics gap. Candidate
+  next steps: curriculum from `swap_if_gt2` → seed/graft the certified comparator,
+  reward partial-sortedness (e.g. count of correctly-ordered adjacent pairs) to
+  create a gradient, or larger/diversified search. The deferred `halt` should be
+  earned from a genuine **variable-N** target, not from sort3.
+
+### Reframing: the open problem is now search landscape, not DSL expressivity (2026-06-23)
+
+The sort3 experiment corrected the causal chain. The old hypothesis:
+
+```text
+sort3 not found → therefore halt is needed → halt will unlock sort3
+```
+
+The direct counterexample:
+
+```text
+sort3 EXISTS in the DSL (verified: 256/256, MSE=0)
+sort3 works perfectly
+halt is NOT used
+```
+
+Therefore: **halt is not the bottleneck for sort3.** The necessity of halt for
+fixed-length sortN is experimentally disproven.
+
+This changes what the open problem IS. Before, the question was:
+
+> "How to make the DSL more powerful?"
+
+Now, the question is:
+
+> "How to make the search landscape traversable for deep compositions?"
+
+The distinction matters: the DSL can already express five algorithms (sum,
+count_positive, argmax, swap_if_gt2, sort3). That is substantially stronger than
+several weeks ago. The bottleneck is NOT expressivity — it is **findability**.
+The program exists, the search does not reach it.
+
+#### What NOT to do next (and why)
+
+| Candidate | Verdict | Reason |
+|-----------|---------|--------|
+| variable-N sort | **No** | Mixes search + halt + loops + composition + length simultaneously. Uninformative pass or fail — cannot localize cause. |
+| new primitive | **No** | `sort2` was earned from a measured representational gap. For sort3, no such gap exists — it is already expressible. No measurement demands a new block. |
+| add halt now | **No** | sort3 was the predicted justification. That prediction failed. Halt must be earned from a genuine variable-N target. |
+
+#### What to do next: curriculum / grafting / inversion reward
+
+The current configuration is a rare, clean testbed for composition:
+
+```text
+sort2        — FOUND and certified (2/4 seeds, fresh-distribution verified)
+sort3        — EXPRESSIBLE but NOT found (plateau at MSE 0.576)
+```
+
+This isolates the search-landscape problem. Four conditions:
+
+1. **Start from scratch** (baseline — already failed).
+2. **Start from certified `swap_if_gt2`** (curriculum: does seeding a known
+   component unlock the composition?).
+3. **Start from two grafted `sort2` blocks** (grafting: does injecting the
+   building block bypass the discovery bottleneck?).
+4. **Inversion-count reward instead of MSE** (landscape: partial comparator
+   networks reduce inversions monotonically even when incomplete, creating a
+   gradient that MSE flattens).
+
+If conditions 2–4 dramatically help → the barrier is genuinely search dynamics,
+and curriculum/grafting/landscape-shaping are the right tools.
+If they do NOT help → the problem is deeper (program representation, fitness
+landscape geometry beyond local optima).
+
+#### Convergence with fast-weight / ECS line
+
+This is a non-trivial convergence of two previously independent research lines:
+
+| Line | Substrate | Bottleneck found |
+|------|-----------|-----------------|
+| CodePy (symbolic) | Discrete programs, block DSL | **Composition** of existing primitives |
+| ECS (parametric) | Fast-weight, continuous | **Composition** of existing skills |
+
+Both lines have expressivity. Both lines have memory/storage. Both lines hit the
+same wall: **composing already-existing building blocks into larger structures.**
+This is unlikely to be coincidence. It suggests composition is a
+substrate-independent search problem — not solved by scaling population,
+generations, or parameter count. The next experiment (curriculum/grafting/
+landscape) attacks this directly.
+
+**Status table after sort3:**
+
+| Question | Status |
+|----------|--------|
+| Are loops expressible? | Yes |
+| Is there length invariance? | Yes |
+| Are there memory transforms? | Yes |
+| Is sort3 expressible? | **Yes** (measured) |
+| Is halt needed for sort3? | **No** (measured) |
+| Can search discover sort3 autonomously? | **Not yet** (plateau) |
+| Main open question | **Composition and search landscape** |
+
+## CodePy ↔ MODEL_THESIS: storage emerging, selection unresolved, compression unproven
+
+The tempting one-liner — "CodePy solves storage, ECS must solve selection" —
+overstates what is measured. The honest three-line status is:
+
+```text
+storage is emerging,
+selection is unresolved,
+compression remains unproven.
+```
+
+**Storage is emerging, not solved.** What is demonstrated:
+
+```text
+operations -> macros -> small loops -> sum4
+```
+
+What is NOT yet demonstrated is that the library grows into an increasingly
+powerful set of procedures:
+
+```text
+sum4 [found] -> count_positive [injected] -> argmax [found] -> swap_if_gt2 [found]
+sort3 [expressible, NOT found] -> ...search landscape is the blocker, not DSL
+```
+
+The library exists, but its ability to become a more capable procedure set is
+unshown. Autonomously (no reference injection) only `sum4` is found, and even
+that carries two inert blocks; `count_positive4` is still an injected demo. So:
+
+> CodePy demonstrates executable procedural storage and limited autonomous
+> algorithm discovery. However, procedural storage alone does not yield
+> compression. The unresolved bottleneck is goal-conditioned selection and
+> composition of procedures under distribution shift.
+
+**Selection is the harder half, and Stage 1a already proved it.** Splitting the
+roles cleanly:
+
+```text
+CodePy answers: "how to store a procedure?"
+ECS    answers: "when to invoke it?"
+```
+
+`MODEL_THESIS.md` §6c ran exactly the naive build — growing library + trained
+per-step gate — and returned **PASS = False**. The diagnosis was not noise: with
+unreliable selection the gate either
+
+```text
+abstains  -> collapses to dense behavior (skills add nothing)
+misfires  -> solve-rate drops (skills hurt reliability)
+```
+
+This is a *valuable* negative. It answers, with 6 seeds and `protocol_valid`,
+the question "is it enough to just grow the library and train a small gate?" —
+answer: **no**. That removes a plausible year of wandering down the
+grow-the-library direction. The same residual (goal-conditioned inverse) that
+the 3.3–3.4 structural arc isolated is now also the empirical blocker of Stage 1
+— the two lines meet on one open problem.
+
+**Compression remains unproven.** Even a perfect selector over a perfect library
+would still have to survive the two impostor controls before "compression" is
+earned, not "caching":
+
+- `cache-M` — a library indexed by exact inputs is a *function table*. A library
+  of named programs without a learned, composing selector is rejected by this
+  control by construction.
+- Axis-C — the procedure must be invoked inside a *novel composition* unseen at
+  storage time, with the active-compute drop holding there. Stage 1a showed no
+  Axis-C transfer (ECS 14.44 ≈ dense 14.13).
+
+Until a found procedure is selected and composed on held-out Axis-S/Axis-C
+splits with an active-compute drop at matched loss, CodePy is procedural storage,
+not compressed experience.
+
+### A radical hypothesis to earn, not assume
+
+If selection is the harder half, the architecture may invert: the dense network
+need not store the skills at all, only the machinery to choose, compose, and
+adapt them.
+
+```text
+LLM    = selector / composer / adapter
+CodePy = procedural memory
+```
+
+Under G7 this stays a **hypothesis with an earned predictor**, not a premise. It
+is admitted only if it makes a falsifiable structural prediction and that test
+fires. Candidate test: as the procedure library grows, a model carrying the
+*selection* mechanism should show active-compute on held-out Axis-C *decreasing*
+while its parameter count stays flat — weights spent on dispatch, not on
+re-approximating each procedure. If instead matched performance still requires
+the weights to re-encode the procedures (frozen-backbone ablation kills the
+drop), the inversion is false for our system and "LLM = selector" stays out of
+the conclusions. Do not assume the inversion — measure it.
+
+**Goal:** Verify that the compression thesis holds under the two impostor controls (G2): as library grows, active-compute on held-out Axis-C must drop while parameter count stays flat; frozen-backbone ablation must kill the effect. This test is pre-registered here and will be implemented in `ecs_stage3_composition.py`.
+
+**Setup:** same DSL + bounded-loop engine from Path B; skill memory now contains only *procedural* skills (macros) that can be invoked inside loops. The library grows online via promotion (see §Path A), but this experiment freezes the growth rule to a single macro cap `kmax` per run — we sweep it across {2,8}.
+
+**Metric:** active-compute = forward-passes of the best-first search, counted identically for every arm. Cost is measured on a held-out split that was *never* used during skill creation (blind library growth).
+
+**Arms:**
+1. **ECS(kmax)** — recurrent backbone + bounded M(kmax) + learned gate `g_t` over per-task reachability probes, best-first search, growing M blind to eval splits.
+2. **dense(kmax)** — parameter-matched recurrent net (no memory, no gate), same solver and search budget as ECS.
+3. **frozen-backbone** — ECS with backbone frozen after warmup; only M and `g_t` adapt → isolates hidden-state-attractor explanation.
+
+**The pass/fail metric:** let `A(e)` = mean active-compute/task on the held-out reuse split after cumulative exposure `e` at matched per-task loss `L*`.
+- **PASS** iff: `A_ECS(e)` decreases with `e`; its slope is significantly steeper (95% CI, ≥6 seeds) than `dense+curriculum` AND `frozen-backbone`; the drop survives Axis-C; and `ECS` matches `dense` loss at `L*`.
+- **FAIL** iff any control matches the slope (`dense`→param-reuse; `frozen-backbone`→attractors), OR the drop vanishes under Axis-C (→ table memorization).
+
+This is exactly the Stage-2 pre-registered test for CodePy, aligned with `MODEL_THESIS §6e`. Artifact: `ecs_stage3_composition.json`. **Pre-registered prediction:** ECS at its pruned-optimal size should beat dense on held-out AND survive Axis-C at depth ≥3 across ≥6 seeds. If not, the architectural claim fails — we say so.
+
+**Reading.** This is the intended use of the contract: a naive build was *prevented* from claiming a curriculum artifact as emergence. The structural arc's residual is now also the empirical blocker of Stage 1 — the two lines meet on the same open problem.

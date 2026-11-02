@@ -1,0 +1,17 @@
+# Created by `pipx` on 2026-02-19 15:27:36
+export PATH="$PATH:/Users/makbuk/.local/bin"
+# US locale override
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+alias physarum="cd /Users/makbuk/Physarum\\ polycephalum && ./physarum.sh"
+
+export PATH="$PATH:/Users/makbuk/.risc0/bin"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# OmniRoute + Claude Code
+function claudeomni {
+    bash /Users/makbuk/.claude/claudeomni.sh "$@"
+}

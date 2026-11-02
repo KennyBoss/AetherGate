@@ -1,0 +1,1532 @@
+{
+  "seed": 1,
+  "task": "sort4",
+  "chosen_by_TRAIN": "neworder",
+  "branches": {
+    "arguments": {
+      "program": [
+        [
+          19,
+          5,
+          1,
+          4,
+          5,
+          12,
+          0
+        ],
+        [
+          16,
+          0,
+          0,
+          1,
+          4,
+          2,
+          0
+        ],
+        [
+          33,
+          0,
+          3,
+          1,
+          0,
+          17,
+          0
+        ],
+        [
+          29,
+          6,
+          3,
+          3,
+          0,
+          19,
+          0
+        ],
+        [
+          19,
+          2,
+          7,
+          1,
+          0,
+          1,
+          0
+        ],
+        [
+          11,
+          3,
+          3,
+          0,
+          4,
+          19,
+          0
+        ],
+        [
+          34,
+          2,
+          0,
+          1,
+          4,
+          19,
+          0
+        ],
+        [
+          25,
+          7,
+          0,
+          1,
+          3,
+          22,
+          0
+        ],
+        [
+          23,
+          6,
+          1,
+          2,
+          5,
+          20,
+          0
+        ],
+        [
+          23,
+          5,
+          0,
+          0,
+          5,
+          9,
+          0
+        ],
+        [
+          5,
+          4,
+          0,
+          1,
+          0,
+          16,
+          0
+        ],
+        [
+          25,
+          7,
+          5,
+          2,
+          2,
+          18,
+          0
+        ],
+        [
+          24,
+          5,
+          3,
+          4,
+          2,
+          4,
+          0
+        ],
+        [
+          4,
+          6,
+          9,
+          0,
+          0,
+          13,
+          0
+        ],
+        [
+          28,
+          0,
+          9,
+          0,
+          3,
+          7,
+          0
+        ],
+        [
+          1,
+          9,
+          8,
+          3,
+          2,
+          1,
+          0
+        ],
+        [
+          30,
+          7,
+          6,
+          0,
+          2,
+          18,
+          0
+        ],
+        [
+          29,
+          9,
+          5,
+          4,
+          1,
+          0,
+          0
+        ],
+        [
+          8,
+          7,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          11,
+          8,
+          0,
+          0,
+          0,
+          5,
+          0
+        ],
+        [
+          10,
+          0,
+          4,
+          0,
+          2,
+          0,
+          0
+        ],
+        [
+          32,
+          2,
+          5,
+          3,
+          1,
+          3,
+          0
+        ],
+        [
+          5,
+          7,
+          0,
+          1,
+          0,
+          10,
+          0
+        ],
+        [
+          12,
+          3,
+          0,
+          2,
+          5,
+          0,
+          0
+        ],
+        [
+          23,
+          5,
+          7,
+          0,
+          0,
+          11,
+          0
+        ],
+        [
+          12,
+          4,
+          0,
+          3,
+          3,
+          22,
+          0
+        ],
+        [
+          2,
+          7,
+          1,
+          3,
+          1,
+          0,
+          0
+        ],
+        [
+          20,
+          7,
+          0,
+          0,
+          3,
+          0,
+          0
+        ],
+        [
+          9,
+          0,
+          0,
+          2,
+          5,
+          6,
+          0
+        ],
+        [
+          15,
+          4,
+          9,
+          3,
+          0,
+          21,
+          0
+        ],
+        [
+          28,
+          3,
+          4,
+          4,
+          1,
+          0,
+          0
+        ],
+        [
+          12,
+          9,
+          0,
+          2,
+          0,
+          0,
+          0
+        ],
+        [
+          5,
+          4,
+          9,
+          2,
+          1,
+          5,
+          0
+        ],
+        [
+          16,
+          5,
+          6,
+          0,
+          5,
+          7,
+          0
+        ],
+        [
+          11,
+          7,
+          5,
+          4,
+          0,
+          8,
+          0
+        ],
+        [
+          23,
+          1,
+          1,
+          0,
+          4,
+          20,
+          0
+        ],
+        [
+          32,
+          0,
+          9,
+          3,
+          4,
+          19,
+          0
+        ],
+        [
+          18,
+          8,
+          7,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          8,
+          9,
+          2,
+          0,
+          5,
+          20,
+          0
+        ],
+        [
+          11,
+          0,
+          7,
+          0,
+          0,
+          22,
+          0
+        ],
+        [
+          6,
+          8,
+          6,
+          0,
+          0,
+          15,
+          0
+        ],
+        [
+          25,
+          7,
+          4,
+          0,
+          2,
+          0,
+          0
+        ],
+        [
+          23,
+          6,
+          0,
+          4,
+          1,
+          0,
+          0
+        ],
+        [
+          21,
+          0,
+          5,
+          4,
+          0,
+          17,
+          0
+        ],
+        [
+          25,
+          3,
+          0,
+          1,
+          0,
+          10,
+          0
+        ],
+        [
+          28,
+          4,
+          0,
+          0,
+          4,
+          7,
+          0
+        ],
+        [
+          33,
+          0,
+          1,
+          4,
+          3,
+          23,
+          0
+        ],
+        [
+          27,
+          0,
+          7,
+          4,
+          2,
+          19,
+          0
+        ],
+        [
+          8,
+          1,
+          3,
+          0,
+          0,
+          9,
+          0
+        ],
+        [
+          23,
+          7,
+          0,
+          0,
+          2,
+          15,
+          0
+        ],
+        [
+          8,
+          1,
+          0,
+          0,
+          3,
+          17,
+          0
+        ],
+        [
+          11,
+          0,
+          5,
+          0,
+          5,
+          7,
+          0
+        ],
+        [
+          7,
+          4,
+          8,
+          1,
+          0,
+          9,
+          0
+        ],
+        [
+          11,
+          3,
+          2,
+          3,
+          1,
+          22,
+          0
+        ],
+        [
+          27,
+          5,
+          1,
+          2,
+          0,
+          3,
+          0
+        ],
+        [
+          33,
+          4,
+          7,
+          0,
+          1,
+          11,
+          0
+        ],
+        [
+          9,
+          1,
+          9,
+          1,
+          0,
+          2,
+          0
+        ],
+        [
+          27,
+          7,
+          0,
+          4,
+          0,
+          12,
+          0
+        ],
+        [
+          25,
+          8,
+          5,
+          0,
+          3,
+          21,
+          0
+        ],
+        [
+          34,
+          0,
+          0,
+          0,
+          2,
+          13,
+          0
+        ],
+        [
+          16,
+          2,
+          8,
+          1,
+          5,
+          16,
+          0
+        ],
+        [
+          29,
+          0,
+          0,
+          4,
+          0,
+          21,
+          0
+        ],
+        [
+          32,
+          0,
+          4,
+          0,
+          0,
+          16,
+          0
+        ],
+        [
+          3,
+          0,
+          8,
+          0,
+          2,
+          3,
+          0
+        ],
+        [
+          20,
+          9,
+          0,
+          3,
+          4,
+          11,
+          0
+        ],
+        [
+          27,
+          4,
+          8,
+          0,
+          0,
+          6,
+          0
+        ],
+        [
+          2,
+          5,
+          0,
+          0,
+          3,
+          14,
+          0
+        ],
+        [
+          25,
+          5,
+          2,
+          3,
+          0,
+          0,
+          0
+        ],
+        [
+          29,
+          2,
+          8,
+          2,
+          4,
+          19,
+          0
+        ],
+        [
+          37,
+          0,
+          0,
+          0,
+          0,
+          6,
+          0
+        ],
+        [
+          15,
+          8,
+          0,
+          4,
+          2,
+          16,
+          0
+        ],
+        [
+          0,
+          6,
+          8,
+          3,
+          0,
+          17,
+          0
+        ]
+      ],
+      "training_objective": 1.609375,
+      "first_perfect": null,
+      "trace": [
+        {
+          "generation": 0,
+          "best_objective": 2.8203125,
+          "min_mse": 2.13671875
+        },
+        {
+          "generation": 1,
+          "best_objective": 2.8203125,
+          "min_mse": 1.96875
+        },
+        {
+          "generation": 2,
+          "best_objective": 2.296875,
+          "min_mse": 1.65625
+        },
+        {
+          "generation": 3,
+          "best_objective": 2.296875,
+          "min_mse": 1.625
+        },
+        {
+          "generation": 4,
+          "best_objective": 2.296875,
+          "min_mse": 1.625
+        },
+        {
+          "generation": 5,
+          "best_objective": 2.2265625,
+          "min_mse": 1.58203125
+        },
+        {
+          "generation": 6,
+          "best_objective": 2.078125,
+          "min_mse": 1.31640625
+        },
+        {
+          "generation": 7,
+          "best_objective": 2.0,
+          "min_mse": 1.0
+        },
+        {
+          "generation": 8,
+          "best_objective": 2.0,
+          "min_mse": 1.0
+        },
+        {
+          "generation": 9,
+          "best_objective": 2.0,
+          "min_mse": 1.0
+        },
+        {
+          "generation": 10,
+          "best_objective": 2.0,
+          "min_mse": 1.0
+        },
+        {
+          "generation": 11,
+          "best_objective": 2.0,
+          "min_mse": 1.0
+        },
+        {
+          "generation": 12,
+          "best_objective": 1.78125,
+          "min_mse": 1.0
+        },
+        {
+          "generation": 13,
+          "best_objective": 1.78125,
+          "min_mse": 1.0
+        },
+        {
+          "generation": 14,
+          "best_objective": 1.78125,
+          "min_mse": 1.0
+        },
+        {
+          "generation": 15,
+          "best_objective": 1.78125,
+          "min_mse": 1.0
+        },
+        {
+          "generation": 16,
+          "best_objective": 1.78125,
+          "min_mse": 1.0
+        },
+        {
+          "generation": 17,
+          "best_objective": 1.78125,
+          "min_mse": 1.0
+        },
+        {
+          "generation": 18,
+          "best_objective": 1.78125,
+          "min_mse": 1.03125
+        },
+        {
+          "generation": 19,
+          "best_objective": 1.78125,
+          "min_mse": 1.0
+        },
+        {
+          "generation": 20,
+          "best_objective": 1.78125,
+          "min_mse": 1.03125
+        },
+        {
+          "generation": 21,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 22,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 23,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 24,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 25,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 26,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 27,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 28,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 29,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 30,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 31,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 32,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 33,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 34,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 35,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 36,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 37,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 38,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 39,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 40,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 41,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 42,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 43,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        },
+        {
+          "generation": 44,
+          "best_objective": 1.609375,
+          "min_mse": 0.8046875
+        }
+      ],
+      "evaluations": 11520,
+      "elapsed_s": 2.7428973329951987,
+      "compilation_and_warmup_s": 0.33870104199741036,
+      "training_sha256": "4404c20d2e7139f12761bd3fd7bc72767bdc9c7c2e2d571d4fcd7120cafb6de3",
+      "search_kind": "arguments",
+      "certificate": {
+        "passed": false,
+        "float32_diagnostic_passed": false,
+        "groups": {
+          "binary": {
+            "cases": 16,
+            "exact": 0,
+            "mse": 1.09375,
+            "max_abs_error": 2.0,
+            "all_close": false,
+            "preserved": 0
+          },
+          "small_exhaustive": {
+            "cases": 625,
+            "exact": 21,
+            "mse": 0.9504,
+            "max_abs_error": 3.0,
+            "all_close": false,
+            "preserved": 21
+          },
+          "integer": {
+            "cases": 2048,
+            "exact": 0,
+            "mse": 790.8994140625,
+            "max_abs_error": 50.0,
+            "all_close": false,
+            "preserved": 0
+          },
+          "fractional": {
+            "cases": 2048,
+            "exact": 0,
+            "mse": 25.551090732874748,
+            "max_abs_error": 9.917227745056152,
+            "all_close": false,
+            "preserved": 0
+          },
+          "wide": {
+            "cases": 2048,
+            "exact": 0,
+            "mse": 3378909186.052876,
+            "max_abs_error": 99998.7890625,
+            "all_close": false,
+            "preserved": 0
+          },
+          "ties": {
+            "cases": 256,
+            "exact": 0,
+            "mse": 720.6957886584963,
+            "max_abs_error": 50.984859466552734,
+            "all_close": false,
+            "preserved": 0
+          }
+        },
+        "cases": 7041,
+        "independent_agrees": true
+      }
+    },
+    "neworder": {
+      "program": [
+        5,
+        6,
+        3,
+        1,
+        5,
+        9
+      ],
+      "training_objective": 0.0,
+      "first_perfect": {
+        "generation": 1,
+        "evaluations": 512
+      },
+      "evaluations": 6400,
+      "elapsed_s": 0.15844208403723314,
+      "trace": [
+        {
+          "generation": 0,
+          "best_objective": 0.1953125,
+          "min_mse": 0.1953125
+        },
+        {
+          "generation": 1,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 2,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 3,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 4,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 5,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 6,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 7,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 8,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 9,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 10,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 11,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 12,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 13,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 14,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 15,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 16,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 17,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 18,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 19,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 20,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 21,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 22,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 23,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        },
+        {
+          "generation": 24,
+          "best_objective": 0.0,
+          "min_mse": 0.0
+        }
+      ],
+      "training_sha256": "4404c20d2e7139f12761bd3fd7bc72767bdc9c7c2e2d571d4fcd7120cafb6de3",
+      "search_kind": "pair",
+      "blocks": [
+        {
+          "code": [
+            4,
+            21,
+            28,
+            32,
+            14,
+            34,
+            7,
+            21,
+            17,
+            3,
+            17,
+            26
+          ],
+          "layout": [
+            0,
+            1
+          ],
+          "outputs": [
+            3,
+            4
+          ],
+          "provenance": {
+            "method": "branch_guided_source_repair",
+            "generation": 1,
+            "candidate_index": 225
+          },
+          "behavior": "order_ascending",
+          "qualification": [
+            {
+              "group": "challenge64",
+              "cases": 64,
+              "behavior": "order_ascending",
+              "native_numpy_exact": true,
+              "inputs_sha256": "5437c608e64ec34fb0c2200638b9e934a9bfad995671d40557606349472964df"
+            },
+            {
+              "group": "promotion6429",
+              "cases": 6429,
+              "behavior": "order_ascending",
+              "native_numpy_exact": true,
+              "inputs_sha256": "e7eb354999a53eeb2adb3feaebe720852f2109eb43ed56f4856d87dbd308951b"
+            }
+          ]
+        }
+      ],
+      "compilation_and_warmup_s": 0.4054950830177404,
+      "certificate": {
+        "passed": true,
+        "cases": 7041,
+        "groups": {
+          "binary": {
+            "cases": 16,
+            "exact": 16,
+            "preserved": 16,
+            "mse": 0.0,
+            "max_abs_error": 0.0
+          },
+          "small_exhaustive": {
+            "cases": 625,
+            "exact": 625,
+            "preserved": 625,
+            "mse": 0.0,
+            "max_abs_error": 0.0
+          },
+          "integer": {
+            "cases": 2048,
+            "exact": 2048,
+            "preserved": 2048,
+            "mse": 0.0,
+            "max_abs_error": 0.0
+          },
+          "fractional": {
+            "cases": 2048,
+            "exact": 2048,
+            "preserved": 2048,
+            "mse": 0.0,
+            "max_abs_error": 0.0
+          },
+          "wide": {
+            "cases": 2048,
+            "exact": 2048,
+            "preserved": 2048,
+            "mse": 0.0,
+            "max_abs_error": 0.0
+          },
+          "ties": {
+            "cases": 256,
+            "exact": 256,
+            "preserved": 256,
+            "mse": 0.0,
+            "max_abs_error": 0.0
+          }
+        },
+        "independent_agrees": true
+      }
+    },
+    "completion": {
+      "program": [
+        12,
+        10,
+        10,
+        5,
+        0,
+        2
+      ],
+      "training_objective": 3.0625,
+      "first_perfect": null,
+      "evaluations": 6400,
+      "elapsed_s": 0.16091666597640142,
+      "trace": [
+        {
+          "generation": 0,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 1,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 2,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 3,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 4,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 5,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 6,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 7,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 8,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 9,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 10,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 11,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 12,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 13,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 14,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 15,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 16,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 17,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 18,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 19,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 20,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 21,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 22,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 23,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        },
+        {
+          "generation": 24,
+          "best_objective": 3.0625,
+          "min_mse": 3.0625
+        }
+      ],
+      "training_sha256": "4404c20d2e7139f12761bd3fd7bc72767bdc9c7c2e2d571d4fcd7120cafb6de3",
+      "search_kind": "pair",
+      "blocks": [
+        {
+          "code": [
+            4,
+            7,
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "layout": [
+            0,
+            1
+          ],
+          "outputs": [
+            3,
+            4
+          ],
+          "provenance": {
+            "method": "bounded_edit_beam"
+          },
+          "behavior": "swap",
+          "qualification": [
+            {
+              "group": "challenge64",
+              "cases": 64,
+              "behavior": "swap",
+              "native_numpy_exact": true,
+              "inputs_sha256": "5437c608e64ec34fb0c2200638b9e934a9bfad995671d40557606349472964df"
+            },
+            {
+              "group": "promotion6429",
+              "cases": 6429,
+              "behavior": "swap",
+              "native_numpy_exact": true,
+              "inputs_sha256": "e7eb354999a53eeb2adb3feaebe720852f2109eb43ed56f4856d87dbd308951b"
+            }
+          ]
+        }
+      ],
+      "compilation_and_warmup_s": 0.39255945902550593,
+      "certificate": {
+        "passed": false,
+        "cases": 7041,
+        "groups": {
+          "binary": {
+            "cases": 16,
+            "exact": 5,
+            "preserved": 16,
+            "mse": 0.375,
+            "max_abs_error": 1.0
+          },
+          "small_exhaustive": {
+            "cases": 625,
+            "exact": 70,
+            "preserved": 625,
+            "mse": 3.0,
+            "max_abs_error": 4.0
+          },
+          "integer": {
+            "cases": 2048,
+            "exact": 80,
+            "preserved": 2048,
+            "mse": 1282.221435546875,
+            "max_abs_error": 100.0
+          },
+          "fractional": {
+            "cases": 2048,
+            "exact": 90,
+            "preserved": 2048,
+            "mse": 50.49653286896175,
+            "max_abs_error": 19.832425117492676
+          },
+          "wide": {
+            "cases": 2048,
+            "exact": 79,
+            "preserved": 2048,
+            "mse": 5060742144.92552,
+            "max_abs_error": 197270.1640625
+          },
+          "ties": {
+            "cases": 256,
+            "exact": 256,
+            "preserved": 256,
+            "mse": 0.0,
+            "max_abs_error": 0.0
+          }
+        },
+        "independent_agrees": true
+      }
+    }
+  },
+  "evaluations": 24320,
+  "certificate": {
+    "passed": true,
+    "cases": 7041,
+    "groups": {
+      "binary": {
+        "cases": 16,
+        "exact": 16,
+        "preserved": 16,
+        "mse": 0.0,
+        "max_abs_error": 0.0
+      },
+      "small_exhaustive": {
+        "cases": 625,
+        "exact": 625,
+        "preserved": 625,
+        "mse": 0.0,
+        "max_abs_error": 0.0
+      },
+      "integer": {
+        "cases": 2048,
+        "exact": 2048,
+        "preserved": 2048,
+        "mse": 0.0,
+        "max_abs_error": 0.0
+      },
+      "fractional": {
+        "cases": 2048,
+        "exact": 2048,
+        "preserved": 2048,
+        "mse": 0.0,
+        "max_abs_error": 0.0
+      },
+      "wide": {
+        "cases": 2048,
+        "exact": 2048,
+        "preserved": 2048,
+        "mse": 0.0,
+        "max_abs_error": 0.0
+      },
+      "ties": {
+        "cases": 256,
+        "exact": 256,
+        "preserved": 256,
+        "mse": 0.0,
+        "max_abs_error": 0.0
+      }
+    },
+    "independent_agrees": true
+  },
+  "baseline_certificate": {
+    "passed": true,
+    "cases": 7041,
+    "groups": {
+      "binary": {
+        "cases": 16,
+        "exact": 16,
+        "preserved": 16,
+        "mse": 0.0,
+        "max_abs_error": 0.0
+      },
+      "small_exhaustive": {
+        "cases": 625,
+        "exact": 625,
+        "preserved": 625,
+        "mse": 0.0,
+        "max_abs_error": 0.0
+      },
+      "integer": {
+        "cases": 2048,
+        "exact": 2048,
+        "preserved": 2048,
+        "mse": 0.0,
+        "max_abs_error": 0.0
+      },
+      "fractional": {
+        "cases": 2048,
+        "exact": 2048,
+        "preserved": 2048,
+        "mse": 0.0,
+        "max_abs_error": 0.0
+      },
+      "wide": {
+        "cases": 2048,
+        "exact": 2048,
+        "preserved": 2048,
+        "mse": 0.0,
+        "max_abs_error": 0.0
+      },
+      "ties": {
+        "cases": 256,
+        "exact": 256,
+        "preserved": 256,
+        "mse": 0.0,
+        "max_abs_error": 0.0
+      }
+    },
+    "independent_agrees": true
+  },
+  "training_sha256": "4404c20d2e7139f12761bd3fd7bc72767bdc9c7c2e2d571d4fcd7120cafb6de3"
+}

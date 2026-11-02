@@ -1,0 +1,99 @@
+{
+  "seed": 0,
+  "blocks": [
+    {
+      "code": [
+        14,
+        3,
+        14,
+        16,
+        7,
+        7,
+        4,
+        5,
+        9,
+        6
+      ],
+      "layout": [
+        0,
+        2
+      ],
+      "provenance": {
+        "method": "source_initialized_evolution",
+        "family": "swap",
+        "generation": 3,
+        "candidate_index": 165
+      },
+      "frequency": 0,
+      "behavior": "swap",
+      "qualification": [
+        {
+          "group": "challenge64",
+          "cases": 64,
+          "native_numpy_exact": true,
+          "behavior": "swap",
+          "inputs_sha256": "ec633949b6ec465390fdf350dd5437bd1e733f8c9f00fa8e04e9f0c2dc8ef725"
+        },
+        {
+          "group": "promotion6429",
+          "cases": 6429,
+          "native_numpy_exact": true,
+          "behavior": "swap",
+          "inputs_sha256": "3bc83ac5dc017eea2ab911888a99d6cdc56b3ff34a948e0863010ced69f7a901"
+        }
+      ]
+    },
+    {
+      "code": [
+        7,
+        7,
+        4,
+        9,
+        21,
+        10,
+        34,
+        3,
+        0,
+        17,
+        0,
+        26
+      ],
+      "layout": [
+        0,
+        2
+      ],
+      "outputs": [
+        3,
+        4
+      ],
+      "provenance": {
+        "method": "branch_guided_source_repair",
+        "generation": 6,
+        "candidate_index": 209
+      },
+      "behavior": "order_ascending",
+      "qualification": [
+        {
+          "group": "challenge64",
+          "cases": 64,
+          "behavior": "order_ascending",
+          "native_numpy_exact": true,
+          "inputs_sha256": "ec633949b6ec465390fdf350dd5437bd1e733f8c9f00fa8e04e9f0c2dc8ef725"
+        },
+        {
+          "group": "promotion6429",
+          "cases": 6429,
+          "behavior": "order_ascending",
+          "native_numpy_exact": true,
+          "inputs_sha256": "3bc83ac5dc017eea2ab911888a99d6cdc56b3ff34a948e0863010ced69f7a901"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "/Users/makbuk/000cor/artifacts/codepy_branch_guided_20261101/library_seed0.json": "bf7c89b21e2faf7d175709a12d41fddee56036cc1eba8bd8c37a4e010f484d23",
+    "/Users/makbuk/000cor/artifacts/codepy_local_completion_20261101/library_seed0.json": "c89d0d3a878f3512eae174ac59223747edf1bfa62678441c72b314c01c1f6ff4"
+  },
+  "learning_evaluations": 0,
+  "cross_seed_body_transfer": false
+}

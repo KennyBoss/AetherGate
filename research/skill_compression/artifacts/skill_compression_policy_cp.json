@@ -1,0 +1,265 @@
+{
+  "config": {
+    "seeds": "11,17,23,41,73,101",
+    "hidden": 24,
+    "epochs": 500,
+    "lr": 0.02,
+    "masks_per_example": 3,
+    "test_frac": 0.3,
+    "schemas": "MAM,AAA,MAA,AMA",
+    "output_json": "artifacts/skill_compression_policy_cp.json"
+  },
+  "protocol_evidence": {
+    "held_out_goals": true,
+    "same_model_three_decoders": true,
+    "order_agnostic_masked_training": true,
+    "no_enumeration_O_L2_decode": true,
+    "n_seeds": 6,
+    "valid": true
+  },
+  "summary": {
+    "mean_independent": 0.4807,
+    "mean_random_order": 0.5453,
+    "mean_static_first": 0.629,
+    "mean_entropy_adaptive": 0.6212,
+    "adaptive_minus_static": -0.0078,
+    "adaptive_minus_random": 0.0759,
+    "MAM_adaptive": 0.4118,
+    "MAM_independent": 0.2647,
+    "mean_adaptive_sensitivity": 2.6153,
+    "adaptive_beats_static": false,
+    "MAM_rescued": true,
+    "sensitivity_above_3": false,
+    "test_passes": false
+  },
+  "per_schema": {
+    "MAM": {
+      "independent": 0.2647,
+      "random_order": 0.3529,
+      "static_first": 0.4313,
+      "entropy_adaptive": 0.4118,
+      "adaptive_sens": 2.6333,
+      "seed_runs": [
+        {
+          "seed": 11,
+          "independent": 0.3529,
+          "random_order": 0.4706,
+          "static_first": 0.8235,
+          "entropy_adaptive": 0.7647,
+          "adaptive_sens": 3.2
+        },
+        {
+          "seed": 17,
+          "independent": 0.2353,
+          "random_order": 0.4706,
+          "static_first": 0.3529,
+          "entropy_adaptive": 0.3529,
+          "adaptive_sens": 2.667
+        },
+        {
+          "seed": 23,
+          "independent": 0.1765,
+          "random_order": 0.2353,
+          "static_first": 0.3529,
+          "entropy_adaptive": 0.3529,
+          "adaptive_sens": 2.333
+        },
+        {
+          "seed": 41,
+          "independent": 0.2941,
+          "random_order": 0.2353,
+          "static_first": 0.3529,
+          "entropy_adaptive": 0.2941,
+          "adaptive_sens": 2.6
+        },
+        {
+          "seed": 73,
+          "independent": 0.2353,
+          "random_order": 0.2941,
+          "static_first": 0.3529,
+          "entropy_adaptive": 0.2941,
+          "adaptive_sens": 2.333
+        },
+        {
+          "seed": 101,
+          "independent": 0.2941,
+          "random_order": 0.4118,
+          "static_first": 0.3529,
+          "entropy_adaptive": 0.4118,
+          "adaptive_sens": 2.667
+        }
+      ]
+    },
+    "AAA": {
+      "independent": 0.9861,
+      "random_order": 1.0,
+      "static_first": 1.0,
+      "entropy_adaptive": 1.0,
+      "adaptive_sens": 2.2333,
+      "seed_runs": [
+        {
+          "seed": 11,
+          "independent": 1.0,
+          "random_order": 1.0,
+          "static_first": 1.0,
+          "entropy_adaptive": 1.0,
+          "adaptive_sens": 2
+        },
+        {
+          "seed": 17,
+          "independent": 1.0,
+          "random_order": 1.0,
+          "static_first": 1.0,
+          "entropy_adaptive": 1.0,
+          "adaptive_sens": 2
+        },
+        {
+          "seed": 23,
+          "independent": 0.9167,
+          "random_order": 1.0,
+          "static_first": 1.0,
+          "entropy_adaptive": 1.0,
+          "adaptive_sens": 2.4
+        },
+        {
+          "seed": 41,
+          "independent": 1.0,
+          "random_order": 1.0,
+          "static_first": 1.0,
+          "entropy_adaptive": 1.0,
+          "adaptive_sens": 3
+        },
+        {
+          "seed": 73,
+          "independent": 1.0,
+          "random_order": 1.0,
+          "static_first": 1.0,
+          "entropy_adaptive": 1.0,
+          "adaptive_sens": 2
+        },
+        {
+          "seed": 101,
+          "independent": 1.0,
+          "random_order": 1.0,
+          "static_first": 1.0,
+          "entropy_adaptive": 1.0,
+          "adaptive_sens": 2
+        }
+      ]
+    },
+    "MAA": {
+      "independent": 0.4762,
+      "random_order": 0.5238,
+      "static_first": 0.6429,
+      "entropy_adaptive": 0.631,
+      "adaptive_sens": 2.2055,
+      "seed_runs": [
+        {
+          "seed": 11,
+          "independent": 0.4286,
+          "random_order": 0.5714,
+          "static_first": 0.7857,
+          "entropy_adaptive": 0.8571,
+          "adaptive_sens": 2.333
+        },
+        {
+          "seed": 17,
+          "independent": 0.5714,
+          "random_order": 0.5,
+          "static_first": 0.7143,
+          "entropy_adaptive": 0.5714,
+          "adaptive_sens": 2
+        },
+        {
+          "seed": 23,
+          "independent": 0.3571,
+          "random_order": 0.3571,
+          "static_first": 0.4286,
+          "entropy_adaptive": 0.4286,
+          "adaptive_sens": 2.167
+        },
+        {
+          "seed": 41,
+          "independent": 0.5,
+          "random_order": 0.5714,
+          "static_first": 0.7143,
+          "entropy_adaptive": 0.7143,
+          "adaptive_sens": 2.4
+        },
+        {
+          "seed": 73,
+          "independent": 0.5714,
+          "random_order": 0.5,
+          "static_first": 0.6429,
+          "entropy_adaptive": 0.6429,
+          "adaptive_sens": 2.333
+        },
+        {
+          "seed": 101,
+          "independent": 0.4286,
+          "random_order": 0.6429,
+          "static_first": 0.5714,
+          "entropy_adaptive": 0.5714,
+          "adaptive_sens": 2
+        }
+      ]
+    },
+    "AMA": {
+      "independent": 0.1956,
+      "random_order": 0.3044,
+      "static_first": 0.442,
+      "entropy_adaptive": 0.442,
+      "adaptive_sens": 3.389,
+      "seed_runs": [
+        {
+          "seed": 11,
+          "independent": 0.2174,
+          "random_order": 0.2609,
+          "static_first": 0.5652,
+          "entropy_adaptive": 0.5652,
+          "adaptive_sens": 3.5
+        },
+        {
+          "seed": 17,
+          "independent": 0.1304,
+          "random_order": 0.2174,
+          "static_first": 0.4783,
+          "entropy_adaptive": 0.4783,
+          "adaptive_sens": 3.667
+        },
+        {
+          "seed": 23,
+          "independent": 0.3043,
+          "random_order": 0.3478,
+          "static_first": 0.4348,
+          "entropy_adaptive": 0.4348,
+          "adaptive_sens": 3.167
+        },
+        {
+          "seed": 41,
+          "independent": 0.1739,
+          "random_order": 0.4783,
+          "static_first": 0.4783,
+          "entropy_adaptive": 0.4783,
+          "adaptive_sens": 3
+        },
+        {
+          "seed": 73,
+          "independent": 0.2609,
+          "random_order": 0.2609,
+          "static_first": 0.4348,
+          "entropy_adaptive": 0.4348,
+          "adaptive_sens": 3.667
+        },
+        {
+          "seed": 101,
+          "independent": 0.087,
+          "random_order": 0.2609,
+          "static_first": 0.2609,
+          "entropy_adaptive": 0.2609,
+          "adaptive_sens": 3.333
+        }
+      ]
+    }
+  }
+}

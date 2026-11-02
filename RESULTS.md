@@ -131,6 +131,61 @@ formulation. (Recall is `0.93`, not the `1.0` of our marked tasks: shared-vocab
 collisions make canonical MQAR strictly harder, and this run used no gate-shaping
 curriculum.)
 
+### 2.5 KV Scale Law 1 — first registered points
+
+`run_kv_scale_law.py` now separates task scaling from capacity scaling and makes
+the full-context Transformer the primary control. A context-capped Transformer
+is retained only as a diagnostic. The first two task points used the same
+`dynamic-kv-memory` dimensions (`64×96`), optimizer, 40 epochs, 2,048 train / 1,024
+eval records, and seeds `11,17,23`.
+
+| Point | Sequence | KV recall | Full-context Transformer | KV−Tr | State/cache | Status |
+|---|---:|---:|---:|---:|---:|---|
+| `task-0` | 67 | 0.9447 | 0.2992 | +0.6455 | 1.134× | NEGATIVE |
+| `task-1` | 101 | 0.9186 | 0.1980 | +0.7206 | 0.702× | POSITIVE |
+| `task-2` | 135 | 0.8949 | 0.1234 | +0.7716 | 0.493× | POSITIVE |
+| `task-3` | 203 | 0.8332 | 0.0556 | +0.7776 | 0.291× | POSITIVE |
+
+Both protocols are valid and parameter matched (`0.8×..1.25×`). `task-0` is
+negative under the pre-registered Pareto rule because the KV model is slower and
+its constant state is still 13.4% larger than the short Transformer's estimated
+KV cache. At `task-1`, the same 17 KB recurrent state becomes about 30% smaller
+than the longer Transformer's cache while recall remains much higher, producing
+the first positive point. `task-2` increases vocabulary to 64 and sequence length
+to 135; recall remains 0.8949 while recurrent state falls to about half the
+Transformer's cache, producing a second adjacent positive point. Context-capped
+scores do not promote the gate.
+
+`task-3` increases vocabulary to 128 and sequence length to 203. KV recall is
+0.8332 versus 0.0556 for the full-context Transformer and state/cache falls to
+0.291×. It is the third adjacent positive point, so the **task-difficulty phase
+passes**. The cost boundary is explicit: mean training time is about 382 seconds
+for KV versus 38.6 seconds for the Transformer on this CPU.
+
+The overall result is **INCOMPLETE**, not PASS: the capacity axis, ordinary-LM
+diagnostics, and a validated equivalent-budget Mamba baseline remain required.
+Reproduce or resume the completed work with:
+
+```bash
+/opt/homebrew/bin/python3 run_kv_scale_law.py \
+  --phase task \
+  --output-dir artifacts/kv_scale_law_1/registered \
+  --resume
+```
+
+The first capacity point, `cap-10k`, freezes the `task-3` MQAR protocol and uses
+an `11,109`-parameter `dynamic-kv-memory` model. It is valid and **POSITIVE**:
+mean recall is `0.7440` versus `0.0553` for the full-context Transformer,
+throughput ratio is `0.769`, and recurrent-state/cache ratio is `0.149`. The
+capacity phase remains incomplete until two more adjacent sizes are positive.
+
+Its three-seed LM wiring check used the built-in tiny diagnostic corpus and is
+therefore labeled `DIAGNOSTIC`, not ordinary-LM evidence. It produced SSM loss
+`4.3334` versus Transformer `4.8329`, but the stronger Gutenberg/BPE negative
+control in §3 remains authoritative. The next capacity point is estimated at
+about `14.5×` the cap-10k KV compute per token, so the runner refuses it on CPU
+without an explicit override; it should move to GPU/cloud rather than time out.
+
 ## 3. Limitations & Negative Controls
 
 We state the boundaries of the claim directly; the win does **not** generalize to

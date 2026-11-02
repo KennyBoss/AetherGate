@@ -1,0 +1,74 @@
+{
+  "seed4": {
+    "source_candidates": 12519,
+    "live_input_condition_candidates": 7014,
+    "relative_input_conditions": 34,
+    "best_old_score": 0.30125001072883606,
+    "best_old_code": [
+      0,
+      4,
+      7,
+      17,
+      14,
+      32,
+      25,
+      20,
+      0,
+      0,
+      26,
+      0
+    ],
+    "best_layout": [
+      0,
+      1
+    ],
+    "best_live_condition_mask": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      true,
+      false,
+      false,
+      true,
+      false
+    ],
+    "single_edit_candidates": 348,
+    "best_single_edit_score": 0.30125001072883606,
+    "best_single_edit": {
+      "code": [
+        1,
+        4,
+        7,
+        17,
+        14,
+        32,
+        25,
+        20,
+        0,
+        0,
+        26,
+        0
+      ],
+      "layout": [
+        0,
+        1
+      ],
+      "edit": [
+        0,
+        1
+      ]
+    },
+    "exact_single_edit_blocks": 0
+  },
+  "rotate_seed1": {
+    "pair_behaviors": [
+      "order_ascending"
+    ],
+    "reason": "Every available nonidentity pair block sorts two values, collapsing the two input orders. Any nonempty chain is noninjective; rotation must be injective. Thus pair branch cannot solve arbitrary rotation, regardless of more generations. No unconditional permutation block in this seed."
+  },
+  "scope": "Diagnostic one-edit probe is not a qualified library, never seeded as a target champion. Missing-family completion will be registered and charged independently."
+}

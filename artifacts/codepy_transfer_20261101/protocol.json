@@ -1,0 +1,480 @@
+{
+  "version": "codepy-frozen-library-transfer-v1",
+  "reference": {
+    "name": "codepy_local_completion",
+    "status": "accepted_reference",
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "strict_successes": 20,
+    "total_cases": 20,
+    "cases_per_task": 7041,
+    "results": "/Users/makbuk/000cor/artifacts/codepy_local_completion_20261101/results.json",
+    "results_sha256": "6b6500cd4ae2e2ec7073a1255f1cc922773121685ae8d27d731efdd8bdf3f9b7",
+    "verification": "/Users/makbuk/000cor/artifacts/codepy_local_completion_20261101/verification.json",
+    "verification_sha256": "159656c8314a21accecc28def6802d0eccfc294f8660a6f4a29771bea8f6d8e1",
+    "source_manifest": "/Users/makbuk/000cor/artifacts/codepy_local_completion_20261101/final_source_manifest.json",
+    "source_manifest_sha256": "fcadef8341f6109ef604c507674650053b67d9b4123e44b223953fb3204597b5",
+    "artifact_hash_manifest": "/Users/makbuk/000cor/artifacts/codepy_transfer_20261101/reference_artifact_hashes.json",
+    "artifact_hash_manifest_sha256": "24a31850884744ec7015e636567982b160ae52078d2ee38be084bc9496c0bf7d",
+    "historical_complete_pipeline_case_steps": 3482598872
+  },
+  "reference_alias_sha256": "dda56b955aae5d92ed2a652c1dbbee2a264e4c892ed75a648b86d932ebaa028a",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "tasks": {
+    "rotate_right4": {
+      "arity": 4,
+      "contract": "Output x3,x0,x1,x2; preserve all values."
+    },
+    "minmax4": {
+      "arity": 4,
+      "contract": "Cell0 minimum,cell3 maximum; middle cells may be in either order; preserve all values."
+    },
+    "median3": {
+      "arity": 3,
+      "contract": "Cell1 median; other cells may be in either order; preserve all values."
+    },
+    "partition4": {
+      "arity": 4,
+      "contract": "Every value in cells0,1 <= every value in cells2,3; order within halves free; preserve all values."
+    },
+    "pairwise_order4": {
+      "arity": 4,
+      "contract": "Cells0,1 are the sorted original first pair; cells2,3 sorted original second pair; no cross-pair exchange."
+    },
+    "reverse5": {
+      "arity": 5,
+      "contract": "Output x4,x3,x2,x1,x0; preserve all values."
+    }
+  },
+  "population": 256,
+  "evaluated_populations": 95,
+  "evaluations_per_arm_task": 24320,
+  "train_cases": 64,
+  "max_primitive_steps": 72,
+  "composition_slots": 6,
+  "library_manifest": {
+    "/Users/makbuk/000cor/artifacts/codepy_transfer_20261101/frozen_library_seed0.json": "c5db3ff7322645068e9a65a900e4a2fddefc91c106e5dc0ceb3493634966e86e",
+    "/Users/makbuk/000cor/artifacts/codepy_transfer_20261101/frozen_library_seed1.json": "5cdbe60018acdb1909057f2d853a77173bd13dca4ede9b549c314681f9fcb4f7",
+    "/Users/makbuk/000cor/artifacts/codepy_transfer_20261101/frozen_library_seed2.json": "ce5500289d043e4d64cdfb056650719cd034cb85722d5f6e81b3bb3d7ccd864e",
+    "/Users/makbuk/000cor/artifacts/codepy_transfer_20261101/frozen_library_seed3.json": "df8c3b3f8fcf7e6f443c4c6dfda18fbea6fe7551812c0e3973f8089f52dafdee",
+    "/Users/makbuk/000cor/artifacts/codepy_transfer_20261101/frozen_library_seed4.json": "5526ef6c51bee636dcb117d6f62b04ca50f6de5a0aae8d2483fcd7fb11c40c82"
+  },
+  "datasets": {
+    "rotate_right4": {
+      "path": "/Users/makbuk/000cor/artifacts/codepy_transfer_20261101/data_rotate_right4.npz",
+      "sha256": "d3d272d026f33a3c6311fb9c5a47875cc87b382c66b231e788df9c36858aeaf4",
+      "train": {
+        "0": {
+          "cases": 64,
+          "sha256": "85b36a9a4b39d535d319bf06da9c9b0bfafa66c4d995d17bb499bd7694b10dac",
+          "train_test_overlap": 0
+        },
+        "1": {
+          "cases": 64,
+          "sha256": "116e25e419e48de10485a2a35628a48dc78f242917c05e42136df88d782f30c7",
+          "train_test_overlap": 0
+        },
+        "2": {
+          "cases": 64,
+          "sha256": "a5b89cd295bbea7f79cad60d0bb5aed532662ba3c3f8b90d19b30ff802356400",
+          "train_test_overlap": 0
+        },
+        "3": {
+          "cases": 64,
+          "sha256": "f81959759a680c64adb0758ac49bb41d0a439634eb80703889601cc2aa9a3cb4",
+          "train_test_overlap": 0
+        },
+        "4": {
+          "cases": 64,
+          "sha256": "914ed3e2c2012fd559d607cd1c7b25cbe5f08676c15c4dec5f7aa7ca2a0a74c6",
+          "train_test_overlap": 0
+        }
+      },
+      "tests": {
+        "binary": {
+          "cases": 16,
+          "sha256": "ec2888088fb9e221c4441bd1ec852299611af63a2cc1691d7bd71f5eb1e1c22b"
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "sha256": "9853d89430a6a2f621982563d082200aba277b1cdb95726ce5603ae65c4ed638"
+        },
+        "integer": {
+          "cases": 2048,
+          "sha256": "be99ed8c512b7161741800135c2813e1ad85cd4b26874a174d89f4cefc3638f0"
+        },
+        "fractional": {
+          "cases": 2048,
+          "sha256": "b3c70bf743d57c9fb1f8435615407f4e4da5fd3c4e92cc8f91b47bca4bae8895"
+        },
+        "wide": {
+          "cases": 2048,
+          "sha256": "1d2a8251bc37a84e52a6fa1491b3d911bf774ce332f3997c4cc05d062a7f39c4"
+        },
+        "ties": {
+          "cases": 256,
+          "sha256": "312c66ad4d94f149844d9063e1ac18f2d265ffdc3993466319392df3788bc3b7"
+        }
+      },
+      "test_rows": 7041,
+      "unique_test_inputs": 7025
+    },
+    "minmax4": {
+      "path": "/Users/makbuk/000cor/artifacts/codepy_transfer_20261101/data_minmax4.npz",
+      "sha256": "58851217761045c52a4683781bb81084b3f9f44b20659b9ced6f63f65252f634",
+      "train": {
+        "0": {
+          "cases": 64,
+          "sha256": "89de9582f7ad44e9875311c9d3fd303e7ba6745019397f35c161fd94a8c2b6f1",
+          "train_test_overlap": 0
+        },
+        "1": {
+          "cases": 64,
+          "sha256": "a6b4d88b04f02ebb1bc3f40ed0423851681badfd0d214503e34ec3d97f78c880",
+          "train_test_overlap": 0
+        },
+        "2": {
+          "cases": 64,
+          "sha256": "ecfc992a1caed3a34c2df7fcafacdd8319970c6efc0173519254504d726fca17",
+          "train_test_overlap": 0
+        },
+        "3": {
+          "cases": 64,
+          "sha256": "444705f8c6c23e15874d9460c3c63f9456137f666834975e8dd3003d3beae896",
+          "train_test_overlap": 0
+        },
+        "4": {
+          "cases": 64,
+          "sha256": "607afd15ea59f441a11f3936c684167349c6d8a49612a939ccf8b859be3e8583",
+          "train_test_overlap": 0
+        }
+      },
+      "tests": {
+        "binary": {
+          "cases": 16,
+          "sha256": "ec2888088fb9e221c4441bd1ec852299611af63a2cc1691d7bd71f5eb1e1c22b"
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "sha256": "9853d89430a6a2f621982563d082200aba277b1cdb95726ce5603ae65c4ed638"
+        },
+        "integer": {
+          "cases": 2048,
+          "sha256": "d41b0ce2fab7c43358f1b0caa860ac077c3fd1b20b8a07064aa143ae4636a964"
+        },
+        "fractional": {
+          "cases": 2048,
+          "sha256": "f03f3865642a980ef5fa538ec94c6a3f26d437ba1f135de198813ec7761d54fa"
+        },
+        "wide": {
+          "cases": 2048,
+          "sha256": "a68c18c33dbc6b77c3acf0c7085c2287d334b6050b7b3005073d0f8efd5468e6"
+        },
+        "ties": {
+          "cases": 256,
+          "sha256": "30d993c9afcef3f193c8c5525b719a1ac6860bec4f2b4ba40d61670eb6c8c5ca"
+        }
+      },
+      "test_rows": 7041,
+      "unique_test_inputs": 7025
+    },
+    "median3": {
+      "path": "/Users/makbuk/000cor/artifacts/codepy_transfer_20261101/data_median3.npz",
+      "sha256": "f506e89248e9cf28382cb2b9600e4b8cac57e6d37fc33ce3a4aececa356e953d",
+      "train": {
+        "0": {
+          "cases": 64,
+          "sha256": "a32f4c74765467c5aeb9796f9ebd61a6d58c5ae849a62eb14bff2264785600b3",
+          "train_test_overlap": 0
+        },
+        "1": {
+          "cases": 64,
+          "sha256": "186f26b28bf34259a1e91cccb8cd6f1a1e5573c7d36e1e3a9657721984dcc0db",
+          "train_test_overlap": 0
+        },
+        "2": {
+          "cases": 64,
+          "sha256": "cd5dd2c21de7919f8d4a9c73367f5837f3ad111602c5bbeefcab92b83d48f434",
+          "train_test_overlap": 0
+        },
+        "3": {
+          "cases": 64,
+          "sha256": "5cc2c3a9056ec49ea46e1532a23baf6c8d1fc90b1112783ae8c72e3bb6050b4c",
+          "train_test_overlap": 0
+        },
+        "4": {
+          "cases": 64,
+          "sha256": "d30e3a4ba40680c1f3353b00d7971811d3001013486b8840810c8ea1c00cb35f",
+          "train_test_overlap": 0
+        }
+      },
+      "tests": {
+        "binary": {
+          "cases": 8,
+          "sha256": "1a81b3b4a796f56f6871bd506fe92d981529282ea9e3bbf913de76c4a24a9169"
+        },
+        "small_exhaustive": {
+          "cases": 125,
+          "sha256": "c137ccf60246591e018623532c0381038a0654ea8ec5f62c449e3b6546c0f600"
+        },
+        "integer": {
+          "cases": 2048,
+          "sha256": "5ecb0e7894bdda0a87d68d399130a5e2291e88f4c3206fa50825d34f129675d6"
+        },
+        "fractional": {
+          "cases": 2048,
+          "sha256": "0f05df95d88c46114dc6f566a6750f5d04322d458b1484bc047ae4fe09668d88"
+        },
+        "wide": {
+          "cases": 2048,
+          "sha256": "747da9447199b7f89028c4fa03b0828e137e01aa32694711727c00f78c215d1d"
+        },
+        "ties": {
+          "cases": 256,
+          "sha256": "99fc6b599be626e49e7fb3737d4a96e727f0e98b6d5d1c5019adfc1214fc085f"
+        }
+      },
+      "test_rows": 6533,
+      "unique_test_inputs": 6522
+    },
+    "partition4": {
+      "path": "/Users/makbuk/000cor/artifacts/codepy_transfer_20261101/data_partition4.npz",
+      "sha256": "e4f40a1a161b17a4cb41ede9d37bb8abf5c90f28a7b73fb5d87eecf68becdd9d",
+      "train": {
+        "0": {
+          "cases": 64,
+          "sha256": "1521d30686c1bbf7f4ea923ce987a0b5fbe9dfd02bcfff40fe105280160a027c",
+          "train_test_overlap": 0
+        },
+        "1": {
+          "cases": 64,
+          "sha256": "25d8b09e6ce762fa2d151230b01c35c40b71df3734cfe31225d8286069ee7bdb",
+          "train_test_overlap": 0
+        },
+        "2": {
+          "cases": 64,
+          "sha256": "3df74ba5984b56e13c74f05967c177a877aca215cfee70dc635b0cfd6c425e03",
+          "train_test_overlap": 0
+        },
+        "3": {
+          "cases": 64,
+          "sha256": "f8c63842e1dae701a50429b570d151a065c81afecdf714b56b9d87cc977ecab0",
+          "train_test_overlap": 0
+        },
+        "4": {
+          "cases": 64,
+          "sha256": "e896ab8814607485114088d83d9e6958520aa5cdc3ee18adae29841840c10a3c",
+          "train_test_overlap": 0
+        }
+      },
+      "tests": {
+        "binary": {
+          "cases": 16,
+          "sha256": "ec2888088fb9e221c4441bd1ec852299611af63a2cc1691d7bd71f5eb1e1c22b"
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "sha256": "9853d89430a6a2f621982563d082200aba277b1cdb95726ce5603ae65c4ed638"
+        },
+        "integer": {
+          "cases": 2048,
+          "sha256": "69239c3979160665952f82d55f77ea01b6fc329c6aa8b9cf108888d68d052be3"
+        },
+        "fractional": {
+          "cases": 2048,
+          "sha256": "679de846e2760664d10cfe0945e892e4afdaf36a8a083b593ab560f6e61ee778"
+        },
+        "wide": {
+          "cases": 2048,
+          "sha256": "38b731417c2d153efc9a27b010db4965d2e09197ac5550f428fca8afb58ea891"
+        },
+        "ties": {
+          "cases": 256,
+          "sha256": "247ab89d8aa2b5efb15617ae536ef5c2f71c69ac2ac1eb923367392e9445dbb0"
+        }
+      },
+      "test_rows": 7041,
+      "unique_test_inputs": 7024
+    },
+    "pairwise_order4": {
+      "path": "/Users/makbuk/000cor/artifacts/codepy_transfer_20261101/data_pairwise_order4.npz",
+      "sha256": "e43d492be211f7a3288b630f260defde9cd34794ba9c27d60002a2a170803705",
+      "train": {
+        "0": {
+          "cases": 64,
+          "sha256": "6eba3684a8924f4018a24ea54c022597bf0501c13553046258b61737906cc5f8",
+          "train_test_overlap": 0
+        },
+        "1": {
+          "cases": 64,
+          "sha256": "f308747dabbbd0efb8232b97402d6764e7c0ae8d3072be8999b384024448a1e0",
+          "train_test_overlap": 0
+        },
+        "2": {
+          "cases": 64,
+          "sha256": "a0696b415b212bdfe1725675b9a102da5da9e08565ab2d5e2841d05f09cba2d5",
+          "train_test_overlap": 0
+        },
+        "3": {
+          "cases": 64,
+          "sha256": "226f8acdd74a47deb411b8a25c7edd5679785649065aac7c5e9ecd6d2112d9c9",
+          "train_test_overlap": 0
+        },
+        "4": {
+          "cases": 64,
+          "sha256": "0bcf40d048d92d46d83e4d1d3795899dc5320b12dd9791991122232ec1fa20ee",
+          "train_test_overlap": 0
+        }
+      },
+      "tests": {
+        "binary": {
+          "cases": 16,
+          "sha256": "ec2888088fb9e221c4441bd1ec852299611af63a2cc1691d7bd71f5eb1e1c22b"
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "sha256": "9853d89430a6a2f621982563d082200aba277b1cdb95726ce5603ae65c4ed638"
+        },
+        "integer": {
+          "cases": 2048,
+          "sha256": "fb3a47b094c1e6ba0c5868bf56629ab999310ec19137aebc8323eeb64285cd72"
+        },
+        "fractional": {
+          "cases": 2048,
+          "sha256": "653f4e71f6c893693c22fc87d656f544b535d971e4ac25e014f1d085e42023b4"
+        },
+        "wide": {
+          "cases": 2048,
+          "sha256": "81c5e6b002c4c9eb391c180d570850bd7953d40eee4ef16b6bca492ad3e07c47"
+        },
+        "ties": {
+          "cases": 256,
+          "sha256": "0f479fffcf639d3e9c59507a0ec42379b2aa7c053cfce9a0ec84a627b0014d37"
+        }
+      },
+      "test_rows": 7041,
+      "unique_test_inputs": 7025
+    },
+    "reverse5": {
+      "path": "/Users/makbuk/000cor/artifacts/codepy_transfer_20261101/data_reverse5.npz",
+      "sha256": "533399f834b16300f198c92ba2f5edbf2b754755c1e44829ef6402f359546320",
+      "train": {
+        "0": {
+          "cases": 64,
+          "sha256": "48eb24d29ed9b21c5b9743d3cf3fee90f3ee8f543d7f06e3cedfb22130ab71bc",
+          "train_test_overlap": 0
+        },
+        "1": {
+          "cases": 64,
+          "sha256": "2bdc866fab0c28759f9d3cbdbc2ec4433088928332e161b086bc435be1f2569b",
+          "train_test_overlap": 0
+        },
+        "2": {
+          "cases": 64,
+          "sha256": "3a5de4bfd8c2f79cdbec3f6f6a91ce88efe4378275b7a2e80c55604c16ebf3d6",
+          "train_test_overlap": 0
+        },
+        "3": {
+          "cases": 64,
+          "sha256": "16daa3d68d9c37cdde14219e0c1159eb1a6cdd6b7b2972d3e958299e17b17198",
+          "train_test_overlap": 0
+        },
+        "4": {
+          "cases": 64,
+          "sha256": "2b88d08e2553949fde1c0be30b55db425d3ee4fc5a0535c9393bcd85a35fe147",
+          "train_test_overlap": 0
+        }
+      },
+      "tests": {
+        "binary": {
+          "cases": 32,
+          "sha256": "fed9d72b79b1e781b132552e860914d35a3e83e285037f8fbc6ec7b8436bc052"
+        },
+        "small_exhaustive": {
+          "cases": 3125,
+          "sha256": "412998ac45f274f385c49d6a8c0eedc74533e10cd505f8f4a77d1d5e5fd0d4a5"
+        },
+        "integer": {
+          "cases": 2048,
+          "sha256": "565281b5db5c8f669f58e47e9bf3295d2d42e3b25cfc6bbd631c71025c5d6bb9"
+        },
+        "fractional": {
+          "cases": 2048,
+          "sha256": "843e256758e8b142ac632eec3aa121aa4caa660e3f0b609fe60dff39b3ddc521"
+        },
+        "wide": {
+          "cases": 2048,
+          "sha256": "ea53ff377603618d3c8c742d3ed6ed64bb0afcd0eade5fd74f2a31da63504cd2"
+        },
+        "ties": {
+          "cases": 256,
+          "sha256": "920056ea4791804ef829f4e845ca0d5b3a96077267d12a2e638bf508e470eabb"
+        }
+      },
+      "test_rows": 9557,
+      "unique_test_inputs": 9525
+    }
+  },
+  "source_sha256": {
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/behavioral/mining.py": "da8b9ba6796ea1c2d21467d3ac560e55df9d84b24a54a70f19a0fe2938c3f67c",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/behavioral/slicing.py": "e5d4bf071c5ebae8a3815448bef418662cc756716cf4af97f308fd07c7bcfa1e",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/behavioral/test_behavioral.py": "80627f280e2a49263452e3122af5ad7b2bb39adee14ce5946bcdaa9a6610f113",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/behavioral/diagnose.py": "9d776b1f23cbb06305b53b71ecb68e5e8fecf4b93901899eba119d16feacb00c",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/behavioral/abi.py": "c305c810a4cc9fc58ce26a96d0c562937f31147678aec026d443bb3f8c8a31c1",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/behavioral/run_behavioral.py": "2e5ee7d767b415961058ab120a0d8b76ac2b8bfe88a16e95beb20008ecd924c3",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/run_experiment.py": "2e57ef241dd4803d1d691352c0ccf512ce2810565343f99dad658ffd2c2d78a6",
+    "/Users/makbuk/000cor/research/codepy/autonomous_blocks/run_experiment.py": "1da5d2383971c608028b46b0e6f278c9790b6e301f9f360f3317876fcd510280",
+    "/Users/makbuk/000cor/research/codepy/autonomous_blocks/independent_executor.py": "fec936af6d43be17d5255e202bc070a467a64cfe1fb42659ce06475de35c4b02",
+    "/Users/makbuk/000cor/research/codepy/evolve_code_tape.py": "1964c7adf855c4420e8788c8160919397da2a922975946ec6dd8d6bcedb1ae00",
+    "/Users/makbuk/000cor/research/codepy/block_contracts/contracts.py": "26d82f4244ff033ebf00c6846d436d52e444e1d7717f5f0dc3aa8be023d5f19e",
+    "/Users/makbuk/000cor/research/codepy/block_contracts/reference.py": "a9dd253df8e7bf51cee01e4e19ce72e0bf1101be67f8655d38def2c90e26698e",
+    "/Users/makbuk/000cor/research/codepy/adaptive_calls/run_experiment.py": "c16c50b95706db995442e62dad149b7274327a336194f6658705b289dff5feab",
+    "/Users/makbuk/000cor/research/codepy/adaptive_calls/calls.py": "b2db39eee122c2507bb23d04e672b67941c3f49f8b8adcc2235b65795df2eee3",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/behavioral/portfolio.py": "145d65f4365fb12f9f201c29fdac013fa815cab7eeac3152410fa1c7c9c3c600",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/behavioral/test_portfolio.py": "bba881ff625a6e067c376c05920ac1c71e632e4ee30d41939d023c92783faf23",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/branch_guided/branch_slicing.py": "b2ee846ffecff312d6ad6da51371fa014a33576056751d988415069e02fbbeba",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/branch_guided/diagnose.py": "f12c5fcff570591534f55f5e2d0b42eca1387c18669e8ab715c8e46315e9bf96",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/branch_guided/run_guided.py": "5bc884d4648234bd3d30bd67205d706693caf6686c3c2d5f84045fd4de5985d6",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/branch_guided/common.py": "26c70ca55ca07dae691bb640a74847d2d19ab0e5c783c94b17e9b5e313734b96",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/branch_guided/register_abi.py": "e012fb1a02101bbea76505ec5f53c504f05e43d1e635578d48e5b73e5984c0d0",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/branch_guided/progress.py": "909dddbd1a17f4157cdbe5fe876beaea3e0df0c6ba3e2b0f2aa4b2dcb15282c8",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/branch_guided/guided_mining.py": "40041e4fec4201702594abc4d7e2451c24be0935baed4b285be463974ebe20ce",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/branch_guided/test_guided.py": "a53b9140b0e13f29a724baa948a7d89b57b76c6aa2ccd3f80f9b921df11da94b",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/branch_guided/verify_guided.py": "bbbcab94bb81b8cd0acc29ae27a5b52bdfd6cd98fe9aac37782f3cc745f45630",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/branch_guided/README.txt": "a62f5b94456a769009377413d628e07c7e98ea70098378bed429e2bcbecc8c88",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/local_completion/completion.py": "67400abab01bd83f948ee90b9cdfcfbc8ff51262354487d9de8279f125d01804",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/local_completion/run_completion.py": "35a77846727832ed393b6837cc87bd77e965476c2ac2ae845e4d515a048abd94",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/local_completion/diagnose_remaining.py": "5e1896093da53a9a15d29f4c4a1152a0a1c03afc30d0631aa651ef615c1a0e39",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/local_completion/context.py": "213415af106ef3471ed931af03874997944e496d610a6b0ee82b5b047f592dc7",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/local_completion/test_completion.py": "422e07b0e627b29503734c49b1d83d3ed5c5efb41bdc217cd2bd57ccdfd0f002",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/local_completion/README.txt": "e904f7180bbfe8da5e1591f36d6034871253d437b18f9770933bec6c95451d78",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/local_completion/verify_completion.py": "559dd770cf4d45a42584b85baca0840e4c227baab3669a88592cdca71d2dd418",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/transfer/transfer_env.py": "3ea409816fc5b3699255e9064fef892601e06fd92f251c9a3d050e89b51b18b4",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/transfer/tasks.py": "d1c6fa829057af464948d1bfda3edf037124a17a659bf59da1cdbe257d002acf",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/transfer/verify_transfer.py": "cb5f54664a86414d44e7b925d8f131d54567c0430fe8e1c8061d26ca0f0aa8ce",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/transfer/call_runtime.py": "ba0f28b89453e1b6de9e1ed08f68884ae8404b27b0724227759adc2a53fa0ed0",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/transfer/run_transfer.py": "285c9bb930240547ed3107a70e1d3db42086662e252c8e8af5983392a1c91646",
+    "/Users/makbuk/000cor/research/codepy/subtask_discovery/transfer/test_transfer.py": "4d9cec68ec76916c8016f4214c680ede7ec0db6cc1dff9917e9b623a4821a933"
+  },
+  "arms": [
+    "scratch",
+    "frozen_library"
+  ],
+  "selection": "Same existing random initialization, crossover,mutation.16,elite16,12randomresets. First strict TRAIN objective improvement retained. No task-program seeding or portfolio. All heldout certificates only after a champion is frozen. Every seed/task/arm reported.",
+  "budget": "Equal downstream24320candidate evaluations*64TRAINcases*72maximumVMcommands per arm/task, including6padded12command calls even ifnoop. No library/source training this experiment. One-time historical asset cost separately recorded in reference and excluded from downstream transfer comparison; no claim of equal historical or walltime/FLOP cost. JIT warmup and independent final replay excluded as before.",
+  "generality": "Original swap/order bodies unchanged; pair address table generalized only to arity3/4/5. Same basic registers,tape8,predicate,localzero ABI. Scratch uses same allowed basic opcodes, no libraries and no opcode35sort2 or jumps. Newtask oracle definitions are specifications, not programs supplied to search.",
+  "independence": "Task packet and all datasets frozen before search. Same tests across5seeds, no exact current TRAIN/test overlap; repeats across testgroups disclosed as unique counts. Existing libraries were selected on earlier tasks, so results are limited to this preregistered packet.",
+  "omitted_sort5": "Six conditional pair calls provide at most64comparison outcomes, fewer than120distinct orders of5distinct inputs; retain6callcap and test reverse5 instead.",
+  "success_metric": "Strict all-test-input contract pass; for partial-output tasks free positions still must preserve all values. Compare number of successful seeds per task, paired wins/losses and evaluations to exact TRAIN fit."
+}

@@ -1,0 +1,641 @@
+{
+  "config": {
+    "seeds": "11,17,23,41,73,101",
+    "train_tasks": 120,
+    "test_tasks": 120,
+    "depth_min": 1,
+    "depth_max": 2,
+    "depth_shift_min": 3,
+    "depth_shift_max": 4,
+    "r1_overlap": 0.5,
+    "max_depth": 14,
+    "node_budget": 2000000,
+    "util_penalty": 1.0,
+    "util_threshold": 2.0,
+    "max_macros": 8,
+    "deep_probe_budget": 4000,
+    "checkpoints": [
+      40,
+      200,
+      700
+    ],
+    "probe_min_improve": 1,
+    "probe_patience": 2,
+    "max_inst_per_skill": 6,
+    "max_typed_actions": 40,
+    "regimes": [
+      "R0_identical",
+      "R1_partial",
+      "R2_disjoint",
+      "R2_depth"
+    ],
+    "output_json": "artifacts/skill_compression_typed.json"
+  },
+  "protocol_evidence": {
+    "held_out": true,
+    "same_promoted_skills_across_arms": true,
+    "depth_aware_gate_held_fixed": true,
+    "typed_random_control_present": true,
+    "n_seeds": 6,
+    "parameter_matched": "identical DSL + solver + depth-aware gate; only action-set representation differs",
+    "valid": true
+  },
+  "aggregate": {
+    "R0_identical": {
+      "concrete": {
+        "mean_nodes": 10.4,
+        "solve_rate": 1
+      },
+      "typed": {
+        "mean_nodes": 3.7,
+        "solve_rate": 1
+      },
+      "typed_random": {
+        "mean_nodes": 4.1,
+        "solve_rate": 1
+      },
+      "verdict": {
+        "typed_vs_concrete": 6.7,
+        "typed_vs_random": 0.4,
+        "typed_helps": true,
+        "schema_specific": true
+      }
+    },
+    "R1_partial": {
+      "concrete": {
+        "mean_nodes": 17.5,
+        "solve_rate": 1
+      },
+      "typed": {
+        "mean_nodes": 4.8,
+        "solve_rate": 1
+      },
+      "typed_random": {
+        "mean_nodes": 4.8,
+        "solve_rate": 1
+      },
+      "verdict": {
+        "typed_vs_concrete": 12.7,
+        "typed_vs_random": 0.0,
+        "typed_helps": true,
+        "schema_specific": false
+      }
+    },
+    "R2_disjoint": {
+      "concrete": {
+        "mean_nodes": 11.9,
+        "solve_rate": 1
+      },
+      "typed": {
+        "mean_nodes": 4.0,
+        "solve_rate": 1
+      },
+      "typed_random": {
+        "mean_nodes": 4.5,
+        "solve_rate": 1
+      },
+      "verdict": {
+        "typed_vs_concrete": 7.9,
+        "typed_vs_random": 0.5,
+        "typed_helps": true,
+        "schema_specific": true
+      }
+    },
+    "R2_depth": {
+      "concrete": {
+        "mean_nodes": 1268.3,
+        "solve_rate": 1
+      },
+      "typed": {
+        "mean_nodes": 1624.7,
+        "solve_rate": 1
+      },
+      "typed_random": {
+        "mean_nodes": 674.6,
+        "solve_rate": 1
+      },
+      "verdict": {
+        "typed_vs_concrete": -356.4,
+        "typed_vs_random": -950.1,
+        "typed_helps": false,
+        "schema_specific": false
+      }
+    },
+    "summary": {
+      "r2_disjoint_schema_specific_margin": 0.5,
+      "r2_depth_relative_move_vs_concrete": 0.281,
+      "r2_depth_stable": false,
+      "schema_specific_all_regimes": false,
+      "representation_lifts_ceiling": false
+    }
+  },
+  "seed_runs": [
+    {
+      "seed": 11,
+      "held_out": true,
+      "n_macros": 8,
+      "n_typed_extra": 40,
+      "schemas": [
+        "AM",
+        "AMA",
+        "AMMA",
+        "MA",
+        "MAM",
+        "MMA",
+        "MMAM"
+      ],
+      "regimes": {
+        "R0_identical": {
+          "concrete": {
+            "mean_nodes": 7.5,
+            "median_nodes": 4.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 2.1,
+            "median_nodes": 1.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 2.9,
+            "median_nodes": 1.0,
+            "solve_rate": 1
+          }
+        },
+        "R1_partial": {
+          "concrete": {
+            "mean_nodes": 13.8,
+            "median_nodes": 5.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 2.6,
+            "median_nodes": 1.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 4.0,
+            "median_nodes": 3.0,
+            "solve_rate": 1
+          }
+        },
+        "R2_disjoint": {
+          "concrete": {
+            "mean_nodes": 11.7,
+            "median_nodes": 4.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 2.8,
+            "median_nodes": 1.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 3.8,
+            "median_nodes": 1.0,
+            "solve_rate": 1
+          }
+        },
+        "R2_depth": {
+          "concrete": {
+            "mean_nodes": 95.9,
+            "median_nodes": 24.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 18.9,
+            "median_nodes": 9.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 34.0,
+            "median_nodes": 10.5,
+            "solve_rate": 1
+          }
+        }
+      }
+    },
+    {
+      "seed": 17,
+      "held_out": true,
+      "n_macros": 8,
+      "n_typed_extra": 34,
+      "schemas": [
+        "AM",
+        "AMA",
+        "MA",
+        "MAM",
+        "MM",
+        "MMA"
+      ],
+      "regimes": {
+        "R0_identical": {
+          "concrete": {
+            "mean_nodes": 6.5,
+            "median_nodes": 7.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 3.5,
+            "median_nodes": 3.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 6.3,
+            "median_nodes": 3.5,
+            "solve_rate": 1
+          }
+        },
+        "R1_partial": {
+          "concrete": {
+            "mean_nodes": 8.5,
+            "median_nodes": 3.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 2.9,
+            "median_nodes": 1.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 5.2,
+            "median_nodes": 1.0,
+            "solve_rate": 1
+          }
+        },
+        "R2_disjoint": {
+          "concrete": {
+            "mean_nodes": 7.8,
+            "median_nodes": 4.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 3.3,
+            "median_nodes": 1.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 5.1,
+            "median_nodes": 3.0,
+            "solve_rate": 1
+          }
+        },
+        "R2_depth": {
+          "concrete": {
+            "mean_nodes": 132.8,
+            "median_nodes": 37.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 56.5,
+            "median_nodes": 14.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 173.3,
+            "median_nodes": 19.0,
+            "solve_rate": 1
+          }
+        }
+      }
+    },
+    {
+      "seed": 23,
+      "held_out": true,
+      "n_macros": 8,
+      "n_typed_extra": 39,
+      "schemas": [
+        "AM",
+        "AMM",
+        "AMMA",
+        "MA",
+        "MM",
+        "MMA"
+      ],
+      "regimes": {
+        "R0_identical": {
+          "concrete": {
+            "mean_nodes": 5.5,
+            "median_nodes": 3.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 3.1,
+            "median_nodes": 1.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 4.5,
+            "median_nodes": 3.0,
+            "solve_rate": 1
+          }
+        },
+        "R1_partial": {
+          "concrete": {
+            "mean_nodes": 7.0,
+            "median_nodes": 4.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 2.8,
+            "median_nodes": 1.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 5.3,
+            "median_nodes": 3.0,
+            "solve_rate": 1
+          }
+        },
+        "R2_disjoint": {
+          "concrete": {
+            "mean_nodes": 8.6,
+            "median_nodes": 4.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 2.4,
+            "median_nodes": 1.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 4.8,
+            "median_nodes": 1.0,
+            "solve_rate": 1
+          }
+        },
+        "R2_depth": {
+          "concrete": {
+            "mean_nodes": 96.4,
+            "median_nodes": 23.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 31.1,
+            "median_nodes": 8.5,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 2760.6,
+            "median_nodes": 16.0,
+            "solve_rate": 1
+          }
+        }
+      }
+    },
+    {
+      "seed": 41,
+      "held_out": true,
+      "n_macros": 8,
+      "n_typed_extra": 40,
+      "schemas": [
+        "AA",
+        "AAA",
+        "AAM",
+        "AAMA",
+        "AM",
+        "AMA",
+        "MA"
+      ],
+      "regimes": {
+        "R0_identical": {
+          "concrete": {
+            "mean_nodes": 7.7,
+            "median_nodes": 4.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 3.6,
+            "median_nodes": 1.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 4.8,
+            "median_nodes": 3.0,
+            "solve_rate": 1
+          }
+        },
+        "R1_partial": {
+          "concrete": {
+            "mean_nodes": 17.2,
+            "median_nodes": 7.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 4.6,
+            "median_nodes": 3.5,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 4.0,
+            "median_nodes": 3.0,
+            "solve_rate": 1
+          }
+        },
+        "R2_disjoint": {
+          "concrete": {
+            "mean_nodes": 18.6,
+            "median_nodes": 5.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 4.1,
+            "median_nodes": 1.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 4.6,
+            "median_nodes": 3.0,
+            "solve_rate": 1
+          }
+        },
+        "R2_depth": {
+          "concrete": {
+            "mean_nodes": 2891.3,
+            "median_nodes": 92.5,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 3737.0,
+            "median_nodes": 30.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 100.1,
+            "median_nodes": 16.0,
+            "solve_rate": 1
+          }
+        }
+      }
+    },
+    {
+      "seed": 73,
+      "held_out": true,
+      "n_macros": 8,
+      "n_typed_extra": 40,
+      "schemas": [
+        "AA",
+        "AAA",
+        "AM",
+        "AMA",
+        "MA",
+        "MAA",
+        "MAAA"
+      ],
+      "regimes": {
+        "R0_identical": {
+          "concrete": {
+            "mean_nodes": 7.3,
+            "median_nodes": 4.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 4.8,
+            "median_nodes": 3.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 3.3,
+            "median_nodes": 3.0,
+            "solve_rate": 1
+          }
+        },
+        "R1_partial": {
+          "concrete": {
+            "mean_nodes": 11.2,
+            "median_nodes": 5.5,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 6.3,
+            "median_nodes": 4.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 4.5,
+            "median_nodes": 3.0,
+            "solve_rate": 1
+          }
+        },
+        "R2_disjoint": {
+          "concrete": {
+            "mean_nodes": 8.2,
+            "median_nodes": 4.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 4.8,
+            "median_nodes": 3.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 5.1,
+            "median_nodes": 1.0,
+            "solve_rate": 1
+          }
+        },
+        "R2_depth": {
+          "concrete": {
+            "mean_nodes": 2082.1,
+            "median_nodes": 78.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 3215.2,
+            "median_nodes": 103.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 434.8,
+            "median_nodes": 18.5,
+            "solve_rate": 1
+          }
+        }
+      }
+    },
+    {
+      "seed": 101,
+      "held_out": true,
+      "n_macros": 8,
+      "n_typed_extra": 40,
+      "schemas": [
+        "AA",
+        "AAA",
+        "AAAM",
+        "AAM",
+        "AAMA",
+        "AM"
+      ],
+      "regimes": {
+        "R0_identical": {
+          "concrete": {
+            "mean_nodes": 28.2,
+            "median_nodes": 5.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 4.9,
+            "median_nodes": 4.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 3.0,
+            "median_nodes": 3.0,
+            "solve_rate": 1
+          }
+        },
+        "R1_partial": {
+          "concrete": {
+            "mean_nodes": 47.2,
+            "median_nodes": 8.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 9.5,
+            "median_nodes": 4.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 5.5,
+            "median_nodes": 2.0,
+            "solve_rate": 1
+          }
+        },
+        "R2_disjoint": {
+          "concrete": {
+            "mean_nodes": 16.3,
+            "median_nodes": 4.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 6.7,
+            "median_nodes": 1.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 3.6,
+            "median_nodes": 2.0,
+            "solve_rate": 1
+          }
+        },
+        "R2_depth": {
+          "concrete": {
+            "mean_nodes": 2311.6,
+            "median_nodes": 109.0,
+            "solve_rate": 1
+          },
+          "typed": {
+            "mean_nodes": 2689.6,
+            "median_nodes": 85.0,
+            "solve_rate": 1
+          },
+          "typed_random": {
+            "mean_nodes": 544.9,
+            "median_nodes": 26.5,
+            "solve_rate": 1
+          }
+        }
+      }
+    }
+  ]
+}

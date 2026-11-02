@@ -14,6 +14,8 @@ import sys
 import time
 from functools import partial
 
+from jax_backend import configure_environment
+
 
 def requested_backend(argv: list[str]) -> str:
     backend = os.environ.get("JAX_PLATFORM_NAME", "cpu")
@@ -26,12 +28,7 @@ def requested_backend(argv: list[str]) -> str:
 
 
 REQUESTED_BACKEND = requested_backend(sys.argv[1:])
-if REQUESTED_BACKEND == "auto":
-    os.environ.pop("JAX_PLATFORM_NAME", None)
-    os.environ.pop("JAX_PLATFORMS", None)
-else:
-    os.environ["JAX_PLATFORM_NAME"] = REQUESTED_BACKEND
-    os.environ["JAX_PLATFORMS"] = REQUESTED_BACKEND
+configure_environment(REQUESTED_BACKEND)
 
 import jax
 import jax.numpy as jnp

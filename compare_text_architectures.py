@@ -21,6 +21,8 @@ from functools import partial
 from pathlib import Path
 from typing import Any, NamedTuple
 
+from jax_backend import configure_environment
+
 
 def requested_backend(argv: list[str]) -> str:
     backend = os.environ.get("JAX_PLATFORM_NAME", "cpu")
@@ -33,12 +35,7 @@ def requested_backend(argv: list[str]) -> str:
 
 
 REQUESTED_BACKEND = requested_backend(sys.argv[1:])
-if REQUESTED_BACKEND == "auto":
-    os.environ.pop("JAX_PLATFORM_NAME", None)
-    os.environ.pop("JAX_PLATFORMS", None)
-else:
-    os.environ["JAX_PLATFORM_NAME"] = REQUESTED_BACKEND
-    os.environ["JAX_PLATFORMS"] = REQUESTED_BACKEND
+configure_environment(REQUESTED_BACKEND)
 
 import jax
 import jax.numpy as jnp
@@ -51,6 +48,7 @@ from text_tokenization import (
     build_vocab_for_tokenizer,
     detokenize_with_config,
     encode_tokens,
+    fit_bpe_training_data,
     tokenize_with_config,
     tokenizer_summary,
     word_detokenize,
@@ -63,6 +61,9 @@ from train_ssm_text import (
     clip_grads,
     forward as ssm_forward,
     init_adam,
+    init_stream_state,
+    language_cross_entropy,
+    initialize_output_bias,
     init_params as init_ssm_params,
     infer_ssm_variant,
     load_text,
@@ -171,7 +172,8 @@ def ssm_parameter_diagnostics(params: dict[str, jax.Array]) -> dict[str, float]:
 def oov_report(tokens: list[str], vocab: list[str]) -> dict[str, object]:
     counts = Counter(tokens)
     vocab_set = set(vocab)
-    oov_counts = {token: count for token, count in counts.items() if token not in vocab_set}
+    oov_counts = {token: count for token, count in counts.items()
+                  if token not in vocab_set or token == UNK}
     oov_tokens = sum(oov_counts.values())
     return {
         "known_unique_tokens": len(counts) - len(oov_counts),
@@ -223,7 +225,20 @@ def prepare_data(args: argparse.Namespace) -> dict[str, object]:
         bpe_train_chars=args.bpe_train_chars,
         tokenizer_config=loaded_config,
     )
-    train_tokens = tokenize_with_config(str(split["train_text"]), tokenizer_config)
+    coverage = None
+    if tokenizer_config.get("type") == "bpe":
+        fitted = fit_bpe_training_data(str(split["train_text"]), tokenizer_config,
+                                      streams=args.streams, tokens_per_stream=args.tokens_per_stream,
+                                      seq_len=args.seq_len)
+        tokenizer_config = fitted["tokenizer_config"]
+        train_tokens = fitted["train_tokens"]
+        token_to_id, vocab = fitted["token_to_id"], fitted["vocab"]
+        train_streams_np = fitted["train_streams"]
+        coverage = fitted["coverage"]
+    else:
+        train_tokens = tokenize_with_config(str(split["train_text"]), tokenizer_config)
+        token_to_id, vocab = build_vocab_for_tokenizer(train_tokens, tokenizer_config)
+        train_streams_np = make_streams(encode_tokens(train_tokens, token_to_id), args.streams, args.tokens_per_stream)
     eval_tokens = tokenize_with_config(str(split["eval_text"]), tokenizer_config)
     if len(train_tokens) < 16 or len(eval_tokens) < 8:
         raise SystemExit(
@@ -231,10 +246,7 @@ def prepare_data(args: argparse.Namespace) -> dict[str, object]:
             f"train={len(train_tokens)}, eval={len(eval_tokens)}"
         )
 
-    token_to_id, vocab = build_vocab_for_tokenizer(train_tokens, tokenizer_config)
-    train_ids = encode_tokens(train_tokens, token_to_id)
     eval_ids = encode_tokens(eval_tokens, token_to_id)
-    train_streams_np = make_streams(train_ids, args.streams, args.tokens_per_stream)
     eval_streams_np = make_streams(eval_ids, args.streams, args.tokens_per_stream)
     if args.seq_len + 1 > args.tokens_per_stream:
         raise SystemExit("--seq-len must be smaller than --tokens-per-stream.")
@@ -242,6 +254,7 @@ def prepare_data(args: argparse.Namespace) -> dict[str, object]:
     return {
         "split": {k: v for k, v in split.items() if k not in {"train_text", "eval_text"}},
         "tokenizer_config": tokenizer_config,
+        "vocab_coverage": coverage,
         "tokenizer_summary": tokenizer_summary(str(split["train_text"]), tokenizer_config, train_tokens),
         "train_tokens": train_tokens,
         "eval_tokens": eval_tokens,
@@ -253,12 +266,11 @@ def prepare_data(args: argparse.Namespace) -> dict[str, object]:
     }
 
 
-def nll_and_accuracy(logits: jax.Array, target_ids: jax.Array) -> tuple[jax.Array, jax.Array]:
-    log_probs = jax.nn.log_softmax(logits, axis=-1)
-    nll = -jnp.take_along_axis(log_probs, target_ids[..., None], axis=-1)[..., 0]
+def nll_and_accuracy(logits: jax.Array, target_ids: jax.Array, *, label_smoothing: float = 0.0) -> tuple[jax.Array, jax.Array]:
+    loss = language_cross_entropy(logits, target_ids, label_smoothing=label_smoothing)
     predictions = jnp.argmax(logits, axis=-1).astype(target_ids.dtype)
     accuracy = jnp.mean(predictions == target_ids)
-    return jnp.mean(nll), accuracy
+    return loss, accuracy
 
 
 def masked_nll_and_accuracy(
@@ -299,7 +311,7 @@ def ssm_masked_train_step(
     (loss, (accuracy, final_h, nll_loss)), grads = jax.value_and_grad(train_loss_fn, has_aux=True)(params)
     grads, grad_norm = clip_grads(grads, grad_clip)
     params, opt_state = adam_update(params, grads, opt_state, learning_rate)
-    final_h = jax.lax.stop_gradient(final_h)
+    final_h = jax.tree_util.tree_map(jax.lax.stop_gradient, final_h)
     metrics = AuxTrainMetrics(
         loss=nll_loss,
         accuracy=accuracy,
@@ -321,7 +333,7 @@ def ssm_eval_full(
     target_chunks = streams[:, 1 : usable + 1].reshape(streams.shape[0], chunks, seq_len)
     input_chunks = jnp.swapaxes(input_chunks, 0, 1)
     target_chunks = jnp.swapaxes(target_chunks, 0, 1)
-    initial_h = jnp.zeros((streams.shape[0], params["decay_raw"].shape[0]), dtype=jnp.float32)
+    initial_h = init_stream_state(params, streams.shape[0])
 
     def step(states_h: jax.Array, pair: tuple[jax.Array, jax.Array]) -> tuple[jax.Array, tuple[jax.Array, jax.Array]]:
         input_ids, target_ids = pair
@@ -485,6 +497,9 @@ def train_ssm(
     train_streams: jax.Array,
     args: argparse.Namespace,
 ) -> tuple[dict[str, jax.Array], dict[str, object]]:
+    if getattr(args, "output_bias_init", "zero") == "train-unigram":
+        params = initialize_output_bias(params, train_streams, seq_len=args.seq_len,
+                                       label_smoothing=getattr(args, "label_smoothing", 0.0))
     opt_state = init_adam(params)
     chunks = (args.tokens_per_stream - 1) // args.seq_len
     aux_enabled = args.ssm_aux_recall_every > 0
@@ -520,7 +535,7 @@ def train_ssm(
         else aux_key_ids
     )
 
-    warm_states = jnp.zeros((args.streams, args.ssm_state_dim), dtype=jnp.float32)
+    warm_states = init_stream_state(params, args.streams)
     warm_input = train_streams[:, : args.seq_len]
     warm_target = train_streams[:, 1 : args.seq_len + 1]
     warm_params, warm_opt, warm_states, warm_metrics = ssm_train_step(
@@ -532,11 +547,12 @@ def train_ssm(
         learning_rate=args.learning_rate,
         grad_clip=args.grad_clip,
         memory_gate_l1=args.memory_gate_l1,
+        label_smoothing=getattr(args, "label_smoothing", 0.0),
     )
     jax.block_until_ready(warm_metrics.loss)
     del warm_params, warm_opt, warm_states
 
-    states_h = jnp.zeros((args.streams, args.ssm_state_dim), dtype=jnp.float32)
+    states_h = init_stream_state(params, args.streams)
     start = time.perf_counter()
     update_count = 0
     aux_update_count = 0
@@ -544,7 +560,7 @@ def train_ssm(
     aux_metrics: Any = None
     metrics = warm_metrics
     for _ in range(args.epochs):
-        states_h = jnp.zeros_like(states_h)
+        states_h = init_stream_state(params, args.streams)
         for chunk in range(chunks):
             cursor = chunk * args.seq_len
             input_ids = train_streams[:, cursor : cursor + args.seq_len]
@@ -558,6 +574,7 @@ def train_ssm(
                 learning_rate=args.learning_rate,
                 grad_clip=args.grad_clip,
                 memory_gate_l1=args.memory_gate_l1,
+                label_smoothing=getattr(args, "label_smoothing", 0.0),
             )
             update_count += 1
             if aux_enabled and update_count % args.ssm_aux_recall_every == 0:
@@ -575,7 +592,7 @@ def train_ssm(
                     query_id=args.ssm_aux_recall_query_id,
                     filler_id=args.ssm_aux_recall_filler_id,
                 )
-                aux_states = jnp.zeros_like(states_h)
+                aux_states = init_stream_state(params, args.streams)
                 params, opt_state, _, aux_metrics = ssm_masked_train_step(
                     params,
                     opt_state,
@@ -597,6 +614,9 @@ def train_ssm(
     aux_trained_tokens = aux_update_count * args.streams * args.seq_len
     effective_aux_delay = min(args.ssm_aux_recall_delay, max(1, args.seq_len - 1)) if aux_enabled else None
     return params, {
+        "label_smoothing": getattr(args, "label_smoothing", 0.0),
+        "output_bias_init": getattr(args, "output_bias_init", "zero"),
+        "training_loss_type": "smoothed_cross_entropy" if getattr(args, "label_smoothing", 0.0) else "nll",
         "updates": update_count,
         "trained_tokens": trained_tokens,
         "train_s": elapsed,
@@ -764,12 +784,13 @@ def transformer_loss_fn(
     *,
     layers: int,
     heads: int,
+    label_smoothing: float = 0.0,
 ) -> tuple[jax.Array, jax.Array]:
     logits = transformer_forward(params, input_ids, layers=layers, heads=heads)
-    return nll_and_accuracy(logits, target_ids)
+    return nll_and_accuracy(logits, target_ids, label_smoothing=label_smoothing)
 
 
-@partial(jax.jit, static_argnames=("learning_rate", "grad_clip", "layers", "heads"))
+@partial(jax.jit, static_argnames=("learning_rate", "grad_clip", "layers", "heads", "label_smoothing"))
 def transformer_train_step(
     params: dict[str, jax.Array],
     opt_state: dict[str, object],
@@ -780,6 +801,7 @@ def transformer_train_step(
     grad_clip: float,
     layers: int,
     heads: int,
+    label_smoothing: float = 0.0,
 ) -> tuple[dict[str, jax.Array], dict[str, object], TransformerTrainMetrics]:
     (loss, accuracy), grads = jax.value_and_grad(transformer_loss_fn, has_aux=True)(
         params,
@@ -787,6 +809,7 @@ def transformer_train_step(
         target_ids,
         layers=layers,
         heads=heads,
+        label_smoothing=label_smoothing,
     )
     grads, grad_norm = clip_grads(grads, grad_clip)
     params, opt_state = adam_update(params, grads, opt_state, learning_rate)
@@ -824,6 +847,9 @@ def train_transformer(
     train_streams: jax.Array,
     args: argparse.Namespace,
 ) -> tuple[dict[str, jax.Array], dict[str, object]]:
+    if getattr(args, "output_bias_init", "zero") == "train-unigram":
+        params = initialize_output_bias(params, train_streams, seq_len=args.seq_len,
+                                       label_smoothing=getattr(args, "label_smoothing", 0.0))
     opt_state = init_adam(params)
     chunks = (args.tokens_per_stream - 1) // args.seq_len
 
@@ -838,6 +864,7 @@ def train_transformer(
         grad_clip=args.grad_clip,
         layers=args.transformer_layers,
         heads=args.transformer_heads,
+        label_smoothing=getattr(args, "label_smoothing", 0.0),
     )
     jax.block_until_ready(warm_metrics.loss)
     del warm_params, warm_opt
@@ -859,12 +886,16 @@ def train_transformer(
                 grad_clip=args.grad_clip,
                 layers=args.transformer_layers,
                 heads=args.transformer_heads,
+                label_smoothing=getattr(args, "label_smoothing", 0.0),
             )
             update_count += 1
     jax.block_until_ready(metrics.loss)
     elapsed = time.perf_counter() - start
     trained_tokens = update_count * args.streams * args.seq_len
     return params, {
+        "label_smoothing": getattr(args, "label_smoothing", 0.0),
+        "output_bias_init": getattr(args, "output_bias_init", "zero"),
+        "training_loss_type": "smoothed_cross_entropy" if getattr(args, "label_smoothing", 0.0) else "nll",
         "updates": update_count,
         "trained_tokens": trained_tokens,
         "train_s": elapsed,
@@ -1019,6 +1050,8 @@ def run(args: argparse.Namespace) -> None:
         args.ssm_state_dim,
         variant=args.ssm_variant,
         skip_rank=args.ssm_skip_rank,
+        attention_window=getattr(args, "ssm_attention_window", 128),
+        attention_dim=getattr(args, "ssm_attention_dim", 32),
     )
     if args.ssm_aux_recall_every > 0 and args.ssm_aux_recall_init_gates:
         aux_init_key_ids = select_aux_recall_key_ids(
@@ -1150,7 +1183,8 @@ def run(args: argparse.Namespace) -> None:
     ssm_eval = timed_eval_ssm(ssm_params, eval_streams, args)
     transformer_eval = timed_eval_transformer(transformer_params, eval_streams, args)
 
-    ssm_runtime_bytes = args.streams * args.ssm_state_dim * 4
+    ssm_state = init_stream_state(ssm_params, args.streams)
+    ssm_runtime_bytes = count_bytes(ssm_state)
     transformer_attention_bytes = (
         args.transformer_layers * args.streams * args.transformer_heads * args.seq_len * args.seq_len * 4
     )
@@ -1163,6 +1197,11 @@ def run(args: argparse.Namespace) -> None:
         "parameter_bytes": count_bytes(ssm_params),
         "optimizer_bytes_estimate": 2 * count_bytes(ssm_params),
         "state_memory_bytes": ssm_runtime_bytes,
+        "state_memory_bytes_per_stream": ssm_runtime_bytes // args.streams,
+        "state_memory_breakdown_bytes": {
+            name: count_bytes(value) for name, value in zip(ssm_state._fields, ssm_state)
+            if value is not None
+        },
         "effective_context_tokens": args.tokens_per_stream,
         "diagnostics": ssm_parameter_diagnostics(ssm_params),
         "train": ssm_train,
@@ -1250,11 +1289,14 @@ def run(args: argparse.Namespace) -> None:
         "backend": jax.default_backend(),
         "devices": [str(device) for device in jax.devices()],
         "protocol": {
+            "version": 2,
+            "seed": args.seed,
             "text_file": args.text_file,
             "split": data["split"],
             "tokenizer": tokenizer_config.get("type", "word"),
             "tokenizer_config": tokenizer_config,
             "tokenizer_summary": data["tokenizer_summary"],
+            "vocab_coverage": data["vocab_coverage"],
             "train_tokens": len(data["train_tokens"]),
             "eval_tokens": len(data["eval_tokens"]),
             "vocab_size": len(vocab),
@@ -1267,6 +1309,9 @@ def run(args: argparse.Namespace) -> None:
             "epochs": args.epochs,
             "learning_rate": args.learning_rate,
             "memory_gate_l1": args.memory_gate_l1,
+            "label_smoothing": getattr(args, "label_smoothing", 0.0),
+            "output_bias_init": getattr(args, "output_bias_init", "zero"),
+            "evaluation_loss_type": "ordinary_unsmoothed_nll",
             "ssm_aux_recall": {
                 "enabled": args.ssm_aux_recall_every > 0,
                 "task": args.ssm_aux_recall_task,
@@ -1301,7 +1346,7 @@ def run(args: argparse.Namespace) -> None:
     print(f"Saved JSON: {output_json}")
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Compare text SSM and tiny Transformer under one protocol.")
     parser.add_argument("--text-file", default=None)
     parser.add_argument("--output-json", default=None)
@@ -1324,6 +1369,8 @@ def parse_args() -> argparse.Namespace:
         default="static",
     )
     parser.add_argument("--ssm-skip-rank", type=int, default=DEFAULT_SKIP_RANK)
+    parser.add_argument("--ssm-attention-window", type=int, default=128)
+    parser.add_argument("--ssm-attention-dim", type=int, default=32)
     parser.add_argument("--transformer-d-model", type=int, default=None)
     parser.add_argument("--transformer-max-d-model", type=int, default=256)
     parser.add_argument("--transformer-layers", type=int, default=1)
@@ -1333,6 +1380,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--learning-rate", type=float, default=0.006)
     parser.add_argument("--grad-clip", type=float, default=1.0)
     parser.add_argument("--memory-gate-l1", type=float, default=0.0)
+    parser.add_argument("--label-smoothing", type=float, default=0.0, help="Same uniform target smoothing for both trainers; evaluation is unsmoothed.")
+    parser.add_argument("--output-bias-init", choices=("zero", "train-unigram"), default="zero", help="Same TRAIN-only classifier prior initialization for both models.")
     parser.add_argument(
         "--ssm-aux-recall-every",
         type=int,
@@ -1363,7 +1412,10 @@ def parse_args() -> argparse.Namespace:
         default=REQUESTED_BACKEND,
         help="JAX backend. Default is cpu because Apple Metal JAX is experimental.",
     )
-    return parser.parse_args()
+    args = parser.parse_args(argv)
+    if not 0.0 <= args.label_smoothing < 1.0:
+        parser.error("--label-smoothing must be finite and in [0, 1)")
+    return args
 
 
 if __name__ == "__main__":

@@ -1,0 +1,10 @@
+{
+  "kind": "outcome",
+  "metric": "guarded_total_successes",
+  "protocol": "codepy-missing-family-local-completion-v1",
+  "value": 20,
+  "method": "Same seeds0–4 and7041heldout inputs per task; fresh95evaluated populations/24320candidates per target; extra missing-family source completion included in totalcost and paid by four saved populations on each target; TRAIN-only selection; all20new and20baseline winners independently replayed; makeci passed",
+  "limitations": "Finite float32tests and5seeds; no symbolic universalproof; combined missing-family/edit-search intervention, no isolated ablation; walltime/FLOPs not matched",
+  "results": "/Users/makbuk/000cor/artifacts/codepy_local_completion_20261101/results.json",
+  "verification": "/Users/makbuk/000cor/artifacts/codepy_local_completion_20261101/verification.json"
+}

@@ -1,0 +1,111 @@
+{
+  "seed": 4,
+  "missing_before": [
+    "order"
+  ],
+  "blocks": [
+    {
+      "code": [
+        4,
+        1,
+        32,
+        7,
+        7,
+        24,
+        4,
+        20,
+        34,
+        25,
+        0,
+        0
+      ],
+      "layout": [
+        0,
+        2
+      ],
+      "outputs": [
+        3,
+        4
+      ],
+      "provenance": {
+        "method": "bounded_edit_beam"
+      },
+      "behavior": "order_descending",
+      "qualification": [
+        {
+          "group": "challenge64",
+          "cases": 64,
+          "behavior": "order_descending",
+          "native_numpy_exact": true,
+          "inputs_sha256": "b85589b57d047d0ec1dc375d80667856876de5ab86eda335e5dfd5966f50dc3d"
+        },
+        {
+          "group": "promotion6429",
+          "cases": 6429,
+          "behavior": "order_descending",
+          "native_numpy_exact": true,
+          "inputs_sha256": "2e2fcd77080715fb10ecb221ff4d3e4d59df83319134867c05507208439a2c22"
+        }
+      ]
+    }
+  ],
+  "status": "complete",
+  "preparation_case_step_budget": 18874368,
+  "preparation_case_steps_used": 696432,
+  "budget_charges": [
+    {
+      "kind": "missing_family_source_probes",
+      "units": 38400
+    },
+    {
+      "kind": "missing_family_source_probes",
+      "units": 38400
+    },
+    {
+      "kind": "missing_family_source_probes",
+      "units": 3000
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "local_edit_beam",
+      "units": 76800
+    },
+    {
+      "kind": "challenge64",
+      "units": 1536
+    },
+    {
+      "kind": "promotion6429",
+      "units": 154296
+    }
+  ],
+  "trace": [
+    {
+      "family": "order",
+      "round": 0,
+      "promoted": true,
+      "budget_used": 696432
+    }
+  ],
+  "elapsed_s": 0.7686855000210926,
+  "source_only_no_target_inputs": true
+}

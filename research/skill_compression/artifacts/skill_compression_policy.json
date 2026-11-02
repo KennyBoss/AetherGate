@@ -1,0 +1,223 @@
+{
+  "config": {
+    "seeds": "11,17,23,41,73,101",
+    "hidden": 24,
+    "epochs": 600,
+    "lr": 0.02,
+    "test_frac": 0.3,
+    "schemas": "MAM,AAA,MAA,AMA",
+    "output_json": "artifacts/skill_compression_policy.json"
+  },
+  "protocol_evidence": {
+    "held_out_goals": true,
+    "goal_blind_baseline_present": true,
+    "no_search_one_shot_policy": true,
+    "n_seeds": 6,
+    "valid": true
+  },
+  "summary": {
+    "mean_goal_conditioned_solve": 0.4813,
+    "mean_goal_blind_solve": 0.101,
+    "goal_conditioned_minus_blind": 0.3803,
+    "mean_goal_sensitivity": 2.479,
+    "test_A_passes": true
+  },
+  "per_schema": {
+    "MAM": {
+      "seed_runs": [
+        {
+          "seed": 11,
+          "n_test_goals": 17,
+          "goal_conditioned_solve": 0.2941,
+          "goal_blind_solve": 0.1765,
+          "goal_sensitivity_distinct_bindings_per_x0": 2.8
+        },
+        {
+          "seed": 17,
+          "n_test_goals": 17,
+          "goal_conditioned_solve": 0.2353,
+          "goal_blind_solve": 0.0588,
+          "goal_sensitivity_distinct_bindings_per_x0": 2
+        },
+        {
+          "seed": 23,
+          "n_test_goals": 17,
+          "goal_conditioned_solve": 0.1765,
+          "goal_blind_solve": 0.0588,
+          "goal_sensitivity_distinct_bindings_per_x0": 2.5
+        },
+        {
+          "seed": 41,
+          "n_test_goals": 17,
+          "goal_conditioned_solve": 0.2941,
+          "goal_blind_solve": 0.0588,
+          "goal_sensitivity_distinct_bindings_per_x0": 2.6
+        },
+        {
+          "seed": 73,
+          "n_test_goals": 17,
+          "goal_conditioned_solve": 0.2353,
+          "goal_blind_solve": 0.0588,
+          "goal_sensitivity_distinct_bindings_per_x0": 2.333
+        },
+        {
+          "seed": 101,
+          "n_test_goals": 17,
+          "goal_conditioned_solve": 0.3529,
+          "goal_blind_solve": 0.1765,
+          "goal_sensitivity_distinct_bindings_per_x0": 2.667
+        }
+      ],
+      "goal_conditioned_solve": 0.2647,
+      "goal_blind_solve": 0.098,
+      "goal_sensitivity": 2.483
+    },
+    "AAA": {
+      "seed_runs": [
+        {
+          "seed": 11,
+          "n_test_goals": 12,
+          "goal_conditioned_solve": 1.0,
+          "goal_blind_solve": 0.1667,
+          "goal_sensitivity_distinct_bindings_per_x0": 2
+        },
+        {
+          "seed": 17,
+          "n_test_goals": 12,
+          "goal_conditioned_solve": 1.0,
+          "goal_blind_solve": 0.1667,
+          "goal_sensitivity_distinct_bindings_per_x0": 2
+        },
+        {
+          "seed": 23,
+          "n_test_goals": 12,
+          "goal_conditioned_solve": 0.9167,
+          "goal_blind_solve": 0.25,
+          "goal_sensitivity_distinct_bindings_per_x0": 2.2
+        },
+        {
+          "seed": 41,
+          "n_test_goals": 12,
+          "goal_conditioned_solve": 1.0,
+          "goal_blind_solve": 0.0833,
+          "goal_sensitivity_distinct_bindings_per_x0": 3
+        },
+        {
+          "seed": 73,
+          "n_test_goals": 12,
+          "goal_conditioned_solve": 1.0,
+          "goal_blind_solve": 0.1667,
+          "goal_sensitivity_distinct_bindings_per_x0": 2
+        },
+        {
+          "seed": 101,
+          "n_test_goals": 12,
+          "goal_conditioned_solve": 1.0,
+          "goal_blind_solve": 0.0833,
+          "goal_sensitivity_distinct_bindings_per_x0": 2
+        }
+      ],
+      "goal_conditioned_solve": 0.9861,
+      "goal_blind_solve": 0.1528,
+      "goal_sensitivity": 2.2
+    },
+    "MAA": {
+      "seed_runs": [
+        {
+          "seed": 11,
+          "n_test_goals": 14,
+          "goal_conditioned_solve": 0.4286,
+          "goal_blind_solve": 0.1429,
+          "goal_sensitivity_distinct_bindings_per_x0": 2.167
+        },
+        {
+          "seed": 17,
+          "n_test_goals": 14,
+          "goal_conditioned_solve": 0.5714,
+          "goal_blind_solve": 0.0714,
+          "goal_sensitivity_distinct_bindings_per_x0": 1.833
+        },
+        {
+          "seed": 23,
+          "n_test_goals": 14,
+          "goal_conditioned_solve": 0.2857,
+          "goal_blind_solve": 0.0714,
+          "goal_sensitivity_distinct_bindings_per_x0": 2
+        },
+        {
+          "seed": 41,
+          "n_test_goals": 14,
+          "goal_conditioned_solve": 0.5,
+          "goal_blind_solve": 0.0714,
+          "goal_sensitivity_distinct_bindings_per_x0": 2.4
+        },
+        {
+          "seed": 73,
+          "n_test_goals": 14,
+          "goal_conditioned_solve": 0.6429,
+          "goal_blind_solve": 0.1429,
+          "goal_sensitivity_distinct_bindings_per_x0": 2.333
+        },
+        {
+          "seed": 101,
+          "n_test_goals": 14,
+          "goal_conditioned_solve": 0.3571,
+          "goal_blind_solve": 0.0714,
+          "goal_sensitivity_distinct_bindings_per_x0": 2.167
+        }
+      ],
+      "goal_conditioned_solve": 0.4643,
+      "goal_blind_solve": 0.0952,
+      "goal_sensitivity": 2.15
+    },
+    "AMA": {
+      "seed_runs": [
+        {
+          "seed": 11,
+          "n_test_goals": 23,
+          "goal_conditioned_solve": 0.1739,
+          "goal_blind_solve": 0.087,
+          "goal_sensitivity_distinct_bindings_per_x0": 3
+        },
+        {
+          "seed": 17,
+          "n_test_goals": 23,
+          "goal_conditioned_solve": 0.1739,
+          "goal_blind_solve": 0.0435,
+          "goal_sensitivity_distinct_bindings_per_x0": 2.5
+        },
+        {
+          "seed": 23,
+          "n_test_goals": 23,
+          "goal_conditioned_solve": 0.3043,
+          "goal_blind_solve": 0.087,
+          "goal_sensitivity_distinct_bindings_per_x0": 3.167
+        },
+        {
+          "seed": 41,
+          "n_test_goals": 23,
+          "goal_conditioned_solve": 0.2174,
+          "goal_blind_solve": 0.0435,
+          "goal_sensitivity_distinct_bindings_per_x0": 3.167
+        },
+        {
+          "seed": 73,
+          "n_test_goals": 23,
+          "goal_conditioned_solve": 0.3043,
+          "goal_blind_solve": 0.0,
+          "goal_sensitivity_distinct_bindings_per_x0": 3.333
+        },
+        {
+          "seed": 101,
+          "n_test_goals": 23,
+          "goal_conditioned_solve": 0.087,
+          "goal_blind_solve": 0.087,
+          "goal_sensitivity_distinct_bindings_per_x0": 3.333
+        }
+      ],
+      "goal_conditioned_solve": 0.2101,
+      "goal_blind_solve": 0.058,
+      "goal_sensitivity": 3.083
+    }
+  }
+}

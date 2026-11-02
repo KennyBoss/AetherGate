@@ -1,0 +1,40 @@
+{
+  "created_at": "2026-07-13T22:26:08Z",
+  "kind": "kv_scale_law_1_metal_preflight",
+  "status": "REJECTED",
+  "claim": "Apple Metal is not a valid training backend for the current KV Scale Law 1 harness on this machine.",
+  "machine": {
+    "architecture": "arm64",
+    "processor": "Apple M4 Pro",
+    "memory_bytes": 25769803776,
+    "macos": "15.6"
+  },
+  "system_environment": {
+    "python": "3.14.4",
+    "jax": "0.9.0",
+    "jaxlib": "0.9.0",
+    "jax_metal": "0.1.1",
+    "result": "ERROR",
+    "error": "StableHLO bytecode version mismatch on jax.numpy.arange even with ENABLE_PJRT_COMPATIBILITY=1",
+    "ephemeral_log_sha256": "c4227f26b6ffd1a08b88ca7c30034d769a2c8084075610d2b8c83dd9439109a8"
+  },
+  "isolated_apple_minimum_environment": {
+    "location": "/tmp/000cor-jax-metal",
+    "python": "3.11.15",
+    "jax": "0.4.26",
+    "jaxlib": "0.4.26",
+    "jax_metal": "0.1.0",
+    "primitive_probe": "PASS",
+    "primitive_probe_output": "[0 1 2 3 4 5 6 7 8 9]",
+    "primitive_log_sha256": "7b12f9ce17eaaa77d3c1c27276f52a1efde84dc3d77627f911d2ba8632666058"
+  },
+  "model_smoke": {
+    "point": "cap-100k dimensions with reduced records and one epoch",
+    "result": "HANG",
+    "observation": "After Metal initialization the process produced no model output or JSON for 73 seconds, remained sleeping at 0.0% CPU, and was terminated.",
+    "ephemeral_log_sha256": "6236df7501d8c938392a6321623c89ac661305dae4599f469d4294599feefe34"
+  },
+  "decision": "Do not run registered capacity training on Apple Metal. Keep CPU for reproducibility and use a validated external CUDA accelerator for cap-100k and larger points.",
+  "source": "https://developer.apple.com/metal/jax/",
+  "claim_guardrail": "This preflight rejects one backend only; it is not evidence for or against the KV-memory hypothesis."
+}

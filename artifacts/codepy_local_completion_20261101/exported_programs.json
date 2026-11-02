@@ -1,0 +1,3600 @@
+[
+  {
+    "seed": 0,
+    "task": "sort4",
+    "kind": "pair",
+    "program": [
+      3,
+      1,
+      12,
+      6,
+      9,
+      1
+    ],
+    "blocks": [
+      {
+        "code": [
+          7,
+          7,
+          4,
+          9,
+          21,
+          10,
+          34,
+          3,
+          0,
+          17,
+          0,
+          26
+        ],
+        "layout": [
+          0,
+          2
+        ],
+        "outputs": [
+          3,
+          4
+        ],
+        "provenance": {
+          "method": "branch_guided_source_repair",
+          "generation": 6,
+          "candidate_index": 209
+        },
+        "behavior": "order_ascending",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "behavior": "order_ascending",
+            "native_numpy_exact": true,
+            "inputs_sha256": "ec633949b6ec465390fdf350dd5437bd1e733f8c9f00fa8e04e9f0c2dc8ef725"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "behavior": "order_ascending",
+            "native_numpy_exact": true,
+            "inputs_sha256": "3bc83ac5dc017eea2ab911888a99d6cdc56b3ff34a948e0863010ced69f7a901"
+          }
+        ]
+      }
+    ],
+    "argument_library": null,
+    "certificate": {
+      "passed": true,
+      "cases": 7041,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "preserved": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "preserved": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "preserved": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        }
+      },
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 0,
+    "task": "reverse4",
+    "kind": "arguments",
+    "program": [
+      [
+        32,
+        2,
+        3,
+        3,
+        0,
+        12,
+        0
+      ],
+      [
+        9,
+        0,
+        0,
+        0,
+        5,
+        0,
+        0
+      ],
+      [
+        15,
+        0,
+        0,
+        1,
+        3,
+        12,
+        0
+      ],
+      [
+        6,
+        3,
+        5,
+        0,
+        0,
+        4,
+        0
+      ],
+      [
+        11,
+        1,
+        6,
+        4,
+        3,
+        0,
+        0
+      ],
+      [
+        20,
+        0,
+        0,
+        3,
+        0,
+        19,
+        0
+      ],
+      [
+        15,
+        4,
+        0,
+        3,
+        2,
+        16,
+        0
+      ],
+      [
+        37,
+        0,
+        2,
+        3,
+        4,
+        17,
+        0
+      ],
+      [
+        10,
+        9,
+        9,
+        0,
+        5,
+        18,
+        0
+      ],
+      [
+        18,
+        9,
+        6,
+        0,
+        2,
+        4,
+        0
+      ],
+      [
+        7,
+        8,
+        5,
+        2,
+        3,
+        9,
+        0
+      ],
+      [
+        28,
+        0,
+        2,
+        3,
+        0,
+        10,
+        0
+      ],
+      [
+        10,
+        7,
+        0,
+        1,
+        5,
+        13,
+        0
+      ],
+      [
+        26,
+        9,
+        0,
+        0,
+        5,
+        22,
+        0
+      ],
+      [
+        2,
+        2,
+        0,
+        0,
+        0,
+        22,
+        0
+      ],
+      [
+        16,
+        8,
+        3,
+        0,
+        3,
+        1,
+        0
+      ],
+      [
+        31,
+        8,
+        2,
+        4,
+        0,
+        0,
+        0
+      ],
+      [
+        29,
+        1,
+        3,
+        1,
+        4,
+        0,
+        0
+      ],
+      [
+        34,
+        3,
+        0,
+        3,
+        5,
+        0,
+        0
+      ],
+      [
+        8,
+        1,
+        5,
+        3,
+        0,
+        0,
+        0
+      ],
+      [
+        27,
+        0,
+        0,
+        4,
+        0,
+        14,
+        0
+      ],
+      [
+        1,
+        6,
+        5,
+        0,
+        2,
+        0,
+        0
+      ],
+      [
+        13,
+        6,
+        0,
+        2,
+        0,
+        15,
+        0
+      ],
+      [
+        1,
+        9,
+        5,
+        1,
+        0,
+        2,
+        0
+      ],
+      [
+        25,
+        5,
+        7,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        27,
+        3,
+        4,
+        4,
+        0,
+        18,
+        0
+      ],
+      [
+        9,
+        2,
+        1,
+        4,
+        0,
+        0,
+        0
+      ],
+      [
+        36,
+        9,
+        7,
+        0,
+        3,
+        0,
+        0
+      ],
+      [
+        16,
+        0,
+        2,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        12,
+        2,
+        0,
+        2,
+        0,
+        23,
+        0
+      ],
+      [
+        15,
+        9,
+        0,
+        2,
+        0,
+        14,
+        0
+      ],
+      [
+        6,
+        7,
+        0,
+        2,
+        3,
+        14,
+        0
+      ],
+      [
+        1,
+        6,
+        0,
+        4,
+        5,
+        2,
+        0
+      ],
+      [
+        35,
+        0,
+        8,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        6,
+        6,
+        0,
+        1,
+        7,
+        0
+      ],
+      [
+        24,
+        2,
+        0,
+        0,
+        2,
+        0,
+        0
+      ],
+      [
+        0,
+        6,
+        3,
+        4,
+        5,
+        6,
+        0
+      ],
+      [
+        27,
+        0,
+        2,
+        0,
+        5,
+        9,
+        0
+      ],
+      [
+        4,
+        5,
+        6,
+        0,
+        2,
+        7,
+        0
+      ],
+      [
+        25,
+        0,
+        0,
+        3,
+        0,
+        9,
+        0
+      ],
+      [
+        14,
+        5,
+        6,
+        1,
+        0,
+        19,
+        0
+      ],
+      [
+        12,
+        3,
+        4,
+        0,
+        0,
+        11,
+        0
+      ],
+      [
+        33,
+        7,
+        4,
+        1,
+        1,
+        21,
+        0
+      ],
+      [
+        17,
+        5,
+        2,
+        0,
+        1,
+        6,
+        0
+      ],
+      [
+        15,
+        1,
+        0,
+        2,
+        4,
+        6,
+        0
+      ],
+      [
+        32,
+        6,
+        9,
+        4,
+        0,
+        0,
+        0
+      ],
+      [
+        6,
+        0,
+        2,
+        2,
+        0,
+        0,
+        0
+      ],
+      [
+        28,
+        7,
+        1,
+        0,
+        4,
+        17,
+        0
+      ],
+      [
+        37,
+        0,
+        0,
+        2,
+        1,
+        5,
+        0
+      ],
+      [
+        16,
+        0,
+        5,
+        4,
+        2,
+        2,
+        0
+      ],
+      [
+        35,
+        5,
+        3,
+        0,
+        4,
+        0,
+        0
+      ],
+      [
+        28,
+        0,
+        0,
+        4,
+        0,
+        0,
+        0
+      ],
+      [
+        25,
+        7,
+        0,
+        0,
+        0,
+        9,
+        0
+      ],
+      [
+        33,
+        9,
+        3,
+        1,
+        0,
+        10,
+        0
+      ],
+      [
+        9,
+        9,
+        7,
+        3,
+        5,
+        0,
+        0
+      ],
+      [
+        25,
+        0,
+        9,
+        0,
+        5,
+        14,
+        0
+      ],
+      [
+        3,
+        9,
+        6,
+        3,
+        3,
+        7,
+        0
+      ],
+      [
+        9,
+        0,
+        8,
+        2,
+        5,
+        8,
+        0
+      ],
+      [
+        23,
+        7,
+        3,
+        3,
+        5,
+        8,
+        0
+      ],
+      [
+        26,
+        0,
+        1,
+        0,
+        4,
+        13,
+        0
+      ],
+      [
+        11,
+        4,
+        0,
+        2,
+        4,
+        6,
+        0
+      ],
+      [
+        18,
+        0,
+        0,
+        0,
+        2,
+        16,
+        0
+      ],
+      [
+        37,
+        0,
+        6,
+        0,
+        5,
+        18,
+        0
+      ],
+      [
+        31,
+        6,
+        0,
+        2,
+        0,
+        10,
+        0
+      ],
+      [
+        25,
+        0,
+        0,
+        1,
+        2,
+        10,
+        0
+      ],
+      [
+        37,
+        2,
+        6,
+        0,
+        4,
+        0,
+        0
+      ],
+      [
+        25,
+        0,
+        9,
+        3,
+        0,
+        19,
+        0
+      ],
+      [
+        15,
+        2,
+        0,
+        0,
+        0,
+        21,
+        0
+      ],
+      [
+        28,
+        6,
+        0,
+        2,
+        0,
+        2,
+        0
+      ],
+      [
+        25,
+        0,
+        0,
+        4,
+        1,
+        4,
+        0
+      ],
+      [
+        17,
+        7,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        14,
+        0,
+        0,
+        3,
+        4,
+        22,
+        0
+      ]
+    ],
+    "blocks": null,
+    "argument_library": "/Users/makbuk/000cor/artifacts/codepy_subtask_discovery_20261030/library_seed0.json",
+    "certificate": {
+      "passed": true,
+      "float32_diagnostic_passed": true,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0,
+          "all_close": true,
+          "preserved": 16
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0,
+          "all_close": true,
+          "preserved": 625
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0,
+          "all_close": true,
+          "preserved": 2048
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0,
+          "all_close": true,
+          "preserved": 2048
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0,
+          "all_close": true,
+          "preserved": 2048
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0,
+          "all_close": true,
+          "preserved": 256
+        }
+      },
+      "cases": 7041,
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 0,
+    "task": "rotate4",
+    "kind": "pair",
+    "program": [
+      10,
+      8,
+      6,
+      7,
+      2,
+      0
+    ],
+    "blocks": [
+      {
+        "code": [
+          14,
+          3,
+          14,
+          16,
+          7,
+          7,
+          4,
+          5,
+          9,
+          6
+        ],
+        "layout": [
+          0,
+          2
+        ],
+        "provenance": {
+          "method": "source_initialized_evolution",
+          "family": "swap",
+          "generation": 3,
+          "candidate_index": 165
+        },
+        "frequency": 0,
+        "behavior": "swap",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "native_numpy_exact": true,
+            "behavior": "swap",
+            "inputs_sha256": "ec633949b6ec465390fdf350dd5437bd1e733f8c9f00fa8e04e9f0c2dc8ef725"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "native_numpy_exact": true,
+            "behavior": "swap",
+            "inputs_sha256": "3bc83ac5dc017eea2ab911888a99d6cdc56b3ff34a948e0863010ced69f7a901"
+          }
+        ]
+      }
+    ],
+    "argument_library": null,
+    "certificate": {
+      "passed": true,
+      "cases": 7041,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "preserved": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "preserved": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "preserved": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        }
+      },
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 0,
+    "task": "descending4",
+    "kind": "pair",
+    "program": [
+      9,
+      6,
+      8,
+      10,
+      12,
+      8
+    ],
+    "blocks": [
+      {
+        "code": [
+          7,
+          7,
+          4,
+          9,
+          21,
+          10,
+          34,
+          3,
+          0,
+          17,
+          0,
+          26
+        ],
+        "layout": [
+          0,
+          2
+        ],
+        "outputs": [
+          3,
+          4
+        ],
+        "provenance": {
+          "method": "branch_guided_source_repair",
+          "generation": 6,
+          "candidate_index": 209
+        },
+        "behavior": "order_ascending",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "behavior": "order_ascending",
+            "native_numpy_exact": true,
+            "inputs_sha256": "ec633949b6ec465390fdf350dd5437bd1e733f8c9f00fa8e04e9f0c2dc8ef725"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "behavior": "order_ascending",
+            "native_numpy_exact": true,
+            "inputs_sha256": "3bc83ac5dc017eea2ab911888a99d6cdc56b3ff34a948e0863010ced69f7a901"
+          }
+        ]
+      }
+    ],
+    "argument_library": null,
+    "certificate": {
+      "passed": true,
+      "cases": 7041,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "preserved": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "preserved": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "preserved": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        }
+      },
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 1,
+    "task": "sort4",
+    "kind": "pair",
+    "program": [
+      5,
+      6,
+      3,
+      1,
+      5,
+      9
+    ],
+    "blocks": [
+      {
+        "code": [
+          4,
+          21,
+          28,
+          32,
+          14,
+          34,
+          7,
+          21,
+          17,
+          3,
+          17,
+          26
+        ],
+        "layout": [
+          0,
+          1
+        ],
+        "outputs": [
+          3,
+          4
+        ],
+        "provenance": {
+          "method": "branch_guided_source_repair",
+          "generation": 1,
+          "candidate_index": 225
+        },
+        "behavior": "order_ascending",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "behavior": "order_ascending",
+            "native_numpy_exact": true,
+            "inputs_sha256": "5437c608e64ec34fb0c2200638b9e934a9bfad995671d40557606349472964df"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "behavior": "order_ascending",
+            "native_numpy_exact": true,
+            "inputs_sha256": "e7eb354999a53eeb2adb3feaebe720852f2109eb43ed56f4856d87dbd308951b"
+          }
+        ]
+      }
+    ],
+    "argument_library": null,
+    "certificate": {
+      "passed": true,
+      "cases": 7041,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "preserved": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "preserved": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "preserved": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        }
+      },
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 1,
+    "task": "reverse4",
+    "kind": "arguments",
+    "program": [
+      [
+        15,
+        0,
+        7,
+        2,
+        5,
+        23,
+        0
+      ],
+      [
+        27,
+        6,
+        2,
+        3,
+        4,
+        0,
+        0
+      ],
+      [
+        3,
+        4,
+        8,
+        4,
+        4,
+        4,
+        0
+      ],
+      [
+        37,
+        0,
+        4,
+        1,
+        5,
+        21,
+        0
+      ],
+      [
+        13,
+        4,
+        3,
+        3,
+        2,
+        10,
+        0
+      ],
+      [
+        0,
+        8,
+        4,
+        4,
+        3,
+        18,
+        0
+      ],
+      [
+        0,
+        6,
+        0,
+        3,
+        5,
+        4,
+        0
+      ],
+      [
+        23,
+        2,
+        6,
+        1,
+        0,
+        15,
+        0
+      ],
+      [
+        6,
+        0,
+        4,
+        0,
+        0,
+        18,
+        0
+      ],
+      [
+        23,
+        9,
+        2,
+        3,
+        0,
+        1,
+        0
+      ],
+      [
+        30,
+        5,
+        0,
+        0,
+        4,
+        21,
+        0
+      ],
+      [
+        21,
+        0,
+        8,
+        0,
+        4,
+        2,
+        0
+      ],
+      [
+        2,
+        0,
+        4,
+        1,
+        3,
+        0,
+        0
+      ],
+      [
+        25,
+        9,
+        9,
+        3,
+        3,
+        7,
+        0
+      ],
+      [
+        29,
+        2,
+        6,
+        4,
+        3,
+        23,
+        0
+      ],
+      [
+        27,
+        6,
+        8,
+        1,
+        3,
+        5,
+        0
+      ],
+      [
+        37,
+        4,
+        8,
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        7,
+        6,
+        7,
+        3,
+        3,
+        19,
+        0
+      ],
+      [
+        25,
+        2,
+        0,
+        0,
+        3,
+        17,
+        0
+      ],
+      [
+        6,
+        6,
+        6,
+        2,
+        0,
+        7,
+        0
+      ],
+      [
+        27,
+        0,
+        0,
+        4,
+        4,
+        20,
+        0
+      ],
+      [
+        20,
+        5,
+        6,
+        0,
+        5,
+        0,
+        0
+      ],
+      [
+        32,
+        7,
+        4,
+        2,
+        0,
+        14,
+        0
+      ],
+      [
+        9,
+        0,
+        0,
+        4,
+        3,
+        17,
+        0
+      ],
+      [
+        16,
+        1,
+        6,
+        4,
+        5,
+        10,
+        0
+      ],
+      [
+        18,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0
+      ],
+      [
+        22,
+        7,
+        9,
+        0,
+        0,
+        1,
+        0
+      ],
+      [
+        18,
+        0,
+        2,
+        3,
+        3,
+        17,
+        0
+      ],
+      [
+        22,
+        4,
+        2,
+        1,
+        5,
+        18,
+        0
+      ],
+      [
+        14,
+        7,
+        1,
+        1,
+        4,
+        13,
+        0
+      ],
+      [
+        22,
+        0,
+        0,
+        1,
+        0,
+        16,
+        0
+      ],
+      [
+        19,
+        0,
+        9,
+        0,
+        4,
+        15,
+        0
+      ],
+      [
+        29,
+        7,
+        0,
+        1,
+        1,
+        21,
+        0
+      ],
+      [
+        32,
+        0,
+        0,
+        2,
+        0,
+        6,
+        0
+      ],
+      [
+        15,
+        0,
+        8,
+        1,
+        5,
+        20,
+        0
+      ],
+      [
+        12,
+        6,
+        0,
+        3,
+        2,
+        23,
+        0
+      ],
+      [
+        10,
+        6,
+        4,
+        2,
+        2,
+        10,
+        0
+      ],
+      [
+        0,
+        9,
+        9,
+        3,
+        4,
+        21,
+        0
+      ],
+      [
+        33,
+        7,
+        9,
+        0,
+        1,
+        19,
+        0
+      ],
+      [
+        8,
+        7,
+        2,
+        2,
+        1,
+        0,
+        0
+      ],
+      [
+        28,
+        0,
+        0,
+        0,
+        0,
+        7,
+        0
+      ],
+      [
+        18,
+        7,
+        0,
+        3,
+        2,
+        1,
+        0
+      ],
+      [
+        28,
+        9,
+        5,
+        1,
+        0,
+        3,
+        0
+      ],
+      [
+        31,
+        9,
+        4,
+        0,
+        1,
+        4,
+        0
+      ],
+      [
+        25,
+        0,
+        8,
+        3,
+        3,
+        0,
+        0
+      ],
+      [
+        19,
+        2,
+        1,
+        0,
+        3,
+        23,
+        0
+      ],
+      [
+        12,
+        7,
+        4,
+        2,
+        2,
+        17,
+        0
+      ],
+      [
+        23,
+        1,
+        4,
+        0,
+        4,
+        0,
+        0
+      ],
+      [
+        1,
+        3,
+        7,
+        4,
+        5,
+        1,
+        0
+      ],
+      [
+        33,
+        9,
+        1,
+        4,
+        3,
+        2,
+        0
+      ],
+      [
+        35,
+        2,
+        6,
+        1,
+        2,
+        8,
+        0
+      ],
+      [
+        24,
+        7,
+        7,
+        2,
+        4,
+        4,
+        0
+      ],
+      [
+        28,
+        0,
+        1,
+        4,
+        5,
+        0,
+        0
+      ],
+      [
+        33,
+        1,
+        3,
+        4,
+        0,
+        5,
+        0
+      ],
+      [
+        32,
+        0,
+        0,
+        2,
+        3,
+        9,
+        0
+      ],
+      [
+        37,
+        0,
+        3,
+        4,
+        2,
+        13,
+        0
+      ],
+      [
+        2,
+        0,
+        9,
+        3,
+        4,
+        0,
+        0
+      ],
+      [
+        14,
+        8,
+        0,
+        0,
+        3,
+        9,
+        0
+      ],
+      [
+        0,
+        1,
+        1,
+        0,
+        5,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        5,
+        4,
+        4,
+        0,
+        0
+      ],
+      [
+        8,
+        5,
+        6,
+        0,
+        5,
+        21,
+        0
+      ],
+      [
+        3,
+        0,
+        8,
+        0,
+        4,
+        22,
+        0
+      ],
+      [
+        33,
+        0,
+        4,
+        0,
+        4,
+        0,
+        0
+      ],
+      [
+        34,
+        2,
+        0,
+        0,
+        1,
+        10,
+        0
+      ],
+      [
+        31,
+        0,
+        1,
+        0,
+        0,
+        20,
+        0
+      ],
+      [
+        32,
+        2,
+        4,
+        0,
+        0,
+        6,
+        0
+      ],
+      [
+        14,
+        0,
+        8,
+        3,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        0,
+        0,
+        12,
+        0
+      ],
+      [
+        32,
+        4,
+        1,
+        0,
+        5,
+        15,
+        0
+      ],
+      [
+        19,
+        0,
+        6,
+        0,
+        5,
+        0,
+        0
+      ],
+      [
+        22,
+        0,
+        4,
+        1,
+        5,
+        0,
+        0
+      ],
+      [
+        30,
+        3,
+        0,
+        4,
+        2,
+        17,
+        0
+      ]
+    ],
+    "blocks": null,
+    "argument_library": "/Users/makbuk/000cor/artifacts/codepy_subtask_discovery_20261030/library_seed1.json",
+    "certificate": {
+      "passed": true,
+      "float32_diagnostic_passed": true,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0,
+          "all_close": true,
+          "preserved": 16
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0,
+          "all_close": true,
+          "preserved": 625
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0,
+          "all_close": true,
+          "preserved": 2048
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0,
+          "all_close": true,
+          "preserved": 2048
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0,
+          "all_close": true,
+          "preserved": 2048
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0,
+          "all_close": true,
+          "preserved": 256
+        }
+      },
+      "cases": 7041,
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 1,
+    "task": "rotate4",
+    "kind": "pair",
+    "program": [
+      10,
+      6,
+      12,
+      0,
+      8,
+      5
+    ],
+    "blocks": [
+      {
+        "code": [
+          4,
+          7,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "layout": [
+          0,
+          1
+        ],
+        "outputs": [
+          3,
+          4
+        ],
+        "provenance": {
+          "method": "bounded_edit_beam"
+        },
+        "behavior": "swap",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "behavior": "swap",
+            "native_numpy_exact": true,
+            "inputs_sha256": "5437c608e64ec34fb0c2200638b9e934a9bfad995671d40557606349472964df"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "behavior": "swap",
+            "native_numpy_exact": true,
+            "inputs_sha256": "e7eb354999a53eeb2adb3feaebe720852f2109eb43ed56f4856d87dbd308951b"
+          }
+        ]
+      }
+    ],
+    "argument_library": null,
+    "certificate": {
+      "passed": true,
+      "cases": 7041,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "preserved": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "preserved": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "preserved": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        }
+      },
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 1,
+    "task": "descending4",
+    "kind": "pair",
+    "program": [
+      10,
+      8,
+      9,
+      4,
+      11,
+      12
+    ],
+    "blocks": [
+      {
+        "code": [
+          4,
+          21,
+          28,
+          32,
+          14,
+          34,
+          7,
+          21,
+          17,
+          3,
+          17,
+          26
+        ],
+        "layout": [
+          0,
+          1
+        ],
+        "outputs": [
+          3,
+          4
+        ],
+        "provenance": {
+          "method": "branch_guided_source_repair",
+          "generation": 1,
+          "candidate_index": 225
+        },
+        "behavior": "order_ascending",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "behavior": "order_ascending",
+            "native_numpy_exact": true,
+            "inputs_sha256": "5437c608e64ec34fb0c2200638b9e934a9bfad995671d40557606349472964df"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "behavior": "order_ascending",
+            "native_numpy_exact": true,
+            "inputs_sha256": "e7eb354999a53eeb2adb3feaebe720852f2109eb43ed56f4856d87dbd308951b"
+          }
+        ]
+      }
+    ],
+    "argument_library": null,
+    "certificate": {
+      "passed": true,
+      "cases": 7041,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "preserved": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "preserved": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "preserved": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        }
+      },
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 2,
+    "task": "sort4",
+    "kind": "pair",
+    "program": [
+      10,
+      1,
+      7,
+      10,
+      4,
+      12
+    ],
+    "blocks": [
+      {
+        "code": [
+          20,
+          3,
+          7,
+          7,
+          4,
+          21,
+          26,
+          20,
+          34,
+          25,
+          0,
+          6
+        ],
+        "layout": [
+          0,
+          2
+        ],
+        "outputs": [
+          3,
+          4
+        ],
+        "provenance": {
+          "method": "branch_guided_source_repair",
+          "generation": 3,
+          "candidate_index": 235
+        },
+        "behavior": "order_descending",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "behavior": "order_descending",
+            "native_numpy_exact": true,
+            "inputs_sha256": "bb977f8b16f844dc758c966107ed0f1ac1086d154756bafbe988e01c5d47b8ae"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "behavior": "order_descending",
+            "native_numpy_exact": true,
+            "inputs_sha256": "e7a0048123a945ba4981adecf975be4e5f3b4b2ce8ea608f3ea12f1fa5247f5c"
+          }
+        ]
+      }
+    ],
+    "argument_library": null,
+    "certificate": {
+      "passed": true,
+      "cases": 7041,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "preserved": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "preserved": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "preserved": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        }
+      },
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 2,
+    "task": "reverse4",
+    "kind": "pair",
+    "program": [
+      11,
+      9,
+      10,
+      3,
+      4,
+      6
+    ],
+    "blocks": [
+      {
+        "code": [
+          3,
+          7,
+          7,
+          4,
+          5,
+          9,
+          6
+        ],
+        "layout": [
+          0,
+          2
+        ],
+        "provenance": {
+          "method": "backward_slice",
+          "source": 1,
+          "program": 43,
+          "prefix": 14,
+          "source_indices_or_pointer_relocation": [
+            1,
+            -1,
+            -1,
+            8,
+            9,
+            -1,
+            13
+          ]
+        },
+        "frequency": 1,
+        "behavior": "swap",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "native_numpy_exact": true,
+            "behavior": "swap",
+            "inputs_sha256": "bb977f8b16f844dc758c966107ed0f1ac1086d154756bafbe988e01c5d47b8ae"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "native_numpy_exact": true,
+            "behavior": "swap",
+            "inputs_sha256": "e7a0048123a945ba4981adecf975be4e5f3b4b2ce8ea608f3ea12f1fa5247f5c"
+          }
+        ]
+      }
+    ],
+    "argument_library": null,
+    "certificate": {
+      "passed": true,
+      "cases": 7041,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "preserved": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "preserved": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "preserved": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        }
+      },
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 2,
+    "task": "rotate4",
+    "kind": "pair",
+    "program": [
+      5,
+      3,
+      0,
+      10,
+      10,
+      6
+    ],
+    "blocks": [
+      {
+        "code": [
+          3,
+          7,
+          7,
+          4,
+          5,
+          9,
+          6
+        ],
+        "layout": [
+          0,
+          2
+        ],
+        "provenance": {
+          "method": "backward_slice",
+          "source": 1,
+          "program": 43,
+          "prefix": 14,
+          "source_indices_or_pointer_relocation": [
+            1,
+            -1,
+            -1,
+            8,
+            9,
+            -1,
+            13
+          ]
+        },
+        "frequency": 1,
+        "behavior": "swap",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "native_numpy_exact": true,
+            "behavior": "swap",
+            "inputs_sha256": "bb977f8b16f844dc758c966107ed0f1ac1086d154756bafbe988e01c5d47b8ae"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "native_numpy_exact": true,
+            "behavior": "swap",
+            "inputs_sha256": "e7a0048123a945ba4981adecf975be4e5f3b4b2ce8ea608f3ea12f1fa5247f5c"
+          }
+        ]
+      }
+    ],
+    "argument_library": null,
+    "certificate": {
+      "passed": true,
+      "cases": 7041,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "preserved": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "preserved": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "preserved": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        }
+      },
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 2,
+    "task": "descending4",
+    "kind": "pair",
+    "program": [
+      12,
+      4,
+      11,
+      3,
+      9,
+      5
+    ],
+    "blocks": [
+      {
+        "code": [
+          20,
+          3,
+          7,
+          7,
+          4,
+          21,
+          26,
+          20,
+          34,
+          25,
+          0,
+          6
+        ],
+        "layout": [
+          0,
+          2
+        ],
+        "outputs": [
+          3,
+          4
+        ],
+        "provenance": {
+          "method": "branch_guided_source_repair",
+          "generation": 3,
+          "candidate_index": 235
+        },
+        "behavior": "order_descending",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "behavior": "order_descending",
+            "native_numpy_exact": true,
+            "inputs_sha256": "bb977f8b16f844dc758c966107ed0f1ac1086d154756bafbe988e01c5d47b8ae"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "behavior": "order_descending",
+            "native_numpy_exact": true,
+            "inputs_sha256": "e7a0048123a945ba4981adecf975be4e5f3b4b2ce8ea608f3ea12f1fa5247f5c"
+          }
+        ]
+      }
+    ],
+    "argument_library": null,
+    "certificate": {
+      "passed": true,
+      "cases": 7041,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "preserved": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "preserved": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "preserved": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        }
+      },
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 3,
+    "task": "sort4",
+    "kind": "pair",
+    "program": [
+      14,
+      16,
+      22,
+      23,
+      19,
+      20
+    ],
+    "blocks": [
+      {
+        "code": [
+          4,
+          26,
+          12,
+          27,
+          15,
+          7,
+          3,
+          17,
+          26,
+          5,
+          8,
+          6
+        ],
+        "layout": [
+          0,
+          1
+        ],
+        "provenance": {
+          "method": "source_initialized_evolution",
+          "family": "swap",
+          "generation": 1,
+          "candidate_index": 18
+        },
+        "frequency": 0,
+        "behavior": "swap",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "native_numpy_exact": true,
+            "behavior": "swap",
+            "inputs_sha256": "6b7f8d58790dcfb14e18e9e66cbae76f62e3bc3965b47ec3fc44c1fe0c7b9ae5"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "native_numpy_exact": true,
+            "behavior": "swap",
+            "inputs_sha256": "bbe2c39a84fa8b1480f73d1bb0ea6d4aec9f5d5811a5be9bef4bc86a61000baf"
+          }
+        ]
+      },
+      {
+        "code": [
+          4,
+          3,
+          7,
+          27,
+          20,
+          25,
+          3,
+          17,
+          26,
+          5,
+          8,
+          6
+        ],
+        "layout": [
+          0,
+          1
+        ],
+        "provenance": {
+          "method": "source_initialized_evolution",
+          "family": "order",
+          "generation": 6,
+          "candidate_index": 207
+        },
+        "frequency": 0,
+        "behavior": "order_descending",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "native_numpy_exact": true,
+            "behavior": "order_descending",
+            "inputs_sha256": "6b7f8d58790dcfb14e18e9e66cbae76f62e3bc3965b47ec3fc44c1fe0c7b9ae5"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "native_numpy_exact": true,
+            "behavior": "order_descending",
+            "inputs_sha256": "bbe2c39a84fa8b1480f73d1bb0ea6d4aec9f5d5811a5be9bef4bc86a61000baf"
+          }
+        ]
+      }
+    ],
+    "argument_library": null,
+    "certificate": {
+      "passed": true,
+      "cases": 7041,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "preserved": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "preserved": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "preserved": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        }
+      },
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 3,
+    "task": "reverse4",
+    "kind": "pair",
+    "program": [
+      1,
+      12,
+      7,
+      12,
+      12,
+      6
+    ],
+    "blocks": [
+      {
+        "code": [
+          4,
+          26,
+          12,
+          27,
+          15,
+          7,
+          3,
+          17,
+          26,
+          5,
+          8,
+          6
+        ],
+        "layout": [
+          0,
+          1
+        ],
+        "provenance": {
+          "method": "source_initialized_evolution",
+          "family": "swap",
+          "generation": 1,
+          "candidate_index": 18
+        },
+        "frequency": 0,
+        "behavior": "swap",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "native_numpy_exact": true,
+            "behavior": "swap",
+            "inputs_sha256": "6b7f8d58790dcfb14e18e9e66cbae76f62e3bc3965b47ec3fc44c1fe0c7b9ae5"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "native_numpy_exact": true,
+            "behavior": "swap",
+            "inputs_sha256": "bbe2c39a84fa8b1480f73d1bb0ea6d4aec9f5d5811a5be9bef4bc86a61000baf"
+          }
+        ]
+      },
+      {
+        "code": [
+          4,
+          3,
+          7,
+          27,
+          20,
+          25,
+          3,
+          17,
+          26,
+          5,
+          8,
+          6
+        ],
+        "layout": [
+          0,
+          1
+        ],
+        "provenance": {
+          "method": "source_initialized_evolution",
+          "family": "order",
+          "generation": 6,
+          "candidate_index": 207
+        },
+        "frequency": 0,
+        "behavior": "order_descending",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "native_numpy_exact": true,
+            "behavior": "order_descending",
+            "inputs_sha256": "6b7f8d58790dcfb14e18e9e66cbae76f62e3bc3965b47ec3fc44c1fe0c7b9ae5"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "native_numpy_exact": true,
+            "behavior": "order_descending",
+            "inputs_sha256": "bbe2c39a84fa8b1480f73d1bb0ea6d4aec9f5d5811a5be9bef4bc86a61000baf"
+          }
+        ]
+      }
+    ],
+    "argument_library": null,
+    "certificate": {
+      "passed": true,
+      "cases": 7041,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "preserved": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "preserved": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "preserved": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        }
+      },
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 3,
+    "task": "rotate4",
+    "kind": "pair",
+    "program": [
+      1,
+      6,
+      4,
+      12,
+      0,
+      8
+    ],
+    "blocks": [
+      {
+        "code": [
+          4,
+          26,
+          12,
+          27,
+          15,
+          7,
+          3,
+          17,
+          26,
+          5,
+          8,
+          6
+        ],
+        "layout": [
+          0,
+          1
+        ],
+        "provenance": {
+          "method": "source_initialized_evolution",
+          "family": "swap",
+          "generation": 1,
+          "candidate_index": 18
+        },
+        "frequency": 0,
+        "behavior": "swap",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "native_numpy_exact": true,
+            "behavior": "swap",
+            "inputs_sha256": "6b7f8d58790dcfb14e18e9e66cbae76f62e3bc3965b47ec3fc44c1fe0c7b9ae5"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "native_numpy_exact": true,
+            "behavior": "swap",
+            "inputs_sha256": "bbe2c39a84fa8b1480f73d1bb0ea6d4aec9f5d5811a5be9bef4bc86a61000baf"
+          }
+        ]
+      },
+      {
+        "code": [
+          4,
+          3,
+          7,
+          27,
+          20,
+          25,
+          3,
+          17,
+          26,
+          5,
+          8,
+          6
+        ],
+        "layout": [
+          0,
+          1
+        ],
+        "provenance": {
+          "method": "source_initialized_evolution",
+          "family": "order",
+          "generation": 6,
+          "candidate_index": 207
+        },
+        "frequency": 0,
+        "behavior": "order_descending",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "native_numpy_exact": true,
+            "behavior": "order_descending",
+            "inputs_sha256": "6b7f8d58790dcfb14e18e9e66cbae76f62e3bc3965b47ec3fc44c1fe0c7b9ae5"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "native_numpy_exact": true,
+            "behavior": "order_descending",
+            "inputs_sha256": "bbe2c39a84fa8b1480f73d1bb0ea6d4aec9f5d5811a5be9bef4bc86a61000baf"
+          }
+        ]
+      }
+    ],
+    "argument_library": null,
+    "certificate": {
+      "passed": true,
+      "cases": 7041,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "preserved": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "preserved": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "preserved": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        }
+      },
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 3,
+    "task": "descending4",
+    "kind": "pair",
+    "program": [
+      15,
+      17,
+      21,
+      13,
+      17,
+      21
+    ],
+    "blocks": [
+      {
+        "code": [
+          4,
+          26,
+          12,
+          27,
+          15,
+          7,
+          3,
+          17,
+          26,
+          5,
+          8,
+          6
+        ],
+        "layout": [
+          0,
+          1
+        ],
+        "provenance": {
+          "method": "source_initialized_evolution",
+          "family": "swap",
+          "generation": 1,
+          "candidate_index": 18
+        },
+        "frequency": 0,
+        "behavior": "swap",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "native_numpy_exact": true,
+            "behavior": "swap",
+            "inputs_sha256": "6b7f8d58790dcfb14e18e9e66cbae76f62e3bc3965b47ec3fc44c1fe0c7b9ae5"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "native_numpy_exact": true,
+            "behavior": "swap",
+            "inputs_sha256": "bbe2c39a84fa8b1480f73d1bb0ea6d4aec9f5d5811a5be9bef4bc86a61000baf"
+          }
+        ]
+      },
+      {
+        "code": [
+          4,
+          3,
+          7,
+          27,
+          20,
+          25,
+          3,
+          17,
+          26,
+          5,
+          8,
+          6
+        ],
+        "layout": [
+          0,
+          1
+        ],
+        "provenance": {
+          "method": "source_initialized_evolution",
+          "family": "order",
+          "generation": 6,
+          "candidate_index": 207
+        },
+        "frequency": 0,
+        "behavior": "order_descending",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "native_numpy_exact": true,
+            "behavior": "order_descending",
+            "inputs_sha256": "6b7f8d58790dcfb14e18e9e66cbae76f62e3bc3965b47ec3fc44c1fe0c7b9ae5"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "native_numpy_exact": true,
+            "behavior": "order_descending",
+            "inputs_sha256": "bbe2c39a84fa8b1480f73d1bb0ea6d4aec9f5d5811a5be9bef4bc86a61000baf"
+          }
+        ]
+      }
+    ],
+    "argument_library": null,
+    "certificate": {
+      "passed": true,
+      "cases": 7041,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "preserved": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "preserved": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "preserved": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        }
+      },
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 4,
+    "task": "sort4",
+    "kind": "pair",
+    "program": [
+      4,
+      8,
+      12,
+      8,
+      4,
+      8
+    ],
+    "blocks": [
+      {
+        "code": [
+          4,
+          1,
+          32,
+          7,
+          7,
+          24,
+          4,
+          20,
+          34,
+          25,
+          0,
+          0
+        ],
+        "layout": [
+          0,
+          2
+        ],
+        "outputs": [
+          3,
+          4
+        ],
+        "provenance": {
+          "method": "bounded_edit_beam"
+        },
+        "behavior": "order_descending",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "behavior": "order_descending",
+            "native_numpy_exact": true,
+            "inputs_sha256": "b85589b57d047d0ec1dc375d80667856876de5ab86eda335e5dfd5966f50dc3d"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "behavior": "order_descending",
+            "native_numpy_exact": true,
+            "inputs_sha256": "2e2fcd77080715fb10ecb221ff4d3e4d59df83319134867c05507208439a2c22"
+          }
+        ]
+      }
+    ],
+    "argument_library": null,
+    "certificate": {
+      "passed": true,
+      "cases": 7041,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "preserved": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "preserved": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "preserved": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        }
+      },
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 4,
+    "task": "reverse4",
+    "kind": "pair",
+    "program": [
+      7,
+      10,
+      11,
+      4,
+      1,
+      12
+    ],
+    "blocks": [
+      {
+        "code": [
+          4,
+          15,
+          32,
+          7,
+          7,
+          25,
+          6,
+          9,
+          5
+        ],
+        "layout": [
+          0,
+          2
+        ],
+        "provenance": {
+          "method": "backward_slice",
+          "source": 1,
+          "program": 17,
+          "prefix": 33,
+          "source_indices_or_pointer_relocation": [
+            18,
+            22,
+            23,
+            -1,
+            -1,
+            27,
+            28,
+            -1,
+            32
+          ]
+        },
+        "frequency": 6,
+        "behavior": "swap",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "native_numpy_exact": true,
+            "behavior": "swap",
+            "inputs_sha256": "b85589b57d047d0ec1dc375d80667856876de5ab86eda335e5dfd5966f50dc3d"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "native_numpy_exact": true,
+            "behavior": "swap",
+            "inputs_sha256": "2e2fcd77080715fb10ecb221ff4d3e4d59df83319134867c05507208439a2c22"
+          }
+        ]
+      }
+    ],
+    "argument_library": null,
+    "certificate": {
+      "passed": true,
+      "cases": 7041,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "preserved": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "preserved": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "preserved": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        }
+      },
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 4,
+    "task": "rotate4",
+    "kind": "pair",
+    "program": [
+      2,
+      2,
+      8,
+      10,
+      0,
+      6
+    ],
+    "blocks": [
+      {
+        "code": [
+          4,
+          15,
+          32,
+          7,
+          7,
+          25,
+          6,
+          9,
+          5
+        ],
+        "layout": [
+          0,
+          2
+        ],
+        "provenance": {
+          "method": "backward_slice",
+          "source": 1,
+          "program": 17,
+          "prefix": 33,
+          "source_indices_or_pointer_relocation": [
+            18,
+            22,
+            23,
+            -1,
+            -1,
+            27,
+            28,
+            -1,
+            32
+          ]
+        },
+        "frequency": 6,
+        "behavior": "swap",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "native_numpy_exact": true,
+            "behavior": "swap",
+            "inputs_sha256": "b85589b57d047d0ec1dc375d80667856876de5ab86eda335e5dfd5966f50dc3d"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "native_numpy_exact": true,
+            "behavior": "swap",
+            "inputs_sha256": "2e2fcd77080715fb10ecb221ff4d3e4d59df83319134867c05507208439a2c22"
+          }
+        ]
+      }
+    ],
+    "argument_library": null,
+    "certificate": {
+      "passed": true,
+      "cases": 7041,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "preserved": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "preserved": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "preserved": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        }
+      },
+      "independent_agrees": true
+    }
+  },
+  {
+    "seed": 4,
+    "task": "descending4",
+    "kind": "pair",
+    "program": [
+      12,
+      2,
+      6,
+      9,
+      1,
+      5
+    ],
+    "blocks": [
+      {
+        "code": [
+          4,
+          1,
+          32,
+          7,
+          7,
+          24,
+          4,
+          20,
+          34,
+          25,
+          0,
+          0
+        ],
+        "layout": [
+          0,
+          2
+        ],
+        "outputs": [
+          3,
+          4
+        ],
+        "provenance": {
+          "method": "bounded_edit_beam"
+        },
+        "behavior": "order_descending",
+        "qualification": [
+          {
+            "group": "challenge64",
+            "cases": 64,
+            "behavior": "order_descending",
+            "native_numpy_exact": true,
+            "inputs_sha256": "b85589b57d047d0ec1dc375d80667856876de5ab86eda335e5dfd5966f50dc3d"
+          },
+          {
+            "group": "promotion6429",
+            "cases": 6429,
+            "behavior": "order_descending",
+            "native_numpy_exact": true,
+            "inputs_sha256": "2e2fcd77080715fb10ecb221ff4d3e4d59df83319134867c05507208439a2c22"
+          }
+        ]
+      }
+    ],
+    "argument_library": null,
+    "certificate": {
+      "passed": true,
+      "cases": 7041,
+      "groups": {
+        "binary": {
+          "cases": 16,
+          "exact": 16,
+          "preserved": 16,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "small_exhaustive": {
+          "cases": 625,
+          "exact": 625,
+          "preserved": 625,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "integer": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "fractional": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "wide": {
+          "cases": 2048,
+          "exact": 2048,
+          "preserved": 2048,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        },
+        "ties": {
+          "cases": 256,
+          "exact": 256,
+          "preserved": 256,
+          "mse": 0.0,
+          "max_abs_error": 0.0
+        }
+      },
+      "independent_agrees": true
+    }
+  }
+]

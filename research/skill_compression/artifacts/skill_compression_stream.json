@@ -1,0 +1,2811 @@
+{
+  "config": {
+    "seeds": "11,17,23,41,73,101",
+    "train_tasks": 120,
+    "test_tasks": 120,
+    "depth_min": 1,
+    "depth_max": 2,
+    "depth_shift_min": 3,
+    "depth_shift_max": 4,
+    "r1_overlap": 0.5,
+    "max_depth": 14,
+    "node_budget": 2000000,
+    "probe_budget": 40,
+    "deep_probe_budget": 4000,
+    "checkpoints": [
+      40,
+      200,
+      700
+    ],
+    "probe_min_improve": 1,
+    "probe_patience": 2,
+    "util_penalty": 1.0,
+    "util_threshold": 2.0,
+    "max_macros": 8,
+    "bins": 12,
+    "collapse_eps": 0.1,
+    "regimes": [
+      "R0_identical",
+      "R1_partial",
+      "R2_disjoint",
+      "R2_depth"
+    ],
+    "output_json": "artifacts/skill_compression_stream.json"
+  },
+  "protocol_evidence": {
+    "held_out": true,
+    "online_promotion": true,
+    "applicability_gate_present": true,
+    "frozen_empty_control_present": true,
+    "random_growing_control_present": true,
+    "grammar_shift_axis": [
+      "R0_identical",
+      "R1_partial",
+      "R2_disjoint",
+      "R2_depth"
+    ],
+    "n_seeds": 6,
+    "parameter_matched": "identical DSL + solver + UTIL gate across arms",
+    "valid": true
+  },
+  "aggregate": {
+    "train": {
+      "arms": {
+        "growing_gate": {
+          "early": 20.0,
+          "late": 4.4,
+          "mean_nodes": 11.6,
+          "solve_rate": 1,
+          "curve": [
+            31.6,
+            19.8,
+            8.5,
+            11.0,
+            11.0,
+            13.7,
+            8.9,
+            14.0,
+            7.2,
+            4.9,
+            3.9,
+            4.6
+          ]
+        },
+        "random_growing": {
+          "early": 25.2,
+          "late": 12.4,
+          "mean_nodes": 19.2,
+          "solve_rate": 1,
+          "curve": [
+            31.7,
+            27.7,
+            16.3,
+            14.8,
+            28.4,
+            19.9,
+            22.9,
+            20.0,
+            11.5,
+            7.0,
+            9.4,
+            20.9
+          ]
+        },
+        "frozen_empty": {
+          "early": 27.4,
+          "late": 25.4,
+          "mean_nodes": 28.3,
+          "solve_rate": 1,
+          "curve": [
+            25.7,
+            34.1,
+            22.4,
+            22.4,
+            36.4,
+            36.0,
+            32.4,
+            29.4,
+            24.0,
+            19.8,
+            28.5,
+            28.0
+          ]
+        }
+      },
+      "verdict": {
+        "compression_pays_in_stream": true,
+        "fall_is_reuse_specific": true,
+        "curve_declines": true
+      }
+    },
+    "regimes": {
+      "R0_identical": {
+        "arms": {
+          "growing_gate": {
+            "mean_nodes": 9.8,
+            "median_nodes": 4.5,
+            "solve_rate": 1
+          },
+          "growing_depth": {
+            "mean_nodes": 10.4,
+            "median_nodes": 4.5,
+            "solve_rate": 1
+          },
+          "random_growing": {
+            "mean_nodes": 27.6,
+            "median_nodes": 7.2,
+            "solve_rate": 1
+          },
+          "frozen_empty": {
+            "mean_nodes": 53.8,
+            "median_nodes": 24.0,
+            "solve_rate": 1
+          }
+        },
+        "verdict": {
+          "beats_no_skill": true,
+          "grammar_specific_gain": true,
+          "grammar_specific_margin": 17.8,
+          "gate_prevents_collapse": true,
+          "depth_aware_mean": 10.4,
+          "depth_aware_helps": false,
+          "depth_aware_speedup_vs_cheap": 0.94,
+          "depth_aware_no_regression": true,
+          "depth_aware_no_collapse": true
+        }
+      },
+      "R1_partial": {
+        "arms": {
+          "growing_gate": {
+            "mean_nodes": 19.3,
+            "median_nodes": 5.4,
+            "solve_rate": 1
+          },
+          "growing_depth": {
+            "mean_nodes": 17.5,
+            "median_nodes": 5.4,
+            "solve_rate": 1
+          },
+          "random_growing": {
+            "mean_nodes": 32.1,
+            "median_nodes": 8.3,
+            "solve_rate": 1
+          },
+          "frozen_empty": {
+            "mean_nodes": 50.8,
+            "median_nodes": 21.0,
+            "solve_rate": 1
+          }
+        },
+        "verdict": {
+          "beats_no_skill": true,
+          "grammar_specific_gain": true,
+          "grammar_specific_margin": 12.8,
+          "gate_prevents_collapse": true,
+          "depth_aware_mean": 17.5,
+          "depth_aware_helps": true,
+          "depth_aware_speedup_vs_cheap": 1.1,
+          "depth_aware_no_regression": true,
+          "depth_aware_no_collapse": true
+        }
+      },
+      "R2_disjoint": {
+        "arms": {
+          "growing_gate": {
+            "mean_nodes": 22.9,
+            "median_nodes": 4.2,
+            "solve_rate": 1
+          },
+          "growing_depth": {
+            "mean_nodes": 11.9,
+            "median_nodes": 4.2,
+            "solve_rate": 1
+          },
+          "random_growing": {
+            "mean_nodes": 33.3,
+            "median_nodes": 5.4,
+            "solve_rate": 1
+          },
+          "frozen_empty": {
+            "mean_nodes": 52.6,
+            "median_nodes": 12.8,
+            "solve_rate": 1
+          }
+        },
+        "verdict": {
+          "beats_no_skill": true,
+          "grammar_specific_gain": true,
+          "grammar_specific_margin": 10.4,
+          "gate_prevents_collapse": true,
+          "depth_aware_mean": 11.9,
+          "depth_aware_helps": true,
+          "depth_aware_speedup_vs_cheap": 1.92,
+          "depth_aware_no_regression": true,
+          "depth_aware_no_collapse": true
+        }
+      },
+      "R2_depth": {
+        "arms": {
+          "growing_gate": {
+            "mean_nodes": 3260.7,
+            "median_nodes": 228.5,
+            "solve_rate": 1
+          },
+          "growing_depth": {
+            "mean_nodes": 1268.3,
+            "median_nodes": 60.6,
+            "solve_rate": 1
+          },
+          "random_growing": {
+            "mean_nodes": 3399.4,
+            "median_nodes": 313.0,
+            "solve_rate": 1
+          },
+          "frozen_empty": {
+            "mean_nodes": 3462.5,
+            "median_nodes": 414.8,
+            "solve_rate": 1
+          },
+          "growing_library_full": {
+            "mean_nodes": 682.4,
+            "median_nodes": 60.6,
+            "solve_rate": 1
+          }
+        },
+        "verdict": {
+          "beats_no_skill": true,
+          "grammar_specific_gain": true,
+          "grammar_specific_margin": 138.7,
+          "gate_prevents_collapse": true,
+          "depth_aware_mean": 1268.3,
+          "depth_aware_helps": true,
+          "depth_aware_speedup_vs_cheap": 2.57,
+          "depth_aware_no_regression": true,
+          "depth_aware_no_collapse": true,
+          "reach_solverate": false,
+          "library_full_cost_vs_prim": -2780.1
+        }
+      }
+    }
+  },
+  "seed_runs": [
+    {
+      "seed": 11,
+      "held_out": true,
+      "n_macros": 8,
+      "macros": [
+        "cea",
+        "ceac",
+        "acea",
+        "eac",
+        "ac",
+        "acb",
+        "ea",
+        "cb"
+      ],
+      "promotion_steps": [
+        10,
+        12,
+        14,
+        15,
+        18,
+        22,
+        24,
+        35
+      ],
+      "train": {
+        "growing_gate": {
+          "early": 24.5,
+          "late": 4.8,
+          "mean_nodes": 12.1,
+          "median_nodes": 3.0,
+          "solve_rate": 1,
+          "curve": [
+            43.7,
+            26.1,
+            3.6,
+            2.9,
+            1.5,
+            22.5,
+            14.6,
+            3.5,
+            11.7,
+            3.6,
+            5.6,
+            5.3
+          ]
+        },
+        "random_growing": {
+          "early": 36.8,
+          "late": 6.9,
+          "mean_nodes": 15.6,
+          "median_nodes": 3.0,
+          "solve_rate": 1,
+          "curve": [
+            43.7,
+            64.1,
+            2.6,
+            4.7,
+            4.6,
+            21.5,
+            4.7,
+            4.9,
+            15,
+            5.4,
+            8.2,
+            7.2
+          ]
+        },
+        "frozen_empty": {
+          "early": 38.8,
+          "late": 35.2,
+          "mean_nodes": 30.3,
+          "median_nodes": 10.0,
+          "solve_rate": 1,
+          "curve": [
+            31.4,
+            76.1,
+            9,
+            22.6,
+            18.4,
+            22.4,
+            22.7,
+            16.7,
+            38.7,
+            18.7,
+            54.1,
+            32.7
+          ]
+        }
+      },
+      "regimes": {
+        "R0_identical": {
+          "growing_gate": {
+            "mean_nodes": 7.8,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              3.5,
+              10.6,
+              5.2,
+              6.3,
+              12.8,
+              4.8,
+              6.2,
+              12,
+              7.3,
+              11.4,
+              4.6,
+              9.3
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 7.5,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              3.5,
+              8.9,
+              5.2,
+              6.3,
+              11.1,
+              4.8,
+              6.2,
+              12,
+              7.3,
+              11.4,
+              4.6,
+              9.3
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 16.7,
+            "median_nodes": 8.0,
+            "solve_rate": 1,
+            "curve": [
+              6,
+              21.3,
+              81.7,
+              9.2,
+              11.8,
+              7.7,
+              10.8,
+              12.2,
+              9,
+              13.9,
+              5.4,
+              10.9
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 40.0,
+            "median_nodes": 18.0,
+            "solve_rate": 1,
+            "curve": [
+              25.4,
+              31.3,
+              80.6,
+              53.9,
+              44.6,
+              17.8,
+              36.8,
+              38.9,
+              36.9,
+              56.8,
+              8.2,
+              48.4
+            ]
+          }
+        },
+        "R1_partial": {
+          "growing_gate": {
+            "mean_nodes": 15.8,
+            "median_nodes": 5.0,
+            "solve_rate": 1,
+            "curve": [
+              2.9,
+              5.5,
+              5.7,
+              7.9,
+              21.5,
+              24.4,
+              4.4,
+              3.9,
+              26.9,
+              23.5,
+              11,
+              51.9
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 13.8,
+            "median_nodes": 5.0,
+            "solve_rate": 1,
+            "curve": [
+              2.9,
+              5.5,
+              5.7,
+              7.9,
+              15.9,
+              22.6,
+              4.4,
+              3.9,
+              25.1,
+              17.9,
+              10.1,
+              43.6
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 28.1,
+            "median_nodes": 7.0,
+            "solve_rate": 1,
+            "curve": [
+              8.1,
+              44.1,
+              5.2,
+              58.8,
+              10.1,
+              42.7,
+              9.9,
+              8.2,
+              21.6,
+              75,
+              11,
+              42.2
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 44.1,
+            "median_nodes": 14.0,
+            "solve_rate": 1,
+            "curve": [
+              30.3,
+              68.9,
+              14.7,
+              69.7,
+              27.1,
+              55.9,
+              31,
+              31.7,
+              37,
+              84.9,
+              16.7,
+              61
+            ]
+          }
+        },
+        "R2_disjoint": {
+          "growing_gate": {
+            "mean_nodes": 34.4,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              7.5,
+              2.8,
+              97.9,
+              36.9,
+              9.6,
+              5.6,
+              37.6,
+              50.1,
+              10.4,
+              49.6,
+              99.6,
+              5.3
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 11.7,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              7.5,
+              2.8,
+              17.7,
+              13.7,
+              9.6,
+              5.6,
+              14.4,
+              17.5,
+              10.4,
+              17,
+              18.5,
+              5.3
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 29.7,
+            "median_nodes": 6.0,
+            "solve_rate": 1,
+            "curve": [
+              8.8,
+              8.3,
+              96.1,
+              40.9,
+              8.4,
+              5.7,
+              37.7,
+              8.2,
+              9.4,
+              9.7,
+              100.1,
+              23.1
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 55.4,
+            "median_nodes": 11.0,
+            "solve_rate": 1,
+            "curve": [
+              26.1,
+              43.9,
+              129,
+              58.1,
+              30.2,
+              14.4,
+              48.2,
+              64.8,
+              41.1,
+              77.8,
+              105.4,
+              25.6
+            ]
+          }
+        },
+        "R2_depth": {
+          "growing_gate": {
+            "mean_nodes": 3207.3,
+            "median_nodes": 24.0,
+            "solve_rate": 1,
+            "curve": [
+              4771.7,
+              4306,
+              377.7,
+              1642.3,
+              21475.9,
+              624.5,
+              1134.2,
+              337.1,
+              165.5,
+              91.5,
+              1395.7,
+              2165.8
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 95.9,
+            "median_nodes": 24.0,
+            "solve_rate": 1,
+            "curve": [
+              129.6,
+              110.3,
+              61.2,
+              59.4,
+              52.4,
+              120.4,
+              172.6,
+              173.1,
+              26.8,
+              37.9,
+              119.1,
+              88
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 3694.4,
+            "median_nodes": 327.5,
+            "solve_rate": 1,
+            "curve": [
+              4797.7,
+              4398.9,
+              1051.4,
+              1734.8,
+              21828.2,
+              1310.3,
+              3558.2,
+              696.8,
+              239.1,
+              519,
+              1862.8,
+              2335.5
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 3717.3,
+            "median_nodes": 402.0,
+            "solve_rate": 1,
+            "curve": [
+              4847,
+              4414.5,
+              1041.1,
+              1835.1,
+              21817.3,
+              1307.9,
+              3584.7,
+              721.4,
+              277.2,
+              582.1,
+              1865.6,
+              2314.2
+            ]
+          },
+          "growing_library_full": {
+            "mean_nodes": 95.9,
+            "median_nodes": 24.0,
+            "solve_rate": 1,
+            "curve": [
+              129.6,
+              110.3,
+              61.2,
+              59.4,
+              52.4,
+              120.4,
+              172.6,
+              173.1,
+              26.8,
+              37.9,
+              119.1,
+              88
+            ]
+          }
+        }
+      }
+    },
+    {
+      "seed": 17,
+      "held_out": true,
+      "n_macros": 8,
+      "macros": [
+        "ac",
+        "cea",
+        "ea",
+        "ce",
+        "acb",
+        "cac",
+        "ca",
+        "cb"
+      ],
+      "promotion_steps": [
+        4,
+        8,
+        10,
+        28,
+        43,
+        44,
+        51,
+        73
+      ],
+      "train": {
+        "growing_gate": {
+          "early": 16,
+          "late": 4.6,
+          "mean_nodes": 11.1,
+          "median_nodes": 4.0,
+          "solve_rate": 1,
+          "curve": [
+            39.3,
+            5,
+            3.7,
+            33.3,
+            4.4,
+            24.5,
+            3.3,
+            2.9,
+            3.4,
+            4.4,
+            5.9,
+            3.5
+          ]
+        },
+        "random_growing": {
+          "early": 26.9,
+          "late": 8.0,
+          "mean_nodes": 20.9,
+          "median_nodes": 4.0,
+          "solve_rate": 1,
+          "curve": [
+            39.5,
+            17.6,
+            23.5,
+            45.5,
+            27,
+            27.1,
+            26.8,
+            6.2,
+            13.7,
+            5.8,
+            14.3,
+            3.8
+          ]
+        },
+        "frozen_empty": {
+          "early": 22.5,
+          "late": 38.5,
+          "mean_nodes": 33.5,
+          "median_nodes": 10.0,
+          "solve_rate": 1,
+          "curve": [
+            27.2,
+            22,
+            18.2,
+            44.4,
+            24.2,
+            78.4,
+            28.7,
+            16.1,
+            27.1,
+            34.4,
+            65.1,
+            16
+          ]
+        }
+      },
+      "regimes": {
+        "R0_identical": {
+          "growing_gate": {
+            "mean_nodes": 6.5,
+            "median_nodes": 7.0,
+            "solve_rate": 1,
+            "curve": [
+              5.6,
+              6.6,
+              6.1,
+              7,
+              9.8,
+              5.9,
+              6.6,
+              6,
+              8,
+              3.6,
+              6.2,
+              6.3
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 6.5,
+            "median_nodes": 7.0,
+            "solve_rate": 1,
+            "curve": [
+              5.6,
+              6.6,
+              6.1,
+              7,
+              9.8,
+              5.9,
+              6.6,
+              6,
+              8,
+              3.6,
+              6.2,
+              6.3
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 45.3,
+            "median_nodes": 6.0,
+            "solve_rate": 1,
+            "curve": [
+              78.7,
+              7.3,
+              64.2,
+              72.9,
+              43.1,
+              81.2,
+              41.9,
+              25.5,
+              42.2,
+              21.5,
+              57.9,
+              7.6
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 52.3,
+            "median_nodes": 20.0,
+            "solve_rate": 1,
+            "curve": [
+              74.9,
+              29.6,
+              52,
+              91.6,
+              58.3,
+              78.7,
+              40.9,
+              23.5,
+              55.9,
+              19.3,
+              79.2,
+              24
+            ]
+          }
+        },
+        "R1_partial": {
+          "growing_gate": {
+            "mean_nodes": 12.5,
+            "median_nodes": 3.0,
+            "solve_rate": 1,
+            "curve": [
+              19.4,
+              7.1,
+              6,
+              9.4,
+              37.2,
+              6.7,
+              32.2,
+              5.5,
+              4.6,
+              3.6,
+              6,
+              12.8
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 8.5,
+            "median_nodes": 3.0,
+            "solve_rate": 1,
+            "curve": [
+              7.8,
+              7.1,
+              6,
+              9.4,
+              13.7,
+              6.7,
+              19.6,
+              5.5,
+              4.6,
+              3.6,
+              6,
+              11.9
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 18.3,
+            "median_nodes": 3.0,
+            "solve_rate": 1,
+            "curve": [
+              19.2,
+              7.5,
+              11.3,
+              8.9,
+              10.5,
+              16.2,
+              43.6,
+              5.9,
+              59.9,
+              27.1,
+              3.9,
+              5.7
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 37.9,
+            "median_nodes": 11.0,
+            "solve_rate": 1,
+            "curve": [
+              18,
+              47.4,
+              34.7,
+              42.9,
+              45.4,
+              20.2,
+              67.2,
+              12.9,
+              75.2,
+              35.3,
+              22.3,
+              32.7
+            ]
+          }
+        },
+        "R2_disjoint": {
+          "growing_gate": {
+            "mean_nodes": 17.9,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              51.9,
+              6.5,
+              5,
+              6.7,
+              5.7,
+              98,
+              6,
+              6.9,
+              4.4,
+              6.3,
+              11.3,
+              5.5
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 7.8,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              11.8,
+              6.5,
+              5,
+              6.7,
+              5.7,
+              17.8,
+              6,
+              6.9,
+              4.4,
+              6.3,
+              10.4,
+              5.5
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 13.6,
+            "median_nodes": 4.5,
+            "solve_rate": 1,
+            "curve": [
+              25.3,
+              6.8,
+              9.6,
+              24.9,
+              7.6,
+              14.9,
+              6.4,
+              9.1,
+              26.2,
+              23,
+              5.9,
+              4
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 45.2,
+            "median_nodes": 14.0,
+            "solve_rate": 1,
+            "curve": [
+              100.9,
+              29.5,
+              38.2,
+              47.3,
+              20.7,
+              140.6,
+              24.4,
+              27.6,
+              30.5,
+              34.6,
+              22.9,
+              25
+            ]
+          }
+        },
+        "R2_depth": {
+          "growing_gate": {
+            "mean_nodes": 1734.1,
+            "median_nodes": 37.0,
+            "solve_rate": 1,
+            "curve": [
+              2493.9,
+              7071.3,
+              514.1,
+              961,
+              960.9,
+              1055.8,
+              1701,
+              1514.6,
+              1182.7,
+              217.3,
+              2776.5,
+              359.8
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 132.8,
+            "median_nodes": 37.0,
+            "solve_rate": 1,
+            "curve": [
+              310.1,
+              244.7,
+              105.3,
+              73,
+              58.7,
+              67.3,
+              215.2,
+              83.5,
+              159.5,
+              44.4,
+              168.5,
+              63.3
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 1800.8,
+            "median_nodes": 98.0,
+            "solve_rate": 1,
+            "curve": [
+              2531,
+              7131.3,
+              544.8,
+              925.2,
+              1002.7,
+              1179.6,
+              1459,
+              1460.5,
+              1249.6,
+              672.7,
+              2824.6,
+              628.5
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 1887.1,
+            "median_nodes": 278.0,
+            "solve_rate": 1,
+            "curve": [
+              2516.1,
+              7115.6,
+              691.8,
+              969.3,
+              1040.7,
+              1249.7,
+              1722.8,
+              1723.2,
+              1290.5,
+              734.6,
+              2908.9,
+              681.5
+            ]
+          },
+          "growing_library_full": {
+            "mean_nodes": 132.8,
+            "median_nodes": 37.0,
+            "solve_rate": 1,
+            "curve": [
+              310.1,
+              244.7,
+              105.3,
+              73,
+              58.7,
+              67.3,
+              215.2,
+              83.5,
+              159.5,
+              44.4,
+              168.5,
+              63.3
+            ]
+          }
+        }
+      }
+    },
+    {
+      "seed": 23,
+      "held_out": true,
+      "n_macros": 8,
+      "macros": [
+        "ce",
+        "ace",
+        "acea",
+        "ac",
+        "cea",
+        "aced",
+        "ced",
+        "ea"
+      ],
+      "promotion_steps": [
+        3,
+        5,
+        9,
+        11,
+        19,
+        21,
+        34,
+        44
+      ],
+      "train": {
+        "growing_gate": {
+          "early": 23.8,
+          "late": 3.5,
+          "mean_nodes": 10.4,
+          "median_nodes": 3.0,
+          "solve_rate": 1,
+          "curve": [
+            42.4,
+            24.2,
+            4.9,
+            3.4,
+            4.8,
+            4.2,
+            23.4,
+            3.9,
+            3,
+            5.4,
+            2.5,
+            2.7
+          ]
+        },
+        "random_growing": {
+          "early": 24.3,
+          "late": 8.2,
+          "mean_nodes": 20.9,
+          "median_nodes": 4.0,
+          "solve_rate": 1,
+          "curve": [
+            42.9,
+            25.6,
+            4.4,
+            3.5,
+            34.7,
+            28.5,
+            44.7,
+            34.5,
+            7.5,
+            15.1,
+            5,
+            4.6
+          ]
+        },
+        "frozen_empty": {
+          "early": 26.2,
+          "late": 11.3,
+          "mean_nodes": 26.4,
+          "median_nodes": 6.0,
+          "solve_rate": 1,
+          "curve": [
+            41.2,
+            30.4,
+            7,
+            8.9,
+            46.6,
+            47.1,
+            39.2,
+            38.4,
+            23.7,
+            16.5,
+            11.4,
+            6.1
+          ]
+        }
+      },
+      "regimes": {
+        "R0_identical": {
+          "growing_gate": {
+            "mean_nodes": 5.5,
+            "median_nodes": 3.0,
+            "solve_rate": 1,
+            "curve": [
+              7.8,
+              4.8,
+              3.6,
+              5.2,
+              5.3,
+              7.1,
+              6,
+              2.5,
+              8.8,
+              6.3,
+              4.3,
+              4
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 5.5,
+            "median_nodes": 3.0,
+            "solve_rate": 1,
+            "curve": [
+              7.8,
+              4.8,
+              3.6,
+              5.2,
+              5.3,
+              7.1,
+              6,
+              2.5,
+              8.8,
+              6.3,
+              4.3,
+              4
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 40.3,
+            "median_nodes": 8.0,
+            "solve_rate": 1,
+            "curve": [
+              63.3,
+              44.6,
+              36.4,
+              28.2,
+              37.1,
+              49.4,
+              31.8,
+              7.3,
+              46,
+              34.6,
+              76.8,
+              27.6
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 55.4,
+            "median_nodes": 23.0,
+            "solve_rate": 1,
+            "curve": [
+              85.2,
+              54.7,
+              57.5,
+              41.6,
+              45.1,
+              58.5,
+              60.4,
+              10.3,
+              59.6,
+              47.5,
+              109,
+              35.3
+            ]
+          }
+        },
+        "R1_partial": {
+          "growing_gate": {
+            "mean_nodes": 7.1,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              11.2,
+              4.7,
+              4.1,
+              7.1,
+              7.2,
+              14.1,
+              5.6,
+              4.6,
+              11.7,
+              6.3,
+              3.8,
+              4.8
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 7.0,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              11.2,
+              4.7,
+              4.1,
+              7.1,
+              7.2,
+              13.2,
+              5.6,
+              4.6,
+              10.8,
+              6.3,
+              3.8,
+              4.8
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 45.0,
+            "median_nodes": 12.0,
+            "solve_rate": 1,
+            "curve": [
+              32.5,
+              57.9,
+              93,
+              44.2,
+              40.7,
+              21.5,
+              61.3,
+              9.6,
+              21.6,
+              35.1,
+              31.8,
+              90.4
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 54.7,
+            "median_nodes": 18.0,
+            "solve_rate": 1,
+            "curve": [
+              49.9,
+              56.2,
+              95.3,
+              61.6,
+              32.8,
+              48.1,
+              72.4,
+              52.4,
+              23.6,
+              40.6,
+              39.4,
+              84.1
+            ]
+          }
+        },
+        "R2_disjoint": {
+          "growing_gate": {
+            "mean_nodes": 10.8,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              6.2,
+              10.7,
+              7.3,
+              5,
+              19.4,
+              18.9,
+              15.3,
+              6.9,
+              4.3,
+              15.3,
+              5.9,
+              14.1
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 8.6,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              6.2,
+              10.7,
+              7.3,
+              5,
+              10,
+              10,
+              14.4,
+              6.9,
+              4.3,
+              11.7,
+              5.9,
+              10.5
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 34.7,
+            "median_nodes": 7.0,
+            "solve_rate": 1,
+            "curve": [
+              16.3,
+              7,
+              20.5,
+              38,
+              60.1,
+              67.8,
+              22.5,
+              55.4,
+              8.1,
+              40.9,
+              50.6,
+              28.7
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 40.5,
+            "median_nodes": 14.0,
+            "solve_rate": 1,
+            "curve": [
+              31.2,
+              15.2,
+              30.2,
+              32.4,
+              44.8,
+              77.4,
+              47.5,
+              57.7,
+              8.6,
+              42.4,
+              59.6,
+              39.2
+            ]
+          }
+        },
+        "R2_depth": {
+          "growing_gate": {
+            "mean_nodes": 3731.6,
+            "median_nodes": 23.0,
+            "solve_rate": 1,
+            "curve": [
+              1015.1,
+              855,
+              666.7,
+              1034.8,
+              15.7,
+              144.7,
+              1088.1,
+              2727.9,
+              21527.8,
+              10572,
+              367.5,
+              4763.4
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 96.4,
+            "median_nodes": 23.0,
+            "solve_rate": 1,
+            "curve": [
+              51.1,
+              57.5,
+              38.7,
+              65.4,
+              15.7,
+              33.1,
+              25.5,
+              133,
+              434.8,
+              151,
+              44.9,
+              105.7
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 4073.5,
+            "median_nodes": 235.0,
+            "solve_rate": 1,
+            "curve": [
+              2317.1,
+              982.6,
+              1420,
+              1199.7,
+              150.5,
+              198.1,
+              1422.8,
+              3323.8,
+              21703.5,
+              10649.6,
+              747.8,
+              4767
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 4166.3,
+            "median_nodes": 432.0,
+            "solve_rate": 1,
+            "curve": [
+              2281,
+              963.1,
+              1457.4,
+              1374.7,
+              316.9,
+              372.9,
+              1418.3,
+              3446.7,
+              21680.4,
+              10981.2,
+              741.3,
+              4961.6
+            ]
+          },
+          "growing_library_full": {
+            "mean_nodes": 96.4,
+            "median_nodes": 23.0,
+            "solve_rate": 1,
+            "curve": [
+              51.1,
+              57.5,
+              38.7,
+              65.4,
+              15.7,
+              33.1,
+              25.5,
+              133,
+              434.8,
+              151,
+              44.9,
+              105.7
+            ]
+          }
+        }
+      }
+    },
+    {
+      "seed": 41,
+      "held_out": true,
+      "n_macros": 8,
+      "macros": [
+        "ae",
+        "aa",
+        "aae",
+        "aaea",
+        "ea",
+        "aea",
+        "baa",
+        "ba"
+      ],
+      "promotion_steps": [
+        8,
+        14,
+        21,
+        22,
+        25,
+        26,
+        30,
+        41
+      ],
+      "train": {
+        "growing_gate": {
+          "early": 19.4,
+          "late": 4.8,
+          "mean_nodes": 12.1,
+          "median_nodes": 3.0,
+          "solve_rate": 1,
+          "curve": [
+            29.2,
+            19.7,
+            9.2,
+            20.5,
+            4.1,
+            2.7,
+            5.3,
+            24,
+            16.4,
+            3.7,
+            2.5,
+            8.3
+          ]
+        },
+        "random_growing": {
+          "early": 15.9,
+          "late": 33.6,
+          "mean_nodes": 26.2,
+          "median_nodes": 4.0,
+          "solve_rate": 1,
+          "curve": [
+            29.2,
+            11.1,
+            7.5,
+            23,
+            51.1,
+            8.7,
+            51.1,
+            22.7,
+            9.5,
+            7.2,
+            4.6,
+            88.9
+          ]
+        },
+        "frozen_empty": {
+          "early": 21.6,
+          "late": 30.9,
+          "mean_nodes": 27.8,
+          "median_nodes": 10.0,
+          "solve_rate": 1,
+          "curve": [
+            25.1,
+            16,
+            23.6,
+            19.4,
+            46.8,
+            13.8,
+            50.4,
+            22.5,
+            23.3,
+            10.6,
+            6.6,
+            75.4
+          ]
+        }
+      },
+      "regimes": {
+        "R0_identical": {
+          "growing_gate": {
+            "mean_nodes": 9.4,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              4.5,
+              7.5,
+              4.7,
+              5.4,
+              15.9,
+              9.3,
+              5.1,
+              6.3,
+              4.9,
+              28.6,
+              9.6,
+              11
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 7.7,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              4.5,
+              7.5,
+              4.7,
+              5.4,
+              15,
+              9.3,
+              5.1,
+              6.3,
+              4.9,
+              9.7,
+              9.6,
+              10.1
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 31.0,
+            "median_nodes": 9.0,
+            "solve_rate": 1,
+            "curve": [
+              10.7,
+              30.6,
+              13.1,
+              59.4,
+              81.2,
+              37.7,
+              9.8,
+              64,
+              12.3,
+              8.3,
+              35.6,
+              8.9
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 56.8,
+            "median_nodes": 20.0,
+            "solve_rate": 1,
+            "curve": [
+              32.5,
+              66,
+              29,
+              59.2,
+              108.7,
+              61.6,
+              39,
+              80.8,
+              30.8,
+              71.6,
+              71,
+              31.5
+            ]
+          }
+        },
+        "R1_partial": {
+          "growing_gate": {
+            "mean_nodes": 24,
+            "median_nodes": 7.0,
+            "solve_rate": 1,
+            "curve": [
+              19.2,
+              30.2,
+              24.1,
+              10.1,
+              3.5,
+              12.9,
+              10.7,
+              72.5,
+              42.2,
+              20.9,
+              13.6,
+              28.1
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 17.2,
+            "median_nodes": 7.0,
+            "solve_rate": 1,
+            "curve": [
+              18.3,
+              16.5,
+              37.3,
+              10.1,
+              3.5,
+              12,
+              10.7,
+              27.1,
+              25.9,
+              17.4,
+              12.7,
+              15.3
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 38.4,
+            "median_nodes": 10.0,
+            "solve_rate": 1,
+            "curve": [
+              26.7,
+              27.5,
+              32,
+              12.2,
+              7.9,
+              53.4,
+              27.1,
+              77.1,
+              41.4,
+              60.5,
+              59.9,
+              35.5
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 52.1,
+            "median_nodes": 18.0,
+            "solve_rate": 1,
+            "curve": [
+              63.3,
+              27.6,
+              57.7,
+              31.2,
+              16.3,
+              55.5,
+              48.4,
+              70.4,
+              63.5,
+              69.7,
+              66.9,
+              54.3
+            ]
+          }
+        },
+        "R2_disjoint": {
+          "growing_gate": {
+            "mean_nodes": 34.5,
+            "median_nodes": 5.0,
+            "solve_rate": 1,
+            "curve": [
+              21.4,
+              73.1,
+              4.9,
+              3.3,
+              5.8,
+              62.8,
+              4.4,
+              22.1,
+              102,
+              36.9,
+              43.5,
+              34.4
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 18.6,
+            "median_nodes": 5.0,
+            "solve_rate": 1,
+            "curve": [
+              13.4,
+              40.1,
+              4.9,
+              3.3,
+              5.8,
+              26.3,
+              4.4,
+              9.3,
+              57.6,
+              22,
+              17.9,
+              17.7
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 46.8,
+            "median_nodes": 7.0,
+            "solve_rate": 1,
+            "curve": [
+              24.1,
+              72.7,
+              15.5,
+              7.8,
+              33.7,
+              67.6,
+              8.9,
+              28.2,
+              105.9,
+              65.7,
+              43.8,
+              87.2
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 53.9,
+            "median_nodes": 14.0,
+            "solve_rate": 1,
+            "curve": [
+              40.4,
+              78.2,
+              48,
+              13.3,
+              41.7,
+              66.1,
+              26.1,
+              37.1,
+              95,
+              62.7,
+              57,
+              81.6
+            ]
+          }
+        },
+        "R2_depth": {
+          "growing_gate": {
+            "mean_nodes": 4230.4,
+            "median_nodes": 322.0,
+            "solve_rate": 1,
+            "curve": [
+              2492.1,
+              10000.8,
+              7954,
+              307.3,
+              8394.3,
+              581.8,
+              9032.2,
+              1931.3,
+              1500.8,
+              2340.7,
+              3067.2,
+              3161.7
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 2891.3,
+            "median_nodes": 92.5,
+            "solve_rate": 1,
+            "curve": [
+              377.8,
+              8358.2,
+              7956.9,
+              107,
+              9098.8,
+              143.1,
+              5127.1,
+              278,
+              394.5,
+              558.9,
+              1971.6,
+              323.9
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 4207.4,
+            "median_nodes": 330.0,
+            "solve_rate": 1,
+            "curve": [
+              2443,
+              9533.3,
+              8227.3,
+              433.9,
+              8429.2,
+              605,
+              9035.3,
+              1900.3,
+              1514.2,
+              2214.6,
+              2920.9,
+              3231.2
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 4290.9,
+            "median_nodes": 380.5,
+            "solve_rate": 1,
+            "curve": [
+              2492.7,
+              9978.1,
+              8206.3,
+              419,
+              8507.7,
+              603.8,
+              9051.4,
+              1989.1,
+              1499.4,
+              2398.3,
+              3131.9,
+              3213.3
+            ]
+          },
+          "growing_library_full": {
+            "mean_nodes": 834.4,
+            "median_nodes": 92.5,
+            "solve_rate": 1,
+            "curve": [
+              377.8,
+              2099.4,
+              649.3,
+              107,
+              3186.2,
+              143.1,
+              934.7,
+              278,
+              394.5,
+              558.9,
+              959.7,
+              323.9
+            ]
+          }
+        }
+      }
+    },
+    {
+      "seed": 73,
+      "held_out": true,
+      "n_macros": 8,
+      "macros": [
+        "ae",
+        "aab",
+        "ab",
+        "aa",
+        "ea",
+        "bea",
+        "eaab",
+        "eaa"
+      ],
+      "promotion_steps": [
+        6,
+        12,
+        14,
+        17,
+        28,
+        42,
+        51,
+        63
+      ],
+      "train": {
+        "growing_gate": {
+          "early": 20.5,
+          "late": 4.1,
+          "mean_nodes": 14.6,
+          "median_nodes": 3.0,
+          "solve_rate": 1,
+          "curve": [
+            28.8,
+            10.2,
+            22.4,
+            3.5,
+            43.7,
+            2.9,
+            3,
+            45.2,
+            2.7,
+            3,
+            3.4,
+            6
+          ]
+        },
+        "random_growing": {
+          "early": 21.2,
+          "late": 10.1,
+          "mean_nodes": 18.0,
+          "median_nodes": 4.0,
+          "solve_rate": 1,
+          "curve": [
+            28.6,
+            10.8,
+            24.2,
+            5.6,
+            42.7,
+            4.7,
+            4.5,
+            46.3,
+            18.6,
+            5,
+            5.8,
+            19.4
+          ]
+        },
+        "frozen_empty": {
+          "early": 19.5,
+          "late": 24.2,
+          "mean_nodes": 24.6,
+          "median_nodes": 10.0,
+          "solve_rate": 1,
+          "curve": [
+            20.7,
+            14,
+            23.7,
+            15.5,
+            44.7,
+            11.6,
+            23.3,
+            49.3,
+            19.4,
+            24.9,
+            14.9,
+            32.8
+          ]
+        }
+      },
+      "regimes": {
+        "R0_identical": {
+          "growing_gate": {
+            "mean_nodes": 7.8,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              7.4,
+              12.5,
+              14.9,
+              8.1,
+              8.3,
+              2.9,
+              5.1,
+              4.8,
+              11.6,
+              5.3,
+              6.4,
+              6.6
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 7.3,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              7.4,
+              10.1,
+              14,
+              8.1,
+              8.3,
+              2.9,
+              5.1,
+              4.8,
+              9.2,
+              5.3,
+              6.4,
+              6.6
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 12.8,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              9.6,
+              32.1,
+              19.3,
+              22.4,
+              15.6,
+              4.9,
+              8.5,
+              6.7,
+              5.8,
+              6.1,
+              16.9,
+              5.9
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 66.6,
+            "median_nodes": 26.0,
+            "solve_rate": 1,
+            "curve": [
+              78.8,
+              65.1,
+              70,
+              76.6,
+              87.7,
+              16.4,
+              69.7,
+              77.3,
+              67.8,
+              45.1,
+              65.1,
+              79.4
+            ]
+          }
+        },
+        "R1_partial": {
+          "growing_gate": {
+            "mean_nodes": 18.1,
+            "median_nodes": 5.5,
+            "solve_rate": 1,
+            "curve": [
+              11.7,
+              10,
+              10.4,
+              25.5,
+              33.5,
+              45.5,
+              3.9,
+              5.8,
+              5.1,
+              36.2,
+              5,
+              24.3
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 11.2,
+            "median_nodes": 5.5,
+            "solve_rate": 1,
+            "curve": [
+              9.3,
+              10,
+              10.4,
+              12.7,
+              18.3,
+              19.9,
+              3.9,
+              5.8,
+              5.1,
+              22.5,
+              5,
+              11.5
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 29.3,
+            "median_nodes": 7.0,
+            "solve_rate": 1,
+            "curve": [
+              23.2,
+              29.6,
+              26,
+              29.3,
+              33,
+              49,
+              3.7,
+              16.8,
+              24.5,
+              46.5,
+              34.8,
+              35.3
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 61.9,
+            "median_nodes": 33.0,
+            "solve_rate": 1,
+            "curve": [
+              54.2,
+              85.6,
+              83.4,
+              54.3,
+              119.3,
+              91.5,
+              63.7,
+              16.7,
+              31.4,
+              65.6,
+              36.3,
+              40.3
+            ]
+          }
+        },
+        "R2_disjoint": {
+          "growing_gate": {
+            "mean_nodes": 10.3,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              7.5,
+              5.8,
+              7.3,
+              5.5,
+              6.5,
+              7,
+              26.1,
+              10.9,
+              5.2,
+              5.7,
+              27.6,
+              8.3
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 8.2,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              7.5,
+              5.8,
+              7.3,
+              5.5,
+              6.5,
+              7,
+              13.3,
+              10.9,
+              5.2,
+              5.7,
+              14.8,
+              8.3
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 36.7,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              14.6,
+              8.9,
+              97.4,
+              6.8,
+              21.5,
+              52.2,
+              37.4,
+              131.5,
+              8.5,
+              8,
+              43.4,
+              10.6
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 58.3,
+            "median_nodes": 12.5,
+            "solve_rate": 1,
+            "curve": [
+              36,
+              20.1,
+              155.8,
+              21.8,
+              51.7,
+              61,
+              44.7,
+              137.5,
+              39.2,
+              52.5,
+              53.4,
+              26.2
+            ]
+          }
+        },
+        "R2_depth": {
+          "growing_gate": {
+            "mean_nodes": 3578.0,
+            "median_nodes": 417.5,
+            "solve_rate": 1,
+            "curve": [
+              961.2,
+              11843.9,
+              1881.5,
+              573.3,
+              883.9,
+              814.3,
+              1593.4,
+              16367.3,
+              1747.4,
+              3345.4,
+              1628.4,
+              1295.6
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 2082.1,
+            "median_nodes": 78.0,
+            "solve_rate": 1,
+            "curve": [
+              107.3,
+              10307,
+              396.4,
+              91.4,
+              82,
+              195.3,
+              99.8,
+              12706.5,
+              277.5,
+              218.7,
+              406.1,
+              96.6
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 3591.8,
+            "median_nodes": 417.5,
+            "solve_rate": 1,
+            "curve": [
+              891.5,
+              11870.5,
+              1886.5,
+              574,
+              890.8,
+              955.6,
+              1621.5,
+              16409.6,
+              1722.8,
+              3590,
+              1622.1,
+              1066.3
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 3637.8,
+            "median_nodes": 490.0,
+            "solve_rate": 1,
+            "curve": [
+              949.8,
+              11851.2,
+              1867.9,
+              703.2,
+              892.9,
+              932,
+              1609.6,
+              16489,
+              1779.1,
+              3582,
+              1647.7,
+              1349.8
+            ]
+          },
+          "growing_library_full": {
+            "mean_nodes": 1407.2,
+            "median_nodes": 78.0,
+            "solve_rate": 1,
+            "curve": [
+              107.3,
+              13785.8,
+              396.4,
+              91.4,
+              82,
+              195.3,
+              99.8,
+              1129.4,
+              277.5,
+              218.7,
+              406.1,
+              96.6
+            ]
+          }
+        }
+      }
+    },
+    {
+      "seed": 101,
+      "held_out": true,
+      "n_macros": 8,
+      "macros": [
+        "ab",
+        "abc",
+        "bc",
+        "aab",
+        "aabc",
+        "abca",
+        "abcb",
+        "aa"
+      ],
+      "promotion_steps": [
+        3,
+        8,
+        13,
+        19,
+        21,
+        23,
+        24,
+        33
+      ],
+      "train": {
+        "growing_gate": {
+          "early": 15.7,
+          "late": 4.8,
+          "mean_nodes": 9.2,
+          "median_nodes": 3.0,
+          "solve_rate": 1,
+          "curve": [
+            6.1,
+            33.7,
+            7.3,
+            2.7,
+            7.4,
+            25.5,
+            3.6,
+            4.4,
+            5.8,
+            9.1,
+            3.2,
+            2
+          ]
+        },
+        "random_growing": {
+          "early": 26.3,
+          "late": 7.8,
+          "mean_nodes": 13.7,
+          "median_nodes": 3.0,
+          "solve_rate": 1,
+          "curve": [
+            6.1,
+            37.2,
+            35.6,
+            6.5,
+            10.4,
+            29,
+            5.9,
+            5.5,
+            4.8,
+            3.4,
+            18.4,
+            1.7
+          ]
+        },
+        "frozen_empty": {
+          "early": 36.1,
+          "late": 12.4,
+          "mean_nodes": 27.1,
+          "median_nodes": 6.0,
+          "solve_rate": 1,
+          "curve": [
+            8.7,
+            46.4,
+            53.2,
+            23.5,
+            37.7,
+            42.9,
+            30.2,
+            33.6,
+            11.8,
+            13.7,
+            18.8,
+            4.8
+          ]
+        }
+      },
+      "regimes": {
+        "R0_identical": {
+          "growing_gate": {
+            "mean_nodes": 21.7,
+            "median_nodes": 5.0,
+            "solve_rate": 1,
+            "curve": [
+              30.9,
+              23.5,
+              6.1,
+              24.1,
+              6,
+              69.2,
+              7.3,
+              7.4,
+              8.1,
+              63.9,
+              9.2,
+              4.6
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 28.2,
+            "median_nodes": 5.0,
+            "solve_rate": 1,
+            "curve": [
+              89.1,
+              82.6,
+              6.1,
+              83.2,
+              6,
+              16.3,
+              7.3,
+              7.4,
+              8.1,
+              18.6,
+              9.2,
+              4.6
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 19.6,
+            "median_nodes": 8.0,
+            "solve_rate": 1,
+            "curve": [
+              9.1,
+              22.4,
+              26.6,
+              14.6,
+              29,
+              14.3,
+              16.4,
+              13.9,
+              39.8,
+              14,
+              25.5,
+              9.5
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 51.7,
+            "median_nodes": 37.0,
+            "solve_rate": 1,
+            "curve": [
+              41.9,
+              43.1,
+              42.8,
+              48.3,
+              42.5,
+              87,
+              51.5,
+              42.3,
+              47.8,
+              86,
+              51.8,
+              35.5
+            ]
+          }
+        },
+        "R1_partial": {
+          "growing_gate": {
+            "mean_nodes": 38.5,
+            "median_nodes": 8.0,
+            "solve_rate": 1,
+            "curve": [
+              9,
+              96.5,
+              41.4,
+              85.3,
+              31.3,
+              48.5,
+              8.6,
+              32.3,
+              8.4,
+              24.4,
+              54.8,
+              21.3
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 47.2,
+            "median_nodes": 8.0,
+            "solve_rate": 1,
+            "curve": [
+              9,
+              99.5,
+              91.3,
+              106.3,
+              89.5,
+              19.5,
+              8.6,
+              90.5,
+              8.4,
+              13.2,
+              18.6,
+              12.1
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 33.4,
+            "median_nodes": 11.0,
+            "solve_rate": 1,
+            "curve": [
+              30,
+              78,
+              34.9,
+              30.7,
+              34.3,
+              39.2,
+              12,
+              39.4,
+              25.4,
+              25.6,
+              45,
+              6.2
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 54.3,
+            "median_nodes": 32.0,
+            "solve_rate": 1,
+            "curve": [
+              37.5,
+              97.7,
+              51.9,
+              71.4,
+              32.9,
+              52.6,
+              38,
+              73.3,
+              43,
+              58.9,
+              70.3,
+              24.6
+            ]
+          }
+        },
+        "R2_disjoint": {
+          "growing_gate": {
+            "mean_nodes": 29.8,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              23.1,
+              8.7,
+              157.9,
+              40.3,
+              4.1,
+              36,
+              34.9,
+              7.9,
+              22.5,
+              7,
+              7.8,
+              7.4
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 16.3,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              82.2,
+              8.7,
+              23.3,
+              12.6,
+              4.1,
+              17.2,
+              7.2,
+              7.9,
+              10.5,
+              7,
+              7.8,
+              7.4
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 38.2,
+            "median_nodes": 4.0,
+            "solve_rate": 1,
+            "curve": [
+              4.5,
+              10.5,
+              166.4,
+              54.6,
+              7.5,
+              9.1,
+              63.3,
+              22.4,
+              9.3,
+              11.1,
+              49.8,
+              49.4
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 62.6,
+            "median_nodes": 11.0,
+            "solve_rate": 1,
+            "curve": [
+              30.5,
+              35.4,
+              188.8,
+              70.6,
+              17.4,
+              37.9,
+              62.6,
+              44.7,
+              58,
+              26.7,
+              97.4,
+              81.6
+            ]
+          }
+        },
+        "R2_depth": {
+          "growing_gate": {
+            "mean_nodes": 3083.0,
+            "median_nodes": 547.5,
+            "solve_rate": 1,
+            "curve": [
+              261,
+              2850.4,
+              5681.7,
+              2471.9,
+              1123.3,
+              3879.1,
+              5042.7,
+              3164.9,
+              2996.5,
+              2306.2,
+              6917.4,
+              300.5
+            ]
+          },
+          "growing_depth": {
+            "mean_nodes": 2311.6,
+            "median_nodes": 109.0,
+            "solve_rate": 1,
+            "curve": [
+              42.5,
+              2969.9,
+              3270.5,
+              659,
+              279.6,
+              3799.2,
+              5994.3,
+              669.1,
+              790.1,
+              2801.5,
+              6247.6,
+              216.4
+            ]
+          },
+          "random_growing": {
+            "mean_nodes": 3028.5,
+            "median_nodes": 470.0,
+            "solve_rate": 1,
+            "curve": [
+              260.9,
+              2840.6,
+              5507.4,
+              2485.6,
+              1150,
+              3784.9,
+              4861.9,
+              3026.3,
+              3007.4,
+              2233.2,
+              6917.6,
+              266.7
+            ]
+          },
+          "frozen_empty": {
+            "mean_nodes": 3075.7,
+            "median_nodes": 506.5,
+            "solve_rate": 1,
+            "curve": [
+              302.7,
+              2855,
+              5668.5,
+              2466.8,
+              1168.9,
+              3859.1,
+              5011.9,
+              3136.7,
+              2981.1,
+              2287,
+              6880.7,
+              290.3
+            ]
+          },
+          "growing_library_full": {
+            "mean_nodes": 1527.5,
+            "median_nodes": 109.0,
+            "solve_rate": 1,
+            "curve": [
+              42.5,
+              1909.9,
+              2303.9,
+              659,
+              279.6,
+              2654.6,
+              2029.4,
+              669.1,
+              790.1,
+              1968.5,
+              4806.5,
+              216.4
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

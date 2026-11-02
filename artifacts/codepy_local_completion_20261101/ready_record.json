@@ -1,0 +1,5 @@
+{
+  "result": "CodePy reaches20/20strictsame-seed successes on7041inputs per task withinlower fullcase-stepbudget, preservesall17previouswins, independentcertificates andmakecipassed",
+  "limitations": "Maximum ofthis20casebenchmark only;5seeds andfinitefloat32tests; no broader taskorrealnumber proof; noisolatedcomponentablation",
+  "evidence": "/Users/makbuk/000cor/artifacts/codepy_local_completion_20261101/RESULTS_RU.txt"
+}

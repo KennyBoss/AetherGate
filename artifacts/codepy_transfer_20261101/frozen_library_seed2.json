@@ -1,0 +1,105 @@
+{
+  "seed": 2,
+  "blocks": [
+    {
+      "code": [
+        3,
+        7,
+        7,
+        4,
+        5,
+        9,
+        6
+      ],
+      "layout": [
+        0,
+        2
+      ],
+      "provenance": {
+        "method": "backward_slice",
+        "source": 1,
+        "program": 43,
+        "prefix": 14,
+        "source_indices_or_pointer_relocation": [
+          1,
+          -1,
+          -1,
+          8,
+          9,
+          -1,
+          13
+        ]
+      },
+      "frequency": 1,
+      "behavior": "swap",
+      "qualification": [
+        {
+          "group": "challenge64",
+          "cases": 64,
+          "native_numpy_exact": true,
+          "behavior": "swap",
+          "inputs_sha256": "bb977f8b16f844dc758c966107ed0f1ac1086d154756bafbe988e01c5d47b8ae"
+        },
+        {
+          "group": "promotion6429",
+          "cases": 6429,
+          "native_numpy_exact": true,
+          "behavior": "swap",
+          "inputs_sha256": "e7a0048123a945ba4981adecf975be4e5f3b4b2ce8ea608f3ea12f1fa5247f5c"
+        }
+      ]
+    },
+    {
+      "code": [
+        20,
+        3,
+        7,
+        7,
+        4,
+        21,
+        26,
+        20,
+        34,
+        25,
+        0,
+        6
+      ],
+      "layout": [
+        0,
+        2
+      ],
+      "outputs": [
+        3,
+        4
+      ],
+      "provenance": {
+        "method": "branch_guided_source_repair",
+        "generation": 3,
+        "candidate_index": 235
+      },
+      "behavior": "order_descending",
+      "qualification": [
+        {
+          "group": "challenge64",
+          "cases": 64,
+          "behavior": "order_descending",
+          "native_numpy_exact": true,
+          "inputs_sha256": "bb977f8b16f844dc758c966107ed0f1ac1086d154756bafbe988e01c5d47b8ae"
+        },
+        {
+          "group": "promotion6429",
+          "cases": 6429,
+          "behavior": "order_descending",
+          "native_numpy_exact": true,
+          "inputs_sha256": "e7a0048123a945ba4981adecf975be4e5f3b4b2ce8ea608f3ea12f1fa5247f5c"
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "/Users/makbuk/000cor/artifacts/codepy_branch_guided_20261101/library_seed2.json": "3071e8562f0ec64e462ec3f356193ce855dc3c00ab81060940b454eca79e997d",
+    "/Users/makbuk/000cor/artifacts/codepy_local_completion_20261101/library_seed2.json": "42c6126ea4632bb65e278090f317765050618bbfc4f1a28de1568d8cd794761d"
+  },
+  "learning_evaluations": 0,
+  "cross_seed_body_transfer": false
+}

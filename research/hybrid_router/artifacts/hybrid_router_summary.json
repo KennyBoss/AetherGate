@@ -1,0 +1,95 @@
+{
+  "config": {
+    "seeds": "11,17,23,41,73,101",
+    "train_q": 300,
+    "test_q": 300,
+    "window": 8,
+    "far_min": 40,
+    "vocab": 16,
+    "read_noise": 0.05,
+    "feat_noise": 2.0,
+    "hidden": 8,
+    "epochs": 300,
+    "lr": 0.02,
+    "output_json": "artifacts/hybrid_router_summary.json"
+  },
+  "aggregate": {
+    "local_only": 0.5267,
+    "memory_only": 0.7567,
+    "oracle": 0.9789,
+    "router": 0.9767,
+    "router_mem_frac": 0.5067
+  },
+  "router_ci95": [
+    0.9767,
+    0.0133
+  ],
+  "verdict": {
+    "best_single_expert": 0.7567,
+    "router_beats_both_all_seeds": true,
+    "router_minus_best_single": 0.22,
+    "oracle_minus_router": 0.0022
+  },
+  "per_seed": [
+    {
+      "seed": 11,
+      "n": 300,
+      "local_only": 0.5366666666666666,
+      "memory_only": 0.77,
+      "oracle": 0.9866666666666667,
+      "router": 0.9833333333333333,
+      "router_mem_frac": 0.4866666666666667
+    },
+    {
+      "seed": 17,
+      "n": 300,
+      "local_only": 0.4866666666666667,
+      "memory_only": 0.7533333333333333,
+      "oracle": 0.98,
+      "router": 0.9766666666666667,
+      "router_mem_frac": 0.55
+    },
+    {
+      "seed": 23,
+      "n": 300,
+      "local_only": 0.5266666666666666,
+      "memory_only": 0.7533333333333333,
+      "oracle": 0.9866666666666667,
+      "router": 0.9866666666666667,
+      "router_mem_frac": 0.5
+    },
+    {
+      "seed": 41,
+      "n": 300,
+      "local_only": 0.5166666666666667,
+      "memory_only": 0.7833333333333333,
+      "oracle": 0.9733333333333334,
+      "router": 0.9733333333333334,
+      "router_mem_frac": 0.51
+    },
+    {
+      "seed": 73,
+      "n": 300,
+      "local_only": 0.55,
+      "memory_only": 0.72,
+      "oracle": 0.96,
+      "router": 0.9533333333333334,
+      "router_mem_frac": 0.47333333333333333
+    },
+    {
+      "seed": 101,
+      "n": 300,
+      "local_only": 0.5433333333333333,
+      "memory_only": 0.76,
+      "oracle": 0.9866666666666667,
+      "router": 0.9866666666666667,
+      "router_mem_frac": 0.52
+    }
+  ],
+  "protocol_evidence": {
+    "held_out": true,
+    "n_seeds": 6,
+    "analytic_experts_calibrated_to_RESULTS": true,
+    "valid": true
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "kind": "neocortex_x_stage5b_cached_observations",
+  "created_at": "2026-06-24T00:00:00Z",
+  "items": [
+    {
+      "query": "entity_alpha current_value",
+      "subject": "entity_alpha",
+      "ground_truth": "alpha_v3",
+      "observations": [
+        {
+          "claim_id": "alpha-old",
+          "subject": "entity_alpha",
+          "value": "alpha_v1",
+          "source_id": "old_blog",
+          "source_trust": 0.2,
+          "observed_at": "2026-06-24T00:00:00Z",
+          "provenance_url": "fixture://alpha/old"
+        },
+        {
+          "claim_id": "alpha-primary",
+          "subject": "entity_alpha",
+          "value": "alpha_v3",
+          "source_id": "primary_registry",
+          "source_trust": 0.9,
+          "observed_at": "2026-06-24T00:01:00Z",
+          "provenance_url": "fixture://alpha/primary"
+        },
+        {
+          "claim_id": "alpha-latest",
+          "subject": "entity_alpha",
+          "value": "alpha_v2",
+          "source_id": "latest_unverified",
+          "source_trust": 0.3,
+          "observed_at": "2026-06-24T00:02:00Z",
+          "provenance_url": "fixture://alpha/latest"
+        }
+      ]
+    },
+    {
+      "query": "entity_beta current_value",
+      "subject": "entity_beta",
+      "ground_truth": "beta_v8",
+      "observations": [
+        {
+          "claim_id": "beta-forum",
+          "subject": "entity_beta",
+          "value": "beta_v7",
+          "source_id": "forum",
+          "source_trust": 0.25,
+          "observed_at": "2026-06-24T00:00:00Z",
+          "provenance_url": "fixture://beta/forum"
+        },
+        {
+          "claim_id": "beta-primary",
+          "subject": "entity_beta",
+          "value": "beta_v8",
+          "source_id": "primary_registry",
+          "source_trust": 0.85,
+          "observed_at": "2026-06-24T00:01:00Z",
+          "provenance_url": "fixture://beta/primary"
+        },
+        {
+          "claim_id": "beta-audit",
+          "subject": "entity_beta",
+          "value": "beta_v8",
+          "source_id": "audit_mirror",
+          "source_trust": 0.7,
+          "observed_at": "2026-06-24T00:02:00Z",
+          "provenance_url": "fixture://beta/audit"
+        },
+        {
+          "claim_id": "beta-latest",
+          "subject": "entity_beta",
+          "value": "beta_v6",
+          "source_id": "latest_unverified",
+          "source_trust": 0.35,
+          "observed_at": "2026-06-24T00:03:00Z",
+          "provenance_url": "fixture://beta/latest"
+        }
+      ]
+    },
+    {
+      "query": "entity_gamma current_value",
+      "subject": "entity_gamma",
+      "ground_truth": "gamma_v2",
+      "observations": [
+        {
+          "claim_id": "gamma-weak",
+          "subject": "entity_gamma",
+          "value": "gamma_v1",
+          "source_id": "weak_feed",
+          "source_trust": 0.2,
+          "observed_at": "2026-06-24T00:00:00Z",
+          "provenance_url": "fixture://gamma/weak"
+        },
+        {
+          "claim_id": "gamma-primary",
+          "subject": "entity_gamma",
+          "value": "gamma_v2",
+          "source_id": "primary_registry",
+          "source_trust": 0.95,
+          "observed_at": "2026-06-24T00:01:00Z",
+          "provenance_url": "fixture://gamma/primary"
+        },
+        {
+          "claim_id": "gamma-latest",
+          "subject": "entity_gamma",
+          "value": "gamma_v0",
+          "source_id": "latest_unverified",
+          "source_trust": 0.4,
+          "observed_at": "2026-06-24T00:02:00Z",
+          "provenance_url": "fixture://gamma/latest"
+        }
+      ]
+    }
+  ]
+}
