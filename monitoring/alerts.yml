@@ -1,0 +1,40 @@
+groups:
+  - name: aethergate-experiments
+    interval: 2s
+    rules:
+      - alert: AetherGateNonFinite
+        expr: aethergate_run_stop_info{reason="nonfinite"} == 1
+        for: 0s
+        labels:
+          severity: critical
+        annotations:
+          summary: Experiment stopped after NaN or Inf
+          description: '{{ $labels.experiment }} / {{ $labels.run }}: nonfinite values in {{ $labels.population }} at {{ $labels.stage }}.'
+      - alert: AetherGateDiversityCollapse
+        expr: aethergate_run_stop_info{reason="diversity_collapse"} == 1
+        for: 0s
+        labels:
+          severity: warning
+        annotations:
+          summary: Population diversity collapsed
+          description: '{{ $labels.experiment }} / {{ $labels.run }}: diversity guardrail stopped {{ $labels.population }}.'
+      - alert: AetherGateUnexpectedStop
+        expr: aethergate_run_stop_info{reason=~"killed|timeout|error"} == 1
+        for: 0s
+        labels:
+          severity: critical
+        annotations:
+          summary: Experiment exited unexpectedly
+          description: '{{ $labels.experiment }} / {{ $labels.run }}: {{ $labels.reason }}.'
+      - alert: AetherGateHeartbeatLost
+        expr: |
+          (aethergate_run_status{status="running"} == 1)
+          and on (experiment, run, git_commit, job, instance)
+          (time() - aethergate_run_heartbeat_timestamp_seconds > 30)
+          and on (job, instance) (up{job="aethergate"} == 1)
+        for: 10s
+        labels:
+          severity: warning
+        annotations:
+          summary: Experiment heartbeat is missing
+          description: '{{ $labels.experiment }} / {{ $labels.run }}: no heartbeat for over 30 seconds; the process may have stopped or cannot write its heartbeat.'

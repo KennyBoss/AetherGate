@@ -44,7 +44,7 @@ budget, explicit recurrent KV memory generalizes the binding rule better. See
 ## Quick start
 
 ```bash
-python3 -m pip install -r requirements.txt   # jax, jaxlib, numpy
+python3.12 -m pip install --require-hashes -r requirements.lock
 make verify        # end-to-end smoke verifier for the product surface
 make help          # list operator commands
 ```
@@ -103,6 +103,10 @@ Root is the product surface (23 scripts). Run `make help` for commands.
   product: `research/codepy/` (safe program synthesis; honest negative on
   autonomous stateful synthesis) and `research/evolution/` (agent/formula
   evolution, self-play). See `research/README.md`.
+
+Evolution runs now have strict hypothesis contracts and composed YAML settings;
+see [setup and commands](research/evolution/README.md). `make ci` runs contract
+and integration tests plus the system verifier; GitHub Actions runs it on pull requests.
 
 ## Honest scope limits
 

@@ -1,0 +1,168 @@
+rule_files:
+- /etc/prometheus/alerts.yml
+evaluation_interval: 2s
+tests:
+- name: guardrails and unexpected exit; intentional interrupt is not unexpected
+  interval: 5s
+  input_series:
+  - series: aethergate_run_stop_info{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="nonfinite",reason="nonfinite",stage="after_mutation",population="weights"}
+    values: 1+0x60
+  - series: aethergate_run_stop_info{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="diversity_collapse",reason="diversity_collapse",stage="after_mutation",population="weights"}
+    values: 1+0x60
+  - series: aethergate_run_stop_info{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="killed",reason="killed",stage="runtime",population="weights"}
+    values: 1+0x60
+  - series: aethergate_run_stop_info{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="timeout",reason="timeout",stage="runtime",population="weights"}
+    values: 1+0x60
+  - series: aethergate_run_stop_info{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="error",reason="error",stage="runtime",population="weights"}
+    values: 1+0x60
+  - series: aethergate_run_stop_info{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="interrupted",reason="interrupted",stage="runtime",population="weights"}
+    values: 1+0x60
+  alert_rule_test:
+  - eval_time: 1m
+    alertname: AetherGateNonFinite
+    exp_alerts:
+    - exp_labels:
+        job: aethergate
+        instance: exporter:9108
+        experiment: formulas
+        git_commit: unknown
+        run: nonfinite
+        reason: nonfinite
+        stage: after_mutation
+        population: weights
+        severity: critical
+      exp_annotations:
+        summary: Experiment stopped after NaN or Inf
+        description: 'formulas / nonfinite: nonfinite values in weights at after_mutation.'
+  - eval_time: 1m
+    alertname: AetherGateDiversityCollapse
+    exp_alerts:
+    - exp_labels:
+        job: aethergate
+        instance: exporter:9108
+        experiment: formulas
+        git_commit: unknown
+        run: diversity_collapse
+        reason: diversity_collapse
+        stage: after_mutation
+        population: weights
+        severity: warning
+      exp_annotations:
+        summary: Population diversity collapsed
+        description: 'formulas / diversity_collapse: diversity guardrail stopped weights.'
+  - eval_time: 1m
+    alertname: AetherGateUnexpectedStop
+    exp_alerts:
+    - exp_labels:
+        job: aethergate
+        instance: exporter:9108
+        experiment: formulas
+        git_commit: unknown
+        run: killed
+        reason: killed
+        stage: runtime
+        population: weights
+        severity: critical
+      exp_annotations:
+        summary: Experiment exited unexpectedly
+        description: 'formulas / killed: killed.'
+    - exp_labels:
+        job: aethergate
+        instance: exporter:9108
+        experiment: formulas
+        git_commit: unknown
+        run: timeout
+        reason: timeout
+        stage: runtime
+        population: weights
+        severity: critical
+      exp_annotations:
+        summary: Experiment exited unexpectedly
+        description: 'formulas / timeout: timeout.'
+    - exp_labels:
+        job: aethergate
+        instance: exporter:9108
+        experiment: formulas
+        git_commit: unknown
+        run: error
+        reason: error
+        stage: runtime
+        population: weights
+        severity: critical
+      exp_annotations:
+        summary: Experiment exited unexpectedly
+        description: 'formulas / error: error.'
+  - eval_time: 1m
+    alertname: AetherGateHeartbeatLost
+    exp_alerts: []
+- name: heartbeat distinguishes dead process from long evaluation and completed/intentional
+    stops
+  interval: 5s
+  input_series:
+  - series: up{job="aethergate",instance="exporter:9108"}
+    values: 1+0x60
+  - series: aethergate_run_status{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="dead",status="running"}
+    values: 1+0x60
+  - series: aethergate_run_heartbeat_timestamp_seconds{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="dead"}
+    values: 0+0x60
+  - series: aethergate_run_updated_timestamp_seconds{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="dead"}
+    values: 0+0x60
+  - series: aethergate_run_status{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="long-generation",status="running"}
+    values: 1+0x60
+  - series: aethergate_run_heartbeat_timestamp_seconds{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="long-generation"}
+    values: 0+5x60
+  - series: aethergate_run_updated_timestamp_seconds{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="long-generation"}
+    values: 0+0x60
+  - series: aethergate_run_status{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="completed",status="running"}
+    values: 0+0x60
+  - series: aethergate_run_heartbeat_timestamp_seconds{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="completed"}
+    values: 0+0x60
+  - series: aethergate_run_updated_timestamp_seconds{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="completed"}
+    values: 0+0x60
+  - series: aethergate_run_status{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="interrupted",status="running"}
+    values: 0+0x60
+  - series: aethergate_run_heartbeat_timestamp_seconds{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="interrupted"}
+    values: 0+0x60
+  - series: aethergate_run_updated_timestamp_seconds{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="interrupted"}
+    values: 0+0x60
+  alert_rule_test:
+  - eval_time: 35s
+    alertname: AetherGateHeartbeatLost
+    exp_alerts: []
+  - eval_time: 1m
+    alertname: AetherGateHeartbeatLost
+    exp_alerts:
+    - exp_labels:
+        job: aethergate
+        instance: exporter:9108
+        experiment: formulas
+        git_commit: unknown
+        run: dead
+        status: running
+        severity: warning
+      exp_annotations:
+        summary: Experiment heartbeat is missing
+        description: 'formulas / dead: no heartbeat for over 30 seconds; the process
+          may have stopped or cannot write its heartbeat.'
+- name: missing scrape does not invent per-experiment heartbeat failures
+  interval: 5s
+  input_series:
+  - series: up{job="aethergate",instance="exporter:9108"}
+    values: 0+0x60
+  - series: aethergate_run_status{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="dead",status="running"}
+    values: 1+0x60
+  - series: aethergate_run_heartbeat_timestamp_seconds{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="dead"}
+    values: 0+0x60
+  alert_rule_test:
+  - eval_time: 1m
+    alertname: AetherGateHeartbeatLost
+    exp_alerts: []
+- name: nonfinite alarm resolves when source state clears
+  interval: 5s
+  input_series:
+  - series: aethergate_run_stop_info{job="aethergate",instance="exporter:9108",experiment="formulas",git_commit="unknown",run="resolved",reason="nonfinite",stage="evaluation",population="weights"}
+    values: 1+0x3 0+0x60
+  alert_rule_test:
+  - eval_time: 1m
+    alertname: AetherGateNonFinite
+    exp_alerts: []

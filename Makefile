@@ -1,4 +1,6 @@
 PYTHON ?= ./scripts/python-ci
+EVOLUTION_IMAGE ?= aethergate-evolution:local
+VERIFY_TIMEOUT ?= 600
 BENCHMARK_BASELINE ?= artifacts/benchmarks/quick_20260620T171809Z.json
 BENCHMARK_CANDIDATE ?= artifacts/benchmarks/quick_compare_candidate.json
 MAX_REGRESSION ?= 0.25
@@ -55,6 +57,8 @@ help:
 	@echo "Core:"
 	@echo "  make compile   Syntax-check all product scripts"
 	@echo "  make verify    Verify frozen memory/CodePy (no neural training)"
+	@echo "  make ci        Verify frozen release without neural training"
+	@echo "  make ci-research Run historical research checks (includes training)"
 	@echo "  make benchmark Run quick benchmark, save JSON report"
 	@echo "  make compare   Compare benchmark JSON reports"
 	@echo ""
@@ -201,6 +205,26 @@ compile:
 
 verify-research:
 	$(PYTHON) verify_system.py --timeout 600
+
+.PHONY: test-production ci-research docker-build docker-test lock install
+lock:
+	uv pip compile requirements.txt --universal --python-version 3.12 --generate-hashes --output-file requirements.lock --format requirements.txt --custom-compile-command 'make lock'
+
+install:
+	$(PYTHON) -m pip install --require-hashes -r requirements.lock
+	$(PYTHON) -m pip check
+
+test-production:
+	$(PYTHON) -m unittest test_experiment_monitoring test_experiment_artifacts test_evolution_checkpoints test_evolution_guardrails test_evolution_infrastructure test_evolution_docker.DockerCommandTests test_evolution_docker.ReproducibilityTests
+
+docker-build:
+	docker build --build-arg GIT_COMMIT=$(shell git rev-parse HEAD) --tag $(EVOLUTION_IMAGE) .
+
+docker-test: docker-build
+	RUN_DOCKER_TESTS=1 EVOLUTION_DOCKER_IMAGE=$(EVOLUTION_IMAGE) $(PYTHON) -m unittest test_evolution_docker
+
+ci-research: test-production
+	$(PYTHON) verify_system.py --timeout $(VERIFY_TIMEOUT)
 
 benchmark:
 	$(PYTHON) benchmark_system.py --profile quick
@@ -1310,3 +1334,11 @@ clean-artifacts:
 ci: verify
 verify:
 	$(PYTHON) scripts/verify_release.py
+
+.PHONY: monitoring-up monitoring-down
+monitoring-up:
+	mkdir -p artifacts
+	MONITORING_UID=$$(id -u) MONITORING_GID=$$(id -g) docker compose -f monitoring/compose.yaml up --build -d
+
+monitoring-down:
+	GRAFANA_ADMIN_PASSWORD=$${GRAFANA_ADMIN_PASSWORD:-unused-for-stop} docker compose -f monitoring/compose.yaml down

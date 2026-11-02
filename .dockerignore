@@ -1,0 +1,14 @@
+**
+!Dockerfile
+!requirements.lock
+!agent_ssm_core.py
+!run_evolution.py
+!research/
+!research/evolution/
+!research/evolution/*.py
+!configs/
+!configs/evolution/
+!configs/evolution/**
+!experiment_metrics.py
+!monitoring/
+!monitoring/Dockerfile

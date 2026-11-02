@@ -1,0 +1,77 @@
+name: System checks
+on:
+  pull_request:
+  push:
+    branches: [aethergate]
+permissions:
+  contents: read
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  cpu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      s3:
+        image: motoserver/moto:5.2.4@sha256:66672d842bf19618966890c574d85198abe92800f4b3b2b5f791015fa1b58831
+        ports:
+          - 5000:5000
+    env:
+      PYTHONUNBUFFERED: '1'
+      JAX_PLATFORM_NAME: cpu
+      JAX_PLATFORMS: cpu
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements.lock
+      - name: Select verification scope
+        id: scope
+        run: |
+          if test -f release/frozen-assets.json; then
+            echo "frozen=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "frozen=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install frozen runtime dependencies
+        if: steps.scope.outputs.frozen == 'true'
+        run: python -m pip install -r requirements-ci.lock
+      - name: Install research dependencies
+        if: steps.scope.outputs.frozen != 'true'
+        run: python -m pip install --require-hashes -r requirements.lock
+      - run: python -m pip check
+      - name: Build CPU experiment image
+        if: steps.scope.outputs.frozen != 'true'
+        run: docker build --build-arg GIT_COMMIT="$GITHUB_SHA" --tag aethergate-evolution:ci .
+      - name: Test Docker isolation, reproducibility, checkpoint/S3 resume and guardrail stops
+        if: steps.scope.outputs.frozen != 'true'
+        env:
+          RUN_DOCKER_TESTS: '1'
+          EVOLUTION_DOCKER_IMAGE: aethergate-evolution:ci
+          RUN_S3_TESTS: '1'
+          S3_TEST_ENDPOINT: http://127.0.0.1:5000
+          AWS_ACCESS_KEY_ID: ci-test-access
+          AWS_SECRET_ACCESS_KEY: ci-test-secret
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_EC2_METADATA_DISABLED: 'true'
+        run: python -m unittest test_evolution_docker
+      - name: Verify metrics, Grafana and Alertmanager firing/delivery
+        if: steps.scope.outputs.frozen != 'true'
+        env:
+          RUN_MONITORING_DOCKER: '1'
+        run: python -m unittest test_experiment_monitoring.MonitoringStackTests
+      - name: Verify frozen memory and CodePy without neural weight training
+        if: steps.scope.outputs.frozen == 'true'
+        run: make ci PYTHON=python
+      - name: Verify historical research system
+        if: steps.scope.outputs.frozen != 'true'
+        run: make ci-research PYTHON=python
+      - name: Upload frozen verification report
+        if: always() && steps.scope.outputs.frozen == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: memory-codepy-verification
+          path: .ci-output/release-verification.json

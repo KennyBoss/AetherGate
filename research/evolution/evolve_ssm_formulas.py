@@ -63,10 +63,11 @@ from agent_ssm_core import (
 )
 
 
-MEMORY_OPS = ("identity", "tanh", "softsign", "sin", "relu")
-INPUT_OPS = ("identity", "tanh", "softsign", "sin", "relu")
-COMBINE_OPS = ("add", "add_mul", "gated_input", "gated_mix", "max")
-FINAL_OPS = ("tanh", "softsign", "clip", "tanh_plus_sin")
+from research.evolution.telemetry import add_metrics_arguments
+from research.evolution.checkpoints import Checkpoint, add_checkpoint_arguments, restore_array, restore_genome
+from research.evolution.guardrails import add_guardrail_arguments, check_finite, check_population, guarded_run
+from research.evolution.hypothesis_contract import MEMORY_OPS, INPUT_OPS, COMBINE_OPS, FINAL_OPS
+from research.evolution.reproducibility import genome_sha256
 
 BASELINE_FORMULA = ("identity", "identity", "add", "tanh")
 
@@ -360,28 +361,53 @@ def evaluate_formula_architecture(
     init_positions_xy: jax.Array,
     init_energy: jax.Array,
     args: argparse.Namespace,
+    resume_state=None,
+    save_progress=None,
+    telemetry=None,
 ) -> dict[str, object]:
     base_seed = args.seed + 10_000 * architecture_generation + 97 * architecture_index
     key = jax.random.PRNGKey(base_seed)
     population = init_weight_population(key, args.weight_population)
 
-    compile_keys = jax.random.split(jax.random.PRNGKey(args.seed + 777), args.weight_population)
-    compile_start = time.perf_counter()
-    warmup = evaluate_population(
-        population,
-        init_positions_xy,
-        init_energy,
-        compile_keys,
-        formula=formula,
-        steps=args.steps,
-        speed=args.speed,
-    )
-    jax.block_until_ready(warmup.reward)
-    compile_s = time.perf_counter() - compile_start
-
-    best: dict[str, object] | None = None
+    context = {"architecture_generation": architecture_generation, "architecture_index": architecture_index,
+               "formula": formula_id(formula), "population": "weights"}
+    best = None
+    compile_s = None
+    elapsed_before = 0.0
+    next_generation = 0
+    if resume_state is not None:
+        key = restore_array(resume_state["key"], key)
+        population = restore_genome(resume_state["population"], population)
+        best = resume_state["best"]
+        compile_s = resume_state["compile_s"]
+        elapsed_before = resume_state["weight_evolution_s"]
+        next_generation = resume_state["next_generation"]
+        if not 0 <= next_generation <= args.weight_generations + 1:
+            raise ValueError("Invalid checkpoint weight generation")
+    check_population(population, args.min_population_diversity,
+                     generation=next_generation, stage="initialization", **context)
     start = time.perf_counter()
-    for weight_generation in range(args.weight_generations + 1):
+
+    def snapshot(next_generation):
+        if save_progress is not None:
+            save_progress({"next_generation": next_generation, "key": key,
+                           "population": population._asdict(), "best": best, "compile_s": compile_s,
+                           "weight_evolution_s": elapsed_before + time.perf_counter() - start})
+
+    snapshot(next_generation)
+    if compile_s is None:
+        compile_keys = jax.random.split(jax.random.PRNGKey(args.seed + 777), args.weight_population)
+        compile_start = time.perf_counter()
+        warmup = evaluate_population(
+            population, init_positions_xy, init_energy, compile_keys,
+            formula=formula, steps=args.steps, speed=args.speed,
+        )
+        jax.block_until_ready(warmup.reward)
+        check_finite(warmup._asdict(), generation=0, stage="warmup", **context)
+        compile_s = time.perf_counter() - compile_start
+        start = time.perf_counter()
+
+    for weight_generation in range(next_generation, args.weight_generations + 1):
         key, eval_key, mutate_key = jax.random.split(key, 3)
         eval_keys = jax.random.split(eval_key, args.weight_population)
         metrics = evaluate_population(
@@ -394,10 +420,14 @@ def evaluate_formula_architecture(
             speed=args.speed,
         )
         jax.block_until_ready(metrics.reward)
+        check_finite(metrics._asdict(), generation=weight_generation, stage="evaluation", **context)
+        diversity = check_population(population, args.min_population_diversity,
+                                     generation=weight_generation, stage="evaluation", **context)
         elite_indices = jnp.argsort(metrics.reward)[-args.weight_elites :][::-1]
         best_idx = int(elite_indices[0])
         candidate = {
             "weight_generation": weight_generation,
+            "population_diversity": diversity,
             "reward": scalar(metrics.reward[best_idx]),
             "mean_reward": scalar(jnp.mean(metrics.reward)),
             "goal_distance": scalar(metrics.mean_goal_distance[best_idx]),
@@ -405,7 +435,12 @@ def evaluate_formula_architecture(
             "energy": scalar(metrics.mean_energy[best_idx]),
             "policy_entropy": scalar(metrics.policy_entropy[best_idx]),
         }
+        if telemetry is not None:
+            telemetry.observe("weights", weight_generation, reward_best=candidate["reward"],
+                reward_mean=candidate["mean_reward"], entropy=scalar(jnp.mean(metrics.policy_entropy)), diversity=diversity,
+                architecture_generation=architecture_generation, architecture_index=architecture_index)
         if best is None or float(candidate["reward"]) > float(best["reward"]):
+            candidate["genome_sha256"] = genome_sha256(take_tree(population, best_idx))
             best = candidate
         if weight_generation < args.weight_generations:
             elites = take_tree(population, elite_indices)
@@ -415,8 +450,12 @@ def evaluate_formula_architecture(
                 args.weight_population,
                 args.weight_mutation_sigma,
             )
+            check_population(population, args.min_population_diversity,
+                             generation=weight_generation + 1, stage="after_mutation", **context)
 
-    elapsed = time.perf_counter() - start
+        snapshot(weight_generation + 1)
+
+    elapsed = elapsed_before + time.perf_counter() - start
     evaluated_agent_steps = (args.weight_generations + 1) * args.weight_population * args.agents * args.steps
     assert best is not None
     return {
@@ -424,6 +463,7 @@ def evaluate_formula_architecture(
         "architecture_index": architecture_index,
         "formula": formula_payload(formula),
         "best": best,
+        "final_population_sha256": genome_sha256(population),
         "compile_s": compile_s,
         "weight_evolution_s": elapsed,
         "evaluated_agent_steps": evaluated_agent_steps,
@@ -439,16 +479,32 @@ def save_json(path: str, payload: dict[str, object]) -> None:
         json.dump(payload, f, indent=2, ensure_ascii=False)
 
 
-def run(args: argparse.Namespace) -> None:
+@guarded_run("formulas")
+def run(args: argparse.Namespace, telemetry=None) -> None:
     if args.architecture_elites < 1 or args.architecture_elites > args.architecture_population:
         raise SystemExit("--architecture-elites must be between 1 and --architecture-population.")
     if args.weight_elites < 1 or args.weight_elites > args.weight_population:
         raise SystemExit("--weight-elites must be between 1 and --weight-population.")
 
+    checkpoint = Checkpoint("formulas", args)
+    state = checkpoint.load()
+    if telemetry is not None and state is not None:
+        telemetry.restore(state.get("monitoring"))
+    if state is not None and state["completed"]:
+        checkpoint.save(state)
+        if args.output_json:
+            save_json(args.output_json, state["result"])
+        return
     rng = random.Random(args.seed)
+    if state is None:
+        formulas = initial_formula_population(rng, args.architecture_population)
+        state = {"completed": False, "architecture_generation": 0, "architecture_index": 0,
+                 "formulas": [list(formula) for formula in formulas], "rng_state": rng.getstate(),
+                 "all_records": [], "generation_records": [], "weight_state": None, "elapsed_s": 0.0}
+    version, internal, gaussian = state["rng_state"]
+    rng.setstate((version, tuple(internal), gaussian))
     init_positions_xy, init_energy = init_positions_energy(args.agents, args.seed)
-    formulas = initial_formula_population(rng, args.architecture_population)
-    all_records: list[dict[str, object]] = []
+    all_records = state["all_records"]
 
     print("TextPy/SoA formula evolution prototype")
     print(f"backend: {jax.default_backend()}")
@@ -470,10 +526,23 @@ def run(args: argparse.Namespace) -> None:
     print("")
 
     total_start = time.perf_counter()
-    for architecture_generation in range(args.architecture_generations + 1):
+    elapsed_before = state["elapsed_s"]
+
+    def save_progress(weight_state):
+        state["weight_state"] = weight_state
+        if telemetry is not None:
+            state["monitoring"] = telemetry.checkpoint_state()
+        state["elapsed_s"] = elapsed_before + time.perf_counter() - total_start
+        checkpoint.save(state)
+
+    while state["architecture_generation"] <= args.architecture_generations:
+        architecture_generation = state["architecture_generation"]
+        formulas = [FormulaSpec(*formula) for formula in state["formulas"]]
+        generation_records = state["generation_records"]
         print(f"Architecture generation {architecture_generation}")
-        generation_records: list[dict[str, object]] = []
-        for architecture_index, formula in enumerate(formulas):
+        while state["architecture_index"] < len(formulas):
+            architecture_index = state["architecture_index"]
+            formula = formulas[architecture_index]
             record = evaluate_formula_architecture(
                 formula,
                 architecture_generation=architecture_generation,
@@ -481,6 +550,9 @@ def run(args: argparse.Namespace) -> None:
                 init_positions_xy=init_positions_xy,
                 init_energy=init_energy,
                 args=args,
+                resume_state=state["weight_state"],
+                save_progress=save_progress,
+                telemetry=telemetry,
             )
             generation_records.append(record)
             all_records.append(record)
@@ -492,6 +564,10 @@ def run(args: argparse.Namespace) -> None:
                 f"entropy={best['policy_entropy']:.3f} "
                 f"formula={record['formula']['id']}"
             )
+            state["architecture_index"] += 1
+            # Retain the last weight population even between formula evaluations.
+            state["last_weight_state"] = state["weight_state"]
+            save_progress(None)
 
         ranked = sorted(generation_records, key=lambda item: float(item["best"]["reward"]), reverse=True)
         elites = [
@@ -504,15 +580,15 @@ def run(args: argparse.Namespace) -> None:
             for record in ranked[: args.architecture_elites]
         ]
         best_record = ranked[0]
-        print(
-            f"  best_formula: {best_record['formula']['id']} "
-            f"reward={best_record['best']['reward']:.4f}"
-        )
+        print(f"  best_formula: {best_record['formula']['id']} reward={best_record['best']['reward']:.4f}")
         if architecture_generation < args.architecture_generations:
             formulas = next_formula_population(rng, elites, args.architecture_population)
+        state.update(architecture_generation=architecture_generation + 1, architecture_index=0,
+                     formulas=[list(formula) for formula in formulas], generation_records=[], rng_state=rng.getstate())
+        save_progress(None)
         print("")
 
-    elapsed = time.perf_counter() - total_start
+    elapsed = elapsed_before + time.perf_counter() - total_start
     leaderboard = sorted(all_records, key=lambda item: float(item["best"]["reward"]), reverse=True)
     best = leaderboard[0]
     baseline_records = [
@@ -526,6 +602,7 @@ def run(args: argparse.Namespace) -> None:
         best_minus_baseline = float(best["best"]["reward"]) - float(baseline["best"]["reward"])
 
     payload = {
+        "status": "completed",
         "backend": jax.default_backend(),
         "devices": [str(device) for device in jax.devices()],
         "protocol": {
@@ -540,6 +617,7 @@ def run(args: argparse.Namespace) -> None:
             "steps": args.steps,
             "speed": args.speed,
             "seed": args.seed,
+            "min_population_diversity": args.min_population_diversity,
             "search_space_size": len(MEMORY_OPS) * len(INPUT_OPS) * len(COMBINE_OPS) * len(FINAL_OPS),
         },
         "baseline_formula": formula_payload(FormulaSpec(*BASELINE_FORMULA)),
@@ -553,6 +631,9 @@ def run(args: argparse.Namespace) -> None:
             "experiment, not evidence of autonomous AGI."
         ),
     }
+
+    state.update(completed=True, result=payload)
+    checkpoint.save(state)
 
     print("Best formula search result")
     print(f"  formula: {best['formula']['id']}")
@@ -592,6 +673,9 @@ def parse_args() -> argparse.Namespace:
         default=REQUESTED_BACKEND,
         help="JAX backend. Default is cpu because Apple Metal JAX is experimental.",
     )
+    add_metrics_arguments(parser)
+    add_checkpoint_arguments(parser)
+    add_guardrail_arguments(parser)
     return parser.parse_args()
 
 

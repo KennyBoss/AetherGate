@@ -1,0 +1,10 @@
+global:
+  resolve_timeout: 1m
+route:
+  receiver: local
+  group_by: [alertname, experiment, run, git_commit]
+  group_wait: 1s
+  group_interval: 5s
+  repeat_interval: 12h
+receivers:
+  - name: local

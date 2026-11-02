@@ -14,7 +14,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent
-ARTIFACT_DIR = ROOT / "artifacts" / "verify"
+ARTIFACT_DIR = Path(os.environ.get("VERIFY_ARTIFACT_DIR", ROOT / "artifacts" / "verify")).resolve()
 
 
 class VerificationError(RuntimeError):
